@@ -7,14 +7,16 @@ import os
 from openai import OpenAI, AsyncOpenAI
 from anthropic import Anthropic, AsyncAnthropic
 
-from parsers.base import ASTNode, NodeType
+from src.parsers.base import ASTNode, NodeType
+from src.storage.neo4j_client import Neo4jClient
 
 class SemanticAnalyzer:
     """Extract business logic meaning from code using LLMs."""
     
-    def __init__(self, provider: str = "openai", model: str = "gpt-4-turbo"):
+    def __init__(self, provider: str = "openai", model: str = "gpt-4-turbo", neo4j_client: Neo4jClient = None):
         self.provider = provider
         self.model = model
+        self.neo4j_client = neo4j_client or Neo4jClient()
         
         if provider == "openai":
             self.client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -43,6 +45,13 @@ class SemanticAnalyzer:
         
         response = await self._call_llm(prompt)
         analysis = self._parse_response(response)
+        
+        # Store in Neo4j
+        if analysis.get("confidence", 0) > 0:
+             try:
+                 self.neo4j_client.store_function_analysis(ast_node.name, analysis)
+             except Exception as e:
+                 print(f"Warning: Failed to store analysis in Neo4j: {e}")
         
         return analysis
     
