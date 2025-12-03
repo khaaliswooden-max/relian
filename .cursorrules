@@ -1,0 +1,39 @@
+project_name: "Relian - Legacy Refactoring Substrate"
+author: "Aldrich Khaalis Wooden, Sr."
+organization: "Zuup, LLC"
+
+ai_assistant_guidelines:
+  - Focus on production-quality code with comprehensive error handling
+  - Include detailed docstrings for all functions
+  - Generate unit tests for new functionality
+  - Prioritize type safety (use TypeScript/Python type hints)
+  - Follow industry best practices for security
+  - Consider performance optimization for large codebases
+  
+code_style:
+  python:
+    formatter: "black"
+    linter: "pylint + mypy"
+    max_line_length: 100
+    docstring_style: "google"
+  typescript:
+    formatter: "prettier"
+    linter: "eslint"
+    style_guide: "airbnb"
+  
+architecture:
+  pattern: "microservices"
+  database: "postgresql + neo4j"
+  api: "REST + GraphQL"
+  frontend: "React + TypeScript"
+  blockchain: "Solana (Anchor framework)"
+  
+testing:
+  framework: "pytest (Python), jest (TypeScript)"
+  coverage_target: 80
+  benchmark_target: "pass all defined metrics"
+  
+dependencies:
+  python: ">=3.11"
+  node: ">=18.0.0"
+  rust: ">=1.75.0"
