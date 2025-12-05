@@ -1,10 +1,7 @@
 """Automated test case generation using symbolic execution + LLM."""
 
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
 from dataclasses import dataclass
-import subprocess
-import tempfile
-import os
 
 @dataclass
 class TestCase:
@@ -56,20 +53,20 @@ class TestGenerator:
         
         return test_cases
     
-    async def _symbolic_execution(self, function_ast: Any, source_code: str) -> List[TestCase]:
+    async def _symbolic_execution(self, _function_ast: Any, _source_code: str) -> List[TestCase]:
         """Use KLEE/Angr to explore execution paths."""
         # Implementation: Run symbolic execution tool
         # Extract path constraints
         # Solve for concrete input values
         return []
     
-    async def _llm_test_generation(self, function_ast: Any, source_code: str) -> List[TestCase]:
+    async def _llm_test_generation(self, _function_ast: Any, _source_code: str) -> List[TestCase]:
         """Use LLM to generate human-readable test cases."""
         # Implementation: Ask LLM to generate test scenarios
         # Based on semantic understanding of function
         return []
     
-    async def _fuzzing(self, function_ast: Any, source_code: str) -> List[TestCase]:
+    async def _fuzzing(self, _function_ast: Any, _source_code: str) -> List[TestCase]:
         """Use fuzzing to find edge cases."""
         # Implementation: Use AFL/LibFuzzer
         # Mutate inputs to find crashes/unexpected behavior

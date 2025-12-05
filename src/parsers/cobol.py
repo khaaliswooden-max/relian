@@ -1,7 +1,7 @@
 """COBOL language parser using ANTLR."""
 
 import antlr4
-from typing import List, Dict, Any, Optional
+from typing import List
 from .base import LanguageParser, ASTNode, NodeType
 from .antlr.cobol.Cobol85Lexer import Cobol85Lexer
 from .antlr.cobol.Cobol85Parser import Cobol85Parser
@@ -77,22 +77,22 @@ class CobolASTVisitor(Cobol85Visitor):
         return variables
 
     def visitWorkingStorageSection(self, ctx: Cobol85Parser.WorkingStorageSectionContext):
-        vars = []
+        var_nodes = []
         for child in ctx.getChildren():
             if isinstance(child, Cobol85Parser.DataDescriptionEntryContext):
                 res = self.visit(child)
                 if res:
-                    vars.append(res)
-        return vars
+                    var_nodes.append(res)
+        return var_nodes
 
     def visitLinkageSection(self, ctx: Cobol85Parser.LinkageSectionContext):
-        vars = []
+        var_nodes = []
         for child in ctx.getChildren():
             if isinstance(child, Cobol85Parser.DataDescriptionEntryContext):
                 res = self.visit(child)
                 if res:
-                    vars.append(res)
-        return vars
+                    var_nodes.append(res)
+        return var_nodes
 
     def visitDataDescriptionEntry(self, ctx: Cobol85Parser.DataDescriptionEntryContext):
         name = "FILLER"
@@ -209,7 +209,7 @@ class COBOLParser(LanguageParser):
     
     def parse_file(self, filepath: str) -> ASTNode:
         """Parse COBOL source file."""
-        with open(filepath, 'r') as f:
+        with open(filepath, 'r', encoding='utf-8') as f:
             source = f.read()
         return self.parse_string(source)
     
@@ -230,13 +230,13 @@ class COBOLParser(LanguageParser):
         result = visitor.visit(tree)
         
         if isinstance(result, list):
-             # If multiple programs, maybe wrap in a 'File' node? 
-             # For now, just return the first one or a dummy root if multiple
-             if len(result) == 1:
-                 return result[0]
-             else:
-                 # Create a dummy root
-                 return ASTNode(NodeType.PROGRAM, "CompilationUnit", result, {})
+            # If multiple programs, maybe wrap in a 'File' node?
+            # For now, just return the first one or a dummy root if multiple
+            if len(result) == 1:
+                return result[0]
+            else:
+                # Create a dummy root
+                return ASTNode(NodeType.PROGRAM, "CompilationUnit", result, {})
         return result
     
     def extract_functions(self, ast: ASTNode) -> List[ASTNode]:

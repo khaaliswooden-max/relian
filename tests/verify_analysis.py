@@ -2,11 +2,11 @@ import sys
 import os
 import asyncio
 
-# Add src to path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+# Add project root to path (so 'src.xxx' imports work)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
-    from analysis import SemanticAnalyzer
+    from src.analysis import SemanticAnalyzer
     print("Successfully imported SemanticAnalyzer.")
     
     # Instantiate with dummy keys to check init logic

@@ -1,13 +1,13 @@
 """LLM-powered semantic code understanding."""
 
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any
 import json
 import os
 
-from openai import OpenAI, AsyncOpenAI
-from anthropic import Anthropic, AsyncAnthropic
+from openai import AsyncOpenAI
+from anthropic import AsyncAnthropic
 
-from src.parsers.base import ASTNode, NodeType
+from src.parsers.base import ASTNode
 from src.storage.neo4j_client import Neo4jClient
 
 class SemanticAnalyzer:
@@ -48,10 +48,10 @@ class SemanticAnalyzer:
         
         # Store in Neo4j
         if analysis.get("confidence", 0) > 0:
-             try:
-                 self.neo4j_client.store_function_analysis(ast_node.name, analysis)
-             except Exception as e:
-                 print(f"Warning: Failed to store analysis in Neo4j: {e}")
+            try:
+                self.neo4j_client.store_function_analysis(ast_node.name, analysis)
+            except Exception as e:
+                print(f"Warning: Failed to store analysis in Neo4j: {e}")
         
         return analysis
     

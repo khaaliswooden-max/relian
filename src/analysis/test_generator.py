@@ -1,7 +1,5 @@
 import os
-import subprocess
-import json
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from dataclasses import dataclass
 from src.parsers.base import ASTNode
 
@@ -41,7 +39,7 @@ class TestGenerator:
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
 
-    async def generate_tests(self, ast: ASTNode, source_code: str, legacy_executable: str) -> List[TestCase]:
+    async def generate_tests(self, ast: ASTNode, _source_code: str, legacy_executable: str) -> List[TestCase]:
         """
         Generate test suite achieving >75% coverage.
         
@@ -102,7 +100,7 @@ class TestGenerator:
             {'inputs': {'arg1': 100, 'arg2': -1}, 'coverage': 20.0} # Boundary
         ]
 
-    def _get_legacy_output(self, executable: str, inputs: Dict[str, Any]) -> Any:
+    def _get_legacy_output(self, _executable: str, inputs: Dict[str, Any]) -> Any:
         """
         Run the legacy executable with specific inputs to capture expected output.
         """
@@ -122,6 +120,6 @@ class TestGenerator:
         for tc in test_cases:
             content += tc.to_pytest(module_name.split('.')[-1]) # simplified function name guess
             
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(content)
         print(f"Generated {len(test_cases)} tests in {output_file}")

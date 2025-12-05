@@ -1,6 +1,6 @@
 import os
 from neo4j import GraphDatabase
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 class Neo4jClient:
     """Client for interacting with Neo4j database."""

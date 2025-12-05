@@ -42,24 +42,19 @@ class LanguageParser(ABC):
     @abstractmethod
     def parse_file(self, filepath: str) -> ASTNode:
         """Parse a source file into AST."""
-        pass
-    
+
     @abstractmethod
     def parse_string(self, source_code: str) -> ASTNode:
         """Parse source code string into AST."""
-        pass
-    
+
     @abstractmethod
     def extract_functions(self, ast: ASTNode) -> List[ASTNode]:
         """Extract all function definitions from AST."""
-        pass
-    
+
     @abstractmethod
     def extract_variables(self, ast: ASTNode) -> List[ASTNode]:
         """Extract all variable declarations from AST."""
-        pass
-    
+
     @abstractmethod
     def get_dependencies(self, ast: ASTNode) -> List[str]:
         """Extract module/library dependencies."""
-        pass
