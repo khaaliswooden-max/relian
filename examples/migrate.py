@@ -70,6 +70,18 @@ async def run_migration(args):
     # Register parsers
     orchestrator.register_parser("cobol", COBOLParser())
 
+    # Load submodule-backed plugins (graceful — no-ops if submodules absent)
+    plugin_report = orchestrator.load_plugins()
+    if args.verbose:
+        loaded = plugin_report.get("loaded", 0)
+        total = plugin_report.get("total_plugins_attempted", 0)
+        print(f"  [plugins] {loaded}/{total} plugins loaded")
+        for pname, pinfo in plugin_report.get("details", {}).items():
+            status = "OK" if pinfo.get("registered") else "unavailable"
+            langs = ", ".join(pinfo.get("supported_languages", []))
+            print(f"    {pname}: {status} ({langs})")
+        print()
+
     # Create config
     config = MigrationConfig(
         source_path=args.source,

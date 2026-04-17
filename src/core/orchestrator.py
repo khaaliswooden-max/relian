@@ -1,11 +1,14 @@
 """Migration orchestrator - coordinates all migration pipeline stages."""
 
+import logging
 import os
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 from enum import Enum
+
+_logger = logging.getLogger(__name__)
 
 from src.intelligence.migration_intelligence import MigrationIntelligence
 
@@ -130,6 +133,36 @@ class MigrationOrchestrator:
     def add_progress_callback(self, callback: Any) -> None:
         """Add callback for progress updates."""
         self._progress_callbacks.append(callback)
+
+    def load_plugins(self, plugin_registry: Optional[Any] = None) -> Dict[str, Any]:
+        """
+        Discover and register all available submodule-backed plugins.
+
+        Creates a default PluginRegistry if none is provided, wires every
+        available plugin into this orchestrator, and returns a status report.
+        Safe to call multiple times; duplicate parsers for the same language
+        key will overwrite earlier registrations (last-wins).
+
+        Args:
+            plugin_registry: Optional pre-configured PluginRegistry instance.
+
+        Returns:
+            Status report dict from PluginRegistry.get_status_report().
+        """
+        try:
+            from src.plugins.registry import PluginRegistry
+            registry = plugin_registry or PluginRegistry()
+            registry.load_all(self)
+            report = registry.get_status_report()
+            _logger.info(
+                "Plugin loading complete: %d/%d plugins registered.",
+                report["loaded"],
+                report["total_plugins_attempted"],
+            )
+            return report
+        except Exception as exc:
+            _logger.warning("Plugin loading failed (pipeline continues): %s", exc)
+            return {"loaded": 0, "total_plugins_attempted": 0, "details": {}}
 
     def _update_status(self, status: MigrationStatus, message: str = "") -> None:
         """Update status and notify callbacks."""
