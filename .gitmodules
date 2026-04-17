@@ -1,0 +1,45 @@
+[submodule "repos/deterministic/rewrite"]
+	path = repos/deterministic/rewrite
+	url = https://github.com/openrewrite/rewrite
+[submodule "repos/deterministic/rewrite-spring"]
+	path = repos/deterministic/rewrite-spring
+	url = https://github.com/openrewrite/rewrite-spring
+[submodule "repos/deterministic/rewrite-migrate-java"]
+	path = repos/deterministic/rewrite-migrate-java
+	url = https://github.com/openrewrite/rewrite-migrate-java
+[submodule "repos/deterministic/rewrite-static-analysis"]
+	path = repos/deterministic/rewrite-static-analysis
+	url = https://github.com/openrewrite/rewrite-static-analysis
+[submodule "repos/deterministic/piranha"]
+	path = repos/deterministic/piranha
+	url = https://github.com/uber/piranha
+[submodule "repos/llm-assisted/aider"]
+	path = repos/llm-assisted/aider
+	url = https://github.com/paul-gauthier/aider
+[submodule "repos/llm-assisted/sourcery"]
+	path = repos/llm-assisted/sourcery
+	url = https://github.com/sourcery-ai/sourcery
+[submodule "repos/ast-codemods/jscodeshift"]
+	path = repos/ast-codemods/jscodeshift
+	url = https://github.com/facebook/jscodeshift
+[submodule "repos/ast-codemods/rope"]
+	path = repos/ast-codemods/rope
+	url = https://github.com/python-rope/rope
+[submodule "repos/curated/awesome-refactoring"]
+	path = repos/curated/awesome-refactoring
+	url = https://github.com/faradaj/awesome-refactoring
+[submodule "repos/curated/awesome-legacy-systems"]
+	path = repos/curated/awesome-legacy-systems
+	url = https://github.com/feststelltaste/awesome-legacy-systems
+[submodule "repos/katas/GildedRose-Refactoring-Kata"]
+	path = repos/katas/GildedRose-Refactoring-Kata
+	url = https://github.com/emilybache/GildedRose-Refactoring-Kata
+[submodule "repos/katas/Tennis-Refactoring-Kata"]
+	path = repos/katas/Tennis-Refactoring-Kata
+	url = https://github.com/emilybache/Tennis-Refactoring-Kata
+[submodule "repos/katas/legacy-refactoring"]
+	path = repos/katas/legacy-refactoring
+	url = https://github.com/michal-michaluk/legacy-refactoring
+[submodule "repos/katas/refactoring-legacy-code"]
+	path = repos/katas/refactoring-legacy-code
+	url = https://github.com/stackbuilders/refactoring-legacy-code
