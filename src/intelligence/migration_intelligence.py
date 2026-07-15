@@ -164,6 +164,14 @@ class MigrationIntelligence:
         few-shot library.  Budget is updated unconditionally so the
         self-financing pool reflects all activity.
         """
+        # HONESTY GUARD (RELIAN-BENCH v1.0): refuse to learn from, or book
+        # revenue against, runs whose quality was not actually measured.
+        # Previously semantic_score arrived as a hardcoded 85.0 and revenue
+        # was booked as LOC x price for migrations that never occurred --
+        # the RSI loop was compounding fiction. Unmeasured -> no memory
+        # write, no budget mutation.
+        if semantic_score is None or risk_score is None:
+            return
         complexity_tier = self._classify_complexity(cyclomatic_complexity, lines_of_code)
         revenue = lines_of_code * PRICING_TIERS[complexity_tier]
         model_tier = self._current_model_tier()
