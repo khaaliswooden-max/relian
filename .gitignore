@@ -6,3 +6,6 @@ klee-out/
 bench/**/_classes/
 __pycache__/
 *.pyc
+
+# deliverable archives never get committed
+*.zip
