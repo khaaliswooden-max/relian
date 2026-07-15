@@ -64,9 +64,11 @@ class MigrationResult:
     output_path: Optional[str] = None
     source_hash: Optional[str] = None
     target_hash: Optional[str] = None
-    semantic_score: float = 0.0
-    risk_score: float = 0.0
-    test_coverage: float = 0.0
+    # CARDINAL RULE (RELIAN-BENCH v1.0): a metric is either MEASURED or it
+    # is None. None is never substituted with a constant or a formula.
+    semantic_score: Optional[float] = None   # measured BER only (differential)
+    risk_score: Optional[float] = None
+    test_coverage: Optional[float] = None    # real coverage tool only
     tests_generated: int = 0
     tests_passed: int = 0
     attestation_tx: Optional[str] = None
@@ -228,7 +230,14 @@ class MigrationOrchestrator:
                 few_shot_context=few_shot_context,
                 token_budget=token_budget,
             )
-            result.semantic_score = analysis.get("confidence", 0.0) * 100
+            # NOTE: LLM self-reported confidence is NOT a measurement of
+            # semantic preservation and is no longer stored as one.
+            # semantic_score is set exclusively by Stage 6 differential
+            # validation (behavioral equivalence vs. the legacy oracle).
+            result.warnings.append(
+                f"[analysis] llm_confidence="
+                f"{analysis.get('confidence')} (informational only)"
+            )
 
             # Stage 3: Risk scoring (auto-retrain if enough new data)
             if self._intelligence.is_retrain_ready():
@@ -240,10 +249,10 @@ class MigrationOrchestrator:
                 except Exception:
                     pass
             risk_assessment = await self._score_risk(ast, source_code)
-            result.risk_score = risk_assessment.get("overall_score", 0.0)
+            result.risk_score = risk_assessment.get("overall_score")
 
-            # Check risk threshold
-            if result.risk_score > config.risk_threshold:
+            # Check risk threshold (only when actually measured)
+            if result.risk_score is not None and result.risk_score > config.risk_threshold:
                 result.warnings.append(
                     f"Risk score ({result.risk_score}) exceeds threshold "
                     f"({config.risk_threshold}). Manual review recommended."
@@ -256,7 +265,9 @@ class MigrationOrchestrator:
                 )
                 tests = await self._generate_tests(ast, source_code)
                 result.tests_generated = len(tests)
-                result.test_coverage = min(80.0, len(tests) * 10)  # Simplified
+                # test_coverage intentionally left None: counting generated
+                # tests is not a coverage measurement. It is set only when a
+                # real coverage tool (JaCoCo) has run. See RELIAN-BENCH SPEC 5.
 
             # Stage 5: Transform code
             self._update_status(MigrationStatus.TRANSFORMING, "Transforming code...")
@@ -279,16 +290,32 @@ class MigrationOrchestrator:
             validation = await self._validate_migration(
                 source_code, target_code, result.tests_generated
             )
-            result.tests_passed = validation.get("tests_passed", 0)
+            result.tests_passed = validation.get("tests_passed") or 0
+            if validation.get("measured"):
+                # Behavioral Equivalence Rate, measured -> this IS the
+                # semantic score. 0..100 scale for continuity.
+                ber = validation.get("ber")
+                result.semantic_score = round(ber * 100, 2) if ber is not None else None
+            else:
+                result.warnings.append(
+                    f"[validation] NOT MEASURED: {validation.get('reason')}"
+                )
 
-            # Stage 7: Blockchain attestation
-            if config.enable_blockchain:
+            # Stage 7: Attestation -- ONLY over measured values.
+            # Signing unmeasured numbers is worse than not signing: it
+            # makes a fabricated value tamper-evident instead of true.
+            if config.enable_blockchain and not validation.get("measured"):
+                result.warnings.append(
+                    "[attestation] SKIPPED: validation was not measured; "
+                    "refusing to attest unmeasured quality claims."
+                )
+            elif config.enable_blockchain:
                 self._update_status(MigrationStatus.ATTESTING, "Creating attestation...")
                 attestation = await self._create_attestation(
                     source_code,
                     target_code,
                     result.test_coverage,
-                    result.semantic_score / 100,
+                    (result.semantic_score / 100) if result.semantic_score is not None else None,
                     result.risk_score,
                 )
                 result.attestation_tx = attestation.get("transaction_signature")
@@ -399,8 +426,8 @@ class MigrationOrchestrator:
         except Exception:
             # Graceful fallback keeps the pipeline running even without LLM keys
             return {
-                "purpose": "Legacy business logic module",
-                "confidence": 0.85,
+                "purpose": "Legacy business logic module (LLM unavailable)",
+                "confidence": None,   # unmeasured -> None, never a constant
                 "business_rules": [],
                 "key_transformations": [],
                 "business_domain_hints": [],
@@ -416,7 +443,9 @@ class MigrationOrchestrator:
             assessment = scorer.score(metrics)
             return assessment.to_dict()
         except Exception:
-            return {"overall_score": 50.0, "risk_level": "medium"}
+            # Unmeasurable risk is None, not "medium". A made-up midpoint
+            # is indistinguishable from a real one downstream.
+            return {"overall_score": None, "risk_level": None}
 
     async def _generate_tests(self, ast: Any, source_code: str) -> List[Any]:
         """Generate test cases."""
@@ -514,13 +543,28 @@ if __name__ == "__main__":
     async def _validate_migration(
         self, source_code: str, target_code: str, num_tests: int
     ) -> Dict[str, Any]:
-        """Validate migration through differential testing."""
-        # In production, this would run actual tests
-        return {
-            "tests_passed": num_tests,
-            "tests_failed": 0,
-            "validation_score": 95.0,
-        }
+        """Validate migration through REAL differential testing.
+
+        Delegates to src.validation.differential, which compiles and
+        executes the migrated code against oracle-generated vectors and
+        compares stdout with the legacy program's stdout.
+
+        Returns measured values, or None values when validation could not
+        run. It NEVER fabricates: the previous implementation returned
+        tests_passed=num_tests, tests_failed=0, validation_score=95.0
+        without executing anything. That behavior is prohibited.
+        """
+        try:
+            from src.validation.differential import validate_differential
+            return validate_differential(source_code, target_code)
+        except Exception as exc:
+            return {
+                "tests_passed": None,
+                "tests_failed": None,
+                "validation_score": None,
+                "measured": False,
+                "reason": f"differential validation unavailable: {exc}",
+            }
 
     async def _create_attestation(
         self,
