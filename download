@@ -1,0 +1,8 @@
+
+# RELIAN-BENCH: held-out vectors are NEVER committed to this repository.
+# They live only in the private relian-bench repo (CI deploy-key access).
+**/vectors/heldout.jsonl
+klee-out/
+bench/**/_classes/
+__pycache__/
+*.pyc
