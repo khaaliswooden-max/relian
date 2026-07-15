@@ -89,7 +89,7 @@ class SolanaClient:
             # In production, this would use solana-py to connect
             # For now, we simulate connection
             self._connected = True
-            print(f"Connected to Solana at {self.rpc_url}")
+            print(f"[attestation] SIMULATED mode; no connection to {self.rpc_url} was attempted")
             return True
         except Exception as e:
             print(f"Failed to connect to Solana: {e}")
