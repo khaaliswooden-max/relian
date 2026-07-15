@@ -87,31 +87,46 @@ class TestGenerator:
         # subprocess.run([self.klee_path, "--output-dir=klee-out", executable])
         # And then parse the .ktest files using ktest-tool
         
-        # For this implementation, we will simulate KLEE output if the tool isn't available
-        # or if we are in a mock environment.
-        
-        print(f"Running KLEE on {executable}...")
-        
-        # Mock logic for demonstration/testing purposes
-        # Assuming we find 3 paths
-        return [
-            {'inputs': {'arg1': 10, 'arg2': 5}, 'coverage': 30.0},
-            {'inputs': {'arg1': 0, 'arg2': 5}, 'coverage': 25.0}, # Edge case
-            {'inputs': {'arg1': 100, 'arg2': -1}, 'coverage': 20.0} # Boundary
-        ]
+        # HONESTY PATCH: we do NOT simulate KLEE output. If KLEE is not
+        # installed and runnable, this returns [] and the pipeline reports
+        # zero generated tests -- an honest zero, not a fabricated suite.
+        import shutil, subprocess
+        if not executable or not shutil.which(self.klee_path):
+            # KLEE unavailable -> honest empty result. Downstream reports
+            # tests_generated=0 and coverage=None. Never fabricated paths.
+            return []
+        # Real invocation path (functional when KLEE + ktest-tool present):
+        try:
+            subprocess.run(
+                [self.klee_path, "--output-dir=klee-out", executable],
+                capture_output=True, timeout=600, check=True,
+            )
+        except Exception:
+            return []
+        # TODO(Phase 5): parse klee-out/*.ktest via ktest-tool into path
+        # inputs. Until implemented, an empty list is the truthful output.
+        return []
 
     def _get_legacy_output(self, _executable: str, inputs: Dict[str, Any]) -> Any:
         """
         Run the legacy executable with specific inputs to capture expected output.
         """
-        # In real scenario: subprocess.run([executable, ...inputs...])
-        # Mocking for now
-        
-        # Simple mock logic matching the mock inputs above
-        if inputs.get('arg1') == 10: return 15 # Add
-        if inputs.get('arg1') == 0: return 0   # Zero
-        if inputs.get('arg1') == 100: return 99 # Subtract?
-        return None
+        # The legacy binary is the ORACLE. If we cannot execute it, there
+        # is no expected output -- return None; never invent one.
+        import shutil, subprocess
+        if not _executable or not shutil.which(_executable):
+            return None
+        try:
+            proc = subprocess.run(
+                [_executable],
+                input="\n".join(str(v) for v in inputs.values()) + "\n",
+                capture_output=True, text=True, timeout=30,
+            )
+        except Exception:
+            return None
+        if proc.returncode != 0:
+            return None
+        return proc.stdout.strip()
 
     def generate_pytest_file(self, test_cases: List[TestCase], module_name: str, output_file: str):
         """Generate a full pytest file."""

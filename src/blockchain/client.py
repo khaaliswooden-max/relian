@@ -21,6 +21,11 @@ class MigrationAttestation:
     timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     attesters: List[str] = field(default_factory=list)
     transaction_signature: Optional[str] = None
+    # HONESTY FLAG: True whenever the signature was produced locally rather
+    # than confirmed on-chain. A simulated signature must never be
+    # presentable as a chain transaction. Serialized in to_dict().
+    simulated: bool = True
+    network: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize attestation to dictionary."""
@@ -34,6 +39,8 @@ class MigrationAttestation:
             "timestamp": self.timestamp,
             "attesters": self.attesters,
             "transaction_signature": self.transaction_signature,
+            "simulated": self.simulated,
+            "network": self.network,
         }
 
     @classmethod
@@ -141,10 +148,15 @@ class SolanaClient:
         # In production, this would submit transaction to Solana
         # Simulating transaction signature
         attestation.transaction_signature = self._simulate_transaction(attestation)
+        attestation.simulated = True
+        attestation.network = "SIMULATED-LOCAL (no chain submission occurred)"
 
         return attestation
 
     def _simulate_transaction(self, attestation: MigrationAttestation) -> str:
+        # This produces a LOCAL hash, not a chain transaction. Callers must
+        # leave attestation.simulated=True. Presenting this value as an
+        # on-chain signature would be a false statement.
         """Simulate blockchain transaction (for development/testing)."""
         tx_data = json.dumps(attestation.to_dict())
         return hashlib.sha256(tx_data.encode()).hexdigest()[:64]
