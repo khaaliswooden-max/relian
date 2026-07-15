@@ -1,0 +1,12 @@
+{"input": "12AB5678,12642.07,  ", "expected": "RC=102 MSG=ACCT NOT NUMERIC"}
+{"input": "12AB5678,10000.00,MT", "expected": "RC=102 MSG=ACCT NOT NUMERIC"}
+{"input": "12AB5678,13669.30,  ", "expected": "RC=102 MSG=ACCT NOT NUMERIC"}
+{"input": "07002737,4475.13,  ", "expected": "RC=301 MSG=MISSING STATE"}
+{"input": "79598857,14921.85,NY", "expected": "RC=203 MSG=EXCEEDS LIMIT"}
+{"input": "89027,4457.67,CA", "expected": "RC=101 MSG=BAD ACCT LENGTH"}
+{"input": "81447277,0.00,NY", "expected": "RC=201 MSG=ZERO AMOUNT"}
+{"input": "687,14906.17,MT", "expected": "RC=101 MSG=BAD ACCT LENGTH"}
+{"input": "86084021033,951.82,NY", "expected": "RC=101 MSG=BAD ACCT LENGTH"}
+{"input": "001,8069.82,CA", "expected": "RC=101 MSG=BAD ACCT LENGTH"}
+{"input": "12AB5678,0.00,NY", "expected": "RC=102 MSG=ACCT NOT NUMERIC"}
+{"input": "26586474,8337.24,  ", "expected": "RC=301 MSG=MISSING STATE"}

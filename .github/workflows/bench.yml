@@ -1,0 +1,49 @@
+name: RELIAN-BENCH scoring
+on: [push, pull_request]
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: sudo apt-get update -qq && sudo apt-get install -y gnucobol default-jdk-headless
+      - name: Verify committed ledger signature
+        run: |
+          pip install cryptography -q
+          python3 - <<'PY'
+          import json, sys; sys.path.insert(0,'bench')
+          from harness.commit import verify
+          m = json.load(open('bench/LEDGER_relian-bench-v1.0.json'))
+          assert verify(m), 'LEDGER signature invalid — benchmark tampered'
+          print('ledger verified:', m['signature']['manifest_sha256'][:16])
+          PY
+      - name: Fetch PRIVATE held-out vectors (deploy key)
+        env:
+          BENCH_DEPLOY_KEY: ${{ secrets.RELIAN_BENCH_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh && echo "$BENCH_DEPLOY_KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
+          git clone --depth 1 git@github.com:khaaliswooden-max/relian-bench-private.git /tmp/bench-private
+          for d in /tmp/bench-private/corpus/P*/; do
+            n=$(basename $d)
+            cp $d/vectors/heldout.jsonl bench/corpus/$n/vectors/
+          done
+      - name: Build oracles
+        run: for d in bench/corpus/P*/; do (cd $d && cobc -x program.cbl -o oracle); done
+      - name: Score candidate on HELD-OUT split
+        run: |
+          python3 - <<'PY'
+          import json, sys; sys.path.insert(0,'bench')
+          from harness.runner import run_candidate
+          from pathlib import Path
+          mains = json.loads(Path('bench/harness/mains.json').read_text())
+          out = Path('candidates/current')   # populated by the pipeline under test
+          if not out.exists():
+              print('no candidate output at candidates/current — skipping score'); raise SystemExit(0)
+          rep = run_candidate('current', out, mains, split='heldout')
+          print(json.dumps({'ber': rep.ber_overall, 'build_rate': rep.build_rate,
+                            'valid': rep.valid, 'reason': rep.invalid_reason}, indent=2))
+          thresholds = json.load(open('bench/LEDGER_relian-bench-v1.0.json'))['thresholds']
+          if rep.ber_overall is not None and rep.ber_overall >= thresholds['ber_heldout_min']:
+              print('THRESHOLD MET: BER >=', thresholds['ber_heldout_min'])
+          PY

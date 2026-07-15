@@ -1,0 +1,12 @@
+{"input": "100525.00,M", "expected": "TAX=12221.50 BRACKET=3 MARGINAL=0.2200"}
+{"input": "11600.00,M", "expected": "TAX=1160.00 BRACKET=1 MARGINAL=0.1000"}
+{"input": "100525.00,S", "expected": "TAX=17168.50 BRACKET=3 MARGINAL=0.2200"}
+{"input": "47150.00,S", "expected": "TAX=5426.00 BRACKET=2 MARGINAL=0.1200"}
+{"input": "0.00,S", "expected": "TAX=0.00 BRACKET=1 MARGINAL=0.1000"}
+{"input": "191950.00,S", "expected": "TAX=39110.50 BRACKET=4 MARGINAL=0.2400"}
+{"input": "47150.00,M", "expected": "TAX=5194.00 BRACKET=2 MARGINAL=0.1200"}
+{"input": "378023.46,M", "expected": "TAX=76810.63 BRACKET=4 MARGINAL=0.2400"}
+{"input": "11600.00,S", "expected": "TAX=1160.00 BRACKET=1 MARGINAL=0.1000"}
+{"input": "354866.56,S", "expected": "TAX=91243.80 BRACKET=5 MARGINAL=0.3200"}
+{"input": "0.00,M", "expected": "TAX=0.00 BRACKET=1 MARGINAL=0.1000"}
+{"input": "191950.00,M", "expected": "TAX=32335.00 BRACKET=3 MARGINAL=0.2200"}

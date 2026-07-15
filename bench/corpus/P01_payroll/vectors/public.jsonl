@@ -1,0 +1,12 @@
+{"input": "40.00,15.50,7", "expected": "GROSS=620.00 NET=611.84 TAX=8.16"}
+{"input": "49.94,15.50,6", "expected": "GROSS=851.11 NET=812.15 TAX=38.96"}
+{"input": "40.00,15.50,2", "expected": "GROSS=620.00 NET=573.38 TAX=46.62"}
+{"input": "36.20,40.78,7", "expected": "GROSS=1476.24 NET=1329.92 TAX=146.32"}
+{"input": "0.00,15.50,4", "expected": "GROSS=0.00 NET=0.00 TAX=0.00"}
+{"input": "56.01,50.04,7", "expected": "GROSS=3203.31 NET=2560.55 TAX=642.76"}
+{"input": "2.33,15.50,9", "expected": "GROSS=36.12 NET=36.12 TAX=0.00"}
+{"input": "59.38,0.00,1", "expected": "GROSS=0.00 NET=0.00 TAX=0.00"}
+{"input": "0.00,0.00,3", "expected": "GROSS=0.00 NET=0.00 TAX=0.00"}
+{"input": "15.32,15.50,4", "expected": "GROSS=237.46 NET=237.46 TAX=0.00"}
+{"input": "31.98,0.00,2", "expected": "GROSS=0.00 NET=0.00 TAX=0.00"}
+{"input": "59.70,0.00,2", "expected": "GROSS=0.00 NET=0.00 TAX=0.00"}
