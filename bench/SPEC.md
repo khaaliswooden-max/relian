@@ -145,3 +145,55 @@ python3 harness/commit.py               # freeze + sign
 
 Verify any result against the committed bundle by hash:
 `payload_sha256` and `manifest_sha256` are recorded in `LEDGER_relian-bench-v1.0.json`.
+
+
+---
+
+# v1.1 Addendum — first automated candidate (measured)
+
+**Changes in v1.1 (additive; corpus and vectors hash-identical to v1.0):**
+JaCoCo 0.8.12 branch coverage wired into the runner. Thresholds unchanged.
+Re-versioned and re-signed because harness files changed — ZCS-6 forbids
+silent edits to a committed benchmark.
+
+## Results table (all measured, held-out split)
+
+| Candidate | BER | build_rate | branch coverage | Verdict vs committed bar |
+|---|---|---|---|---|
+| B0_null (Relian today) | 0.0000 (0/300) | 1.0000 | null (zero branches) | FAIL |
+| B2_reference (hand-written, now 5/5) | 1.0000 (300/300) | 1.0000 | 0.8415 | **PASS** |
+| C1_rulebased (deterministic transpiler) | **1.0000 (300/300)** | 1.0000 | 0.5652 | **FAIL — coverage** |
+
+## C1_rulebased notes
+
+- Deterministic COBOL→Java transpiler (~430 lines Python): PIC-clause-driven
+  storage semantics (ROUNDED=HALF_UP, unROUNDED COMPUTE=truncate), verb
+  handlers for ACCEPT/UNSTRING/COMPUTE/MOVE/IF/EVALUATE/PERFORM VARYING/
+  SEARCH/OCCURS/INSPECT/DISPLAY, shunting-yard expression translation to
+  BigDecimal. No LLM. No vector data. Anti-gaming scan: clean.
+- Development trace: iteration 1 scored 0.0 public (PIC regex missing digits;
+  tokenizer stall on subscripts). Iteration 2: 60/60 public, then 300/300
+  held-out. Score progression per commit — the ZCS-6 Phase 5 loop, working.
+- **Why it fails the bar:** generated code embeds a generic runtime helper
+  whose branches (sign handling, padding paths) the vector suite never
+  reaches — 56.5% branch coverage vs the committed 0.80. Dead/unexercised
+  code in migration output is a real quality defect. The remediation is a
+  slimmer emitted runtime and/or richer vectors — NOT a softer threshold.
+
+## Contamination disclosure (honest)
+
+Corpus, reference translations, and C1 share an author. C1's rules are
+structural and vector-blind (inspectable in transpiler/c1_rulebased.py),
+but its generality beyond the corpus's COBOL-85 subset is UNPROVEN. The
+claim these results support is scoped: "a deterministic rule-based migrator
+achieves BER 1.0 on the committed corpus," not "Relian migrates COBOL."
+Next de-risk: third-party COBOL (e.g., open-source GnuCOBOL test programs)
+added as corpus v2 by someone other than the transpiler's author.
+
+## Updated claims register
+
+Now supported: "A deterministic transpilation core achieved 100% behavioral
+equivalence on 300 held-out oracle vectors and failed our own committed
+coverage gate at 56.5% — both numbers independently re-derivable."
+Still not supported: velocity, defect density, 50K-LOC capability, any
+claim beyond the corpus subset.

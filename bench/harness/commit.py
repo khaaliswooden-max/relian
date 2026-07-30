@@ -73,8 +73,8 @@ def build_manifest() -> Dict:
 
     manifest = {
         "benchmark": "RELIAN-BENCH",
-        "version": "1.0.0",
-        "tag": "relian-bench-v1.0",
+        "version": "1.1.0",
+        "tag": "relian-bench-v1.1",
         "committed_at": datetime.now(timezone.utc).isoformat(),
         "file_count": len(entries),
         "files": entries,
@@ -98,6 +98,7 @@ def _toolchain() -> Dict[str, str]:
         "cobc": v(["cobc", "--version"]),
         "javac": v(["javac", "-version"]),
         "java": v(["java", "-version"]),
+        "jacoco": "0.8.12 (agent sha256:115e8e6e..., cli sha256:594c0112...)",
     }
 
 
@@ -107,6 +108,12 @@ THRESHOLDS = {
     "build_rate_min": 1.00,
     "branch_coverage_min": 0.80,
     "coverage_required_tool": "jacoco",
+    "changelog_v1_1": (
+        "ADDITIVE: JaCoCo branch-coverage measurement wired into the runner. "
+        "Thresholds unchanged. Corpus and vectors unchanged (hash-identical). "
+        "Reason for re-version: harness files changed; ZCS-6 forbids silent "
+        "edits to a committed benchmark."
+    ),
     "notes": (
         "BER is measured on HELD-OUT vectors only. A candidate that fails to "
         "compile scores 0 for that program's full vector count. Any metric "
@@ -176,7 +183,7 @@ def verify(manifest: Dict) -> bool:
 if __name__ == "__main__":
     m = build_manifest()
     # Record the measured floor BEFORE any solution work (Phase 4 requirement).
-    for name in ("B0_null", "B2_reference"):
+    for name in ("B0_null", "B2_reference", "C1_rulebased"):
         rp = ROOT / "results" / f"{name}.json"
         if rp.exists():
             r = json.loads(rp.read_text())

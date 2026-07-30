@@ -1,0 +1,97 @@
+{
+  "candidate": "B2_reference",
+  "scores": [
+    {
+      "program": "P01_payroll",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 60,
+      "ber": 1.0,
+      "gaming_violations": [],
+      "mismatches": [],
+      "error": null,
+      "coverage_branch": 0.8571,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 12,
+        "branches_total": 14,
+        "line_coverage": 0.9444
+      }
+    },
+    {
+      "program": "P02_interest",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 60,
+      "ber": 1.0,
+      "gaming_violations": [],
+      "mismatches": [],
+      "error": null,
+      "coverage_branch": 0.75,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 6,
+        "branches_total": 8,
+        "line_coverage": 0.931
+      }
+    },
+    {
+      "program": "P03_eligibility",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 60,
+      "ber": 1.0,
+      "gaming_violations": [],
+      "mismatches": [],
+      "error": null,
+      "coverage_branch": 0.9091,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 20,
+        "branches_total": 22,
+        "line_coverage": 0.9444
+      }
+    },
+    {
+      "program": "P04_taxtable",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 60,
+      "ber": 1.0,
+      "gaming_violations": [],
+      "mismatches": [],
+      "error": null,
+      "coverage_branch": 0.7857,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 11,
+        "branches_total": 14,
+        "line_coverage": 0.9512
+      }
+    },
+    {
+      "program": "P05_validate",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 60,
+      "ber": 1.0,
+      "gaming_violations": [],
+      "mismatches": [],
+      "error": null,
+      "coverage_branch": 0.8333,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 20,
+        "branches_total": 24,
+        "line_coverage": 0.8571
+      }
+    }
+  ],
+  "ber_overall": 1.0,
+  "build_rate": 1.0,
+  "coverage_branch": 0.8415,
+  "coverage_tool": "jacoco-0.8.12",
+  "wall_seconds": 119.4,
+  "valid": true,
+  "invalid_reason": null
+}

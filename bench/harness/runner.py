@@ -52,6 +52,8 @@ class ProgramScore:
     gaming_violations: List[str] = field(default_factory=list)
     mismatches: List[Dict] = field(default_factory=list)
     error: Optional[str] = None
+    coverage_branch: Optional[float] = None
+    coverage_detail: Dict = field(default_factory=dict)
 
     @property
     def valid(self) -> bool:
@@ -140,9 +142,19 @@ def score_program(name: str, java_dir: Path, main_cls: str,
 
     vec_file = CORPUS / name / "vectors" / f"{split}.jsonl"
     vectors = [json.loads(l) for l in vec_file.read_text().splitlines() if l.strip()]
+    # v1.1: run under JaCoCo agent when the jars are present, so branch
+    # coverage becomes a real measurement instead of a permanent None.
+    from harness import coverage as _cov
+    use_cov = _cov.available()
+    exec_file = java_dir / "_classes" / "jacoco.exec"
+    if exec_file.exists():
+        exec_file.unlink()
     matched = 0
     for v in vectors:
-        got = _run_java(classes, main_cls, v["input"])
+        if use_cov:
+            got = _cov.run_with_coverage(classes, main_cls, v["input"], exec_file)
+        else:
+            got = _run_java(classes, main_cls, v["input"])
         if got is not None and _norm(got) == _norm(v["expected"]):
             matched += 1
         elif len(sc.mismatches) < 5:
@@ -152,6 +164,8 @@ def score_program(name: str, java_dir: Path, main_cls: str,
     sc.vectors_total = len(vectors)
     sc.vectors_matched = matched
     sc.ber = round(matched / len(vectors), 4) if vectors else None
+    if use_cov:
+        sc.coverage_branch, sc.coverage_detail = _cov.report(classes, exec_file)
     return sc
 
 
@@ -182,9 +196,16 @@ def run_candidate(candidate: str, out_root: Path,
     else:
         rep.ber_overall = 0.0
 
-    # Coverage: only reported if a real coverage tool actually ran.
-    rep.coverage_branch = None
-    rep.coverage_tool = None
+    # Coverage: aggregate of per-program JaCoCo measurements (branch-weighted).
+    covd = [s for s in scores if s.coverage_branch is not None]
+    if covd:
+        tot_b = sum(s.coverage_detail.get("branches_total", 0) for s in covd)
+        cov_b = sum(s.coverage_detail.get("branches_covered", 0) for s in covd)
+        rep.coverage_branch = round(cov_b / tot_b, 4) if tot_b else None
+        rep.coverage_tool = "jacoco-0.8.12"
+    else:
+        rep.coverage_branch = None
+        rep.coverage_tool = None
 
     rep.valid = True
     if any(s.gaming_violations for s in scores):

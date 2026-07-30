@@ -11,8 +11,9 @@ Lab / Visionblox LLC.
 | Component | State |
 |---|---|
 | COBOL-85 ANTLR parser + AST | Working |
+| Deterministic COBOL→Java transpiler (C1) | **Working — full committed-bar PASS** (below) |
 | Deterministic transform adapters (OpenRewrite, Piranha, rope, jscodeshift) | Working scaffolds |
-| Orchestrator pipeline (7-stage state machine) | Working; transform stage is a stub |
+| Orchestrator pipeline (7-stage state machine) | Working; transform stage is the deterministic C1 core |
 | LLM semantic analysis | Working when API keys present; **informational only** |
 | Differential validation vs. legacy oracle | Wired to RELIAN-BENCH harness |
 | Test generation (KLEE/symbolic) | Returns empty until KLEE integration lands |
@@ -21,10 +22,15 @@ Lab / Visionblox LLC.
 
 ## Measured baseline (RELIAN-BENCH v1.0, committed & Ed25519-signed)
 
-| Candidate | Behavioral Equivalence (held-out) | Build rate |
-|---|---|---|
-| Current transform output | **0.0000** | 1.0000 |
-| Hand-written reference translation | **1.0000** | 1.0000 |
+| Candidate | BER (held-out) | Build | Branch coverage | Committed bar |
+|---|---|---|---|---|
+| B0 placeholder (pre-integration) | 0.0000 | 1.0000 | n/a (no branches) | FAIL |
+| B2 hand-written reference | 1.0000 | 1.0000 | 0.8415 | PASS |
+| **C1 deterministic transpiler — now the pipeline core** | **1.0000** (300/300) | **1.0000** | **0.8824** | **PASS** |
+
+The pipeline end-to-end now reports a MEASURED semantic score of 100.0 on
+every corpus program, and FAILS honestly (no placeholder, no attestation)
+on programs outside the transpiler's COBOL-85 subset.
 
 The benchmark ledger (`bench/LEDGER_relian-bench-v1.0.json`) freezes the
 success criteria — BER ≥ 0.95 on held-out vectors — **before** solution work.
@@ -32,7 +38,15 @@ Held-out vectors are maintained privately and are not in this repository.
 
 **Every quality metric in this codebase is measured or `None`. No constants,
 no formulas standing in for observations.** Attestation refuses to sign
-unmeasured values.
+unmeasured values, and the transform refuses to emit placeholders for
+programs it cannot faithfully migrate — unsupported constructs produce a
+FAILED migration, not fake output.
+
+Scope honesty: "migrates COBOL" is supported today only for the COBOL-85
+subset exercised by the committed corpus (COMP-3 arithmetic, EVALUATE,
+PERFORM VARYING, OCCURS/SEARCH, INSPECT, edited pictures). No CICS, VSAM,
+JCL, copybooks, or embedded SQL. Corpus v2 (third-party harvested COBOL)
+is the next scope-extension gate.
 
 ## Quality targets (NOT results)
 

@@ -1,0 +1,232 @@
+{
+  "candidate": "B0_null",
+  "scores": [
+    {
+      "program": "P01_payroll",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 0,
+      "ber": 0.0,
+      "gaming_violations": [],
+      "mismatches": [
+        {
+          "input": "72.64,15.50,6",
+          "expected": "GROSS=1378.88 NET=1237.06 TAX=141.82",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "9.59,0.00,2",
+          "expected": "GROSS=0.00 NET=0.00 TAX=0.00",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "5.47,44.55,6",
+          "expected": "GROSS=243.69 NET=243.69 TAX=0.00",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "55.95,0.00,1",
+          "expected": "GROSS=0.00 NET=0.00 TAX=0.00",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "13.23,0.00,2",
+          "expected": "GROSS=0.00 NET=0.00 TAX=0.00",
+          "got": "Migration placeholder"
+        }
+      ],
+      "error": null,
+      "coverage_branch": null,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 0,
+        "branches_total": 0,
+        "line_coverage": 1.0,
+        "note": "candidate code contains zero branches; branch coverage is undefined (None), not 100%"
+      }
+    },
+    {
+      "program": "P02_interest",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 0,
+      "ber": 0.0,
+      "gaming_violations": [],
+      "mismatches": [
+        {
+          "input": "0.00,5.0000,10,0.00",
+          "expected": "BAL=0.00 INT=0.00",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "108015.05,5.0000,2,0.00",
+          "expected": "BAL=119350.27 INT=11335.22",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "166910.75,5.0000,11,1363.34",
+          "expected": "BAL=528241.66 INT=181370.03",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "1000.00,0.0000,4,378.76",
+          "expected": "BAL=19180.48 INT=0.00",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "179620.49,5.0000,10,0.00",
+          "expected": "BAL=295836.46 INT=116215.97",
+          "got": "Migration placeholder"
+        }
+      ],
+      "error": null,
+      "coverage_branch": null,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 0,
+        "branches_total": 0,
+        "line_coverage": 1.0,
+        "note": "candidate code contains zero branches; branch coverage is undefined (None), not 100%"
+      }
+    },
+    {
+      "program": "P03_eligibility",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 0,
+      "ber": 0.0,
+      "gaming_violations": [],
+      "mismatches": [
+        {
+          "input": "0.00,2,18,N",
+          "expected": "STATUS=APPROVED CATEGORY=CHILD FPLPCT=0.00",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "32707.34,5,65,N",
+          "expected": "STATUS=APPROVED CATEGORY=AGED FPLPCT=89.41",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "54603.43,6,18,N",
+          "expected": "STATUS=APPROVED CATEGORY=CHILD FPLPCT=130.13",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "0.00,9,64,N",
+          "expected": "STATUS=APPROVED CATEGORY=EXPANSION FPLPCT=0.00",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "0.00,5,19,Y",
+          "expected": "STATUS=APPROVED CATEGORY=DISABILITY FPLPCT=0.00",
+          "got": "Migration placeholder"
+        }
+      ],
+      "error": null,
+      "coverage_branch": null,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 0,
+        "branches_total": 0,
+        "line_coverage": 1.0,
+        "note": "candidate code contains zero branches; branch coverage is undefined (None), not 100%"
+      }
+    },
+    {
+      "program": "P04_taxtable",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 0,
+      "ber": 0.0,
+      "gaming_violations": [],
+      "mismatches": [
+        {
+          "input": "265957.04,M",
+          "expected": "TAX=49914.69 BRACKET=4 MARGINAL=0.2400",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "63462.97,M",
+          "expected": "TAX=7151.56 BRACKET=2 MARGINAL=0.1200",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "351439.54,M",
+          "expected": "TAX=70430.49 BRACKET=4 MARGINAL=0.2400",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "295952.41,M",
+          "expected": "TAX=57113.58 BRACKET=4 MARGINAL=0.2400",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "20224.29,M",
+          "expected": "TAX=2022.43 BRACKET=1 MARGINAL=0.1000",
+          "got": "Migration placeholder"
+        }
+      ],
+      "error": null,
+      "coverage_branch": null,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 0,
+        "branches_total": 0,
+        "line_coverage": 1.0,
+        "note": "candidate code contains zero branches; branch coverage is undefined (None), not 100%"
+      }
+    },
+    {
+      "program": "P05_validate",
+      "build_ok": true,
+      "vectors_total": 60,
+      "vectors_matched": 0,
+      "ber": 0.0,
+      "gaming_violations": [],
+      "mismatches": [
+        {
+          "input": "93,0.00,CA",
+          "expected": "RC=101 MSG=BAD ACCT LENGTH",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "81605705,10000.00,MT",
+          "expected": "RC=000 MSG=OK",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "150242913,0.00,  ",
+          "expected": "RC=101 MSG=BAD ACCT LENGTH",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "0106966777,8788.59,MT",
+          "expected": "RC=101 MSG=BAD ACCT LENGTH",
+          "got": "Migration placeholder"
+        },
+        {
+          "input": "86,10000.00,NY",
+          "expected": "RC=101 MSG=BAD ACCT LENGTH",
+          "got": "Migration placeholder"
+        }
+      ],
+      "error": null,
+      "coverage_branch": null,
+      "coverage_detail": {
+        "tool": "jacoco-0.8.12",
+        "branches_covered": 0,
+        "branches_total": 0,
+        "line_coverage": 1.0,
+        "note": "candidate code contains zero branches; branch coverage is undefined (None), not 100%"
+      }
+    }
+  ],
+  "ber_overall": 0.0,
+  "build_rate": 1.0,
+  "coverage_branch": null,
+  "coverage_tool": null,
+  "wall_seconds": 87.46,
+  "valid": true,
+  "invalid_reason": null
+}

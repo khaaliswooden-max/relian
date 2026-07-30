@@ -22,3 +22,8 @@
   and record the score in the commit message.
 - Numeric business logic in generated Java uses BigDecimal with explicit
   COBOL rounding semantics (ROUNDED = HALF_UP; unrounded COMPUTE = DOWN).
+
+6. NEVER add the vector GENERATOR (gen_vectors.py) or its SEED to this
+   repository. Generator + seed + corpus regenerates the held-out set,
+   which destroys the benchmark. The generator lives only in
+   relian-bench-private.

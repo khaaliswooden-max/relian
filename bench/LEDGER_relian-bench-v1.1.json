@@ -1,13 +1,13 @@
 {
   "benchmark": "RELIAN-BENCH",
-  "version": "1.0.0",
-  "tag": "relian-bench-v1.0",
-  "committed_at": "2026-07-15T00:56:57.024512+00:00",
-  "file_count": 20,
+  "version": "1.1.0",
+  "tag": "relian-bench-v1.1",
+  "committed_at": "2026-07-15T01:58:35.754186+00:00",
+  "file_count": 23,
   "files": [
     {
       "path": "SPEC.md",
-      "sha256": "783e74b2234e46bb8aee09b6f6dc4d56c78337efd28af3fd08e37f3e9a0ad7a8"
+      "sha256": "4fbc86ebf2556f1763dbf798cc08c78e55240639f9d05bec9e8d0de08abd0d05"
     },
     {
       "path": "corpus/P01_payroll/program.cbl",
@@ -71,7 +71,11 @@
     },
     {
       "path": "harness/commit.py",
-      "sha256": "8f68f4a3dc6957a4bf2ff617974d6b0ace4f2a28eeca9f62e4a26b1ad67a440f"
+      "sha256": "9713ae8b91eb945c5f9d782641ee3aab690c81044401866f10a0a77b88e44873"
+    },
+    {
+      "path": "harness/coverage.py",
+      "sha256": "233e63678d2929f963e99f38aa7d96304b24af018f5063ae85acfc7c2f4e46b6"
     },
     {
       "path": "harness/gen_vectors.py",
@@ -83,10 +87,18 @@
     },
     {
       "path": "harness/runner.py",
-      "sha256": "9b95d2f6126b16308155f50a47ce6aa1e650068594bcbcee84699da90219b682"
+      "sha256": "64faca0b88c07ef3b9f64a0d997dd231928e7f2cbfc5d7622d3af6a4ded045a3"
+    },
+    {
+      "path": "harness/tools/jacocoagent.jar",
+      "sha256": "115e8e6e6593ca3a9892dfef695df4d487c706e59e71e64dc0ab95716ee02622"
+    },
+    {
+      "path": "harness/tools/jacococli.jar",
+      "sha256": "594c01125b84864a7fc5a9efab19b71b7de36b27346863f6d7cd0cd45400ceb0"
     }
   ],
-  "payload_sha256": "d5b7ed373e960421f94eb058972fa8a7462f829f34f16a6301b6a04541868cae",
+  "payload_sha256": "75167a5455bbae61592e0779a2421b15bf13c16ed063e5c778b6aa8d89fdd985",
   "vector_counts": {
     "P01_payroll/vectors/heldout.jsonl": 60,
     "P01_payroll/vectors/public.jsonl": 12,
@@ -102,13 +114,15 @@
   "toolchain": {
     "cobc": "cobc (GnuCOBOL) 3.1.2.0",
     "javac": "javac 21.0.11",
-    "java": "openjdk version \"21.0.11\" 2026-04-21"
+    "java": "openjdk version \"21.0.11\" 2026-04-21",
+    "jacoco": "0.8.12 (agent sha256:115e8e6e..., cli sha256:594c0112...)"
   },
   "thresholds": {
     "ber_heldout_min": 0.95,
     "build_rate_min": 1.0,
     "branch_coverage_min": 0.8,
     "coverage_required_tool": "jacoco",
+    "changelog_v1_1": "ADDITIVE: JaCoCo branch-coverage measurement wired into the runner. Thresholds unchanged. Corpus and vectors unchanged (hash-identical). Reason for re-version: harness files changed; ZCS-6 forbids silent edits to a committed benchmark.",
     "notes": "BER is measured on HELD-OUT vectors only. A candidate that fails to compile scores 0 for that program's full vector count. Any metric that cannot be measured is reported as null and the run is INVALID; null is never substituted with a constant."
   },
   "baselines_recorded": {
@@ -120,15 +134,20 @@
     "B2_reference": {
       "ber_overall": 1.0,
       "build_rate": 1.0,
-      "coverage_branch": null
+      "coverage_branch": 0.8415
+    },
+    "C1_rulebased": {
+      "ber_overall": 1.0,
+      "build_rate": 1.0,
+      "coverage_branch": 0.5652
     }
   },
   "signature": {
     "alg": "Ed25519",
-    "manifest_sha256": "0b8cf5a56988e9ce8ade7c36320129974b92ede8a90ccb25e37810c0a3a66f17",
-    "signature_hex": "1bd9ca3144bf8553211a616065ce1d3dda583893b90b366f4d0239e134935ce31a680b404f34611dec945d53536bb604cb550da4396997fde437499447da5c07",
+    "manifest_sha256": "8756173e6fc136f6fa374ddc2f592fa5e69d8e29c7aece32f65de998603a7189",
+    "signature_hex": "8f01302f60b6b801a10e37ecced6dc23b1e91f20823a53f5aa86bf85df980683fea9e8626154ee1facacf87c6bc515000292af8be4d37b98d1189fc8c730f207",
     "public_key_hex": "91b67d34b603f36a367051f0f5a0b3ec0b722a027f55092c1804ba36bd15dd13",
     "key_fingerprint": "233bb4406e2de606",
-    "signed_at": "2026-07-15T00:56:57.306141+00:00"
+    "signed_at": "2026-07-15T01:58:36.035154+00:00"
   }
 }

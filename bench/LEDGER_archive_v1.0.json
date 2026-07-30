@@ -1,0 +1,153 @@
+{
+  "benchmark": "RELIAN-BENCH",
+  "version": "1.1.0",
+  "tag": "relian-bench-v1.1",
+  "committed_at": "2026-07-15T01:58:14.995644+00:00",
+  "file_count": 23,
+  "files": [
+    {
+      "path": "SPEC.md",
+      "sha256": "4fbc86ebf2556f1763dbf798cc08c78e55240639f9d05bec9e8d0de08abd0d05"
+    },
+    {
+      "path": "corpus/P01_payroll/program.cbl",
+      "sha256": "a4b0d32852a107abbae2bed8c6d468afed3edae8c2709f519c4a7301f769c721"
+    },
+    {
+      "path": "corpus/P01_payroll/vectors/heldout.jsonl",
+      "sha256": "fcf9730a3818414f2826e6d0d27a9366a7784ee8d350fbbaa0f110aca59ad2ea"
+    },
+    {
+      "path": "corpus/P01_payroll/vectors/public.jsonl",
+      "sha256": "3f05eeb7b05a2a63aebe537a1357352034398d45915f5d045dfe63ac4d1ce4f1"
+    },
+    {
+      "path": "corpus/P02_interest/program.cbl",
+      "sha256": "eca429658d4d4882e74f931ee452c88977faf105f6bc4b7424699b1f7f46cc5b"
+    },
+    {
+      "path": "corpus/P02_interest/vectors/heldout.jsonl",
+      "sha256": "b91a6e67d2901e033e7bd3da5263b7e123434102eecf660bd88443a56b116cd0"
+    },
+    {
+      "path": "corpus/P02_interest/vectors/public.jsonl",
+      "sha256": "2a979ac28cfeb5110684aac09c232da825b8ea24acca882290be88aaa877db67"
+    },
+    {
+      "path": "corpus/P03_eligibility/program.cbl",
+      "sha256": "4d4fcb294665e67b9f79053fc56dd5e468d5b6af1ae472fbaa322d5eb03542b0"
+    },
+    {
+      "path": "corpus/P03_eligibility/vectors/heldout.jsonl",
+      "sha256": "58f4e28d7ec529b19ddc1e32310ca16fe8d00c0fd87a50e0d0a3656b3444682f"
+    },
+    {
+      "path": "corpus/P03_eligibility/vectors/public.jsonl",
+      "sha256": "3cb04465419c38fbae0495dc270e725563abb04df61ed658b1506601660e4d05"
+    },
+    {
+      "path": "corpus/P04_taxtable/program.cbl",
+      "sha256": "6dfa8a0461a45bd52e8a557df71639ec2bfff78e9031749ae126bff7d8e18c54"
+    },
+    {
+      "path": "corpus/P04_taxtable/vectors/heldout.jsonl",
+      "sha256": "24c62d683b6bfda986b76822744602de7a6dc6c328eb2a47915adf9a21581cb9"
+    },
+    {
+      "path": "corpus/P04_taxtable/vectors/public.jsonl",
+      "sha256": "dd57934029330e26c817d3a887bb87208158693933688324f4ace69ee084789a"
+    },
+    {
+      "path": "corpus/P05_validate/program.cbl",
+      "sha256": "65f5d5c5402effa0943cc9353becc1ed1c8a73ebbb1830e08fcdac99fa8b7d39"
+    },
+    {
+      "path": "corpus/P05_validate/vectors/heldout.jsonl",
+      "sha256": "7cf91a33d81ae32f3d34518c7c54ee41af3046d3d27b19474797a5175ff7fcd5"
+    },
+    {
+      "path": "corpus/P05_validate/vectors/public.jsonl",
+      "sha256": "5298baaa3edd47109f91ad42c01b50e256e80f96779599f6e848b2ef9c88ff0c"
+    },
+    {
+      "path": "harness/commit.py",
+      "sha256": "9713ae8b91eb945c5f9d782641ee3aab690c81044401866f10a0a77b88e44873"
+    },
+    {
+      "path": "harness/coverage.py",
+      "sha256": "233e63678d2929f963e99f38aa7d96304b24af018f5063ae85acfc7c2f4e46b6"
+    },
+    {
+      "path": "harness/gen_vectors.py",
+      "sha256": "db075f0ec64c2108e750c55edcb400229f4954c109ea57c86656e5cc0bbe19df"
+    },
+    {
+      "path": "harness/mains.json",
+      "sha256": "f0c88c385c13fa01e67868d460ac1e0192b74985341d66666f2ec70bbaa77ea1"
+    },
+    {
+      "path": "harness/runner.py",
+      "sha256": "64faca0b88c07ef3b9f64a0d997dd231928e7f2cbfc5d7622d3af6a4ded045a3"
+    },
+    {
+      "path": "harness/tools/jacocoagent.jar",
+      "sha256": "115e8e6e6593ca3a9892dfef695df4d487c706e59e71e64dc0ab95716ee02622"
+    },
+    {
+      "path": "harness/tools/jacococli.jar",
+      "sha256": "594c01125b84864a7fc5a9efab19b71b7de36b27346863f6d7cd0cd45400ceb0"
+    }
+  ],
+  "payload_sha256": "75167a5455bbae61592e0779a2421b15bf13c16ed063e5c778b6aa8d89fdd985",
+  "vector_counts": {
+    "P01_payroll/vectors/heldout.jsonl": 60,
+    "P01_payroll/vectors/public.jsonl": 12,
+    "P02_interest/vectors/heldout.jsonl": 60,
+    "P02_interest/vectors/public.jsonl": 12,
+    "P03_eligibility/vectors/heldout.jsonl": 60,
+    "P03_eligibility/vectors/public.jsonl": 12,
+    "P04_taxtable/vectors/heldout.jsonl": 60,
+    "P04_taxtable/vectors/public.jsonl": 12,
+    "P05_validate/vectors/heldout.jsonl": 60,
+    "P05_validate/vectors/public.jsonl": 12
+  },
+  "toolchain": {
+    "cobc": "cobc (GnuCOBOL) 3.1.2.0",
+    "javac": "javac 21.0.11",
+    "java": "openjdk version \"21.0.11\" 2026-04-21",
+    "jacoco": "0.8.12 (agent sha256:115e8e6e..., cli sha256:594c0112...)"
+  },
+  "thresholds": {
+    "ber_heldout_min": 0.95,
+    "build_rate_min": 1.0,
+    "branch_coverage_min": 0.8,
+    "coverage_required_tool": "jacoco",
+    "changelog_v1_1": "ADDITIVE: JaCoCo branch-coverage measurement wired into the runner. Thresholds unchanged. Corpus and vectors unchanged (hash-identical). Reason for re-version: harness files changed; ZCS-6 forbids silent edits to a committed benchmark.",
+    "notes": "BER is measured on HELD-OUT vectors only. A candidate that fails to compile scores 0 for that program's full vector count. Any metric that cannot be measured is reported as null and the run is INVALID; null is never substituted with a constant."
+  },
+  "baselines_recorded": {
+    "B0_null": {
+      "ber_overall": 0.0,
+      "build_rate": 1.0,
+      "coverage_branch": null
+    },
+    "B2_reference": {
+      "ber_overall": 1.0,
+      "build_rate": 1.0,
+      "coverage_branch": 0.8415
+    },
+    "C1_rulebased": {
+      "ber_overall": 1.0,
+      "build_rate": 1.0,
+      "coverage_branch": 0.5652
+    }
+  },
+  "signature": {
+    "alg": "Ed25519",
+    "manifest_sha256": "1257f27a3f8087464087d961166efadaeeedcee4259977811295b38ae1922eda",
+    "signature_hex": "19bb41c25513c6a5e2c3c74a07774256c1defaa6fde5462046d697f33259d0f3712b24419e47defa9fd4628fff7a7840924565e128dd3cb9617e62fb7b30b80b",
+    "public_key_hex": "91b67d34b603f36a367051f0f5a0b3ec0b722a027f55092c1804ba36bd15dd13",
+    "key_fingerprint": "233bb4406e2de606",
+    "signed_at": "2026-07-15T01:58:15.743449+00:00"
+  }
+}
