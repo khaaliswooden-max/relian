@@ -13,7 +13,7 @@ jobs:
           python3 - <<'PY'
           import json, sys; sys.path.insert(0,'bench')
           from harness.commit import verify
-          m = json.load(open('bench/LEDGER_relian-bench-v1.0.json'))
+          m = json.load(open('bench/LEDGER_relian-bench-v1.1.json'))
           assert verify(m), 'LEDGER signature invalid — benchmark tampered'
           print('ledger verified:', m['signature']['manifest_sha256'][:16])
           PY
@@ -43,7 +43,7 @@ jobs:
           rep = run_candidate('current', out, mains, split='heldout')
           print(json.dumps({'ber': rep.ber_overall, 'build_rate': rep.build_rate,
                             'valid': rep.valid, 'reason': rep.invalid_reason}, indent=2))
-          thresholds = json.load(open('bench/LEDGER_relian-bench-v1.0.json'))['thresholds']
+          thresholds = json.load(open('bench/LEDGER_relian-bench-v1.1.json'))['thresholds']
           if rep.ber_overall is not None and rep.ber_overall >= thresholds['ber_heldout_min']:
               print('THRESHOLD MET: BER >=', thresholds['ber_heldout_min'])
           PY
