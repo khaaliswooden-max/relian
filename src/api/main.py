@@ -2,6 +2,7 @@
 
 import os
 from typing import Optional
+import hashlib
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
@@ -92,10 +93,11 @@ class AnalysisResponse(BaseModel):
     business_rules: list
     decision_trees: list
     edge_cases: list
-    confidence: float
-    risk_score: float
-    risk_level: str
-    recommendations: list
+    # CARDINAL RULE (RELIAN-BENCH): a metric is MEASURED or it is None.
+    confidence: Optional[float] = None
+    risk_score: Optional[float] = None
+    risk_level: Optional[str] = None
+    recommendations: list = []
 
 
 class AttestationResponse(BaseModel):
@@ -222,11 +224,12 @@ async def analyze_code(request: AnalysisRequest):
         assessment = scorer.score(metrics)
 
         return AnalysisResponse(
-            purpose="Legacy business logic module",
-            business_rules=["Extracted business rules would appear here"],
-            decision_trees=["Conditional logic flows identified"],
-            edge_cases=["Boundary conditions detected"],
-            confidence=0.85,
+            purpose="Static parse + heuristic risk assessment only "
+                    "(LLM semantic analysis not run by this endpoint)",
+            business_rules=[],   # empty is honest; canned strings are not
+            decision_trees=[],
+            edge_cases=[],
+            confidence=None,     # unmeasured -> None, never a constant
             risk_score=assessment.overall_score,
             risk_level=assessment.risk_level,
             recommendations=assessment.recommendations,
@@ -342,8 +345,20 @@ async def get_platform_metrics():
         "successful_migrations": sum(
             1 for m in migrations_db.values() if m.get("status") == "completed"
         ),
-        "average_semantic_score": 95.0,
-        "average_test_coverage": 80.0,
+        # Averages are computed over jobs whose values were actually
+        # measured (non-null). No measured jobs -> null, never a constant.
+        "average_semantic_score": (
+            round(sum(v) / len(v), 2)
+            if (v := [m["semantic_score"] for m in migrations_db.values()
+                      if m.get("semantic_score") is not None])
+            else None
+        ),
+        "average_test_coverage": (
+            round(sum(c) / len(c), 2)
+            if (c := [m["test_coverage"] for m in migrations_db.values()
+                      if m.get("test_coverage") is not None])
+            else None
+        ),
         "total_loc_processed": sum(
             len(m.get("source_code", "").split("\n"))
             for m in migrations_db.values()
@@ -357,106 +372,64 @@ async def get_platform_metrics():
 
 
 async def run_migration(migration_id: str):
-    """Background task to run migration."""
-    import hashlib
+    """Background task: run the REAL migration pipeline.
+
+    This previously fabricated its own results (mock output, hardcoded
+    semantic_score=85.0, test_coverage=80.0, fallback 75.0/50.0, and an
+    attestation hashed over mock code). It now delegates to
+    MigrationOrchestrator, which measures behavioral equivalence via
+    differential execution and refuses to attest unmeasured runs.
+    Every value stored here is measured or None.
+    """
+    import tempfile
+    from pathlib import Path as _P
 
     job = migrations_db.get(migration_id)
     if not job:
         return
-
+    job["status"] = "processing"
     try:
-        job["status"] = "processing"
-        source_code = job["source_code"]
+        from src.core.orchestrator import MigrationOrchestrator, MigrationConfig
 
-        # Calculate source hash
-        job["source_hash"] = hashlib.sha256(source_code.encode()).hexdigest()
+        with tempfile.NamedTemporaryFile(
+            "w", suffix=".cbl", delete=False
+        ) as tf:
+            tf.write(job["source_code"])
+            src_path = tf.name
+        out_dir = tempfile.mkdtemp(prefix="relian_api_")
 
-        # Parse and analyze
-        try:
-            from src.parsers.cobol import COBOLParser
-            from src.ml.risk_scorer import RiskScorer
+        orchestrator = MigrationOrchestrator()
+        result = await orchestrator.migrate(MigrationConfig(
+            source_path=src_path,
+            source_language=job.get("source_language", "cobol"),
+            target_language=job.get("target_language", "java"),
+            output_dir=out_dir,
+        ))
 
-            parser = COBOLParser()
-            ast = parser.parse_string(source_code)
-
-            scorer = RiskScorer()
-            metrics = scorer.extract_metrics(ast, source_code)
-            assessment = scorer.score(metrics)
-
-            job["risk_score"] = assessment.overall_score
-            job["semantic_score"] = 85.0  # From semantic analyzer
-        except Exception:
-            job["risk_score"] = 50.0
-            job["semantic_score"] = 75.0
-
-        # Generate mock output
-        job["output_code"] = generate_mock_output(
-            job["target_language"], source_code
-        )
-        job["target_hash"] = hashlib.sha256(
-            job["output_code"].encode()
-        ).hexdigest()
-
-        # Test coverage (simplified)
-        job["test_coverage"] = 80.0
-
-        # Create attestation
-        if job.get("enable_blockchain"):
-            job["attestation_tx"] = hashlib.sha256(
-                f"{job['source_hash']}{job['target_hash']}".encode()
-            ).hexdigest()[:64]
+        job["source_hash"] = result.source_hash
+        job["semantic_score"] = result.semantic_score      # measured or None
+        job["test_coverage"] = result.test_coverage        # measured or None
+        job["risk_score"] = result.risk_score              # measured or None
+        job["tests_passed"] = result.tests_passed
+        job["warnings"] = list(result.warnings)
+        if result.output_path and _P(result.output_path).exists():
+            job["output_code"] = _P(result.output_path).read_text()
+            job["target_hash"] = hashlib.sha256(
+                job["output_code"].encode()
+            ).hexdigest()
+        # Attestation comes ONLY from the orchestrator's measured-gated
+        # path. This endpoint never mints its own.
+        job["attestation_tx"] = result.attestation_tx
+        if result.attestation_tx:
             job["attested_at"] = datetime.now(timezone.utc).isoformat()
-
-        job["status"] = "completed"
-
+        job["status"] = result.status.value
+        if result.errors:
+            job["error"] = "; ".join(str(e) for e in result.errors)[:500]
     except Exception as e:
         job["status"] = "failed"
-        job["errors"] = [str(e)]
-
-
-def generate_mock_output(target_language: str, source_code: str) -> str:
-    """Generate mock transformed code for demo purposes."""
-    if target_language.lower() == "java":
-        return """public class MigratedProgram {
-    private String var1;
-    private int var2;
-
-    public MigratedProgram() {
-        // Initialize from WORKING-STORAGE SECTION
-    }
-
-    public void mainPara() {
-        // Business logic from PROCEDURE DIVISION
-        System.out.println("Migrated successfully");
-    }
-
-    public static void main(String[] args) {
-        MigratedProgram program = new MigratedProgram();
-        program.mainPara();
-    }
-}"""
-    elif target_language.lower() == "python":
-        return '''"""Migrated from COBOL by Relian."""
-
-
-class MigratedProgram:
-    """Migrated COBOL program."""
-
-    def __init__(self):
-        self.var1 = ""
-        self.var2 = 0
-
-    def main_para(self):
-        """Main procedure."""
-        print("Migrated successfully")
-
-
-if __name__ == "__main__":
-    program = MigratedProgram()
-    program.main_para()
-'''
-    else:
-        return f"// TODO: Implement {target_language} transformation"
+        job["error"] = str(e)[:500]
+        for k in ("semantic_score", "test_coverage", "risk_score"):
+            job[k] = None
 
 
 # ============================================================================
