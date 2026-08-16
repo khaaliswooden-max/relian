@@ -25,9 +25,11 @@ ran, and only the tree path is graded VERIFIED (R1/R9).
 Token-scan counting rules (reproduced verbatim in the report appendix):
 
 1. Source format is detected per file: **fixed** if any line carries ``*`` or
-   ``/`` in column 7, or if at least 80% of non-blank lines begin with 6 or
-   more spaces; otherwise **free**. In fixed format the code area is columns
-   8–72 and column 7 is the indicator; in free format the whole line is code.
+   ``/`` in column 7, or if at least 80% of non-blank lines are at least 7
+   characters long with columns 1–6 either blank or all digits (a sequence
+   number) and column 7 blank, ``*``, ``/`` or ``-``; otherwise **free**. In
+   fixed format the code area is columns 8–72 and column 7 is the indicator;
+   in free format the whole line is code.
 2. A line is a comment if its indicator column is ``*`` or ``/``, or if the
    line's first non-blank characters are ``*>``.
 3. Only the PROCEDURE DIVISION is scanned for statements.
@@ -88,19 +90,53 @@ _SECTION_RE = re.compile(r"^\s*([A-Z0-9][A-Z0-9\-]*)\s+SECTION\s*\.\s*$", re.I)
 _TOKEN_RE = re.compile(r"[A-Z0-9][A-Z0-9\-]*|\.")
 
 
-def _paragraph_label(code: str) -> Optional[str]:
-    """A lone ``NAME.`` line — unless NAME is a COBOL verb.
+def word_re(pattern: str) -> re.Pattern:
+    """Match ``pattern`` as a whole COBOL word.
 
-    ``GOBACK.`` and ``EXIT.`` are single-word statements that are lexically
-    indistinguishable from a paragraph label. A paragraph may not be named
-    after a reserved verb, so the verb reading is the correct one; without this
-    check both statements vanish from the inventory.
+    ``\\b`` is wrong for COBOL: a hyphen is a non-word character, so ``\\bIF\\b``
+    matches the ``IF`` inside ``END-IF`` and every scope terminator inflates the
+    decision-point count. COBOL words may contain hyphens, so the boundary must
+    exclude ``-`` on both sides.
+    """
+    return re.compile(rf"(?<![\w-])(?:{pattern})(?![\w-])", re.I)
+
+
+# GO TO target list. Stops at DEPENDING so that `GO TO A B C DEPENDING ON N`
+# yields three targets, not "…DEPENDING ON N" as well.
+GOTO_TARGETS_RE = re.compile(
+    r"(?<![\w-])GO\s+TO\s+((?:(?!DEPENDING(?![\w-]))[A-Z0-9][A-Z0-9\-]*\s*)+)", re.I
+)
+
+
+def goto_targets(code: str) -> List[str]:
+    out: List[str] = []
+    for m in GOTO_TARGETS_RE.finditer(code):
+        out.extend(name.rstrip(".") for name in m.group(1).split())
+    return out
+
+
+# Reserved words that can legally stand alone on a line followed by a period,
+# and would otherwise be misread as paragraph names.
+_NOT_PARAGRAPH_NAMES = frozenset({"ELSE", "THEN", "OTHER", "CONTINUE", "NEXT"})
+
+
+def _paragraph_label(code: str) -> Optional[str]:
+    """A lone ``NAME.`` line — unless NAME is a reserved word.
+
+    ``GOBACK.``, ``EXIT.`` and ``END-IF.`` are lexically indistinguishable from
+    a paragraph label. A paragraph may not be named after a reserved word, so
+    the reserved reading is the correct one. Without this check ``GOBACK`` and
+    ``EXIT`` vanish from the construct inventory, and every scope terminator on
+    its own line becomes a phantom paragraph that then pollutes the
+    per-paragraph complexity table and the dead-paragraph analysis.
     """
     m = _PARAGRAPH_NAME_RE.match(code)
     if not m:
         return None
     name = m.group(1).upper()
-    return None if name in COBOL_VERBS else name
+    if name in COBOL_VERBS or name in _NOT_PARAGRAPH_NAMES or name.startswith("END-"):
+        return None
+    return name
 
 
 # --------------------------------------------------------------------------
@@ -158,8 +194,14 @@ def detect_format(raw_lines: Sequence[str]) -> str:
         return "fixed"
     if any(len(l) > 6 and l[6] in "*/" for l in non_blank):
         return "fixed"
-    indented = sum(1 for l in non_blank if len(l) > 6 and l[:6].strip() == "" and l[6] == " ")
-    return "fixed" if indented >= 0.8 * len(non_blank) else "free"
+
+    def looks_fixed(line: str) -> bool:
+        if len(line) < 7:
+            return False
+        seq = line[:6]
+        return (seq.strip() == "" or seq.strip().isdigit()) and line[6] in " */-"
+
+    return "fixed" if sum(map(looks_fixed, non_blank)) >= 0.8 * len(non_blank) else "free"
 
 
 def scan_source(source: str) -> ScannedSource:

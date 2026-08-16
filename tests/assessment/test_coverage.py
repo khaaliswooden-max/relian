@@ -230,3 +230,23 @@ def test_data_division_verbs_are_not_counted_as_statements():
     )
     verbs = [h.verb for h in statements_by_token_scan(scan_source(src))]
     assert verbs == ["STOP"]
+
+
+def test_scope_terminator_on_its_own_line_is_not_a_paragraph():
+    """`END-IF.` looks exactly like a paragraph label; treating it as one
+    creates phantom paragraphs in the complexity table and the dead-paragraph
+    analysis."""
+    src = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. E.\n"
+        "       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "       01 WS-N PIC 9(3).\n"
+        "       PROCEDURE DIVISION.\n"
+        "       MAIN-PARA.\n"
+        "           IF WS-N > 0\n"
+        "               DISPLAY WS-N\n"
+        "           END-IF.\n"
+        "           STOP RUN.\n"
+    )
+    assert scan_source(src).paragraph_names() == ("MAIN-PARA",)
