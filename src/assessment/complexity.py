@@ -52,9 +52,25 @@ FORMULAS
     identifier targets (dynamic CALL) are recorded as the identifier name.
 
 ``max_nesting_depth``
-    Maximum depth of open scopes, incremented on ``IF`` / ``EVALUATE`` /
-    inline ``PERFORM`` and decremented on the matching ``END-…``. A period that
-    closes an unterminated ``IF`` also closes the scope.
+    Maximum depth of open scopes, tracked with a **stack** rather than a
+    counter. A scope is opened by ``IF``, ``EVALUATE``, ``SEARCH``, or an
+    *inline* ``PERFORM`` — one whose loop body is written in place, recognised
+    as ``PERFORM UNTIL``, ``PERFORM VARYING``, ``PERFORM WITH TEST``,
+    ``PERFORM FOREVER``, or ``PERFORM <n> TIMES``. A ``PERFORM <paragraph>``
+    transfers control elsewhere and opens no scope here, so it does not count.
+
+    A scope is closed by its own ``END-…`` terminator, and by nothing else: an
+    ``END-…`` whose opener is not on the stack is **ignored** rather than
+    decrementing the depth. That distinction is load-bearing — with a plain
+    counter, an ``END-PERFORM`` or ``END-READ`` sitting inside an outer ``IF``
+    cancels the ``IF``'s own depth, and every construct nested after it in that
+    ``IF`` is undercounted. ``END-READ``, ``END-CALL``, ``END-STRING`` and
+    ``END-UNSTRING`` are therefore inert here, because the statements they
+    terminate are not counted as opening a scope in the first place.
+
+    Openers and closers are processed in the order they appear on the line, so
+    a scope opened and closed on one line still registers its depth. A period
+    ends the sentence and closes every scope still open.
 """
 
 from __future__ import annotations
@@ -92,8 +108,23 @@ _COPY_RE = word_re(r"COPY\s+[\"']?([A-Z0-9][A-Z0-9\-_]*)[\"']?")
 _CALL_RE = word_re(r"CALL\s+[\"']?([A-Z0-9][A-Z0-9\-_]*)[\"']?")
 _EXEC_RE = word_re(r"EXEC\s+(CICS|SQL|DLI)")
 
-_OPEN_SCOPE = word_re("IF|EVALUATE")
-_CLOSE_SCOPE = word_re(r"END-(?:IF|EVALUATE|PERFORM|SEARCH|READ|CALL|STRING|UNSTRING)")
+# An *inline* PERFORM writes its loop body in place and is closed by
+# END-PERFORM. `PERFORM SOME-PARA` transfers control instead and opens nothing,
+# so treating every PERFORM as an opener would count ordinary paragraph calls
+# as nesting.
+_INLINE_PERFORM = word_re(
+    r"PERFORM\s+(?:UNTIL|VARYING|FOREVER|WITH\s+TEST)"
+    r"|PERFORM\s+[A-Z0-9][A-Z0-9\-]*\s+TIMES"
+)
+
+# Constructs that open a scope, and the terminator that closes each one.
+_SCOPE_OPENERS: Tuple[Tuple[str, re.Pattern], ...] = (
+    ("IF", word_re("IF")),
+    ("EVALUATE", word_re("EVALUATE")),
+    ("SEARCH", word_re("SEARCH")),
+    ("PERFORM", _INLINE_PERFORM),
+)
+_SCOPE_CLOSER = word_re(r"END-(IF|EVALUATE|SEARCH|PERFORM|READ|CALL|STRING|UNSTRING)")
 
 
 def _decision_points(code: str) -> int:
@@ -110,19 +141,36 @@ def _procedure_text(scanned: ScannedSource) -> str:
     )
 
 
-def _max_nesting(scanned: ScannedSource) -> int:
-    depth = max_depth = 0
-    for line in scanned.procedure_lines():
-        if line.is_comment or not line.code.strip():
-            continue
-        code = line.code.upper()
-        depth += len(_OPEN_SCOPE.findall(code))
-        depth -= len(_CLOSE_SCOPE.findall(code))
+def _max_nesting_of_lines(lines: Sequence[str]) -> int:
+    """Deepest stack of open scopes. See ``max_nesting_depth`` in the docstring."""
+    stack: List[str] = []
+    max_depth = 0
+    for code in lines:
+        events: List[Tuple[int, str, str]] = []
+        for name, pattern in _SCOPE_OPENERS:
+            events.extend((m.start(), "open", name) for m in pattern.finditer(code))
+        events.extend(
+            (m.start(), "close", m.group(1).upper()) for m in _SCOPE_CLOSER.finditer(code)
+        )
+        for _, kind, name in sorted(events, key=lambda e: (e[0], e[1])):
+            if kind == "open":
+                stack.append(name)
+                max_depth = max(max_depth, len(stack))
+            elif name in stack:
+                while stack and stack.pop() != name:
+                    pass          # an unterminated inner scope closes with its parent
+            # a terminator whose opener was never counted is inert
         if code.rstrip().endswith("."):
-            depth = 0                 # a period closes every open unterminated scope
-        depth = max(depth, 0)
-        max_depth = max(max_depth, depth)
+            stack.clear()         # a period closes every scope still open
     return max_depth
+
+
+def _max_nesting(scanned: ScannedSource) -> int:
+    return _max_nesting_of_lines([
+        line.code.upper()
+        for line in scanned.procedure_lines()
+        if not line.is_comment and line.code.strip()
+    ])
 
 
 def _paragraph_metrics(scanned: ScannedSource) -> Tuple[ParagraphComplexity, ...]:
@@ -156,15 +204,7 @@ def _paragraph_metrics(scanned: ScannedSource) -> Tuple[ParagraphComplexity, ...
 
 
 def _max_nesting_of_text(text: str) -> int:
-    depth = max_depth = 0
-    for code in text.splitlines():
-        depth += len(_OPEN_SCOPE.findall(code))
-        depth -= len(_CLOSE_SCOPE.findall(code))
-        if code.rstrip().endswith("."):
-            depth = 0
-        depth = max(depth, 0)
-        max_depth = max(max_depth, depth)
-    return max_depth
+    return _max_nesting_of_lines(text.splitlines())
 
 
 def analyze(source: str, program_id: str = "", statements: Optional[int] = None) -> ComplexityResult:

@@ -181,3 +181,127 @@ def test_module_declares_no_thresholds():
 def test_metrics_are_stable_across_line_endings():
     lf = src("HEAVY.cbl")
     assert analyze(lf, "x").to_dict() == analyze(lf.replace("\n", "\r\n"), "x").to_dict()
+
+
+# --------------------------------------------------------------------------
+# max_nesting_depth — regressions for the counter-vs-stack defect.
+# A plain open/close counter let any END-… cancel an unrelated open scope.
+# --------------------------------------------------------------------------
+
+
+def test_end_perform_does_not_cancel_the_enclosing_if():
+    """The reported defect: END-PERFORM inside an IF cancelled the IF's depth,
+    so the IF and everything nested after it were undercounted."""
+    r = analyze(prog(
+        "       MAIN-PARA.\n"
+        "           IF WS-N > 0\n"
+        "               PERFORM VARYING WS-N FROM 1 BY 1 UNTIL WS-N > 3\n"
+        "                   DISPLAY WS-N\n"
+        "               END-PERFORM\n"
+        "               IF WS-N > 1\n"
+        "                   DISPLAY WS-N\n"
+        "               END-IF\n"
+        "           END-IF.\n"
+        "           STOP RUN.\n"))
+    assert r.max_nesting_depth == 2
+
+
+def test_inline_perform_opens_a_scope():
+    """The module docstring says inline PERFORM nests; it must actually nest."""
+    r = analyze(prog(
+        "       MAIN-PARA.\n"
+        "           IF WS-N > 0\n"
+        "               PERFORM UNTIL WS-N > 3\n"
+        "                   DISPLAY WS-N\n"
+        "               END-PERFORM\n"
+        "           END-IF.\n"
+        "           STOP RUN.\n"))
+    assert r.max_nesting_depth == 2
+
+
+def test_perform_times_is_inline_but_perform_paragraph_is_not():
+    inline = analyze(prog(
+        "       MAIN-PARA.\n"
+        "           PERFORM 5 TIMES\n"
+        "               DISPLAY WS-N\n"
+        "           END-PERFORM.\n"
+        "           STOP RUN.\n"))
+    procedural = analyze(prog(
+        "       MAIN-PARA.\n"
+        "           PERFORM SUB-PARA\n"
+        "           PERFORM SUB-PARA\n"
+        "           PERFORM SUB-PARA.\n"
+        "           STOP RUN.\n"
+        "       SUB-PARA.\n"
+        "           DISPLAY WS-N.\n"))
+    assert inline.max_nesting_depth == 1
+    assert procedural.max_nesting_depth == 0, (
+        "calling three paragraphs is not three levels of nesting"
+    )
+
+
+def test_unmatched_terminator_is_inert():
+    """END-READ closes a statement this module never counted as opening a
+    scope, so it must not decrement anything."""
+    r = analyze(prog(
+        "       MAIN-PARA.\n"
+        "           IF WS-N > 0\n"
+        "               READ CUSTFILE\n"
+        "               END-READ\n"
+        "               IF WS-N > 1\n"
+        "                   DISPLAY WS-N\n"
+        "               END-IF\n"
+        "           END-IF.\n"
+        "           STOP RUN.\n"))
+    assert r.max_nesting_depth == 2
+
+
+def test_scope_opened_and_closed_on_one_line_still_counts():
+    r = analyze(prog(
+        "       MAIN-PARA.\n"
+        "           IF WS-N > 0 DISPLAY WS-N END-IF.\n"
+        "           STOP RUN.\n"))
+    assert r.max_nesting_depth == 1
+
+
+def test_period_closes_every_unterminated_scope():
+    r = analyze(prog(
+        "       MAIN-PARA.\n"
+        "           IF WS-N > 0\n"
+        "               DISPLAY WS-N.\n"
+        "           DISPLAY WS-N.\n"
+        "           STOP RUN.\n"))
+    assert r.max_nesting_depth == 1
+
+
+def test_search_opens_a_scope():
+    r = analyze(prog(
+        "       MAIN-PARA.\n"
+        "           IF WS-N > 0\n"
+        "               SEARCH WS-T\n"
+        "               WHEN WS-N > 1\n"
+        "                   DISPLAY WS-N\n"
+        "               END-SEARCH\n"
+        "           END-IF.\n"
+        "           STOP RUN.\n"))
+    assert r.max_nesting_depth == 2
+
+
+def test_nesting_feeds_the_risk_rule_it_is_documented_to_feed():
+    """max_nesting_depth>4 is a MED rule; the metric must reach it correctly."""
+    from src.assessment.risk import assess
+    from src.assessment.models import CoverageResult, Measured, RiskTier
+
+    body = "       MAIN-PARA.\n"
+    for i in range(5):
+        body += " " * (11 + i * 4) + f"IF WS-N > {i}\n"
+    body += " " * 31 + "DISPLAY WS-N\n"
+    for i in range(4, -1, -1):
+        body += " " * (11 + i * 4) + "END-IF\n"
+    body += "           .\n           STOP RUN.\n"
+
+    r = analyze(prog(body))
+    assert r.max_nesting_depth == 5
+    cov = CoverageResult("P", True, "antlr_tree", 10, 10,
+                         Measured(1.0, "test fixture", "VERIFIED"))
+    assert assess("P", cov, r).rule == "MED: max_nesting_depth>4"
