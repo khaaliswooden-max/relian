@@ -139,7 +139,12 @@ def _field_value(kind: str, dec: int, length: int, lit: str, context: str) -> st
         raise ValueError(
             f"unsupported VALUE: string literal on non-alpha field {context}")
     if up.startswith("ZERO"):
-        return "" .ljust(length) if kind == "alpha" else _rescale_numeric("0", dec, context)
+        # On an alphanumeric field the ZERO figurative fills with the
+        # CHARACTER '0', not spaces (measured, GnuCOBOL 3.1.2:
+        # PIC X(5) VALUE ZERO displays "00000"; Bugbot finding on PR #15).
+        if kind == "alpha":
+            return "0" * length if length else "0"
+        return _rescale_numeric("0", dec, context)
     if up.startswith("SPACE"):
         if kind != "alpha":
             raise ValueError(f"unsupported VALUE SPACES on non-alpha field {context}")

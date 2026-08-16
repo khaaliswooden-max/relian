@@ -200,6 +200,24 @@ def test_strict_error_carries_verb_line_and_paragraph():
 def test_boundary_only_tokens_are_not_reported_as_supported():
     assert "SUBTRACT" in boundary_only_tokens()
     assert "SUBTRACT" not in supported_verbs()
+    # WP-1.5.5: bare EXIT splits statements but only "EXIT PROGRAM" has a
+    # handler, so EXIT itself must stay boundary-only.
+    assert "EXIT" in boundary_only_tokens()
+
+
+def test_value_figuratives_match_the_oracle():
+    """Measured (GnuCOBOL 3.1.2): on PIC X, ZERO fills with the CHARACTER
+    '0' while SPACES fills blanks — they are not interchangeable (Bugbot
+    finding on PR #15, confirmed against the oracle before fixing)."""
+    from transpiler.c1_rulebased import parse_working_storage
+    f = parse_working_storage([
+        "01 WS-A PIC X(5) VALUE ZERO.",
+        "01 WS-B PIC X(5) VALUE SPACES.",
+        "01 WS-N PIC 9(3)V99 VALUE ZERO.",
+    ])
+    assert f["WS-A"].value == "00000"
+    assert f["WS-B"].value == "     "
+    assert f["WS-N"].value == "0.00"
 
 
 def test_data_features_are_three_state_and_probed():
