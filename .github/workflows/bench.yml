@@ -38,11 +38,36 @@ jobs:
           # exit was taken on every run and the held-out split was never
           # scored. This step is what populates it: the transpiler at this
           # commit, run over the committed corpus. It reads no vectors.
-          import json
+          import json, re
           from pathlib import Path
           from transpiler.c1_rulebased import Transpiler
 
+          def failure_stub(cls: str, exc: Exception) -> str:
+              """Java that does not compile, so a transpile failure is visible.
+
+              A comment-only .java file is a legal empty compilation unit and
+              javac exits 0 on it, which would leave build_ok true and
+              build_rate 1.0 for a program that produced nothing runnable. The
+              stub therefore references an unresolved type whose NAME states the
+              reason, so `javac` fails with 'cannot find symbol
+              RELIAN_TRANSPILE_FAILED' and build_rate reflects reality.
+
+              The message is flattened to one line and '/' is replaced, because
+              a newline would spill out of the // comment and a path could
+              collide with the harness's anti-gaming token list, turning a
+              build failure into a misreported 'gaming controls tripped'.
+              """
+              msg = re.sub(r'\s+', ' ', f'{type(exc).__name__}: {exc}').replace('/', '|')
+              return (f'// TRANSPILE FAILED: {msg[:300]}\n'
+                      f'// Deliberately uncompilable: see failure_stub in bench.yml.\n'
+                      f'public class {cls} {{\n'
+                      f'    public static void main(String[] args) {{\n'
+                      f'        RELIAN_TRANSPILE_FAILED unresolved = null;\n'
+                      f'    }}\n'
+                      f'}}\n')
+
           mains = json.loads(Path('bench/harness/mains.json').read_text())
+          failed = []
           for prog, cls in sorted(mains.items()):
               src = Path(f'bench/corpus/{prog}/program.cbl').read_text()
               dest = Path('candidates/current') / prog
@@ -50,13 +75,19 @@ jobs:
               try:
                   java = Transpiler(src, cls).transpile()
               except Exception as exc:
-                  # Honest failure (R2): emit the failure rather than nothing.
-                  # A program that does not transpile must reach the scorer and
-                  # fail to compile, not quietly vanish from the denominator.
-                  java = f'// TRANSPILE FAILED: {exc}\n'
-                  print(f'{prog}: TRANSPILE FAILED: {exc}')
+                  # Honest failure (R2): emit a failure the scorer can see.
+                  # Omitting the program would shrink the denominator and
+                  # inflate BER; emitting something that compiles would hide it
+                  # from build_rate. Neither is acceptable.
+                  java = failure_stub(cls, exc)
+                  failed.append(f'{prog}: {type(exc).__name__}: {exc}')
+                  print(f'{prog}: TRANSPILE FAILED: {type(exc).__name__}: {exc}')
               (dest / f'{cls}.java').write_text(java)
               print(f'{prog}: emitted {len(java)} bytes -> {dest / f"{cls}.java"}')
+
+          if failed:
+              print(f'{len(failed)} of {len(mains)} program(s) did not transpile; '
+                    f'they will fail to compile and score 0 over their full vector count')
           PY
       - name: Score candidate on HELD-OUT split
         run: |
