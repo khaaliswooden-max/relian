@@ -19,12 +19,27 @@ import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
+# Statement *boundary* tokens. A line beginning with one of these starts a new
+# statement; a line beginning with anything else is glued onto the previous
+# statement as a continuation. This set is NOT the supported set -- membership
+# here only affects how source is chopped up. SUPPORTED_STATEMENTS below is
+# the supported set, and the two differ deliberately (e.g. SUBTRACT is a
+# boundary token with no handler; AT and END-SEARCH are consumed by SEARCH).
 VERBS = {"ACCEPT", "UNSTRING", "COMPUTE", "MOVE", "IF", "ELSE", "END-IF",
          "EVALUATE", "WHEN", "END-EVALUATE", "PERFORM", "END-PERFORM",
          "ADD", "SET", "SEARCH", "END-SEARCH", "AT", "INSPECT", "DISPLAY",
          "STOP", "END-UNSTRING", "SUBTRACT"}
+
+
+class UnsupportedConstruct(Exception):
+    """Raised by unsupported() only in strict mode (opt-in, default off)."""
+
+    def __init__(self, verb: str, line_no: int):
+        self.verb = verb
+        self.line_no = line_no
+        super().__init__(f"unsupported COBOL construct {verb!r} at source line {line_no}")
 
 
 def jname(cobol: str) -> str:
@@ -317,35 +332,56 @@ HELPERS = {
 
 
 class Transpiler:
-    def __init__(self, source: str, class_name: str):
+    def __init__(self, source: str, class_name: str, strict: bool = False):
         self.cls = class_name
-        # strip fixed-format columns 1-6 + indicator, drop comments
+        # strip fixed-format columns 1-6 + indicator, blank out comments.
+        # Comment lines become empty lines rather than disappearing, so that
+        # index k in `body` is always source line k+1. Downstream every
+        # consumer already skips blank lines, so the emitted Java is
+        # unaffected -- this only makes line numbers reportable.
         body: List[str] = []
         for raw in source.splitlines():
             if len(raw) > 6 and raw[6] == "*":
+                body.append("")
                 continue
             body.append(raw[7:72] if len(raw) > 7 else "")
         text = "\n".join(body)
         ws = text.split("WORKING-STORAGE SECTION.")[1].split("PROCEDURE DIVISION.")[0]
         self.fields = parse_working_storage(ws.splitlines())
-        proc = text.split("PROCEDURE DIVISION.")[1]
-        self.stmts = self._statements(proc)
+        # split(), not partition() -- must match the original slicing exactly
+        _parts = text.split("PROCEDURE DIVISION.")
+        proc = _parts[1]
+        # 1-based source line on which PROCEDURE DIVISION. appears
+        proc_line = _parts[0].count("\n") + 1
+        self.stmt_lines: List[int] = []
+        self.stmts = self._statements(proc, proc_line)
         self.used: set = set()
         self.ex = ExprTx(self.fields, self.used)
         self.j: List[str] = []
         self.ind = 2
+        # WP-1.2: honest-failure bookkeeping. `strict` is opt-in and OFF by
+        # default because turning a silent skip into a hard failure changes
+        # behavior, and that is an operator decision (see
+        # docs/C1_SUPPORTED_VERBS_OBSERVED.md §5).
+        self.strict = strict
+        self.unsupported_hits: List[Tuple[str, int]] = []
 
-    def _statements(self, proc: str) -> List[str]:
-        lines = [l.strip() for l in proc.splitlines() if l.strip()]
+    def _statements(self, proc: str, line_offset: int = 0) -> List[str]:
         out: List[str] = []
-        for l in lines:
+        lines_out: List[int] = []
+        for k, raw_line in enumerate(proc.splitlines()):
+            l = raw_line.strip()
+            if not l:
+                continue
             if re.match(r"^[A-Z0-9\-]+\.$", l):   # paragraph label
                 continue
             first = l.split()[0].rstrip(".")
             if first in VERBS or not out:
                 out.append(l)
+                lines_out.append(line_offset + k)
             else:
                 out[-1] += " " + l
+        self.stmt_lines = lines_out
         return [s.rstrip(".").strip() for s in out]
 
     # -- emit helpers --
@@ -394,170 +430,267 @@ class Transpiler:
                 f"  public static void main(String[] args) {{\n{body}\n"
                 f"  }}\n}}\n")
 
-    # -- statement dispatch; returns next index --
+    # -- statement dispatch --
+    #
+    # WP-1.2: the supported set used to be implicit in an if/elif chain, which
+    # meant any external list of "what C1 supports" was hand-maintained and
+    # free to drift. It is now the keys of SUPPORTED_STATEMENTS (defined below
+    # the handlers), which src/assessment/supported.py imports directly.
+    # Behavior is unchanged: each handler is the former branch body verbatim,
+    # dispatch is on the same token (s.split()[0]), and a verb with no handler
+    # still emits nothing -- it now goes through unsupported() so the omission
+    # is recorded instead of invisible.
+
+    def unsupported(self, verb: str, line_no: int) -> None:
+        """The single honest-failure path for a construct C1 cannot transpile.
+
+        Default behavior emits nothing, exactly as the old fall-through did,
+        and records the occurrence on ``self.unsupported_hits``. In strict mode
+        it raises :class:`UnsupportedConstruct` instead.
+        """
+        self.unsupported_hits.append((verb, line_no))
+        if self.strict:
+            raise UnsupportedConstruct(verb, line_no)
+
     def stmt(self, i: int) -> int:
+        """Dispatch one statement; returns the index of the next statement."""
         s = self.stmts[i]
+        if s == "__NOP":
+            return i + 1
         v = s.split()[0]
-        if v == "ACCEPT":
-            m = re.match(r"ACCEPT\s+([A-Z0-9\-]+)", s)
-            self.w(f'{jname(m.group(1))} = _sc.nextLine();')
-        elif v == "UNSTRING":
-            m = re.match(r'UNSTRING\s+([A-Z0-9\-]+)\s+DELIMITED\s+BY\s+"([^"]*)"\s+INTO\s+(.+?)(?:\s+END-UNSTRING)?$', s)
-            src, delim, tgts = m.group(1), m.group(2), m.group(3).split()
-            self.used.add("unstring")
-            self.w(f'String[] _p = R.unstring({jname(src)}, {len(tgts)}, "{delim}");')
-            for k, t in enumerate(tgts):
-                self.w(f'{jname(t)} = _p[{k}];')
-        elif v == "COMPUTE":
-            m = re.match(r"COMPUTE\s+([A-Z0-9\-]+)(\s*\(([^)]+)\))?\s+(ROUNDED\s+)?=\s+(.*)$", s)
-            name, sub, rounded, expr = m.group(1), m.group(3), bool(m.group(4)), m.group(5)
-            self.store(name, self.ex.emit(expr), rounded, sub)
-        elif v == "MOVE":
-            m = re.match(r"MOVE\s+(.+?)\s+TO\s+([A-Z0-9\-]+)(\s*\(([^)]+)\))?$", s)
-            srcx, name, sub = m.group(1).strip(), m.group(2), m.group(4)
-            f = self.fields[name]
-            if srcx.upper() in ("ZERO", "ZEROS", "ZEROES"):
-                self.store(name, "BigDecimal.ZERO", False, sub)
-            elif srcx.startswith('"'):
-                lit = srcx[1:-1]
-                if f.length and len(lit) > f.length:
-                    lit = lit[:f.length]
-                self.w(f'{jname(name)} = "{lit}";')
-            elif f.kind in ("num",) and (srcx in self.fields and self.fields[srcx].kind == "num") :
-                self.store(name, jname(srcx), False, sub)
-            elif f.kind == "edit":
-                self.store(name, self.ex.emit(srcx), False, sub)
-            elif re.fullmatch(r"\d+(\.\d+)?", srcx):
-                self.store(name, f'new BigDecimal("{srcx}")', False, sub)
-            else:  # alpha <- expr (e.g. FUNCTION TRIM(x))
-                self.used.add("take")
-                self.w(f"{jname(name)} = R.take({self.ex.strexpr(srcx)}, {f.length or 999});")
-        elif v == "ADD":
-            m = re.match(r"ADD\s+(.+?)\s+TO\s+([A-Z0-9\-]+)$", s)
-            src, name = m.group(1), m.group(2)
-            self.store(name, f"{jname(name)}.add({self.ex.emit(src)})", False)
-        elif v == "SET":
-            m = re.match(r"SET\s+([A-Z0-9\-]+)\s+TO\s+(.+)$", s)
-            tgt, val = m.group(1), m.group(2).strip()
-            if tgt == "BI" or (tgt not in self.fields):
-                if not val.isdigit():
-                    self.used.add("ix")
-                self.w(f"BI = {val if val.isdigit() else f'R.ix({self.ex.emit(val)})'};")
-            else:
-                src = "new BigDecimal(BI)" if val == "BI" else self.ex.emit(val)
-                self.store(tgt, src, False)
-        elif v == "IF":
-            m = re.match(r"IF\s+(.*)$", s)
-            self.w(f"if ({cond_tx(m.group(1), self.fields, self.ex, self.used)}) {{")
-            self.ind += 1
-        elif v == "ELSE":
-            self.ind -= 1
-            self.w("} else {")
-            self.ind += 1
-        elif v == "END-IF":
-            self.ind -= 1
-            self.w("}")
-        elif v == "EVALUATE":
-            self._first_when = True
-        elif v == "WHEN":
-            cond = s[4:].strip()
-            if not self._first_when:
-                self.ind -= 1
-            kw = "if" if self._first_when else "} else if"
-            if cond.upper() == "OTHER":
-                self.w("} else {")
-            else:
-                self.w(f"{kw} ({cond_tx(cond, self.fields, self.ex, self.used)}) {{")
-            self.ind += 1
-            self._first_when = False
-        elif v == "END-EVALUATE":
-            self.ind -= 1
-            self.w("}")
-        elif v == "PERFORM":
-            m = re.match(r"PERFORM\s+VARYING\s+([A-Z0-9\-]+)\s+FROM\s+(\S+)\s+BY\s+(\S+)\s+UNTIL\s+(.*)$", s)
-            var, frm, by, until = m.groups()
-            f = self.fields[var]
-            self.w(f'for ({jname(var)} = new BigDecimal("{frm}"); '
-                   f"!({cond_tx(until, self.fields, self.ex, self.used)}); "
-                   f'{jname(var)} = {jname(var)}.add(new BigDecimal("{by}"))) {{')
-            self.ind += 1
-        elif v == "END-PERFORM":
-            self.ind -= 1
-            self.w("}")
-        elif v == "SEARCH":
-            m = re.match(r"SEARCH\s+([A-Z0-9\-]+)", s)
-            grp = m.group(1)
-            occ = next((f.occurs for f in self.fields.values() if f.occurs), 5)
-            # collect AT END + WHEN clauses until END-SEARCH
-            j = i + 1
-            atend, whencond, whenbody = None, None, []
-            while j < len(self.stmts) and not self.stmts[j].startswith("END-SEARCH"):
-                t = self.stmts[j]
-                if t.startswith("AT END"):
-                    atend = t[6:].strip()
-                elif t.startswith("WHEN"):
-                    whencond = t[4:].strip()
-                else:
-                    whenbody.append(t)
-                j += 1
-            self.w("boolean _found = false;")
-            self.w(f"for (; BI <= {occ}; BI++) {{")
-            self.ind += 1
-            self.w(f"if ({cond_tx(whencond, self.fields, self.ex, self.used)}) {{")
-            self.ind += 1
-            for b in whenbody:
-                self._inline(b)
-            self.w("_found = true; break;")
-            self.ind -= 1
-            self.w("}")
-            self.ind -= 1
-            self.w("}")
-            if atend:
-                self.w("if (!_found) {")
-                self.ind += 1
-                self._inline(atend)
-                self.ind -= 1
-                self.w("}")
-            return j + 1
-        elif v == "INSPECT":
-            m = re.match(r'INSPECT\s+([A-Z0-9\-]+)\s+TALLYING\s+([A-Z0-9\-]+)\s+FOR\s+ALL\s+(.*)$', s)
-            src, cnt, lits = m.group(1), m.group(2), re.findall(r'"([^"]*)"', m.group(3))
-            chars = "".join(lits)
-            self.w(f"{{ int _c = 0; for (char _ch : {jname(src)}.toCharArray()) "
-                   f'if ("{chars}".indexOf(_ch) >= 0) _c++; '
-                   f"{jname(cnt)} = new BigDecimal(_c); }}")
-        elif v == "DISPLAY":
-            parts = re.findall(r'"[^"]*"|FUNCTION\s+TRIM\s*\([^)]*\)|[A-Z0-9\-]+', s[7:].strip())
-            segs = []
-            for p in parts:
-                if p.startswith('"'):
-                    segs.append(p)
-                elif p.upper().startswith("FUNCTION"):
-                    inner = p[p.index("(")+1:p.rindex(")")]
-                    segs.append(f"{self.ex.strexpr(inner)}.trim()")
-                else:
-                    f = self.fields.get(p)
-                    if f and f.kind == "num":
-                        if not f.signed and f.dec == 0:
-                            self.used.add("dnumU")
-                            segs.append(f"R.dnumU({jname(p)}, {f.intd})")
-                        else:
-                            self.used.add("dnum")
-                            segs.append(f"R.dnum({jname(p)}, {f.intd}, {f.dec})")
-                    else:
-                        segs.append(jname(p))
-            self.w(f'System.out.println({" + ".join(segs)});')
-        elif v == "STOP":
-            self.w("return;")
-        elif s == "__NOP":
-            pass
-        return i + 1
+        handler = SUPPORTED_STATEMENTS.get(v)
+        if handler is None:
+            line_no = self.stmt_lines[i] if i < len(self.stmt_lines) else -1
+            self.unsupported(v, line_no)
+            return i + 1
+        return handler(self, i, s)
 
     def _inline(self, stmt_text: str):
         """Emit a single statement given as text (used inside SEARCH)."""
         self.stmts.append(stmt_text)
         self.stmt(len(self.stmts) - 1)
         self.stmts.pop()
+
+
+# ---------------- Statement handlers ----------------
+# Each handler is the body of the corresponding former elif branch, verbatim.
+# Signature: (transpiler, statement_index, statement_text) -> next_index.
+
+def _tx_accept(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r"ACCEPT\s+([A-Z0-9\-]+)", s)
+    tp.w(f'{jname(m.group(1))} = _sc.nextLine();')
+    return i + 1
+
+
+def _tx_unstring(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r'UNSTRING\s+([A-Z0-9\-]+)\s+DELIMITED\s+BY\s+"([^"]*)"\s+INTO\s+(.+?)(?:\s+END-UNSTRING)?$', s)
+    src, delim, tgts = m.group(1), m.group(2), m.group(3).split()
+    tp.used.add("unstring")
+    tp.w(f'String[] _p = R.unstring({jname(src)}, {len(tgts)}, "{delim}");')
+    for k, t in enumerate(tgts):
+        tp.w(f'{jname(t)} = _p[{k}];')
+    return i + 1
+
+
+def _tx_compute(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r"COMPUTE\s+([A-Z0-9\-]+)(\s*\(([^)]+)\))?\s+(ROUNDED\s+)?=\s+(.*)$", s)
+    name, sub, rounded, expr = m.group(1), m.group(3), bool(m.group(4)), m.group(5)
+    tp.store(name, tp.ex.emit(expr), rounded, sub)
+    return i + 1
+
+
+def _tx_move(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r"MOVE\s+(.+?)\s+TO\s+([A-Z0-9\-]+)(\s*\(([^)]+)\))?$", s)
+    srcx, name, sub = m.group(1).strip(), m.group(2), m.group(4)
+    f = tp.fields[name]
+    if srcx.upper() in ("ZERO", "ZEROS", "ZEROES"):
+        tp.store(name, "BigDecimal.ZERO", False, sub)
+    elif srcx.startswith('"'):
+        lit = srcx[1:-1]
+        if f.length and len(lit) > f.length:
+            lit = lit[:f.length]
+        tp.w(f'{jname(name)} = "{lit}";')
+    elif f.kind in ("num",) and (srcx in tp.fields and tp.fields[srcx].kind == "num") :
+        tp.store(name, jname(srcx), False, sub)
+    elif f.kind == "edit":
+        tp.store(name, tp.ex.emit(srcx), False, sub)
+    elif re.fullmatch(r"\d+(\.\d+)?", srcx):
+        tp.store(name, f'new BigDecimal("{srcx}")', False, sub)
+    else:  # alpha <- expr (e.g. FUNCTION TRIM(x))
+        tp.used.add("take")
+        tp.w(f"{jname(name)} = R.take({tp.ex.strexpr(srcx)}, {f.length or 999});")
+    return i + 1
+
+
+def _tx_add(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r"ADD\s+(.+?)\s+TO\s+([A-Z0-9\-]+)$", s)
+    src, name = m.group(1), m.group(2)
+    tp.store(name, f"{jname(name)}.add({tp.ex.emit(src)})", False)
+    return i + 1
+
+
+def _tx_set(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r"SET\s+([A-Z0-9\-]+)\s+TO\s+(.+)$", s)
+    tgt, val = m.group(1), m.group(2).strip()
+    if tgt == "BI" or (tgt not in tp.fields):
+        if not val.isdigit():
+            tp.used.add("ix")
+        tp.w(f"BI = {val if val.isdigit() else f'R.ix({tp.ex.emit(val)})'};")
+    else:
+        src = "new BigDecimal(BI)" if val == "BI" else tp.ex.emit(val)
+        tp.store(tgt, src, False)
+    return i + 1
+
+
+def _tx_if(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r"IF\s+(.*)$", s)
+    tp.w(f"if ({cond_tx(m.group(1), tp.fields, tp.ex, tp.used)}) {{")
+    tp.ind += 1
+    return i + 1
+
+
+def _tx_else(tp: Transpiler, i: int, s: str) -> int:
+    tp.ind -= 1
+    tp.w("} else {")
+    tp.ind += 1
+    return i + 1
+
+
+def _tx_end_block(tp: Transpiler, i: int, s: str) -> int:
+    """END-IF / END-EVALUATE / END-PERFORM: close the block."""
+    tp.ind -= 1
+    tp.w("}")
+    return i + 1
+
+
+def _tx_evaluate(tp: Transpiler, i: int, s: str) -> int:
+    tp._first_when = True
+    return i + 1
+
+
+def _tx_when(tp: Transpiler, i: int, s: str) -> int:
+    cond = s[4:].strip()
+    if not tp._first_when:
+        tp.ind -= 1
+    kw = "if" if tp._first_when else "} else if"
+    if cond.upper() == "OTHER":
+        tp.w("} else {")
+    else:
+        tp.w(f"{kw} ({cond_tx(cond, tp.fields, tp.ex, tp.used)}) {{")
+    tp.ind += 1
+    tp._first_when = False
+    return i + 1
+
+
+def _tx_perform(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r"PERFORM\s+VARYING\s+([A-Z0-9\-]+)\s+FROM\s+(\S+)\s+BY\s+(\S+)\s+UNTIL\s+(.*)$", s)
+    var, frm, by, until = m.groups()
+    f = tp.fields[var]
+    tp.w(f'for ({jname(var)} = new BigDecimal("{frm}"); '
+         f"!({cond_tx(until, tp.fields, tp.ex, tp.used)}); "
+         f'{jname(var)} = {jname(var)}.add(new BigDecimal("{by}"))) {{')
+    tp.ind += 1
+    return i + 1
+
+
+def _tx_search(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r"SEARCH\s+([A-Z0-9\-]+)", s)
+    grp = m.group(1)
+    occ = next((f.occurs for f in tp.fields.values() if f.occurs), 5)
+    # collect AT END + WHEN clauses until END-SEARCH
+    j = i + 1
+    atend, whencond, whenbody = None, None, []
+    while j < len(tp.stmts) and not tp.stmts[j].startswith("END-SEARCH"):
+        t = tp.stmts[j]
+        if t.startswith("AT END"):
+            atend = t[6:].strip()
+        elif t.startswith("WHEN"):
+            whencond = t[4:].strip()
+        else:
+            whenbody.append(t)
+        j += 1
+    tp.w("boolean _found = false;")
+    tp.w(f"for (; BI <= {occ}; BI++) {{")
+    tp.ind += 1
+    tp.w(f"if ({cond_tx(whencond, tp.fields, tp.ex, tp.used)}) {{")
+    tp.ind += 1
+    for b in whenbody:
+        tp._inline(b)
+    tp.w("_found = true; break;")
+    tp.ind -= 1
+    tp.w("}")
+    tp.ind -= 1
+    tp.w("}")
+    if atend:
+        tp.w("if (!_found) {")
+        tp.ind += 1
+        tp._inline(atend)
+        tp.ind -= 1
+        tp.w("}")
+    return j + 1
+
+
+def _tx_inspect(tp: Transpiler, i: int, s: str) -> int:
+    m = re.match(r'INSPECT\s+([A-Z0-9\-]+)\s+TALLYING\s+([A-Z0-9\-]+)\s+FOR\s+ALL\s+(.*)$', s)
+    src, cnt, lits = m.group(1), m.group(2), re.findall(r'"([^"]*)"', m.group(3))
+    chars = "".join(lits)
+    tp.w(f"{{ int _c = 0; for (char _ch : {jname(src)}.toCharArray()) "
+         f'if ("{chars}".indexOf(_ch) >= 0) _c++; '
+         f"{jname(cnt)} = new BigDecimal(_c); }}")
+    return i + 1
+
+
+def _tx_display(tp: Transpiler, i: int, s: str) -> int:
+    parts = re.findall(r'"[^"]*"|FUNCTION\s+TRIM\s*\([^)]*\)|[A-Z0-9\-]+', s[7:].strip())
+    segs = []
+    for p in parts:
+        if p.startswith('"'):
+            segs.append(p)
+        elif p.upper().startswith("FUNCTION"):
+            inner = p[p.index("(")+1:p.rindex(")")]
+            segs.append(f"{tp.ex.strexpr(inner)}.trim()")
+        else:
+            f = tp.fields.get(p)
+            if f and f.kind == "num":
+                if not f.signed and f.dec == 0:
+                    tp.used.add("dnumU")
+                    segs.append(f"R.dnumU({jname(p)}, {f.intd})")
+                else:
+                    tp.used.add("dnum")
+                    segs.append(f"R.dnum({jname(p)}, {f.intd}, {f.dec})")
+            else:
+                segs.append(jname(p))
+    tp.w(f'System.out.println({" + ".join(segs)});')
+    return i + 1
+
+
+def _tx_stop(tp: Transpiler, i: int, s: str) -> int:
+    tp.w("return;")
+    return i + 1
+
+
+# The supported set. Adding a verb here is the ONLY way to make C1 support it,
+# and src/assessment/supported.py reads this table rather than a copy of it.
+SUPPORTED_STATEMENTS: Dict[str, Callable[[Transpiler, int, str], int]] = {
+    "ACCEPT": _tx_accept,
+    "ADD": _tx_add,
+    "COMPUTE": _tx_compute,
+    "DISPLAY": _tx_display,
+    "ELSE": _tx_else,
+    "END-EVALUATE": _tx_end_block,
+    "END-IF": _tx_end_block,
+    "END-PERFORM": _tx_end_block,
+    "EVALUATE": _tx_evaluate,
+    "IF": _tx_if,
+    "INSPECT": _tx_inspect,
+    "MOVE": _tx_move,
+    "PERFORM": _tx_perform,
+    "SEARCH": _tx_search,
+    "SET": _tx_set,
+    "STOP": _tx_stop,
+    "UNSTRING": _tx_unstring,
+    "WHEN": _tx_when,
+}
 
 
 def main():

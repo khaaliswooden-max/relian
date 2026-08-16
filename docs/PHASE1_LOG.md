@@ -83,3 +83,85 @@ a reproducible probe transcript, in that document.
 
 **WP-0 acceptance: met.** CLAUDE.md appended; baseline recorded above;
 `C1_SUPPORTED_VERBS_OBSERVED.md` names the failure mechanism precisely.
+
+---
+
+## 2026-08-16 · WP-1.1 · Intake
+
+`src/assessment/models.py`, `src/assessment/intake.py`, `tests/assessment/test_intake.py`.
+```
+pytest tests/assessment/test_intake.py -q → 11 passed
+```
+Deviation recorded: `line_ending` has a fourth value, `NONE`, for files with no
+line terminator. The work package enumerated three. A file with no line break
+has no line ending, and labelling it `LF` would be an invented value (R1).
+
+## 2026-08-16 · WP-1.2 · Dispatch-table refactor (the one transpiler touch)
+
+`transpiler/c1_rulebased.py`: the `if/elif` chain in `Transpiler.stmt()` is now
+`SUPPORTED_STATEMENTS: Dict[str, Callable]`, each handler being the former
+branch body verbatim. Unknown verbs go through the new
+`Transpiler.unsupported(verb, line_no)`, which records the occurrence and — by
+default — emits nothing, exactly as the old fall-through did.
+
+Two supporting changes, both required for `unsupported()` to report a real line
+number and both verified not to change emitted bytes:
+- comment lines become empty lines instead of being dropped, so list index k in
+  the stripped body is always source line k+1 (every downstream consumer already
+  skips blank lines);
+- `_statements()` records the source line of each statement in `self.stmt_lines`.
+
+### Behavior-preservation gate — PASSED
+```
+python3 scripts/bench_public.py --out <scratch>/c1_after
+→ ber_overall: 1.0   build_rate: 1.0   valid: true
+```
+All five generated-Java SHA-256 are **identical to the WP-0 baseline**, and each
+also matches the committed `bench/candidates/C1_rulebased/**` byte for byte:
+
+| Program | sha256 | vs baseline |
+|---|---|---|
+| P01_payroll | `860562d2…0edaa7` | identical |
+| P02_interest | `f1f706ff…c663394` | identical |
+| P03_eligibility | `6257e89a…292506709` | identical |
+| P04_taxtable | `318d41be…6dbca0fc` | identical |
+| P05_validate | `2b7536a1…ce27785e0` | identical |
+
+`diff -r` between the pre- and post-refactor output trees is empty. That gate is
+now a permanent test
+(`test_supported.py::test_refactor_is_byte_identical_to_committed_candidate`)
+rather than a one-off manual check.
+
+### Strict mode — flagged for operator decision
+`unsupported()` supports `strict=True`, which raises `UnsupportedConstruct`
+instead of dropping the statement. It is **off by default**. Turning it on is
+the correct end state under R2 (a silently dropped verb is exactly the failure
+R2 forbids), but it changes transpiler behavior and therefore is an operator
+decision, not an agent one. **Escalation item #1 for Khaalis.**
+
+### `supported.py`
+- `supported_verbs()` → 18 keys read from `SUPPORTED_STATEMENTS`:
+  ACCEPT ADD COMPUTE DISPLAY ELSE END-EVALUATE END-IF END-PERFORM EVALUATE IF
+  INSPECT MOVE PERFORM SEARCH SET STOP UNSTRING WHEN.
+- `boundary_only_tokens()` → AT, END-SEARCH, END-UNSTRING, **SUBTRACT**. These
+  are in `VERBS` and look supported; `SUBTRACT` has no handler, so a SUBTRACT
+  statement is dropped. Reporting them as supported would be R1 fabrication.
+- `supported_data_features()` is **probed**, not listed: each feature is a real
+  COBOL program run through `Transpiler.__init__`, and the resulting `fields`
+  model is inspected. Measured result:
+
+| status | features |
+|---|---|
+| supported | PIC 9, PIC X, PIC S9, PIC 9V9, edited (Z/-/.), 88-level, OCCURS fixed |
+| accepted_ignored | USAGE COMP-3, USAGE COMP/BINARY, REDEFINES, VALUE on a data item, OCCURS DEPENDING ON, PIC CR/DB, SIGN IS SEPARATE |
+| unsupported | PIC A alphabetic, PIC check-protect (`*`), FILE SECTION (FD) records |
+
+  `accepted_ignored` is a deliberate third state: the declaration parses and the
+  field exists, but the clause is discarded, so generated Java cannot depend on
+  it. Ignoring a clause is not supporting it.
+
+### Suite after WP-1.2
+```
+pytest -q → 4 failed, 104 passed
+```
+Same 4 pre-existing failures as the WP-0 baseline; 49 new assessment tests.
