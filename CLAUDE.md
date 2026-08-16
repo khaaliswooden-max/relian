@@ -27,3 +27,20 @@
    repository. Generator + seed + corpus regenerates the held-out set,
    which destroys the benchmark. The generator lives only in
    relian-bench-private.
+
+## RELIAN ENGINEERING RULES (binding — v1.1, Aug 2026)
+R1. A metric is measured or None — never a constant, default, or estimate presented as a measurement. Applies to code, tests, report templates, and UI.
+R2. Honest failure is a feature. Unsupported COBOL → explicit no-attestation result with construct inventory. Never silently pass, skip, or approximate.
+R3. Never read, regenerate, copy, or reference contents of relian-bench-private. Held-out eval runs only in CI. If a task seems to need the vectors, STOP and escalate to Khaalis.
+R4. Private signing keys never enter the repo, .env, CI vars, or this context. Custody is Khaalis-only. Code signs via interfaces.
+R5. Nothing simulated ships. No `simulated`/`mock` in mainline paths. Absence of a real integration is stated plainly.
+R6. No customer/State source code to any generative-AI model during transformation. Optional local analysis (Ollama) is off by default, disclosed.
+R7. Bench-first: no construct or language pair is "supported" until RELIAN-BENCH covers it, is sealed, and CI held-out passes. Bench commit predates grammar merge.
+R8. Determinism: core.autocrlf=false; Path.as_posix() for hashed bytes; sort by posix-string form.
+R9. Every externally visible number carries a Trutina grade (VERIFIED/PLAUSIBLE/SPECULATIVE) and a provenance field.
+R10. Main is protected; thresholds (BER 1.0000 supported scope, build 1.00, branch cov ≥0.80) are merge gates.
+R11. Quote/report templates reference only capabilities in the quotable-capability matrix.
+R12. Customer source stays in the customer perimeter (CLI/on-prem). Hosted platform stores Visionblox artifacts only.
+
+## PHASE 1 SCOPE (current)
+Building `src/assessment/` — the $8K Legacy Code Assessment engine. Read-only over customer code. Imports COBOLParser (src/parsers/cobol.py) and introspects transpiler/c1_rulebased.py. Does NOT modify the transpiler except WP-1.2 (dispatch-table refactor, behavior-preserving, bench-gated).

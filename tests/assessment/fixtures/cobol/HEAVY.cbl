@@ -1,0 +1,34 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. HEAVY.
+      * Predominantly outside the C1 subset.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  CUSTFILE.
+       01  CUST-REC PIC X(80).
+       WORKING-STORAGE SECTION.
+       01 WS-N      PIC 9(3).
+       01 WS-CNT    PIC 9(2).
+       01 WS-TBL.
+          05 WS-E PIC 9(3) OCCURS 10 DEPENDING ON WS-CNT.
+       01 WS-ALT    PIC X(5).
+       01 WS-RED    REDEFINES WS-ALT PIC 9(5).
+       PROCEDURE DIVISION.
+       MAIN-PARA.
+           OPEN INPUT CUSTFILE.
+           READ CUSTFILE.
+           EXEC SQL SELECT COUNT(*) INTO :WS-N FROM CUST END-EXEC.
+           EXEC CICS SEND MAP END-EXEC.
+           ALTER OTHER-PARA TO PROCEED TO THIRD-PARA.
+           STRING WS-ALT WS-N DELIMITED BY SIZE INTO WS-ALT.
+           PERFORM FIRST-PARA THRU THIRD-PARA.
+           WRITE CUST-REC.
+           CLOSE CUSTFILE.
+           GOBACK.
+       FIRST-PARA.
+           DISPLAY WS-N.
+       OTHER-PARA.
+           GO TO THIRD-PARA.
+       THIRD-PARA.
+           EXIT.
+       DEAD-PARA.
+           DISPLAY WS-ALT.

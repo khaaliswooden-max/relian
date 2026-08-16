@@ -1,0 +1,13 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. COPYUSER.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY "SHARED".
+       01 WS-N PIC 9(3).
+       PROCEDURE DIVISION.
+       MAIN-PARA.
+           MOVE 1 TO WS-N
+           CALL "AUDIT" USING WS-N
+           CALL "LOGGER" USING WS-N
+           DISPLAY WS-N
+           STOP RUN.
