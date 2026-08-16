@@ -7,9 +7,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.8209 | PLAUSIBLE | 7994/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
+| Portfolio construct coverage | 0.8209 | PLAUSIBLE | 7994/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
 | Quotable-today code lines | 21160 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (1744) across 44 program(s) |
-| Code lines requiring grammar expansion | 1744 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 44 program(s) |
+| Code lines requiring grammar expansion | 1744 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 44 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
@@ -419,62 +419,62 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 0.8273 | PLAUSIBLE | 91/110 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl (sha256:309468a5c4745f92); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 0.8547 | PLAUSIBLE | 294/344 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl (sha256:224856ce6ef1b741); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 0.9081 | PLAUSIBLE | 336/370 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl (sha256:7ab6dadad6d9d738); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 0.8912 | PLAUSIBLE | 172/193 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl (sha256:27a969cbee69426f); method=token_scan, source_format=fixed; antlr_syntax_errors=24 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 0.8772 | PLAUSIBLE | 50/57 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl (sha256:57232060f8bdaecc); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 0.7164 | PLAUSIBLE | 48/67 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL (sha256:13c409d1b14b52c4); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 0.7159 | PLAUSIBLE | 63/88 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL (sha256:5694a2ed8a12dd4d); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 0.6575 | PLAUSIBLE | 48/73 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL (sha256:cf174417cd833193); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 0.6271 | PLAUSIBLE | 37/59 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-transaction-type-db2/cbl/COBTUPDT.cbl (sha256:0213fd5718c6aadd); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0.7943 | PLAUSIBLE | 471/593 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-transaction-type-db2/cbl/COTRTLIC.cbl (sha256:916a5fe2279ad626); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0.7255 | PLAUSIBLE | 296/408 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-transaction-type-db2/cbl/COTRTUPC.cbl (sha256:c16e40c391c0ad2d); method=token_scan, source_format=fixed; antlr_syntax_errors=38 |
-| app/app-vsam-mq/cbl/COACCT01.cbl | 0.9024 | PLAUSIBLE | 185/205 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-vsam-mq/cbl/COACCT01.cbl (sha256:92776ed2801da114); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
-| app/app-vsam-mq/cbl/CODATE01.cbl | 0.8901 | PLAUSIBLE | 162/182 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-vsam-mq/cbl/CODATE01.cbl (sha256:97fcba3faa272c98); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
-| app/cbl/CBACT01C.cbl | 0.8053 | PLAUSIBLE | 153/190 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT01C.cbl (sha256:f8eb6e3a561ff96a); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/CBACT02C.cbl | 0.7937 | PLAUSIBLE | 50/63 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT02C.cbl (sha256:d290cbbbec1e2585); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBACT03C.cbl | 0.7969 | PLAUSIBLE | 51/64 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT03C.cbl (sha256:ee1019bc3ef7bc4e); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBACT04C.cbl | 0.7993 | PLAUSIBLE | 235/294 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT04C.cbl (sha256:5084bb8b0c9a0f01); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBCUS01C.cbl | 0.7969 | PLAUSIBLE | 51/64 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBCUS01C.cbl (sha256:233dbc3bc33a3b9a); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBEXPORT.cbl | 0.8571 | PLAUSIBLE | 192/224 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBEXPORT.cbl (sha256:598e3c9055b96b79); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/cbl/CBIMPORT.cbl | 0.84 | PLAUSIBLE | 147/175 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBIMPORT.cbl (sha256:0eccb28695cb3a8e); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
-| app/cbl/CBSTM03A.CBL | 0.592 | PLAUSIBLE | 251/424 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBSTM03A.CBL (sha256:23c8753b6b4e0c24); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
-| app/cbl/CBSTM03B.CBL | 0.434 | PLAUSIBLE | 23/53 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBSTM03B.CBL (sha256:ac004f7f40dcb3f2); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBTRN01C.cbl | 0.7963 | PLAUSIBLE | 172/216 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBTRN01C.cbl (sha256:55c2aebd59528aa4); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBTRN02C.cbl | 0.7965 | PLAUSIBLE | 270/339 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBTRN02C.cbl (sha256:708f3cadc555acab); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
-| app/cbl/CBTRN03C.cbl | 0.8025 | PLAUSIBLE | 252/314 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBTRN03C.cbl (sha256:8691e625502b7efc); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COACTUPC.cbl | 0.783 | PLAUSIBLE | 891/1138 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COACTUPC.cbl (sha256:b5bb7d6ccad022e0); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| app/cbl/COACTVWC.cbl | 0.8016 | PLAUSIBLE | 198/247 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COACTVWC.cbl (sha256:4f1e55176f69edfb); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
-| app/cbl/COADM01C.cbl | 0.8625 | PLAUSIBLE | 69/80 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COADM01C.cbl (sha256:4e49afda5f685f3e); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
-| app/cbl/COBIL00C.cbl | 0.8842 | PLAUSIBLE | 168/190 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COBIL00C.cbl (sha256:b5c46039eb8fd2f7); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COBSWAIT.cbl | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COBSWAIT.cbl (sha256:38a8d28235e58509); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| app/cbl/COCRDLIC.cbl | 0.828 | PLAUSIBLE | 390/471 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COCRDLIC.cbl (sha256:d6a9210ad3062bd6); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COCRDSLC.cbl | 0.817 | PLAUSIBLE | 192/235 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COCRDSLC.cbl (sha256:d5af307fb4b1a155); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COCRDUPC.cbl | 0.833 | PLAUSIBLE | 384/461 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COCRDUPC.cbl (sha256:c245cf383a4a3f72); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
-| app/cbl/COMEN01C.cbl | 0.8791 | PLAUSIBLE | 80/91 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COMEN01C.cbl (sha256:c77747b4caaf00b4); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
-| app/cbl/CORPT00C.cbl | 0.9136 | PLAUSIBLE | 201/220 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CORPT00C.cbl (sha256:0b06bd5d4f38f178); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COSGN00C.cbl | 0.8451 | PLAUSIBLE | 60/71 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COSGN00C.cbl (sha256:4f901ae6b113eeba); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| app/cbl/COTRN00C.cbl | 0.9354 | PLAUSIBLE | 275/294 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COTRN00C.cbl (sha256:51479f131b4fb300); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
-| app/cbl/COTRN01C.cbl | 0.9263 | PLAUSIBLE | 88/95 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COTRN01C.cbl (sha256:fc24ff879ac6ae12); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COTRN02C.cbl | 0.9133 | PLAUSIBLE | 274/300 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COTRN02C.cbl (sha256:dc33b4c797a98d27); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
-| app/cbl/COUSR00C.cbl | 0.9306 | PLAUSIBLE | 268/288 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR00C.cbl (sha256:831433c6ec830603); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COUSR01C.cbl | 0.9255 | PLAUSIBLE | 87/94 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR01C.cbl (sha256:aa131b1e3382dc6d); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COUSR02C.cbl | 0.9324 | PLAUSIBLE | 138/148 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR02C.cbl (sha256:85d36699cbd30793); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COUSR03C.cbl | 0.913 | PLAUSIBLE | 105/115 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR03C.cbl (sha256:bcd68f08c145b3b9); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CSUTLDTC.cbl | 0.8519 | PLAUSIBLE | 23/27 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CSUTLDTC.cbl (sha256:58c165dcfc392723); method=token_scan, source_format=fixed; antlr_syntax_errors=27 |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 0.8273 | PLAUSIBLE | 91/110 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl (sha256:309468a5c4745f92); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 0.8547 | PLAUSIBLE | 294/344 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl (sha256:224856ce6ef1b741); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 0.9081 | PLAUSIBLE | 336/370 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl (sha256:7ab6dadad6d9d738); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 0.8912 | PLAUSIBLE | 172/193 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl (sha256:27a969cbee69426f); method=token_scan, source_format=fixed; antlr_syntax_errors=24 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 0.8772 | PLAUSIBLE | 50/57 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl (sha256:57232060f8bdaecc); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 0.7164 | PLAUSIBLE | 48/67 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL (sha256:13c409d1b14b52c4); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 0.7159 | PLAUSIBLE | 63/88 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL (sha256:5694a2ed8a12dd4d); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 0.6575 | PLAUSIBLE | 48/73 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL (sha256:cf174417cd833193); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 0.6271 | PLAUSIBLE | 37/59 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-transaction-type-db2/cbl/COBTUPDT.cbl (sha256:0213fd5718c6aadd); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0.7943 | PLAUSIBLE | 471/593 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-transaction-type-db2/cbl/COTRTLIC.cbl (sha256:916a5fe2279ad626); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0.7255 | PLAUSIBLE | 296/408 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-transaction-type-db2/cbl/COTRTUPC.cbl (sha256:c16e40c391c0ad2d); method=token_scan, source_format=fixed; antlr_syntax_errors=38 |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 0.9024 | PLAUSIBLE | 185/205 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-vsam-mq/cbl/COACCT01.cbl (sha256:92776ed2801da114); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 0.8901 | PLAUSIBLE | 162/182 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-vsam-mq/cbl/CODATE01.cbl (sha256:97fcba3faa272c98); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
+| app/cbl/CBACT01C.cbl | 0.8053 | PLAUSIBLE | 153/190 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT01C.cbl (sha256:f8eb6e3a561ff96a); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/CBACT02C.cbl | 0.7937 | PLAUSIBLE | 50/63 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT02C.cbl (sha256:d290cbbbec1e2585); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBACT03C.cbl | 0.7969 | PLAUSIBLE | 51/64 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT03C.cbl (sha256:ee1019bc3ef7bc4e); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBACT04C.cbl | 0.7993 | PLAUSIBLE | 235/294 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT04C.cbl (sha256:5084bb8b0c9a0f01); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBCUS01C.cbl | 0.7969 | PLAUSIBLE | 51/64 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBCUS01C.cbl (sha256:233dbc3bc33a3b9a); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBEXPORT.cbl | 0.8571 | PLAUSIBLE | 192/224 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBEXPORT.cbl (sha256:598e3c9055b96b79); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/cbl/CBIMPORT.cbl | 0.84 | PLAUSIBLE | 147/175 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBIMPORT.cbl (sha256:0eccb28695cb3a8e); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
+| app/cbl/CBSTM03A.CBL | 0.592 | PLAUSIBLE | 251/424 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBSTM03A.CBL (sha256:23c8753b6b4e0c24); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
+| app/cbl/CBSTM03B.CBL | 0.434 | PLAUSIBLE | 23/53 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBSTM03B.CBL (sha256:ac004f7f40dcb3f2); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBTRN01C.cbl | 0.7963 | PLAUSIBLE | 172/216 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBTRN01C.cbl (sha256:55c2aebd59528aa4); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBTRN02C.cbl | 0.7965 | PLAUSIBLE | 270/339 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBTRN02C.cbl (sha256:708f3cadc555acab); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
+| app/cbl/CBTRN03C.cbl | 0.8025 | PLAUSIBLE | 252/314 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBTRN03C.cbl (sha256:8691e625502b7efc); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COACTUPC.cbl | 0.783 | PLAUSIBLE | 891/1138 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COACTUPC.cbl (sha256:b5bb7d6ccad022e0); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| app/cbl/COACTVWC.cbl | 0.8016 | PLAUSIBLE | 198/247 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COACTVWC.cbl (sha256:4f1e55176f69edfb); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
+| app/cbl/COADM01C.cbl | 0.8625 | PLAUSIBLE | 69/80 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COADM01C.cbl (sha256:4e49afda5f685f3e); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
+| app/cbl/COBIL00C.cbl | 0.8842 | PLAUSIBLE | 168/190 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COBIL00C.cbl (sha256:b5c46039eb8fd2f7); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COBSWAIT.cbl | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COBSWAIT.cbl (sha256:38a8d28235e58509); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| app/cbl/COCRDLIC.cbl | 0.828 | PLAUSIBLE | 390/471 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COCRDLIC.cbl (sha256:d6a9210ad3062bd6); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COCRDSLC.cbl | 0.817 | PLAUSIBLE | 192/235 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COCRDSLC.cbl (sha256:d5af307fb4b1a155); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COCRDUPC.cbl | 0.833 | PLAUSIBLE | 384/461 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COCRDUPC.cbl (sha256:c245cf383a4a3f72); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
+| app/cbl/COMEN01C.cbl | 0.8791 | PLAUSIBLE | 80/91 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COMEN01C.cbl (sha256:c77747b4caaf00b4); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
+| app/cbl/CORPT00C.cbl | 0.9136 | PLAUSIBLE | 201/220 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CORPT00C.cbl (sha256:0b06bd5d4f38f178); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COSGN00C.cbl | 0.8451 | PLAUSIBLE | 60/71 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COSGN00C.cbl (sha256:4f901ae6b113eeba); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| app/cbl/COTRN00C.cbl | 0.9354 | PLAUSIBLE | 275/294 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COTRN00C.cbl (sha256:51479f131b4fb300); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
+| app/cbl/COTRN01C.cbl | 0.9263 | PLAUSIBLE | 88/95 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COTRN01C.cbl (sha256:fc24ff879ac6ae12); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COTRN02C.cbl | 0.9133 | PLAUSIBLE | 274/300 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COTRN02C.cbl (sha256:dc33b4c797a98d27); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
+| app/cbl/COUSR00C.cbl | 0.9306 | PLAUSIBLE | 268/288 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR00C.cbl (sha256:831433c6ec830603); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COUSR01C.cbl | 0.9255 | PLAUSIBLE | 87/94 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR01C.cbl (sha256:aa131b1e3382dc6d); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COUSR02C.cbl | 0.9324 | PLAUSIBLE | 138/148 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR02C.cbl (sha256:85d36699cbd30793); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COUSR03C.cbl | 0.913 | PLAUSIBLE | 105/115 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR03C.cbl (sha256:bcd68f08c145b3b9); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CSUTLDTC.cbl | 0.8519 | PLAUSIBLE | 23/27 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CSUTLDTC.cbl (sha256:58c165dcfc392723); method=token_scan, source_format=fixed; antlr_syntax_errors=27 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.8209 | PLAUSIBLE | 7994/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
+| Coverage ratio | 0.8209 | PLAUSIBLE | 7994/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
@@ -2271,7 +2271,7 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 
 | Program | Cyclomatic | Statements | GO TO | GO TO density | ALTER | EXEC CICS | EXEC SQL | Max nesting |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 33 | 110 | 0 | 0.0 | no | 0 | 0 | 2 |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 33 | 110 | 0 | 0.0 | no | 0 | 0 | 3 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 50 | 344 | 0 | 0.0 | no | 12 | 0 | 3 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 92 | 370 | 0 | 0.0 | no | 10 | 0 | 4 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 42 | 193 | 0 | 0.0 | no | 8 | 0 | 3 |
@@ -2280,37 +2280,37 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 29 | 88 | 0 | 0.0 | no | 0 | 0 | 2 |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 20 | 73 | 0 | 0.0 | no | 0 | 0 | 2 |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 18 | 59 | 0 | 0.0 | no | 0 | 3 | 1 |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 252 | 593 | 376 | 0.6341 | no | 12 | 11 | 4 |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 252 | 593 | 376 | 0.6341 | no | 12 | 11 | 5 |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 228 | 408 | 234 | 0.5735 | no | 12 | 4 | 3 |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 29 | 205 | 0 | 0.0 | no | 4 | 0 | 2 |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 24 | 182 | 0 | 0.0 | no | 5 | 0 | 2 |
-| app/cbl/CBACT01C.cbl | 29 | 190 | 0 | 0.0 | no | 0 | 0 | 2 |
-| app/cbl/CBACT02C.cbl | 14 | 63 | 0 | 0.0 | no | 0 | 0 | 2 |
-| app/cbl/CBACT03C.cbl | 14 | 64 | 0 | 0.0 | no | 0 | 0 | 2 |
-| app/cbl/CBACT04C.cbl | 50 | 294 | 0 | 0.0 | no | 0 | 0 | 4 |
-| app/cbl/CBCUS01C.cbl | 14 | 64 | 0 | 0.0 | no | 0 | 0 | 2 |
+| app/cbl/CBACT01C.cbl | 29 | 190 | 0 | 0.0 | no | 0 | 0 | 3 |
+| app/cbl/CBACT02C.cbl | 14 | 63 | 0 | 0.0 | no | 0 | 0 | 3 |
+| app/cbl/CBACT03C.cbl | 14 | 64 | 0 | 0.0 | no | 0 | 0 | 3 |
+| app/cbl/CBACT04C.cbl | 50 | 294 | 0 | 0.0 | no | 0 | 0 | 5 |
+| app/cbl/CBCUS01C.cbl | 14 | 64 | 0 | 0.0 | no | 0 | 0 | 3 |
 | app/cbl/CBEXPORT.cbl | 27 | 224 | 0 | 0.0 | no | 0 | 0 | 1 |
 | app/cbl/CBIMPORT.cbl | 23 | 175 | 0 | 0.0 | no | 0 | 0 | 1 |
-| app/cbl/CBSTM03A.CBL | 49 | 424 | 26 | 0.0613 | yes | 0 | 0 | 2 |
+| app/cbl/CBSTM03A.CBL | 49 | 424 | 26 | 0.0613 | yes | 0 | 0 | 3 |
 | app/cbl/CBSTM03B.CBL | 18 | 53 | 25 | 0.4717 | no | 0 | 0 | 1 |
-| app/cbl/CBTRN01C.cbl | 40 | 216 | 0 | 0.0 | no | 0 | 0 | 3 |
-| app/cbl/CBTRN02C.cbl | 58 | 339 | 0 | 0.0 | no | 0 | 0 | 3 |
-| app/cbl/CBTRN03C.cbl | 51 | 314 | 0 | 0.0 | no | 0 | 0 | 4 |
+| app/cbl/CBTRN01C.cbl | 40 | 216 | 0 | 0.0 | no | 0 | 0 | 4 |
+| app/cbl/CBTRN02C.cbl | 58 | 339 | 0 | 0.0 | no | 0 | 0 | 4 |
+| app/cbl/CBTRN03C.cbl | 51 | 314 | 0 | 0.0 | no | 0 | 0 | 5 |
 | app/cbl/COACTUPC.cbl | 454 | 1138 | 482 | 0.4236 | no | 17 | 0 | 3 |
 | app/cbl/COACTVWC.cbl | 55 | 247 | 97 | 0.3927 | no | 15 | 0 | 2 |
 | app/cbl/COADM01C.cbl | 29 | 80 | 0 | 0.0 | no | 7 | 0 | 3 |
 | app/cbl/COBIL00C.cbl | 49 | 190 | 0 | 0.0 | no | 13 | 0 | 4 |
 | app/cbl/COBSWAIT.cbl | 1 | 4 | 0 | 0.0 | no | 0 | 0 | 0 |
-| app/cbl/COCRDLIC.cbl | 146 | 471 | 259 | 0.5499 | no | 18 | 0 | 4 |
+| app/cbl/COCRDLIC.cbl | 146 | 471 | 259 | 0.5499 | no | 18 | 0 | 5 |
 | app/cbl/COCRDSLC.cbl | 69 | 235 | 105 | 0.4468 | no | 14 | 0 | 3 |
 | app/cbl/COCRDUPC.cbl | 189 | 461 | 374 | 0.8113 | no | 12 | 0 | 3 |
 | app/cbl/COMEN01C.cbl | 36 | 91 | 0 | 0.0 | no | 7 | 0 | 3 |
 | app/cbl/CORPT00C.cbl | 63 | 220 | 1 | 0.0045 | no | 7 | 0 | 3 |
 | app/cbl/COSGN00C.cbl | 16 | 71 | 0 | 0.0 | no | 10 | 0 | 3 |
-| app/cbl/COTRN00C.cbl | 116 | 294 | 0 | 0.0 | no | 10 | 0 | 3 |
+| app/cbl/COTRN00C.cbl | 116 | 294 | 0 | 0.0 | no | 10 | 0 | 4 |
 | app/cbl/COTRN01C.cbl | 22 | 95 | 0 | 0.0 | no | 5 | 0 | 4 |
 | app/cbl/COTRN02C.cbl | 96 | 300 | 0 | 0.0 | no | 11 | 0 | 4 |
-| app/cbl/COUSR00C.cbl | 118 | 288 | 0 | 0.0 | no | 11 | 0 | 3 |
+| app/cbl/COUSR00C.cbl | 118 | 288 | 0 | 0.0 | no | 11 | 0 | 4 |
 | app/cbl/COUSR01C.cbl | 25 | 94 | 0 | 0.0 | no | 5 | 0 | 3 |
 | app/cbl/COUSR02C.cbl | 43 | 148 | 0 | 0.0 | no | 6 | 0 | 4 |
 | app/cbl/COUSR03C.cbl | 30 | 115 | 0 | 0.0 | no | 6 | 0 | 4 |
@@ -2456,7 +2456,7 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
 | Quotable-today code lines | 21160 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (1744) across 44 program(s) |
-| Code lines requiring grammar expansion | 1744 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 44 program(s) |
+| Code lines requiring grammar expansion | 1744 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 44 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -2607,9 +2607,25 @@ FORMULAS
     identifier targets (dynamic CALL) are recorded as the identifier name.
 
 ``max_nesting_depth``
-    Maximum depth of open scopes, incremented on ``IF`` / ``EVALUATE`` /
-    inline ``PERFORM`` and decremented on the matching ``END-…``. A period that
-    closes an unterminated ``IF`` also closes the scope.
+    Maximum depth of open scopes, tracked with a **stack** rather than a
+    counter. A scope is opened by ``IF``, ``EVALUATE``, ``SEARCH``, or an
+    *inline* ``PERFORM`` — one whose loop body is written in place, recognised
+    as ``PERFORM UNTIL``, ``PERFORM VARYING``, ``PERFORM WITH TEST``,
+    ``PERFORM FOREVER``, or ``PERFORM <n> TIMES``. A ``PERFORM <paragraph>``
+    transfers control elsewhere and opens no scope here, so it does not count.
+
+    A scope is closed by its own ``END-…`` terminator, and by nothing else: an
+    ``END-…`` whose opener is not on the stack is **ignored** rather than
+    decrementing the depth. That distinction is load-bearing — with a plain
+    counter, an ``END-PERFORM`` or ``END-READ`` sitting inside an outer ``IF``
+    cancels the ``IF``'s own depth, and every construct nested after it in that
+    ``IF`` is undercounted. ``END-READ``, ``END-CALL``, ``END-STRING`` and
+    ``END-UNSTRING`` are therefore inert here, because the statements they
+    terminate are not counted as opening a scope in the first place.
+
+    Openers and closers are processed in the order they appear on the line, so
+    a scope opened and closed on one line still registers its depth. A period
+    ends the sentence and closes every scope still open.
 ```
 
 
@@ -2690,7 +2706,7 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b)`
+Registry: `SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b)`
 
 Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
@@ -2726,7 +2742,7 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | platform | Linux |
 | python | 3.11.15 |
 | python-docx | 1.2.0 |
-| relian_transpiler | SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) |
+| relian_transpiler | SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) |
 | schema | relian-assessment-1 |
 
 

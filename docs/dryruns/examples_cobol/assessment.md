@@ -7,9 +7,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
+| Portfolio construct coverage | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
 | Quotable-today code lines | 241 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (27) across 1 program(s) |
-| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 1 program(s) |
+| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 1 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
@@ -43,19 +43,19 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| banking-system.cbl | 0.7545 | PLAUSIBLE | 83/110 statements supported via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) on banking-system.cbl (sha256:24ba36227dc35845); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| banking-system.cbl | 0.7545 | PLAUSIBLE | 83/110 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on banking-system.cbl (sha256:24ba36227dc35845); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
+| Coverage ratio | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
@@ -144,7 +144,7 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
 | Quotable-today code lines | 241 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (27) across 1 program(s) |
-| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 1 program(s) |
+| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 1 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -284,9 +284,25 @@ FORMULAS
     identifier targets (dynamic CALL) are recorded as the identifier name.
 
 ``max_nesting_depth``
-    Maximum depth of open scopes, incremented on ``IF`` / ``EVALUATE`` /
-    inline ``PERFORM`` and decremented on the matching ``END-…``. A period that
-    closes an unterminated ``IF`` also closes the scope.
+    Maximum depth of open scopes, tracked with a **stack** rather than a
+    counter. A scope is opened by ``IF``, ``EVALUATE``, ``SEARCH``, or an
+    *inline* ``PERFORM`` — one whose loop body is written in place, recognised
+    as ``PERFORM UNTIL``, ``PERFORM VARYING``, ``PERFORM WITH TEST``,
+    ``PERFORM FOREVER``, or ``PERFORM <n> TIMES``. A ``PERFORM <paragraph>``
+    transfers control elsewhere and opens no scope here, so it does not count.
+
+    A scope is closed by its own ``END-…`` terminator, and by nothing else: an
+    ``END-…`` whose opener is not on the stack is **ignored** rather than
+    decrementing the depth. That distinction is load-bearing — with a plain
+    counter, an ``END-PERFORM`` or ``END-READ`` sitting inside an outer ``IF``
+    cancels the ``IF``'s own depth, and every construct nested after it in that
+    ``IF`` is undercounted. ``END-READ``, ``END-CALL``, ``END-STRING`` and
+    ``END-UNSTRING`` are therefore inert here, because the statements they
+    terminate are not counted as opening a scope in the first place.
+
+    Openers and closers are processed in the order they appear on the line, so
+    a scope opened and closed on one line still registers its depth. A period
+    ends the sentence and closes every scope still open.
 ```
 
 
@@ -367,7 +383,7 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b)`
+Registry: `SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b)`
 
 Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
@@ -403,7 +419,7 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | platform | Linux |
 | python | 3.11.15 |
 | python-docx | 1.2.0 |
-| relian_transpiler | SUPPORTED_STATEMENTS@de7f3d1 (c1_rulebased.py sha256:0bad5dd59b092e4b) |
+| relian_transpiler | SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) |
 | schema | relian-assessment-1 |
 
 
