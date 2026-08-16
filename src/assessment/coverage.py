@@ -293,6 +293,24 @@ def statements_by_token_scan(scanned: ScannedSource) -> Tuple[StatementHit, ...]
     return tuple(hits)
 
 
+_EXPECTING_SET_RE = re.compile(r"expecting \{[^}]*\}")
+
+
+def _normalise_parse_error(msg: str) -> str:
+    """Elide ANTLR's expected-token set from a syntax-error message.
+
+    ANTLR's ALL(*) prediction caches DFA state on the parser's ATN simulator,
+    which is shared across parses in a process. The *token* it reports is
+    stable, but the ``expecting {…}`` set it prints is not: it grows as the
+    cache warms, so the same file parsed twice in one run yields two different
+    message strings. Since the ledger artifact is hashed, that difference is a
+    determinism bug (R8). The expected-token set is a parser-internal artifact
+    rather than a fact about the customer's code, so it is elided and the
+    diagnostic — position and offending token — is kept.
+    """
+    return _EXPECTING_SET_RE.sub("expecting {...}", msg)
+
+
 def _antlr_parse(source: str):
     """Parse with the bundled ANTLR grammar. Returns (tree, errors)."""
     import antlr4
@@ -307,7 +325,7 @@ def _antlr_parse(source: str):
 
         def syntaxError(self, recognizer, offending, line, column, msg, e):  # noqa: N802
             if len(self.errors) < 50:
-                self.errors.append(f"line {line}:{column} {msg}")
+                self.errors.append(f"line {line}:{column} {_normalise_parse_error(msg)}")
 
     collector = _Collect()
     lexer = Cobol85Lexer(antlr4.InputStream(source))
