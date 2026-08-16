@@ -13,7 +13,7 @@ jobs:
           python3 - <<'PY'
           import json, sys; sys.path.insert(0,'bench')
           from harness.commit import verify
-          m = json.load(open('bench/LEDGER_relian-bench-v1.1.json'))
+          m = json.load(open('bench/LEDGER_relian-bench-v1.2.json'))
           assert verify(m), 'LEDGER signature invalid — benchmark tampered'
           print('ledger verified:', m['signature']['manifest_sha256'][:16])
           PY
@@ -96,7 +96,7 @@ jobs:
           from harness.runner import run_candidate
           from pathlib import Path
 
-          ledger = json.load(open('bench/LEDGER_relian-bench-v1.1.json'))
+          ledger = json.load(open('bench/LEDGER_relian-bench-v1.2.json'))
           thresholds = ledger['thresholds']
           mains = json.loads(Path('bench/harness/mains.json').read_text())
           out = Path('candidates/current')
