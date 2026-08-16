@@ -584,3 +584,90 @@ are met and evidenced.
 
 Review status at this head: the single Bugbot thread (nesting depth) is
 **resolved**; the re-review on `c7c7018` completed with no new findings.
+
+---
+
+## 2026-08-16 · Phase 1.5 pre-work · Held-out branch coverage recorded, gate-teeth proof, Taxtbl01 dead-branch analysis
+
+### Held-out branch coverage — the numbers, with provenance
+
+`branch_coverage_min` went live in the gate with PR #5 (`254c5c7`). The first
+held-out coverage measurements, identical across two independent CI runs —
+the PR run ([job 95158641704](https://github.com/khaaliswooden-max/relian/actions/runs/31944621421/job/95158641704)
+on `254c5c7`) and the post-merge main run
+([job 95159624559](https://github.com/khaaliswooden-max/relian/actions/runs/31945038971/job/95159624559)
+on `6e989e0`):
+
+```
+branch_coverage: 0.8824   coverage_tool: jacoco-0.8.12
+THRESHOLD MET: BER 1.0 >= 0.95, build_rate 1.0 >= 1.0, branch_coverage 0.8824 >= 0.8
+```
+
+| Program | held-out (CI) | public (local, this session) |
+|---|---|---|
+| P01_payroll | 1.0 (8/8) | 1.0 (8/8) |
+| P02_interest | 1.0 (2/2) | 1.0 (2/2) |
+| P03_eligibility | 0.9 (18/20) | 0.8 (16/20) |
+| P04_taxtable | 0.6875 (11/16) | 0.6875 (11/16) |
+| P05_validate | 0.9545 (21/22) | 0.8182 (18/22) |
+| **aggregate** | **0.8824 (60/68)** | 0.8088 (55/68) |
+
+Margin: the threshold needs ≥ 55 of 68 branches (0.80 × 68 = 54.4). Held-out
+covers 60 — six fewer covered branches before the gate goes red. The public
+split sits exactly at the 55-branch minimum, as PR #5's margin warning said.
+P04_taxtable is 11/16 on **both** splits — see the analysis below.
+
+### WP-1.5.0b follow-up: the coverage gate's red path, proven in CI (PR #6)
+
+Verification of PRs #4/#5 found that all 26 bench runs in CI history were
+green: no threshold's failure path had ever fired in CI, and PR #5 (one
+commit) had no planted-red run. PR #6 added the missing proof. The gate was
+not touched; the candidate-generation step temporarily appended a
+never-called method (8 dead branches) to each generated class, so BER and
+build_rate stayed 1.0 and only the *measured* coverage moved:
+
+- planted `a956734` → [run 31947301751](https://github.com/khaaliswooden-max/relian/actions/runs/31947301751)
+  **RED**: `THRESHOLD FAILED: branch_coverage 0.5556 < 0.8` (60/108 held-out),
+  with `ber 1.0`, `build_rate 1.0` — the coverage threshold alone turned the
+  gate red, which is exactly the path under proof.
+- revert `e5bed57` → [run 31947314457](https://github.com/khaaliswooden-max/relian/actions/runs/31947314457)
+  **GREEN**: back to 0.8824 (60/68), `THRESHOLD MET`.
+
+Both commits are in main's history via a merge commit (net diff zero); the
+runs are the deliverable (R10: honest-failure records are audit evidence).
+
+### WP-1.5.0 verification note — contract deviations, recorded not hidden
+
+The WP-1.5.0 contract asked for a machine-readable `bench_summary.json`
+workflow artifact (n_vectors, ber, build_rate, branch_cov, git_sha,
+ledger_ref) and a literal `n_vectors == 0 → exit 1` check. Neither exists in
+the merged gate. What does exist: a missing `candidates/current` fails, a
+missing `heldout.jsonl` fails the fetch/score step, an empty vector set
+yields `ber = None` and `BER not measured (null)` fails — so "cannot score →
+must not pass" holds by construction, but the vector *count* is not printed
+anywhere and there is no summary artifact. Recorded here as open follow-up
+work rather than silently reinterpreted as done; the planted-red requirement
+for PR #4 itself was likewise never executed (its two green commits fixed a
+real stub defect; the BER/build red path remains proven only by PR #6's
+mechanism applying to the same failure-list code path).
+
+### Taxtbl01 `_tx_search` dead-branch hypothesis — DISMISSED (read-only, JaCoCo line-level)
+
+P04_taxtable measures 11/16 on both splits. Line-level JaCoCo on the public
+split (local run, jacococli XML report) puts the five missed branches at
+generated-Java lines 13, 19 (×2), 85, 91:
+
+| Line | Code | Verdict |
+|---|---|---|
+| 85 | `for (; BI <= 5; BI++)` loop-exhaust branch (`_tx_search` emission) | **Not dead.** Reachable only when the SEARCH exhausts: `WS-INC` > `BR-CEIL(5)` = 999999999.00. `WS-INC` is `PIC 9(9)V99`, max 999999999.99, so the AT END path is live for the 99-cent window (999999999.00, 999999999.99]. No vector on either split lands there. |
+| 91 | `if (!_found)` — the AT END fallback (`_tx_search` emission) | Same as line 85. The emission is the faithful translation of `SEARCH … AT END`; removing it would fabricate behavior (R2). |
+| 13 | `R.dnumU` zero-pad loop | Structurally dead **for this program**: only called with `intd=1` (`WS-IDX PIC 9`) and `toPlainString()` never yields length < 1. Live in programs that pad wider fields. |
+| 19 | `R.rtrim` — empty-string entry + trailing-space trim | Live but unexercised: needs an empty or blank-padded filing status; every vector sends `S` or `M`. |
+
+**Conclusion: no transpiler defect — no WP-1.5.6.** The `_tx_search`-emitted
+branches are reachable and semantically required; the gap is a property of
+the vector sets (nothing exercises SEARCH AT END on P04, on either split),
+not of the emission. Caveat stated plainly: line-level identity was measured
+on the **public** split only; for held-out, CI reports the matching 11/16
+count but no line detail, so "same five branches" is consistent, not
+measured.
