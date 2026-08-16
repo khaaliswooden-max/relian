@@ -734,3 +734,15 @@ local gate replica (public split)   → branch_coverage 0.8088 (55/68), exit 0
 ```
 Public split byte-identical, as the work package required. Held-out: the
 gate on this PR's CI run is the measurement; see the PR.
+
+### PR #8 review round — phantom paragraph names (Bugbot, confirmed)
+
+Bugbot flagged that the new paragraph tracker treated any lone `NAME.` line
+as a paragraph, so a standalone `END-IF.` / `GOBACK.` / `ELSE.` would
+pollute the paragraph reported by `UnsupportedConstruct`. Confirmed real —
+the assessment scanner solved this exact phantom-paragraph problem in
+WP-1.4 (defect #3) and the transpiler tracker did not mirror it. Fixed: the
+NAME assignment is now guarded (`VERBS`, `END-*`, and the reserved lone-line
+keywords are never paragraph names); the label-skip behavior itself is
+untouched (WP-1.2 byte-identity). Regression test added; suite 247 passed;
+all 5 public-split SHA-256 still identical to baseline.

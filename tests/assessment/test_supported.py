@@ -150,6 +150,27 @@ def test_strict_mode_is_on_by_default():
         tp.transpile()
 
 
+def test_strict_error_paragraph_is_not_a_phantom_terminator():
+    """A lone END-IF. / GOBACK. line must not become the reported paragraph.
+
+    Bugbot finding on PR #8: any lone `NAME.` line updated the paragraph
+    tracker, so scope terminators standing alone (END-IF., GOBACK.) polluted
+    the paragraph carried by UnsupportedConstruct. Mirrors the assessment
+    scanner's phantom-paragraph rule (coverage._paragraph_label).
+    """
+    src = program([
+        "IF WS-N = 1",
+        "DISPLAY WS-N",
+        "END-IF.",
+        "SUBTRACT 1 FROM WS-N",
+    ])
+    tp = Transpiler(src, "Probe")
+    with pytest.raises(UnsupportedConstruct) as exc:
+        tp.transpile()
+    assert exc.value.verb == "SUBTRACT"
+    assert exc.value.paragraph == "MAIN-PARA"   # not "END-IF"
+
+
 def test_strict_error_carries_verb_line_and_paragraph():
     src = program(["ALTER OTHER-PARA TO PROCEED TO MAIN-PARA"])
     tp = Transpiler(src, "Probe")

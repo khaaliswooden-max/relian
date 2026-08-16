@@ -33,6 +33,14 @@ VERBS = {"ACCEPT", "UNSTRING", "COMPUTE", "MOVE", "IF", "ELSE", "END-IF",
          "STOP", "END-UNSTRING", "SUBTRACT"}
 
 
+# Reserved words that can legally stand alone on a line followed by a period
+# and would otherwise be misread as paragraph names by _statements. Everything
+# in VERBS and every END-* token is excluded there too; this set covers the
+# statement keywords the C1 tokenizer does not know as VERBS.
+_NOT_PARAGRAPH_NAMES = frozenset(
+    {"ELSE", "THEN", "OTHER", "CONTINUE", "NEXT", "GOBACK", "EXIT"})
+
+
 class UnsupportedConstruct(Exception):
     """Raised by unsupported() in strict mode (the default since WP-1.5.2)."""
 
@@ -383,7 +391,16 @@ class Transpiler:
             if not l:
                 continue
             if re.match(r"^[A-Z0-9\-]+\.$", l):   # paragraph label
-                current_para = l.rstrip(".")
+                # A lone `END-IF.`, `ELSE.`, `GOBACK.` or `EXIT.` line matches
+                # the same regex but is a scope terminator or statement, not a
+                # label. Mirror src/assessment/coverage._paragraph_label so a
+                # strict-mode error never reports a phantom paragraph. Only
+                # the NAME assignment is guarded -- the skip itself is the
+                # pre-WP-1.5.2 behavior and must stay byte-identical.
+                name = l.rstrip(".")
+                if (name not in VERBS and not name.startswith("END-")
+                        and name not in _NOT_PARAGRAPH_NAMES):
+                    current_para = name
                 continue
             first = l.split()[0].rstrip(".")
             if first in VERBS or not out:
