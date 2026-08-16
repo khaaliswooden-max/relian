@@ -87,11 +87,14 @@
       }
     }
   ],
-  "ber_overall": 1.0,
-  "build_rate": 1.0,
-  "coverage_branch": 0.8824,
+  "ber_overall": 0.7176,
+  "build_rate": 0.8571,
+  "coverage_branch": 0.8974,
   "coverage_tool": "jacoco-0.8.12",
   "wall_seconds": 114.59,
   "valid": true,
-  "invalid_reason": null
+  "invalid_reason": null,
+  "bench_version": "1.2.0",
+  "programs": 7,
+  "provenance": "held-out CI on PR #14 @9aecd1d, pre-implementation baseline (P06 0/60 VALUE discarded, P07 0/60 no transpile), Aug 16 2026"
 }

@@ -2,12 +2,12 @@
   "benchmark": "RELIAN-BENCH",
   "version": "1.2.0",
   "tag": "relian-bench-v1.2",
-  "committed_at": "2026-08-16T19:04:49.049474+00:00",
+  "committed_at": "2026-08-16T19:27:21.628651+00:00",
   "file_count": 29,
   "files": [
     {
       "path": "SPEC.md",
-      "sha256": "1cb46f4bd1a743b68903d4644d94e50d14583fd9548539552a5bbf7d6b4ab5d1"
+      "sha256": "409f6df7141b15fdee65ba24224cdb8daa762429df57f5948bf22231f3c87463"
     },
     {
       "path": "corpus/P01_payroll/program.cbl",
@@ -87,11 +87,11 @@
     },
     {
       "path": "corpus/P07_exitflow/vectors/heldout.jsonl",
-      "sha256": "c029de0b4cad0e53d093cdf973381e7491e19be932c669556361dc9d98efca7d"
+      "sha256": "2dc4cd75a54064c7123f220a6a6f7d4ac4a89d24acfe43bc6e73c073f86d04cf"
     },
     {
       "path": "corpus/P07_exitflow/vectors/public.jsonl",
-      "sha256": "8326186adde329e24db3b5a4cbf2d483064abc3ec208266d46054c284986f13f"
+      "sha256": "340597e67ae39ff5108b9a8d90ba40a844dceedcf6ad77a8ac6aca960372e79f"
     },
     {
       "path": "harness/commit.py",
@@ -103,7 +103,7 @@
     },
     {
       "path": "harness/gen_vectors.py",
-      "sha256": "283cab31925b351bb9bad1fb93979ab02c35a3d3c82a58e1300889943114571a"
+      "sha256": "5aa6e591045e145cef85ed7b0de75086979cf74f9651ab207a1facc7b94c5911"
     },
     {
       "path": "harness/mains.json",
@@ -122,7 +122,7 @@
       "sha256": "594c01125b84864a7fc5a9efab19b71b7de36b27346863f6d7cd0cd45400ceb0"
     }
   ],
-  "payload_sha256": "7e951493cfe58154dce564b4b3d42852d73a3e3b50cc9e43ccad1fca102ea567",
+  "payload_sha256": "a8695c2cbb39c15204f1dd2a7c98751c4290cff5be29f3574e89c48d4dcb48be",
   "vector_counts": {
     "P01_payroll/vectors/heldout.jsonl": 60,
     "P01_payroll/vectors/public.jsonl": 12,
@@ -172,10 +172,10 @@
   },
   "signature": {
     "alg": "Ed25519",
-    "manifest_sha256": "3851de50e11f3039986fa0751fc804be50a84a54cf4013f752b298879c841725",
-    "signature_hex": "923e9c3ebeb31e1f330c4a9394cf85d26fd8823d0cbb29b6a357a41d5473aac0d120ffb95ad5938a2050e6f371874ae5f40c3ab9e04d6404325b5124d75ce100",
+    "manifest_sha256": "a47305c29bfeb004f4fb4812a7f94097038e4cc0d06cbb4e5859b920662ce156",
+    "signature_hex": "f0141b4adb4ccbc532fdaf205c1927b6fa3371e593b347e784d552fa1167d1db29088dd6036575aa72a0e55bc909462cbe755e827256be3b9ac2bec2dccbaf00",
     "public_key_hex": "91b67d34b603f36a367051f0f5a0b3ec0b722a027f55092c1804ba36bd15dd13",
     "key_fingerprint": "233bb4406e2de606",
-    "signed_at": "2026-08-16T19:04:49.427135+00:00"
+    "signed_at": "2026-08-16T19:27:21.952026+00:00"
   }
 }

@@ -229,8 +229,8 @@ of record and the CI gate scores against the v1.1 ledger. Runbook:
    - `P07_exitflow` (EXITFLW01, rev 3) — CONTINUE (bare / in IF / in
      EVALUATE), EXIT PROGRAM in a main program (a measured no-op), and
      GOBACK with RETURN-CODE 0, 4 and 8. Nonzero-exit vectors are
-     legitimate under the WP-1.5.0d scorer; 4 of its 12 public vectors
-     expect nonzero exits. No vector depends on the measured GnuCOBOL
+     legitimate under the WP-1.5.0d scorer; 4 of its 12 public vectors (2 × RETURN-CODE 8, 2 × RETURN-CODE 4; held-out: 12 × 8, 10 × 4)
+     expect nonzero exits, and one (mode X) exercises WHEN OTHER → STATE=DONE with exit 0. No vector depends on the measured GnuCOBOL
      3.1.2 lone-`EXIT PROGRAM`-in-`WHEN` chaining quirk (the program
      structurally excludes it).
    12 public vectors each, oracle-generated with GnuCOBOL 3.1.2 (the CI
