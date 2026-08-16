@@ -23,8 +23,13 @@ def available() -> bool:
 
 
 def run_with_coverage(classes: Path, main_cls: str, stdin_line: str,
-                      exec_file: Path) -> Optional[str]:
-    """Run one vector under the JaCoCo agent, appending to exec_file."""
+                      exec_file: Path) -> Tuple[Optional[str], Optional[int]]:
+    """Run one vector under the JaCoCo agent, appending to exec_file.
+
+    Returns (stdout, exit_code); (None, None) if the process could not run.
+    WP-1.5.0d: mirrors runner._run_java -- the exit code is captured for the
+    scorer to compare, not filtered here.
+    """
     try:
         p = subprocess.run(
             ["java",
@@ -33,10 +38,8 @@ def run_with_coverage(classes: Path, main_cls: str, stdin_line: str,
             input=stdin_line + "\n", capture_output=True, text=True, timeout=30,
         )
     except Exception:
-        return None
-    if p.returncode != 0:
-        return None
-    return p.stdout.strip()
+        return None, None
+    return p.stdout.strip(), p.returncode
 
 
 def report(classes: Path, exec_file: Path) -> Tuple[Optional[float], Dict]:
