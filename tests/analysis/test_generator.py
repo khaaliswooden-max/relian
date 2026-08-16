@@ -15,15 +15,18 @@ class TestTestGenerator(unittest.IsolatedAsyncioTestCase):
         )
         
     async def test_generate_tests(self):
-        # Mock legacy executable path
-        legacy_exe = "path/to/legacy.exe"
-        
+        """No KLEE, no oracle -> no test cases — never fabricated ones (R1).
+
+        The pre-remediation generator invented 3 test cases with made-up
+        expected outputs for a nonexistent executable; this test asserted
+        them (len 3, expected_output 15) until WP-1.5.3. With no real path
+        discovery and no real oracle run, the honest result is empty.
+        """
+        legacy_exe = "path/to/legacy.exe"   # does not exist — nothing can be measured
+
         tests = await self.generator.generate_tests(self.sample_ast, "source", legacy_exe)
-        
-        self.assertEqual(len(tests), 3)
-        self.assertEqual(tests[0].name, "calc_func_path_0")
-        self.assertEqual(tests[0].expected_output, 15)
-        self.assertEqual(tests[0].test_type, "path")
+
+        self.assertEqual(tests, [])
 
     def test_to_pytest(self):
         tc = TestCase(
@@ -40,16 +43,23 @@ class TestTestGenerator(unittest.IsolatedAsyncioTestCase):
         self.assertIn("assert result == expected", code)
 
     async def test_generate_pytest_file(self):
+        """The emitted pytest file contains no fabricated test functions (R1).
+
+        Until WP-1.5.3 this asserted a fabricated `test_calc_func_path_0`
+        was present. With zero derivable test cases, the honest file carries
+        the imports and nothing else — no `def test_` bodies invented from
+        thin air.
+        """
         legacy_exe = "path/to/legacy.exe"
         tests = await self.generator.generate_tests(self.sample_ast, "source", legacy_exe)
-        
+
         output_file = "tests/generated_test_output/test_calc.py"
         self.generator.generate_pytest_file(tests, "my_module.calc_func", output_file)
-        
+
         self.assertTrue(os.path.exists(output_file))
         with open(output_file, 'r') as f:
             content = f.read()
-            self.assertIn("def test_calc_func_path_0():", content)
+            self.assertNotIn("def test_", content)
             
     def tearDown(self):
         # Cleanup generated files

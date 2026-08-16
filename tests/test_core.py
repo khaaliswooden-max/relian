@@ -48,15 +48,19 @@ class TestMigrationResult(unittest.TestCase):
     """Test MigrationResult dataclass."""
 
     def test_default_values(self):
-        """Test default result values."""
+        """Unmeasured metrics default to None, never to a number (R1).
+
+        The pre-remediation defaults were 0.0 — a constant standing in for a
+        measurement. This test asserted them until WP-1.5.3.
+        """
         result = MigrationResult(
             migration_id="test123",
             status=MigrationStatus.PENDING,
             source_path="/path/to/source.cbl",
         )
 
-        self.assertEqual(result.semantic_score, 0.0)
-        self.assertEqual(result.risk_score, 0.0)
+        self.assertIsNone(result.semantic_score)
+        self.assertIsNone(result.risk_score)
         self.assertEqual(result.errors, [])
         self.assertIsNotNone(result.started_at)
 
@@ -161,7 +165,15 @@ class TestMigrationOrchestrator(unittest.TestCase):
         asyncio.run(run_test())
 
     def test_migrate_with_cobol_parser(self):
-        """Test migration with actual COBOL parser."""
+        """A program C1 cannot transpile must FAIL, not 'complete' (R2).
+
+        The fixture has no WORKING-STORAGE SECTION, which is outside the C1
+        subset. The pre-remediation pipeline emitted a placeholder and
+        reported COMPLETED with a fabricated semantic_score; this test
+        asserted that until WP-1.5.3. Honest failure is the designed
+        behavior: FAILED status, an error naming the refusal, and no
+        fabricated score.
+        """
         from src.parsers.cobol import COBOLParser
 
         self.orchestrator.register_parser("cobol", COBOLParser())
@@ -178,10 +190,13 @@ class TestMigrationOrchestrator(unittest.TestCase):
 
             result = await self.orchestrator.migrate(config)
 
-            self.assertEqual(result.status, MigrationStatus.COMPLETED)
-            self.assertIsNotNone(result.source_hash)
-            self.assertIsNotNone(result.target_hash)
-            self.assertGreater(result.semantic_score, 0)
+            self.assertEqual(result.status, MigrationStatus.FAILED)
+            self.assertTrue(result.errors)
+            self.assertTrue(
+                any("refusing to emit a placeholder" in e for e in result.errors),
+                f"expected the honest-refusal error, got: {result.errors}",
+            )
+            self.assertIsNone(result.semantic_score)
 
         asyncio.run(run_test())
 
