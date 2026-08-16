@@ -814,17 +814,29 @@ started.**
 ## 2026-08-16 · WP-1.5.5 · EXIT / CONTINUE / GOBACK — draft only, implementation gated
 
 **Draft oracle candidate:** `bench/candidates/drafts/EXITFLW01/program.cbl`
-— paragraph EXIT, CONTINUE (bare / in IF / in EVALUATE), GOBACK with and
-without `MOVE 0 TO RETURN-CODE`. Compiled and executed with GnuCOBOL 3.1.2
-this session. One design constraint surfaced and recorded in the drafts
-README instead of being smuggled past the harness: vectors must not set a
-nonzero RETURN-CODE, because `runner._run_java` treats a nonzero exit as a
-failed run — exercising nonzero exit codes needs a harness decision first.
+(rev 2) — CONTINUE (bare / in IF / in EVALUATE), EXIT PROGRAM in a main
+program, GOBACK with and without `MOVE 0 TO RETURN-CODE`. Compiled and
+executed with GnuCOBOL 3.1.2 this session.
 
-`EXIT PROGRAM` is exercised only as far as a main program allows (GnuCOBOL
-treats EXIT PROGRAM in a main program as falling through); full semantics
-need a CALL-based subprogram vector, which belongs with the deferred CALL
-work below.
+**Bugbot finding on PR #10, confirmed, and it narrows the work package.**
+Rev 1 drove its loop with out-of-line `PERFORM <para>` and tested paragraph
+EXIT. C1's `_tx_perform` supports only the inline
+`PERFORM VARYING … END-PERFORM` form — an out-of-line PERFORM crashes the
+handler — so rev 1 could never gate the three handlers alone. Consequence,
+recorded rather than papered over: **paragraph EXIT (the dominant form
+behind the 368-occurrence EXIT count) is inseparable from
+performed-paragraph support and is NOT dispatch-table-only work.** It joins
+the deferred list; the truly cheap constructs are CONTINUE, GOBACK, and
+EXIT PROGRAM-in-main.
+
+Three more measured findings from drafting, all in the drafts README:
+- vectors must not set a nonzero RETURN-CODE (`runner._run_java` treats a
+  nonzero exit as a failed run — needs a harness decision first);
+- GnuCOBOL quirk: a WHEN branch whose only statement is EXIT PROGRAM
+  compiles to an empty branch and chains into the next WHEN (`WHEN OTHER`
+  also runs). Vectors must never encode that oracle quirk;
+- counters must be wider than the input domain (`WS-I PIC 9(4)` wraps at
+  9999+1 and loops forever — rev 2 hung on input `9999,P` until widened).
 
 **Everything after the draft is gated:** Khaalis seals → handlers land in
 `SUPPORTED_STATEMENTS` → held-out green → analyzer picks the verbs up
@@ -846,6 +858,11 @@ three real-world corpora, plus GOBACK) is unchanged from the WP-1.9 entry.
 - **`GO TO` (186):** unstructured control flow; the Java emission model has
   no jump primitive — needs a control-flow restructuring design, not a
   handler.
+- **Paragraph `EXIT` / out-of-line `PERFORM <para>` (moved here by the
+  PR #10 Bugbot finding):** paragraph EXIT is only meaningful as the return
+  point of a performed paragraph, and C1 has no performed-paragraph
+  emission (paragraphs would need to become methods). That is an emission
+  architecture change, not a `SUPPORTED_STATEMENTS` entry.
 - **`CALL` (183):** cross-program linkage (LINKAGE SECTION, BY
   REFERENCE/CONTENT) and multi-binary oracles; also the vehicle for real
   EXIT PROGRAM vectors. Rank against WRITE/GO TO by demand after the 1.5.5
