@@ -2,7 +2,7 @@
   "benchmark": "RELIAN-BENCH",
   "version": "1.2.0",
   "tag": "relian-bench-v1.2",
-  "committed_at": "2026-08-16T18:26:34.962158+00:00",
+  "committed_at": "2026-08-16T19:04:49.049474+00:00",
   "file_count": 29,
   "files": [
     {
@@ -87,11 +87,11 @@
     },
     {
       "path": "corpus/P07_exitflow/vectors/heldout.jsonl",
-      "sha256": "9d17a1c0efd537d5d51faed9cebbcc2b8867cd78e1721822fc32b13c30ef2ecf"
+      "sha256": "c029de0b4cad0e53d093cdf973381e7491e19be932c669556361dc9d98efca7d"
     },
     {
       "path": "corpus/P07_exitflow/vectors/public.jsonl",
-      "sha256": "a27c464bcc1a2eb079c3a5e1947ba94c15c671d94df6638c2f027a2217cc8db3"
+      "sha256": "8326186adde329e24db3b5a4cbf2d483064abc3ec208266d46054c284986f13f"
     },
     {
       "path": "harness/commit.py",
@@ -103,11 +103,11 @@
     },
     {
       "path": "harness/gen_vectors.py",
-      "sha256": "661c5b671c0b5411cff98b079481e29150490f46d54f62010dac033e68e3db5f"
+      "sha256": "283cab31925b351bb9bad1fb93979ab02c35a3d3c82a58e1300889943114571a"
     },
     {
       "path": "harness/mains.json",
-      "sha256": "f0c88c385c13fa01e67868d460ac1e0192b74985341d66666f2ec70bbaa77ea1"
+      "sha256": "5e747bfd98f61eadbcc1fbcd9968d6259846fde530811f772645a3756a165615"
     },
     {
       "path": "harness/runner.py",
@@ -122,7 +122,7 @@
       "sha256": "594c01125b84864a7fc5a9efab19b71b7de36b27346863f6d7cd0cd45400ceb0"
     }
   ],
-  "payload_sha256": "2534af2c1035180b858bff2a45a0c2026b27f1b29ed033b64c74f1fb2138a78f",
+  "payload_sha256": "7e951493cfe58154dce564b4b3d42852d73a3e3b50cc9e43ccad1fca102ea567",
   "vector_counts": {
     "P01_payroll/vectors/heldout.jsonl": 60,
     "P01_payroll/vectors/public.jsonl": 12,
@@ -165,17 +165,17 @@
       "coverage_branch": 0.8415
     },
     "C1_rulebased": {
-      "ber_overall": 1.0,
-      "build_rate": 1.0,
-      "coverage_branch": 0.8824
+      "ber_overall": 0.7176,
+      "build_rate": 0.8571,
+      "coverage_branch": 0.8974
     }
   },
   "signature": {
     "alg": "Ed25519",
-    "manifest_sha256": "6ea85f31c81f1fc0910be1a52a9360fedf1542487900b5dced957e926ba7d0f6",
-    "signature_hex": "f6dbe224d8a804071e55efb9472d437e6b18fbba1802ec2ed04fc768236f2864b48ce28fa718423a8ee4e10488d17d8e0ccf597f10370b095f68d7eb0af18707",
+    "manifest_sha256": "3851de50e11f3039986fa0751fc804be50a84a54cf4013f752b298879c841725",
+    "signature_hex": "923e9c3ebeb31e1f330c4a9394cf85d26fd8823d0cbb29b6a357a41d5473aac0d120ffb95ad5938a2050e6f371874ae5f40c3ab9e04d6404325b5124d75ce100",
     "public_key_hex": "91b67d34b603f36a367051f0f5a0b3ec0b722a027f55092c1804ba36bd15dd13",
     "key_fingerprint": "233bb4406e2de606",
-    "signed_at": "2026-08-16T18:26:35.188312+00:00"
+    "signed_at": "2026-08-16T19:04:49.427135+00:00"
   }
 }
