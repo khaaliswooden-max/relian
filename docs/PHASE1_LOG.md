@@ -1029,3 +1029,23 @@ Held-out CI on this PR: expected green against v1.1 (nothing scored
 changed). After Part B seals v1.2, the held-out gate goes honestly RED
 (≈ build 6/7, BER ≈ 0.71 — expected, not measured) until the handlers
 land: bench-first (R7), red before green, by design.
+
+### v1.2 sealed — held-out baseline now MEASURED (supersedes the "expected" figures above)
+
+Khaalis signed and pushed Part B (`9aecd1d`: `LEDGER_relian-bench-v1.2.json`,
+manifest `6ea85f31…`, tag `relian-bench-v1.2`, 7-program `mains.json`,
+gate re-pointed). First post-sealing CI run
+([job 95209126117](https://github.com/khaaliswooden-max/relian/actions/runs/31965169091/job/95209126117)),
+the held-out measurement of record:
+
+- **n_vectors 365** compared (five sealed programs 300 + P06 60 + P04's
+  five window additions; P07 contributes 0 compared vectors — it does not
+  build — but its 60 count in the BER denominator).
+- **BER 0.7176 (305/425)** — P01–P03/P05 60/60 each, **P04 65/65** (all
+  five held-out AT-END window vectors match), P06_valinit 0/60 (VALUE
+  discarded), P07_exitflow 0/60 (transpile failure, honest stub).
+- **build_rate 0.8571 (6/7)**; **branch_coverage 0.8974** (passes ≥0.80).
+- Gate verdict: `THRESHOLD FAILED: BER 0.7176 < 0.95`,
+  `build_rate 0.8571 < 1.0` — the pre-implementation red, measured within
+  0.008 of the 0.71 prediction. This is the baseline WP-1.5.4/WP-1.5.5
+  handlers must turn green; the bench commit predates them (R7).
