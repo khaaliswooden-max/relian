@@ -469,3 +469,69 @@ measurement rather than a deduction, and it should be re-read then.
 
 **Acceptance criterion #2 is met**, and escalation item #5 is resolved pending
 the merge of PR #4.
+
+---
+
+## 2026-08-16 · Bench gate merged — operator decision recorded
+
+**PR #4 merged to main as `c4e5047`** (squash). The `bench` job now generates
+`candidates/current` from the transpiler at the commit under test and scores it
+against the held-out split, and every threshold is a hard failure.
+
+### The held-out numbers, in full
+
+First real measurement, [job 95154014247](https://github.com/khaaliswooden-max/relian/actions/runs/31942680176/job/95154014247)
+on `0ae61b6`:
+
+```
+P01_payroll:     emitted 3424 bytes -> candidates/current/P01_payroll/Payroll01.java
+P02_interest:    emitted 2759 bytes -> candidates/current/P02_interest/Interest01.java
+P03_eligibility: emitted 3150 bytes -> candidates/current/P03_eligibility/Eligible01.java
+P04_taxtable:    emitted 5150 bytes -> candidates/current/P04_taxtable/Taxtbl01.java
+P05_validate:    emitted 3219 bytes -> candidates/current/P05_validate/Validat01.java
+
+rep = run_candidate('current', out, mains, split='heldout')
+{
+  "ber": 1.0,
+  "build_rate": 1.0,
+  "valid": true,
+  "reason": null
+}
+THRESHOLD MET: BER 1.0 >= 0.95, build_rate 1.0 >= 1.0
+```
+
+| Metric | Ledger threshold | Measured (held-out) | Verdict |
+|---|---|---|---|
+| `ber_heldout` | ≥ 0.95 | **1.0000** | PASS |
+| `build_rate` | ≥ 1.00 | **1.00** | PASS |
+| `valid` | true | **true** | PASS (no anti-gaming violation) |
+| `branch_coverage` | ≥ 0.80 | **not gated** | see below |
+
+Evidence it measured rather than skipped: the `skipping score` line is gone; the
+scoring step took ~56 s where the skipping version took under one; and the five
+emitted byte counts match the local generation run, which was byte-identical to
+`bench/candidates/C1_rulebased/**`.
+
+`branch_coverage_min` (0.80) is in the ledger and is **deliberately not wired
+into the gate**. JaCoCo measurement exists in `harness/coverage.py` and the
+runner reports it, but gating on it is a separate decision with its own failure
+modes. Recorded as an open item rather than quietly omitted.
+
+### Operator decision — gate trigger scope
+
+**Khaalis, 2026-08-16: the gate stays on every `push` and `pull_request`, under
+R10.** The consequence is accepted deliberately: if held-out BER ever falls
+below 0.95, every PR in the repository goes red until it is fixed, including
+PRs that do not touch the transpiler. That is the intended behaviour of a merge
+gate on a protected branch — a benchmark that only runs when someone remembers
+to run it is not a gate. Recorded here so the first time it blocks unrelated
+work, the blocking is understood as designed rather than diagnosed as a fault.
+
+### Consequence for acceptance criterion #2
+
+`main` now carries the working gate, and it has been merged into
+`claude/read-and-run-f4626d`. This branch's own `bench` run will therefore
+generate the candidate from **the WP-1.2 refactored transpiler** and score it
+against the held-out split directly — converting criterion #2 from a deduction
+about byte-identical output into a measurement of this branch's own code. The
+result is recorded in the next entry.
