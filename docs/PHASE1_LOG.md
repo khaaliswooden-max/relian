@@ -226,7 +226,7 @@ proves the check has teeth.
 
 ```
 pytest tests/assessment -q → 177 passed, 7 skipped
-pytest -q                  → 4 failed, 233 passed, 7 skipped
+pytest -q                  → 4 failed, 232 passed, 7 skipped
 ```
 Same 4 pre-existing failures as the WP-0 baseline. No existing test changed.
 
@@ -299,7 +299,7 @@ dispatch-table work with no new semantics.
 
 | # | Criterion | Status |
 |---|---|---|
-| 1 | `pytest tests/assessment` green; existing suite unchanged | **Met.** 177 passed, 7 skipped. Whole suite: 4 failed / 233 passed — the same 4 pre-existing failures as the WP-0 baseline, no existing test edited. |
+| 1 | `pytest tests/assessment` green; existing suite unchanged | **Met.** 177 passed, 7 skipped. Whole suite: 4 failed / 232 passed — the same 4 pre-existing failures as the WP-0 baseline, no existing test edited. |
 | 2 | WP-1.2 refactor merged, bench leg identical before/after | **Met locally.** All 5 corpus programs regenerate byte-identical to baseline *and* to the committed candidates; public-split BER 1.0000, build 1.00. CI held-out is not runnable from here (R3) — **operator to confirm on the PR**. |
 | 3 | Cross-check green: analyzer ↔ transpiler agree | **Met, with one narrowing stated in the WP-1.3 entry and in the test's docstring.** |
 | 4 | Determinism green incl. CRLF | **Met.** Also caught and fixed a real determinism bug in the hashed ledger. |
@@ -325,3 +325,25 @@ dispatch-table work with no new semantics.
    initialises every field to zero or empty regardless. Harmless on the bench
    corpus, potentially not on real code. Recommendation: cover `VALUE` in
    RELIAN-BENCH before quoting any program that uses it.
+
+---
+
+## 2026-08-16 · Phase 1 close-out re-verification
+
+Run at the end of the session, on the final tree:
+
+```
+python3 -m pytest -q -o addopts=""
+→ 4 failed, 232 passed, 7 skipped
+
+python3 -m pytest -q -o addopts="" tests/assessment
+→ 177 passed, 7 skipped
+
+python3 scripts/bench_public.py --out <scratch>/c1_final
+→ ber_overall: 1.0   build_rate: 1.0   valid: true
+   all 5 generated-Java SHA-256 identical to the WP-0 baseline
+   diff -r against the pre-refactor tree: empty
+```
+
+The WP-1.2 behavior-preservation gate still holds at the end of Phase 1, not
+only at the moment of the refactor.
