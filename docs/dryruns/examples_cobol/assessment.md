@@ -7,9 +7,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
+| Portfolio construct coverage | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
 | Quotable-today code lines | 241 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (27) across 1 program(s) |
-| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 1 program(s) |
+| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 1 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
@@ -43,19 +43,19 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| banking-system.cbl | 0.7545 | PLAUSIBLE | 83/110 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on banking-system.cbl (sha256:24ba36227dc35845); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| banking-system.cbl | 0.7545 | PLAUSIBLE | 83/110 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on banking-system.cbl (sha256:24ba36227dc35845); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
+| Coverage ratio | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
@@ -111,7 +111,7 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 | 88-level condition name | 12 | supported |
 | FILE SECTION (FD) record | 3 | unsupported |
 | USAGE COMP / BINARY | 1 | accepted_ignored |
-| VALUE clause on a data item | 14 | accepted_ignored |
+| VALUE clause on a data item | 14 | supported |
 
 
 ## 7. Complexity findings
@@ -144,7 +144,7 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
 | Quotable-today code lines | 241 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (27) across 1 program(s) |
-| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 1 program(s) |
+| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 1 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -314,6 +314,7 @@ BLOCKED: coverage<0.60
 BLOCKED: ALTER present (static control flow is undecidable)
 HIGH: EXEC CICS present
 HIGH: EXEC SQL present
+HIGH: VALUE clause present but discarded by the transpiler (initialization semantics lost)
 HIGH: coverage<0.80
 HIGH: cyclomatic>50
 HIGH: goto_density>0.10
@@ -369,7 +370,11 @@ Token-scan counting rules (reproduced verbatim in the report appendix):
    immediately following ``.``, ``THEN``, ``ELSE``, or an ``END-…`` scope
    terminator. This deliberately under-counts verbs buried mid-clause (e.g.
    ``WHEN 1 DISPLAY X``); under-counting a construct is a smaller lie than
-   guessing at one, and the grade says PLAUSIBLE.
+   guessing at one, and the grade says PLAUSIBLE. A verb is classified
+   supported if the dispatch table holds the bare verb or its qualified
+   two-word form (``EXIT PROGRAM``); a qualified-only verb whose qualifier
+   is absent or unrecovered counts unsupported, in the same under-counting
+   direction.
 5. ``EXEC CICS`` / ``EXEC SQL`` / ``EXEC DLI`` count as one statement with verb
    ``EXEC`` and the product recorded as its context.
 6. A paragraph label is a line whose code area is a single name followed by a
@@ -383,11 +388,11 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b)`
+Registry: `SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553)`
 
-Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
+Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
-Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `SUBTRACT`
+Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `SUBTRACT`
 
 | DATA DIVISION feature | C1 status |
 | --- | --- |
@@ -406,7 +411,7 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | SIGN IS SEPARATE | accepted_ignored |
 | USAGE COMP / BINARY | accepted_ignored |
 | USAGE COMP-3 (packed decimal) | accepted_ignored |
-| VALUE clause on a data item | accepted_ignored |
+| VALUE clause on a data item | supported |
 | edited picture (Z / - / .) | supported |
 
 
@@ -418,8 +423,8 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | cli | cli.py |
 | platform | Linux |
 | python | 3.11.15 |
-| python-docx | 1.2.0 |
-| relian_transpiler | SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) |
+| python-docx | not installed |
+| relian_transpiler | SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) |
 | schema | relian-assessment-1 |
 
 

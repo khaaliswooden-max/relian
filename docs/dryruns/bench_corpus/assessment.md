@@ -1,5 +1,5 @@
 # Legacy Code Assessment — bench/corpus
-Schema `relian-assessment-1` · manifest `b3417ca506e34841569f0729088777ad61587348ef72fd7b3a80abb4216767d0`
+Schema `relian-assessment-1` · manifest `cc4513ba7feda336a554556ed8e638e99ec7144b064294cfc92681564d54bb90`
 
 Every number in this report is a measurement with a stated origin and a Trutina grade, or it is absent. Nothing here is a default, an estimate, or a target reported as a result.
 
@@ -7,39 +7,43 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 1.0 | PLAUSIBLE | 126/126 statements supported across 5 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
-| Quotable-today code lines | 281 | PLAUSIBLE | code lines (281) minus lines carrying an unsupported construct (0) across 5 program(s) |
-| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 5 program(s) |
+| Portfolio construct coverage | 1.0 | PLAUSIBLE | 173/173 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
+| Quotable-today code lines | 384 | PLAUSIBLE | code lines (384) minus lines carrying an unsupported construct (0) across 7 program(s) |
+| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 7 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
 | Measure | Value |
 | --- | --- |
 | Portfolio risk tier | LOW |
-| Rule that fired | `LOW: worst program tier across 5 program(s) (5 at LOW)` |
+| Rule that fired | `LOW: worst program tier across 7 program(s) (7 at LOW)` |
 
 
 ## 2. Manifest
 
-**Grade:** VERIFIED · **Provenance:** sha256 and size_bytes are of the raw bytes on disk; the manifest hash is sha256 of the canonical JSON of the sorted record list (= b3417ca506e34841569f0729088777ad61587348ef72fd7b3a80abb4216767d0)
+**Grade:** VERIFIED · **Provenance:** sha256 and size_bytes are of the raw bytes on disk; the manifest hash is sha256 of the canonical JSON of the sorted record list (= cc4513ba7feda336a554556ed8e638e99ec7144b064294cfc92681564d54bb90)
 
 | Path | Kind | Bytes | Line ending | sha256 |
 | --- | --- | --- | --- | --- |
 | P01_payroll/payroll01 | other | 117024 | LF | `14e39988df161145` |
 | P01_payroll/program.cbl | program | 2941 | LF | `a4b0d32852a107ab` |
-| P01_payroll/vectors/public.jsonl | other | 881 | LF | `3f05eeb7b05a2a63` |
+| P01_payroll/vectors/public.jsonl | other | 1121 | LF | `58fe6de4f0420ca0` |
 | P02_interest/program.cbl | program | 2009 | LF | `eca429658d4d4882` |
 | P02_interest/run | other | 111760 | LF | `a3e6ebf713b39544` |
-| P02_interest/vectors/public.jsonl | other | 879 | LF | `2a979ac28cfeb511` |
+| P02_interest/vectors/public.jsonl | other | 1119 | LF | `bfd9814a7392f8ac` |
 | P03_eligibility/program.cbl | program | 2429 | LF | `4d4fcb294665e67b` |
 | P03_eligibility/run | other | 115800 | mixed | `951145751057a251` |
-| P03_eligibility/vectors/public.jsonl | other | 1061 | LF | `3cb04465419c38fb` |
+| P03_eligibility/vectors/public.jsonl | other | 1301 | LF | `24b8c2ff5d5b67e6` |
 | P04_taxtable/program.cbl | program | 2727 | LF | `6dfa8a0461a45bd5` |
 | P04_taxtable/run | other | 116328 | LF | `8f6a7121a1ca2ba4` |
-| P04_taxtable/vectors/public.jsonl | other | 922 | LF | `dd57934029330e26` |
+| P04_taxtable/vectors/public.jsonl | other | 1692 | LF | `e8d39c0b795d9177` |
 | P05_validate/program.cbl | program | 2167 | LF | `65f5d5c5402effa0` |
 | P05_validate/run | other | 110464 | LF | `b9831074458427d5` |
-| P05_validate/vectors/public.jsonl | other | 882 | LF | `5298baaa3edd4710` |
+| P05_validate/vectors/public.jsonl | other | 1122 | LF | `bd72a3e0cea8c569` |
+| P06_valinit/program.cbl | program | 2440 | LF | `950113b8470290d5` |
+| P06_valinit/vectors/public.jsonl | other | 1554 | LF | `4a9db10e07f0c3f8` |
+| P07_exitflow/program.cbl | program | 4597 | LF | `80a9eb6456c65634` |
+| P07_exitflow/vectors/public.jsonl | other | 1174 | LF | `340597e67ae39ff5` |
 
 
 ## 3. LOC inventory
@@ -53,26 +57,30 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 | P03_eligibility/program.cbl | 58 | 4 | 0 | 54 | 24 | token_scan | — |
 | P04_taxtable/program.cbl | 71 | 4 | 0 | 67 | 33 | token_scan | — |
 | P05_validate/program.cbl | 56 | 4 | 0 | 52 | 25 | token_scan | — |
+| P06_valinit/program.cbl | 56 | 14 | 0 | 42 | 14 | token_scan | — |
+| P07_exitflow/program.cbl | 100 | 39 | 0 | 61 | 33 | token_scan | — |
 
-Portfolio totals — physical 308, code 281, comment 22, blank 5, logical 126 (5 program(s) measured, 0 not measured).
+Portfolio totals — physical 464, code 384, comment 75, blank 5, logical 173 (7 program(s) measured, 0 not measured).
 
 
 ## 4. Coverage map
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| P01_payroll/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on P01_payroll/program.cbl (sha256:a4b0d32852a107ab); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
-| P02_interest/program.cbl | 1.0 | PLAUSIBLE | 19/19 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on P02_interest/program.cbl (sha256:eca429658d4d4882); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
-| P03_eligibility/program.cbl | 1.0 | PLAUSIBLE | 24/24 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on P03_eligibility/program.cbl (sha256:4d4fcb294665e67b); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
-| P04_taxtable/program.cbl | 1.0 | PLAUSIBLE | 33/33 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on P04_taxtable/program.cbl (sha256:6dfa8a0461a45bd5); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
-| P05_validate/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on P05_validate/program.cbl (sha256:65f5d5c5402effa0); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| P01_payroll/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P01_payroll/program.cbl (sha256:a4b0d32852a107ab); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
+| P02_interest/program.cbl | 1.0 | PLAUSIBLE | 19/19 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P02_interest/program.cbl (sha256:eca429658d4d4882); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
+| P03_eligibility/program.cbl | 1.0 | PLAUSIBLE | 24/24 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P03_eligibility/program.cbl (sha256:4d4fcb294665e67b); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
+| P04_taxtable/program.cbl | 1.0 | PLAUSIBLE | 33/33 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P04_taxtable/program.cbl (sha256:6dfa8a0461a45bd5); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
+| P05_validate/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P05_validate/program.cbl (sha256:65f5d5c5402effa0); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| P06_valinit/program.cbl | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P06_valinit/program.cbl (sha256:950113b8470290d5); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| P07_exitflow/program.cbl | 1.0 | PLAUSIBLE | 33/33 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P07_exitflow/program.cbl (sha256:80a9eb6456c65634); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 1.0 | PLAUSIBLE | 126/126 statements supported across 5 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
+| Coverage ratio | 1.0 | PLAUSIBLE | 173/173 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
@@ -86,9 +94,10 @@ No construct outside the supported set was found.
 
 | Feature | Occurrences | C1 status |
 | --- | --- | --- |
-| 88-level condition name | 1 | supported |
+| 88-level condition name | 3 | supported |
 | OCCURS fixed size | 1 | supported |
-| USAGE COMP-3 (packed decimal) | 27 | accepted_ignored |
+| USAGE COMP-3 (packed decimal) | 29 | accepted_ignored |
+| VALUE clause on a data item | 4 | supported |
 
 
 ## 7. Complexity findings
@@ -102,6 +111,8 @@ No construct outside the supported set was found.
 | P03_eligibility/program.cbl | 9 | 24 | 0 | 0.0 | no | 0 | 0 | 1 |
 | P04_taxtable/program.cbl | 5 | 33 | 0 | 0.0 | no | 0 | 0 | 1 |
 | P05_validate/program.cbl | 7 | 25 | 0 | 0.0 | no | 0 | 0 | 1 |
+| P06_valinit/program.cbl | 3 | 14 | 0 | 0.0 | no | 0 | 0 | 2 |
+| P07_exitflow/program.cbl | 9 | 33 | 0 | 0.0 | no | 0 | 0 | 2 |
 
 
 ## 8. Risk tiers
@@ -115,12 +126,14 @@ No construct outside the supported set was found.
 | P03_eligibility/program.cbl | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
 | P04_taxtable/program.cbl | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
 | P05_validate/program.cbl | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
+| P06_valinit/program.cbl | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
+| P07_exitflow/program.cbl | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
 
 | Tier | Programs |
 | --- | --- |
 | BLOCKED | 0 |
 | HIGH | 0 |
-| LOW | 5 |
+| LOW | 7 |
 | MED | 0 |
 
 
@@ -128,8 +141,8 @@ No construct outside the supported set was found.
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Quotable-today code lines | 281 | PLAUSIBLE | code lines (281) minus lines carrying an unsupported construct (0) across 5 program(s) |
-| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 5 program(s) |
+| Quotable-today code lines | 384 | PLAUSIBLE | code lines (384) minus lines carrying an unsupported construct (0) across 7 program(s) |
+| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 7 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -283,6 +296,7 @@ BLOCKED: coverage<0.60
 BLOCKED: ALTER present (static control flow is undecidable)
 HIGH: EXEC CICS present
 HIGH: EXEC SQL present
+HIGH: VALUE clause present but discarded by the transpiler (initialization semantics lost)
 HIGH: coverage<0.80
 HIGH: cyclomatic>50
 HIGH: goto_density>0.10
@@ -338,7 +352,11 @@ Token-scan counting rules (reproduced verbatim in the report appendix):
    immediately following ``.``, ``THEN``, ``ELSE``, or an ``END-…`` scope
    terminator. This deliberately under-counts verbs buried mid-clause (e.g.
    ``WHEN 1 DISPLAY X``); under-counting a construct is a smaller lie than
-   guessing at one, and the grade says PLAUSIBLE.
+   guessing at one, and the grade says PLAUSIBLE. A verb is classified
+   supported if the dispatch table holds the bare verb or its qualified
+   two-word form (``EXIT PROGRAM``); a qualified-only verb whose qualifier
+   is absent or unrecovered counts unsupported, in the same under-counting
+   direction.
 5. ``EXEC CICS`` / ``EXEC SQL`` / ``EXEC DLI`` count as one statement with verb
    ``EXEC`` and the product recorded as its context.
 6. A paragraph label is a line whose code area is a single name followed by a
@@ -352,11 +370,11 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b)`
+Registry: `SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553)`
 
-Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
+Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
-Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `SUBTRACT`
+Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `SUBTRACT`
 
 | DATA DIVISION feature | C1 status |
 | --- | --- |
@@ -375,7 +393,7 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | SIGN IS SEPARATE | accepted_ignored |
 | USAGE COMP / BINARY | accepted_ignored |
 | USAGE COMP-3 (packed decimal) | accepted_ignored |
-| VALUE clause on a data item | accepted_ignored |
+| VALUE clause on a data item | supported |
 | edited picture (Z / - / .) | supported |
 
 
@@ -387,8 +405,8 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | cli | cli.py |
 | platform | Linux |
 | python | 3.11.15 |
-| python-docx | 1.2.0 |
-| relian_transpiler | SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) |
+| python-docx | not installed |
+| relian_transpiler | SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) |
 | schema | relian-assessment-1 |
 
 

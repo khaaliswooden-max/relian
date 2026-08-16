@@ -30,7 +30,11 @@ from typing import Callable, Dict, List, Optional, Tuple
 VERBS = {"ACCEPT", "UNSTRING", "COMPUTE", "MOVE", "IF", "ELSE", "END-IF",
          "EVALUATE", "WHEN", "END-EVALUATE", "PERFORM", "END-PERFORM",
          "ADD", "SET", "SEARCH", "END-SEARCH", "AT", "INSPECT", "DISPLAY",
-         "STOP", "END-UNSTRING", "SUBTRACT"}
+         "STOP", "END-UNSTRING", "SUBTRACT",
+         # WP-1.5.5: without boundary status these glue onto the previous
+         # statement and corrupt it (measured: "MOVE 0 TO RETURN-CODE GOBACK"
+         # fails the MOVE regex).
+         "CONTINUE", "GOBACK", "EXIT"}
 
 
 # Reserved words that can legally stand alone on a line followed by a period
@@ -69,7 +73,16 @@ class Field:
     signed: bool = False
     length: int = 0           # alpha length
     occurs: int = 0           # >0 => array (element of an OCCURS group)
-    conds: Dict[str, str] = field(default_factory=dict)  # 88-level name->value
+    # 88-level condition name -> list of values (a condition name may carry
+    # several literals: 88 CODE-CLOSED VALUE "C" "X"). Single-value entries
+    # emit exactly what the pre-WP-1.5.4 Dict[str, str] form emitted.
+    conds: Dict[str, List[str]] = field(default_factory=dict)
+    # WP-1.5.4: VALUE clause, normalised at parse time. For 'num' this is the
+    # literal rescaled to the declared PIC scale (COBOL aligns VALUE to the
+    # PICTURE); for 'alpha' it is the string padded with spaces to the
+    # declared length (fixed-length COBOL storage). None == no VALUE clause,
+    # and the field initialises to zero/empty exactly as before WP-1.5.4.
+    value: Optional[str] = None
 
 
 def parse_pic(pic: str) -> Tuple[str, int, int, bool, int]:
@@ -96,11 +109,57 @@ def parse_pic(pic: str) -> Tuple[str, int, int, bool, int]:
     return ("edit" if edited else "num"), intd, dec, signed, 0
 
 
+# VALUE literal on a data item: quoted string, signed numeric, or the
+# figuratives ZERO/SPACE. Anything else after a VALUE keyword is a construct
+# C1 does not model, and per R2 that must fail loudly, not zero-initialise.
+_VALUE_RE = re.compile(
+    r'\bVALUE\s+(?:IS\s+)?("(?:[^"]*)"|[+-]?\d+(?:\.\d+)?'
+    r'|ZEROE?S?\b|SPACES?\b)', re.IGNORECASE)
+
+
+def _rescale_numeric(lit: str, dec: int, context: str) -> str:
+    """Rescale a numeric VALUE literal to the declared PIC scale in Python
+    (COBOL aligns VALUE to the PICTURE), so the emitted Java is a plain
+    literal with no runtime setScale."""
+    from decimal import Decimal, ROUND_DOWN
+    q = Decimal(lit).quantize(Decimal(1).scaleb(-dec), rounding=ROUND_DOWN)
+    return format(q, "f")
+
+
+def _field_value(kind: str, dec: int, length: int, lit: str, context: str) -> str:
+    """Normalise one VALUE literal for a field. Raises on forms C1 cannot
+    represent rather than silently dropping them (R2)."""
+    up = lit.upper()
+    if lit.startswith('"'):
+        s = lit[1:-1]
+        if kind == "alpha":
+            if length and len(s) > length:
+                s = s[:length]
+            return s.ljust(length) if length else s
+        raise ValueError(
+            f"unsupported VALUE: string literal on non-alpha field {context}")
+    if up.startswith("ZERO"):
+        return "" .ljust(length) if kind == "alpha" else _rescale_numeric("0", dec, context)
+    if up.startswith("SPACE"):
+        if kind != "alpha":
+            raise ValueError(f"unsupported VALUE SPACES on non-alpha field {context}")
+        return " " * length if length else ""
+    if kind == "num":
+        return _rescale_numeric(lit, dec, context)
+    raise ValueError(
+        f"unsupported VALUE: numeric literal on {kind} field {context}")
+
+
 def parse_working_storage(lines: List[str]) -> Dict[str, Field]:
     fields: Dict[str, Field] = {}
     pending_occurs = 0
     group_level = 0
     last_named: Optional[str] = None
+    # WP-1.5.4: a group header carrying VALUE spreads its literal across the
+    # subordinate fields' storage in declaration order.
+    group_value: Optional[str] = None
+    group_value_level = 0
+    group_value_off = 0
     for ln in lines:
         t = ln.strip().rstrip(".")
         m = re.match(r"^(\d\d)\s+([A-Z0-9\-]+)(.*)$", t)
@@ -108,10 +167,15 @@ def parse_working_storage(lines: List[str]) -> Dict[str, Field]:
             continue
         level, name, rest = int(m.group(1)), m.group(2), m.group(3)
         if level == 88:
-            vm = re.search(r'VALUE\s+"([^"]*)"', rest)
-            if vm and last_named:
-                fields[last_named].conds[name] = vm.group(1)
+            # WP-1.5.4: a condition name may carry several literals
+            # (88 CODE-CLOSED VALUE "C" "X"). All are captured; the
+            # single-literal case emits exactly what it did before.
+            vals = re.findall(r'"([^"]*)"', rest)
+            if vals and last_named:
+                fields[last_named].conds[name] = vals
             continue
+        if group_value is not None and level <= group_value_level:
+            group_value = None
         om = re.search(r"OCCURS\s+(\d+)", rest)
         if om and "PIC" not in rest:
             pending_occurs = int(om.group(1))
@@ -121,13 +185,43 @@ def parse_working_storage(lines: List[str]) -> Dict[str, Field]:
             pending_occurs = 0
         pm = re.search(r"PIC\s+([S9XVZ0-9\(\)\.\-]+)", rest, re.IGNORECASE)
         if not pm:
-            if "." not in rest and not rest.strip():
-                pass  # bare group header (e.g. 01 WS-BRACKETS.)
+            gv = _VALUE_RE.search(rest)
+            if gv and gv.group(1).startswith('"'):
+                # group-level VALUE header (e.g. 01 WS-GRP VALUE "AB12CD".)
+                group_value = gv.group(1)[1:-1]
+                group_value_level = level
+                group_value_off = 0
+            elif gv:
+                raise ValueError(
+                    f"unsupported group-level VALUE form at: {t[:60]!r}")
             continue
         kind, intd, dec, signed, alen = parse_pic(pm.group(1))
         occ = int(om.group(1)) if (om and "PIC" in rest) else (
             pending_occurs if level > group_level and pending_occurs else 0)
-        fields[name] = Field(name, kind, intd, dec, signed, alen, occ)
+        value: Optional[str] = None
+        vm = _VALUE_RE.search(rest)
+        if vm:
+            if occ:
+                raise ValueError(
+                    f"unsupported VALUE on OCCURS element {name}")
+            value = _field_value(kind, dec, alen, vm.group(1), name)
+        elif re.search(r"\bVALUE\b", rest, re.IGNORECASE):
+            raise ValueError(f"unsupported VALUE clause form at: {t[:60]!r}")
+        elif group_value is not None and level > group_value_level:
+            # consume this field's storage width from the group literal
+            width = alen if kind == "alpha" else intd + dec
+            chars = group_value[group_value_off:group_value_off + width]
+            group_value_off += width
+            if kind == "alpha":
+                value = chars.ljust(alen) if alen else chars
+            elif kind == "num" and dec == 0 and chars.strip().isdigit():
+                value = _rescale_numeric(chars.strip(), 0, name)
+            else:
+                raise ValueError(
+                    f"unsupported group VALUE distribution into {name} "
+                    f"(kind={kind}, chars={chars!r})")
+        fields[name] = Field(name, kind, intd, dec, signed, alen, occ,
+                             value=value)
         last_named = name
     return fields
 
@@ -257,11 +351,15 @@ def cond_tx(cond: str, fields: Dict[str, Field], ex: ExprTx, used: Optional[set]
         p = p.strip()
         m = re.match(r"^(.*?)\s*(<=|>=|NOT\s*=|=|<|>)\s*(.*)$", p)
         if not m:
-            # bare 88-level condition
+            # bare 88-level condition. A condition name with several VALUEs
+            # is true if the field equals ANY of them (WP-1.5.4); the
+            # single-value emission is byte-identical to pre-WP-1.5.4.
             for fname, f in fields.items():
                 if p in f.conds:
                     if used is not None: used.add("eq")
-                    out.append(f'R.eq({jname(fname)}, "{f.conds[p]}")')
+                    terms = [f'R.eq({jname(fname)}, "{v}")' for v in f.conds[p]]
+                    out.append(terms[0] if len(terms) == 1
+                               else "(" + " || ".join(terms) + ")")
                     break
             else:
                 out.append("false /* unparsed cond */")
@@ -394,14 +492,18 @@ class Transpiler:
                 # A lone `END-IF.`, `ELSE.`, `GOBACK.` or `EXIT.` line matches
                 # the same regex but is a scope terminator or statement, not a
                 # label. Mirror src/assessment/coverage._paragraph_label so a
-                # strict-mode error never reports a phantom paragraph. Only
-                # the NAME assignment is guarded -- the skip itself is the
-                # pre-WP-1.5.2 behavior and must stay byte-identical.
+                # strict-mode error never reports a phantom paragraph.
+                # WP-1.5.5: a lone VERB. line IS a statement and falls through
+                # to statement processing -- the pre-WP-1.5.5 skip silently
+                # dropped `GOBACK.`, which is exactly the failure R2 forbids.
+                # (The sealed five contain no lone VERB. lines, so their
+                # emission is unchanged; verified byte-identical.)
                 name = l.rstrip(".")
-                if (name not in VERBS and not name.startswith("END-")
-                        and name not in _NOT_PARAGRAPH_NAMES):
-                    current_para = name
-                continue
+                if name not in VERBS:
+                    if (not name.startswith("END-")
+                            and name not in _NOT_PARAGRAPH_NAMES):
+                        current_para = name
+                    continue
             first = l.split()[0].rstrip(".")
             if first in VERBS or not out:
                 out.append(l)
@@ -436,19 +538,30 @@ class Transpiler:
 
     def transpile(self) -> str:
         self.w("java.util.Scanner _sc = new java.util.Scanner(System.in);")
-        # declarations
+        # declarations. A field with a VALUE clause initialises to it
+        # (WP-1.5.4, normalised at parse time); otherwise zero/empty exactly
+        # as before, so VALUE-free programs emit byte-identical Java.
         for f in self.fields.values():
             n = jname(f.name)
             if f.occurs:
                 self.w(f"BigDecimal[] {n} = new BigDecimal[{f.occurs}];")
                 self.w(f"java.util.Arrays.fill({n}, BigDecimal.ZERO);")
             elif f.kind == "alpha":
-                self.w(f'String {n} = "";')
+                init = f.value if f.value is not None else ""
+                self.w(f'String {n} = "{init}";')
             elif f.kind == "edit":
                 self.w(f'String {n} = "";')
+            elif f.value is not None:
+                self.w(f'BigDecimal {n} = new BigDecimal("{f.value}");')
             else:
                 self.w(f"BigDecimal {n} = BigDecimal.ZERO;")
         self.w("int BI = 1;")  # indexes are ints; generic single-index support
+        # WP-1.5.5: the RETURN-CODE special register, declared only when the
+        # program references it, so RETURN-CODE-free programs (the sealed
+        # five among them) emit byte-identical Java.
+        self.uses_return_code = any("RETURN-CODE" in s for s in self.stmts)
+        if self.uses_return_code:
+            self.w("int RETURN_CODE = 0;")
         i = 0
         while i < len(self.stmts):
             i = self.stmt(i)
@@ -489,8 +602,15 @@ class Transpiler:
         s = self.stmts[i]
         if s == "__NOP":
             return i + 1
-        v = s.split()[0]
+        toks = s.split()
+        v = toks[0]
         handler = SUPPORTED_STATEMENTS.get(v)
+        if handler is None and len(toks) > 1:
+            # WP-1.5.5: two-word dispatch keys ("EXIT PROGRAM"). Registering
+            # the qualified form instead of bare "EXIT" keeps paragraph EXIT
+            # honestly unsupported -- in the dispatch table AND in the
+            # assessment's supported_verbs(), which reads these keys.
+            handler = SUPPORTED_STATEMENTS.get(f"{v} {toks[1]}")
         if handler is None:
             # A BARE scope terminator (exactly the token, no content) closes a
             # construct whose handler already consumed everything before it
@@ -544,6 +664,13 @@ def _tx_compute(tp: Transpiler, i: int, s: str) -> int:
 def _tx_move(tp: Transpiler, i: int, s: str) -> int:
     m = re.match(r"MOVE\s+(.+?)\s+TO\s+([A-Z0-9\-]+)(\s*\(([^)]+)\))?$", s)
     srcx, name, sub = m.group(1).strip(), m.group(2), m.group(4)
+    if name == "RETURN-CODE":
+        # WP-1.5.5: the RETURN-CODE special register (an int, not a field).
+        val = srcx if re.fullmatch(r"\d+", srcx) else (
+            "0" if srcx.upper() in ("ZERO", "ZEROS", "ZEROES")
+            else f"({tp.ex.emit(srcx)}).intValue()")
+        tp.w(f"RETURN_CODE = {val};")
+        return i + 1
     f = tp.fields[name]
     if srcx.upper() in ("ZERO", "ZEROS", "ZEROES"):
         tp.store(name, "BigDecimal.ZERO", False, sub)
@@ -607,6 +734,12 @@ def _tx_end_block(tp: Transpiler, i: int, s: str) -> int:
 
 def _tx_evaluate(tp: Transpiler, i: int, s: str) -> int:
     tp._first_when = True
+    # WP-1.5.5: EVALUATE <selector> compares each WHEN literal against the
+    # selector (P07_exitflow: EVALUATE WS-MODE / WHEN "G"). EVALUATE TRUE
+    # keeps the pre-existing behavior -- each WHEN is a full condition --
+    # and emits byte-identical Java for the sealed corpus (P03).
+    sel = s[8:].strip()
+    tp._eval_selector = None if (not sel or sel.upper() == "TRUE") else sel
     return i + 1
 
 
@@ -618,6 +751,9 @@ def _tx_when(tp: Transpiler, i: int, s: str) -> int:
     if cond.upper() == "OTHER":
         tp.w("} else {")
     else:
+        sel = getattr(tp, "_eval_selector", None)
+        if sel is not None:
+            cond = f"{sel} = {cond}"
         tp.w(f"{kw} ({cond_tx(cond, tp.fields, tp.ex, tp.used)}) {{")
     tp.ind += 1
     tp._first_when = False
@@ -707,7 +843,46 @@ def _tx_display(tp: Transpiler, i: int, s: str) -> int:
 
 
 def _tx_stop(tp: Transpiler, i: int, s: str) -> int:
-    tp.w("return;")
+    # STOP RUN returns control with the RETURN-CODE register's value; when
+    # the program never touches RETURN-CODE this is the pre-WP-1.5.5
+    # `return;` (process exit 0), byte-identical for the sealed five.
+    if getattr(tp, "uses_return_code", False):
+        tp.w("System.exit(RETURN_CODE);")
+    else:
+        tp.w("return;")
+    return i + 1
+
+
+def _tx_continue(tp: Transpiler, i: int, s: str) -> int:
+    # CONTINUE is an explicit no-op (WP-1.5.5). Emitting nothing is its
+    # correct translation -- unlike a dropped statement, there is nothing
+    # here to drop.
+    return i + 1
+
+
+def _tx_goback(tp: Transpiler, i: int, s: str) -> int:
+    # GOBACK in a main program ends the run with the RETURN-CODE register's
+    # value (WP-1.5.5; nonzero exits are scored since WP-1.5.0d). Content
+    # after the verb (e.g. GOBACK GIVING) is not modelled -> honest failure.
+    if s != "GOBACK":
+        tp.unsupported(s.split()[0], tp.stmt_lines[i] if i < len(tp.stmt_lines) else -1,
+                       tp.stmt_paras[i] if i < len(tp.stmt_paras) else None)
+        return i + 1
+    if getattr(tp, "uses_return_code", False):
+        tp.w("System.exit(RETURN_CODE);")
+    else:
+        tp.w("return;")
+    return i + 1
+
+
+def _tx_exit_program(tp: Transpiler, i: int, s: str) -> int:
+    # EXIT PROGRAM in a MAIN program is a measured no-op (GnuCOBOL 3.1.2,
+    # P07_exitflow oracle: both DISPLAYs around it run). Bare EXIT (paragraph
+    # exit) is NOT this statement and stays unsupported -- it dispatches on
+    # the single token "EXIT", which has no handler.
+    if s != "EXIT PROGRAM":
+        tp.unsupported(s.split()[0], tp.stmt_lines[i] if i < len(tp.stmt_lines) else -1,
+                       tp.stmt_paras[i] if i < len(tp.stmt_paras) else None)
     return i + 1
 
 
@@ -717,12 +892,19 @@ SUPPORTED_STATEMENTS: Dict[str, Callable[[Transpiler, int, str], int]] = {
     "ACCEPT": _tx_accept,
     "ADD": _tx_add,
     "COMPUTE": _tx_compute,
+    "CONTINUE": _tx_continue,
     "DISPLAY": _tx_display,
     "ELSE": _tx_else,
     "END-EVALUATE": _tx_end_block,
     "END-IF": _tx_end_block,
     "END-PERFORM": _tx_end_block,
     "EVALUATE": _tx_evaluate,
+    # Two-word key (WP-1.5.5): only the qualified form is supported. Bare
+    # EXIT (paragraph exit) is inseparable from performed-paragraph support
+    # (Bugbot finding, PR #10) and deliberately has NO entry here, so it
+    # raises UnsupportedConstruct and the assessment counts it unsupported.
+    "EXIT PROGRAM": _tx_exit_program,
+    "GOBACK": _tx_goback,
     "IF": _tx_if,
     "INSPECT": _tx_inspect,
     "MOVE": _tx_move,

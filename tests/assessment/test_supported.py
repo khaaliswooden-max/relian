@@ -63,6 +63,11 @@ BODIES = {
                     "DISPLAY WS-N", "END-PERFORM"],
     "SEARCH": ["SET BI TO 1", "SEARCH WS-T", "AT END DISPLAY WS-N",
                "WHEN WS-E(BI) = 1", "DISPLAY WS-N", "END-SEARCH"],
+    # WP-1.5.5
+    "CONTINUE": ["IF WS-N > 0", "CONTINUE", "ELSE", "DISPLAY WS-N", "END-IF"],
+    "GOBACK": ["GOBACK"],
+    "EXIT PROGRAM": ["IF WS-N > 0", "DISPLAY WS-N", "EXIT PROGRAM",
+                     "DISPLAY WS-N", "END-IF"],
 }
 
 
@@ -95,8 +100,15 @@ def test_every_supported_verb_has_a_fixture():
 @pytest.mark.parametrize("verb", sorted(SUPPORTED_STATEMENTS))
 def test_supported_verb_transpiles_without_hitting_unsupported(verb):
     tp = Transpiler(program(BODIES[verb]), "Probe")
-    first_tokens = {s.split()[0] for s in tp.stmts}
-    assert verb in first_tokens, f"{verb} never reached stmt() in its fixture"
+    # Dispatch keys may be one or two words ("EXIT PROGRAM"), so collect both
+    # prefixes of every statement (WP-1.5.5).
+    prefixes = set()
+    for s in tp.stmts:
+        toks = s.split()
+        prefixes.add(toks[0])
+        if len(toks) > 1:
+            prefixes.add(f"{toks[0]} {toks[1]}")
+    assert verb in prefixes, f"{verb} never reached stmt() in its fixture"
     tp.transpile()
     assert tp.unsupported_hits == [], f"{verb} is in the table but hit unsupported()"
 
@@ -108,7 +120,9 @@ def test_supported_verb_transpiles_without_hitting_unsupported(verb):
         ("EXEC CICS SEND MAP END-EXEC", "EXEC"),
         ("SUBTRACT 1 FROM WS-N", "SUBTRACT"),
         ("STRING WS-A WS-B DELIMITED BY SIZE INTO WS-LINE", "STRING"),
-        ("GOBACK", "GOBACK"),
+        # WP-1.5.5: bare EXIT (paragraph exit) stays outside the table; only
+        # the qualified "EXIT PROGRAM" form has a handler.
+        ("EXIT", "EXIT"),
     ],
 )
 def test_verb_outside_the_table_hits_unsupported(stmt, verb):

@@ -1049,3 +1049,63 @@ the held-out measurement of record:
   `build_rate 0.8571 < 1.0` — the pre-implementation red, measured within
   0.008 of the 0.71 prediction. This is the baseline WP-1.5.4/WP-1.5.5
   handlers must turn green; the bench commit predates them (R7).
+
+---
+
+## 2026-08-16 · WP-1.5.4 + WP-1.5.5 · VALUE clause; CONTINUE / GOBACK / EXIT PROGRAM
+
+Bench-first satisfied: RELIAN-BENCH v1.2 (manifest `a47305c2…`, tag
+`relian-bench-v1.2`) was sealed and merged BEFORE this implementation —
+its P06_valinit / P07_exitflow held-out red (BER 0.7176, build 6/7) is the
+baseline these handlers exist to turn green (R7).
+
+**WP-1.5.4 (VALUE):** `Field.value` carries the normalised initialiser —
+numeric literals rescaled to the declared PIC scale at parse time (COBOL
+aligns VALUE to the PICTURE; no runtime setScale in the emitted Java),
+alphanumeric literals padded to the declared length, group-level VALUE
+spread across subordinate fields by storage width, 88-levels with multiple
+literals (`88 CODE-CLOSED VALUE "C" "X"` → OR of equality tests;
+single-literal 88s emit byte-identically to before). Figuratives ZERO and
+SPACES covered. Any other VALUE form raises instead of silently
+zero-initialising (R2). The `supported.py` probe flipped
+`accepted_ignored → supported` on its own — it reads the Field model, not
+a hand-list.
+
+**WP-1.5.5 (control flow):** `CONTINUE`, `GOBACK`, `EXIT` join the
+statement-boundary set (measured hazard: unbounded, they glue onto the
+previous statement — "MOVE 0 TO RETURN-CODE GOBACK" fails the MOVE regex);
+a lone `VERB.` line is now processed as a statement instead of being
+silently dropped by the paragraph-label skip (the pre-WP-1.5.5 behavior
+dropped a standalone `GOBACK.` — exactly the R2 failure). New handlers:
+`CONTINUE` (no-op), `GOBACK` (`System.exit(RETURN_CODE)` when the program
+references the RETURN-CODE register, else `return;`), and the two-word
+dispatch key **`EXIT PROGRAM`** (measured no-op in a main program). Bare
+`EXIT` (paragraph exit) deliberately has NO entry — it is inseparable from
+performed-paragraph support (Bugbot, PR #10) — so it still raises, and the
+assessment still counts it unsupported. `MOVE n TO RETURN-CODE` sets the
+register; `STOP RUN` exits with it when referenced. `EVALUATE <selector>`
+(P07: `EVALUATE WS-MODE / WHEN "G"`) now compares each WHEN literal against
+the selector; `EVALUATE TRUE` emission is unchanged.
+
+**Coverage analyzer:** token scan records the verb's following token and
+classifies supported iff the dispatch table holds the bare verb OR the
+qualified two-word form — both read from `SUPPORTED_STATEMENTS`, nothing
+hand-maintained. Undercount direction preserved (a qualified-only verb with
+unrecovered qualifier counts unsupported).
+
+**Measured (public split, `scripts/bench_public.py`, jacoco-0.8.12):**
+BER **1.0 (89/89)** across all 7 programs, build 1.0, public branch
+coverage 0.8333 (P06 12/12, P07 12/12). The five sealed programs'
+generated Java is **byte-identical** (all five sha256 match the WP-1.5.0d
+baseline) — VALUE-free, RETURN-CODE-free programs are provably unaffected.
+Suite: 243 passed, 12 skipped (test_ml excluded, torch not installable
+here). Held-out acceptance (BER 1.0 ×7, build 1.0, branch ≥0.80) is the
+PR's CI run.
+
+**WP-1.9 re-run (same input trees, manifest hashes identical):**
+CardDemo 0.8209 → **0.8511**, OMP course 0.6606 → **0.6945**, GnuCOBOL
+0.5763 → **0.5968**; +329 statements = CONTINUE 271 + GOBACK 57 + 1
+same-line EXIT PROGRAM. Paragraph EXIT (367) deliberately unclaimed.
+`bench_corpus` dry run now covers the v1.2 corpus: 7 programs, 173/173 =
+1.0 — the analyzer↔transpiler cross-validation holds on the expanded
+corpus. Artifacts refreshed in `docs/dryruns/`.
