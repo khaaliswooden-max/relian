@@ -18,8 +18,12 @@ harness can do the same thing is worthless. Hence: measure or None.
 SCORING
 -------
 Behavioral Equivalence Rate (BER) = exact-match fraction of HELD-OUT vectors
-where migrated stdout == legacy stdout. This is the honest, checkable
-replacement for the unmeasurable claim "95% semantic preservation".
+where migrated stdout == legacy stdout AND the process exit code matches the
+vector's expected exit code (WP-1.5.0d: behavioral equivalence includes
+RETURN-CODE). A vector without an "expected_exit" field expects 0 -- which is
+what every pre-WP-1.5.0d vector was recorded against, since the runner
+previously discarded any run with a nonzero exit. This is the honest,
+checkable replacement for the unmeasurable claim "95% semantic preservation".
 """
 
 import json
@@ -100,17 +104,23 @@ def _compile(java_dir: Path, out_dir: Path) -> tuple[bool, str]:
     return p.returncode == 0, p.stderr[-500:]
 
 
-def _run_java(classes: Path, main_cls: str, stdin_line: str) -> Optional[str]:
+def _run_java(classes: Path, main_cls: str,
+              stdin_line: str) -> tuple[Optional[str], Optional[int]]:
+    """Run one vector; return (stdout, exit_code) -- (None, None) if the
+    process could not be run at all.
+
+    WP-1.5.0d: the exit code is CAPTURED, not filtered. The scorer compares
+    it against the vector's expected exit code; deciding here that nonzero
+    means failure would make a nonzero RETURN-CODE untestable forever.
+    """
     try:
         p = subprocess.run(
             ["java", "-cp", str(classes), main_cls],
             input=stdin_line + "\n", capture_output=True, text=True, timeout=20,
         )
     except Exception:
-        return None
-    if p.returncode != 0:
-        return None
-    return p.stdout.strip()
+        return None, None
+    return p.stdout.strip(), p.returncode
 
 
 def _norm(s: str) -> str:
@@ -151,15 +161,22 @@ def score_program(name: str, java_dir: Path, main_cls: str,
         exec_file.unlink()
     matched = 0
     for v in vectors:
+        # WP-1.5.0d: behavioral equivalence includes the exit code. A vector
+        # without "expected_exit" expects 0 -- the recorded expectation of
+        # every pre-WP-1.5.0d vector, since the old runner discarded any run
+        # that exited nonzero.
+        expected_exit = int(v.get("expected_exit", 0))
         if use_cov:
-            got = _cov.run_with_coverage(classes, main_cls, v["input"], exec_file)
+            got, rc = _cov.run_with_coverage(classes, main_cls, v["input"], exec_file)
         else:
-            got = _run_java(classes, main_cls, v["input"])
-        if got is not None and _norm(got) == _norm(v["expected"]):
+            got, rc = _run_java(classes, main_cls, v["input"])
+        if (got is not None and rc == expected_exit
+                and _norm(got) == _norm(v["expected"])):
             matched += 1
         elif len(sc.mismatches) < 5:
             sc.mismatches.append(
-                {"input": v["input"], "expected": v["expected"], "got": got}
+                {"input": v["input"], "expected": v["expected"], "got": got,
+                 "expected_exit": expected_exit, "got_exit": rc}
             )
     sc.vectors_total = len(vectors)
     sc.vectors_matched = matched

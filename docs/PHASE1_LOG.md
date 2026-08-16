@@ -901,3 +901,48 @@ from the workflow (R3 — held-out stays CI-only):
 
 The ledger's own `vector_counts` records 60 held-out vectors per program, so
 the green CI run on this PR must show `n_vectors: 300` — recorded on the PR.
+
+### WP-1.5.0c acceptance — measured on the PR
+
+PR #11 green run ([job 95192201788](https://github.com/khaaliswooden-max/relian/actions/runs/31958270891/job/95192201788)):
+`THRESHOLD MET: n_vectors 300, BER 1.0 >= 0.95, build_rate 1.0 >= 1.0,
+branch_coverage 0.8824 >= 0.8` — n_vectors matches the ledger's own
+`vector_counts` (5 × 60). `bench_summary` artifact uploaded (ID 9266558237,
+sha256 `36d67fe7…`). Merged as `9dc7b77`.
+
+---
+
+## 2026-08-16 · WP-1.5.0d · Behavioral equivalence includes RETURN-CODE
+
+**Operator-authorized harness change** (Khaalis, this work order, ahead of
+sealing v1.2). `bench/harness/runner.py` and `bench/harness/coverage.py`:
+the per-vector runners now return `(stdout, exit_code)` instead of
+discarding any run with a nonzero exit, and the scorer counts a match only
+when stdout **and** exit code both match. Mismatch records carry
+`expected_exit`/`got_exit` so a code-only divergence is diagnosable.
+
+- **Existing vectors get exit code 0 recorded via the schema default**: a
+  vector without `expected_exit` expects 0 — which is the expectation every
+  pre-WP-1.5.0d vector was implicitly scored against, since the old runner
+  returned None for any nonzero exit. The corpus `.jsonl` files were NOT
+  rewritten: CLAUDE.md rule 4 aside, editing them would diverge the corpus
+  from the v1.1 signed manifest. The v1.2 generator can materialize explicit
+  `expected_exit: 0` fields at sealing.
+- **Disclosed divergence, not hidden:** the v1.1 LEDGER's file manifest
+  records the *old* hashes of `harness/runner.py` and `harness/coverage.py`.
+  CI stays green because the gate verifies the ledger's signature, not the
+  tree against the manifest — but between this merge and the v1.2 sealing,
+  the harness intentionally differs from what v1.1 signed. This is exactly
+  the situation the v1.1 changelog describes ("harness files changed →
+  re-version"); v1.2 re-hashes and re-signs.
+
+Measured this session (probes + full public leg):
+
+| Probe | Result |
+|---|---|
+| candidate prints correct stdout, exits 3, vector expects 0 (implicit) | **BER 0.0**, mismatch `{expected_exit: 0, got_exit: 3}` — exit comparison has teeth |
+| same candidate, vector carries `expected_exit: 3` | **BER 1.0** — the field is honored |
+| full public split (`bench_public.py` + gate replica) | BER 1.0, build 1.0, branch 0.8088 (55/68), all 5 SHA-256 identical to baseline — byte-identical, unchanged |
+| suite | 250 passed, 12 skipped |
+
+Held-out under the extended scorer: this PR's CI run is the measurement.
