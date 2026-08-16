@@ -347,3 +347,71 @@ python3 scripts/bench_public.py --out <scratch>/c1_final
 
 The WP-1.2 behavior-preservation gate still holds at the end of Phase 1, not
 only at the moment of the refactor.
+
+---
+
+## 2026-08-16 · PR #3 review round 1
+
+### CI: the `bench` gate is green and measures nothing — **escalation item #5**
+Checking CI on PR #3 surfaced this in the job log of the PR's own run
+([job 95152859738](https://github.com/khaaliswooden-max/relian/actions/runs/31942183656/job/95152859738)):
+
+```
+ledger verified: 8756173e6fc136f6
+Cloning into '/tmp/bench-private'...
+no candidate output at candidates/current — skipping score
+```
+
+`.github/workflows/bench.yml` looks for `candidates/current` "populated by the
+pipeline under test". Nothing populates it — no step runs the transpiler and the
+directory is not committed — so the early exit is taken on every run,
+`run_candidate(..., split='heldout')` is never called, and `ber_heldout_min` is
+never compared against anything. The job has exited 0 on every commit since it
+was written.
+
+This predates this branch. It matters here because **Phase 1 acceptance criterion
+#2 cannot be satisfied by a green `bench` check** — the check does not mean what
+its name implies. Corrected on the PR rather than left standing.
+
+A gate that exits 0 without measuring is the same defect class as
+`validation_score = 95.0`: a target reported as a result. Fix raised separately
+as **PR #4** (operator chose a separate PR over pushing onto #3), which
+generates the candidate from the transpiler under test and turns the thresholds
+into real failures — missing candidate, INVALID run, null BER, null build_rate,
+or a metric below its ledger threshold each exit 1. Gate mechanics verified
+locally against the **public** split (BER 1.0, build_rate 1.0 → THRESHOLD MET)
+and against a missing candidate directory (exit 1). No held-out vector read.
+
+### Review finding: nesting was tracked with a counter, not a stack
+Cursor Bugbot flagged `_OPEN_SCOPE` / `_CLOSE_SCOPE` asymmetry in
+`complexity.py`. It was correct. `_CLOSE_SCOPE` matched `END-PERFORM`,
+`END-SEARCH`, `END-READ`, `END-CALL`, `END-STRING` and `END-UNSTRING` while
+`_OPEN_SCOPE` matched only `IF` and `EVALUATE`, so those terminators decremented
+a depth they had never incremented.
+
+Reproduced before fixing: `IF` > inline `PERFORM` > `IF` reported
+`max_nesting_depth` **1** where the true depth is **2** — the `END-PERFORM`
+cancelled the enclosing `IF`, and everything nested after it was undercounted.
+
+Two consequences beyond the number. `max_nesting_depth` feeds the
+`MED: max_nesting_depth>4` rule, so tiers could be wrong. And the module
+docstring — reproduced verbatim into appendix B of the customer report — said
+inline `PERFORM` raised depth when it never did, so the report stated a formula
+the code did not implement (R9).
+
+Now a scope stack: `IF`, `EVALUATE`, `SEARCH` and *inline* `PERFORM` push; each
+`END-…` pops only its own opener; an unmatched terminator is inert; a period
+closes everything open. `PERFORM <paragraph>` opens nothing — calling three
+paragraphs is not three levels of nesting. Eight regression tests added.
+
+```
+pytest tests/assessment -q → 185 passed, 7 skipped
+pytest -q                  → 4 failed, 240 passed, 7 skipped
+```
+
+Dry-run artifacts regenerated at the commit containing the fix.
+`max_nesting_depth` changed for **30 of 87** programs; largest corrections
+`CBL_OC_DUMP.cob` 5→6 and `COTRTLIC.cbl` 4→5. **No risk tier moved**, at program
+or portfolio level — every affected program was already tiered by an
+earlier-firing rule, so the nesting rule was not the deciding one anywhere in
+these corpora.
