@@ -55,10 +55,12 @@ def boundary_only_tokens() -> FrozenSet[str]:
     """Tokens that split statements but have no handler.
 
     These are the trap: they look like supported verbs because they appear in
-    ``VERBS``, but a statement led by one of them is silently dropped
-    (``SUBTRACT``) or consumed by another handler (``AT``, ``END-SEARCH``,
-    ``END-UNSTRING``). Reporting them as supported would be a constant
-    pretending to be a measurement.
+    ``VERBS``, but none has a handler. Since WP-1.5.2 (strict default) a
+    statement led by ``SUBTRACT`` or a stray ``AT`` raises
+    ``UnsupportedConstruct`` instead of being silently dropped; a BARE
+    ``END-SEARCH``/``END-UNSTRING`` is a scope terminator whose correct
+    translation is nothing and is neither dropped nor flagged. Reporting any
+    of them as supported would be a constant pretending to be a measurement.
     """
     return frozenset(VERBS) - supported_verbs()
 

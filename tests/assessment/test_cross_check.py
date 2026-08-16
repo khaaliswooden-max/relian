@@ -48,13 +48,19 @@ def _records():
 def _transpile(source: str):
     """Returns (unsupported_hits, exception_or_None).
 
+    strict=False deliberately (WP-1.5.2): the cross-check compares the
+    analyzer's *full* unsupported inventory against the transpiler's, and
+    strict mode stops at the first unsupported construct. Inventory mode is
+    the documented way to collect every occurrence. The strict default is
+    asserted separately by test_g5_strict_default_raises_where_inventory_is_nonempty.
+
     Construction is inside the try: ``Transpiler.__init__`` itself raises on a
     program with no WORKING-STORAGE SECTION, which is one of the failure modes
     the analyzer has to predict.
     """
     tp = None
     try:
-        tp = Transpiler(source, "X")
+        tp = Transpiler(source, "X", strict=False)
         tp.transpile()
         return tp.unsupported_hits, None
     except Exception as exc:                      # noqa: BLE001 — the point is to catch all
@@ -116,6 +122,23 @@ def test_g4_full_coverage_means_a_clean_transpile(name):
     hits, exc = _transpile(src)
     assert exc is None, f"{name}: analyzer said 100% but the transpiler raised {exc!r}"
     assert hits == [], f"{name}: analyzer said 100% but the transpiler dropped {hits}"
+
+
+@pytest.mark.parametrize("name", PROGRAMS)
+def test_g5_strict_default_raises_where_inventory_is_nonempty(name):
+    """WP-1.5.2: wherever inventory mode records unsupported constructs, the
+    default (strict) transpiler must refuse with UnsupportedConstruct rather
+    than silently dropping them."""
+    from transpiler.c1_rulebased import UnsupportedConstruct
+
+    src = read_source(FIXTURES / name)
+    hits, exc = _transpile(src)
+    if exc is not None:
+        pytest.skip(f"{name}: fails before/independent of dispatch ({exc!r})")
+    if not hits:
+        pytest.skip(f"{name}: transpiles cleanly; strict has nothing to refuse")
+    with pytest.raises(UnsupportedConstruct):
+        Transpiler(src, "X").transpile()
 
 
 def test_cross_check_actually_exercises_both_outcomes():

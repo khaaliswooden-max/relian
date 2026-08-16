@@ -502,7 +502,7 @@ class MigrationOrchestrator:
         repo_root = _P(__file__).resolve().parents[2]
         if str(repo_root) not in _sys.path:
             _sys.path.insert(0, str(repo_root))
-        from transpiler.c1_rulebased import Transpiler
+        from transpiler.c1_rulebased import Transpiler, UnsupportedConstruct
 
         m = _re.search(r"PROGRAM-ID\.\s*([A-Z0-9\-]+)", source_code, _re.IGNORECASE)
         prog_id = (m.group(1).rstrip(".") if m else "MigratedProgram")
@@ -510,6 +510,31 @@ class MigrationOrchestrator:
 
         try:
             return Transpiler(source_code, class_name).transpile()
+        except UnsupportedConstruct as exc:
+            # WP-1.5.2: strict mode stops at the FIRST unsupported construct.
+            # The honest-failure result should carry the full inventory, so
+            # re-run in inventory mode (strict=False records every occurrence
+            # and emits nothing). The re-run may fail for a different reason
+            # on a program this far outside the subset; the inventory is then
+            # whatever was collected before that failure, which is still more
+            # than the single construct in `exc`.
+            inventory = [(exc.verb, exc.line_no)]
+            try:
+                inv_tp = Transpiler(source_code, class_name, strict=False)
+                try:
+                    inv_tp.transpile()
+                finally:
+                    if inv_tp.unsupported_hits:
+                        inventory = inv_tp.unsupported_hits
+            except Exception:
+                pass
+            listed = ", ".join(f"{v} (line {n})" for v, n in inventory)
+            raise RuntimeError(
+                f"deterministic transform does not support this program's "
+                f"constructs ({exc}); unsupported construct inventory: "
+                f"[{listed}]; refusing to emit a placeholder in place of a "
+                f"migration"
+            ) from exc
         except Exception as exc:
             raise RuntimeError(
                 f"deterministic transform does not support this program's "
