@@ -535,3 +535,52 @@ generate the candidate from **the WP-1.2 refactored transpiler** and score it
 against the held-out split directly — converting criterion #2 from a deduction
 about byte-identical output into a measurement of this branch's own code. The
 result is recorded in the next entry.
+
+## 2026-08-16 · Criterion #2 — direct measurement of THIS branch
+
+The previous entry recorded the held-out score of `main`'s transpiler and
+covered this branch by deduction. That deduction is now replaced by a
+measurement of this branch's own code.
+
+`bench` on `claude/read-and-run-f4626d` at head `c7c7018`
+([job 95156214766](https://github.com/khaaliswooden-max/relian/actions/runs/31943595041/job/95156214766)),
+which generates the candidate from **the WP-1.2 refactored transpiler in this
+branch** and scores it against the held-out split:
+
+```
+P01_payroll:     emitted 3424 bytes -> candidates/current/P01_payroll/Payroll01.java
+P02_interest:    emitted 2759 bytes -> candidates/current/P02_interest/Interest01.java
+P03_eligibility: emitted 3150 bytes -> candidates/current/P03_eligibility/Eligible01.java
+P04_taxtable:    emitted 5150 bytes -> candidates/current/P04_taxtable/Taxtbl01.java
+P05_validate:    emitted 3219 bytes -> candidates/current/P05_validate/Validat01.java
+
+rep = run_candidate('current', out, mains, split='heldout')
+{
+  "ber": 1.0,
+  "build_rate": 1.0,
+  "valid": true,
+  "reason": null
+}
+THRESHOLD MET: BER 1.0 >= 0.95, build_rate 1.0 >= 1.0
+```
+
+| Metric | Ledger threshold | main (`0ae61b6`) | this branch (`c7c7018`) |
+|---|---|---|---|
+| `ber_heldout` | ≥ 0.95 | 1.0000 | **1.0000** |
+| `build_rate` | ≥ 1.00 | 1.00 | **1.00** |
+| `valid` | true | true | **true** |
+
+**The five emitted byte counts are identical across the two runs** — 3424 /
+2759 / 3150 / 5150 / 3219 — which is the WP-1.2 behavior-preservation gate
+confirmed inside CI, on a different machine, from a fresh checkout, rather than
+only on the development container. The refactored dispatch table emits exactly
+what the `if/elif` chain emitted, and the held-out vectors agree.
+
+Scoring took 77 s (11:10:32 → 11:11:49).
+
+**Acceptance criterion #2 is now evidenced by direct measurement of this
+branch's transpiler, not by inference.** All seven Phase 1 acceptance criteria
+are met and evidenced.
+
+Review status at this head: the single Bugbot thread (nesting depth) is
+**resolved**; the re-review on `c7c7018` completed with no new findings.
