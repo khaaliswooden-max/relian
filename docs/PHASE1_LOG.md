@@ -1109,3 +1109,23 @@ same-line EXIT PROGRAM. Paragraph EXIT (367) deliberately unclaimed.
 `bench_corpus` dry run now covers the v1.2 corpus: 7 programs, 173/173 =
 1.0 — the analyzer↔transpiler cross-validation holds on the expanded
 corpus. Artifacts refreshed in `docs/dryruns/`.
+
+### WP-1.5.4 + WP-1.5.5 acceptance — measured on the PR (held-out)
+
+PR #15, commit `8c676e9` (incl. the Bugbot-found, oracle-confirmed alpha
+`VALUE ZERO` fix), CI run
+([job 95240930271](https://github.com/khaaliswooden-max/relian/actions/runs/31978265546/job/95240930271)):
+
+```
+THRESHOLD MET: n_vectors 425, BER 1.0 >= 0.95, build_rate 1.0 >= 1.0,
+branch_coverage 0.8854 >= 0.8 (jacoco-0.8.12)
+```
+
+**All 425 held-out vectors match on all 7 programs** under the sealed v1.2
+ledger (`a47305c2…`) — the v1.2 baseline red (BER 0.7176, build 6/7) is
+green. Every acceptance criterion of the work order is met and measured:
+held-out BER 1.0000 ×7, build_rate 1.0000, branch coverage 0.8854 ≥ 0.80;
+P01–P05 public-split Java byte-identical to the WP-1.5.0d baseline; the
+coverage analyzer picked up the new verbs from SUPPORTED_STATEMENTS with
+zero hand-edits; WP-1.9 dry runs re-run with before/after recorded
+(CardDemo 0.8209→0.8511, OMP 0.6606→0.6945, GnuCOBOL 0.5763→0.5968).
