@@ -977,3 +977,55 @@ agreement but cannot alone distinguish a hard-coded bracket-5 fallback; and
 all rows expect exit 0, now verified explicitly by the WP-1.5.0d scorer.
 `relian-bench-private` untouched (R3); authoritative vectors come from the
 private generator at sealing.
+
+---
+
+## 2026-08-16 · RELIAN-BENCH v1.2 sealing prep (Part A) — pre-implementation baseline
+
+Operator work order: prepare v1.2 for sealing without touching
+`relian-bench-private`, keys, or CI secrets. Full ground truth and the
+Part B signing runbook: `docs/SEALING_v1.2.md`. Everything below is
+UNSEALED until Khaalis signs the v1.2 ledger.
+
+**Corpus changes (this PR):** drafts promoted to `P06_valinit` and
+`P07_exitflow` (EXITFLW01 → rev 3: GOBACK with RETURN-CODE 4/8, legitimate
+under WP-1.5.0d); every public vector rewritten with explicit
+`expected_exit` (all 60 pre-existing vectors first re-verified against
+freshly compiled GnuCOBOL 3.1.2 oracles — 60/60 reproduce, exit 0); P04
+public split +5 SEARCH AT-END window vectors (12 → 17, byte-matching the
+sealing-review draft's measured table); UNSEALED held-out input proposals
+(60/60/5, inputs only, disjoint from public, executability-checked) in
+`bench/candidates/heldout_proposals_v1.2/`. `bench/harness/` and both
+LEDGER files untouched; `mains.json` deliberately unchanged so the
+held-out gate keeps scoring the sealed v1.1 five (adding P06/P07 before
+the private repo has their `heldout.jsonl` would fail with
+`FileNotFoundError`, not an honest measurement).
+
+**Measured this session** (toolchain: `cobc (GnuCOBOL) 3.1.2.0` — same as
+CI and the v1.1 ledger; jacoco-0.8.12):
+
+`python3 scripts/bench_public.py --out … --mains scripts/mains_v1.2_proposed.json`
+
+| Program | build | BER public | branch cov | note |
+|---|---|---|---|---|
+| P01_payroll | ok | 1.0 (12/12) | 1.0 | sha256 identical to WP-1.5.0d baseline |
+| P02_interest | ok | 1.0 (12/12) | 1.0 | sha256 identical |
+| P03_eligibility | ok | 1.0 (12/12) | 0.8 | sha256 identical |
+| P04_taxtable | ok | **1.0 (17/17)** | **0.8125** | sha256 identical; 11/16 → 13/16, exactly as the draft predicted |
+| P05_validate | ok | 1.0 (12/12) | 0.8182 | sha256 identical |
+| P06_valinit | ok (compiles) | **0.0 (0/12)** | 0.8 | **expected red** — C1 discards VALUE; zero-init diverges on vector 1 (`BAL=100.00` vs `1334.56`, `RATE=0.0000`, empty NAME/G1–G3) |
+| P07_exitflow | **FAIL** | 0/12 counted | — | **expected red** — transpile raises `AttributeError` (no CONTINUE/GOBACK handlers); honest uncompilable stub, visible in build_rate |
+
+Aggregate: **BER 0.7303 (65/89), build_rate 0.8571 (6/7)** — the
+pre-implementation baseline WP-1.5.4/WP-1.5.5 handlers must beat. The
+existing five remain byte-identical and BER 1.0 under the new vectors,
+so the corpus additions changed no sealed behavior.
+
+Suite: 238 passed, 12 skipped (`tests/test_ml.py`'s 12 tests not run in
+this container — torch not installable within the disk allowance; the
+prior recorded run of the same suite was 250 passed, 12 skipped).
+
+Held-out CI on this PR: expected green against v1.1 (nothing scored
+changed). After Part B seals v1.2, the held-out gate goes honestly RED
+(≈ build 6/7, BER ≈ 0.71 — expected, not measured) until the handlers
+land: bench-first (R7), red before green, by design.

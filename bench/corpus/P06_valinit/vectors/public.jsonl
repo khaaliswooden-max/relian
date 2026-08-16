@@ -1,0 +1,12 @@
+{"input": "100.00,A", "expected": "STATE=ACTIVE BAL=1334.56\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "-234.56,Z", "expected": "STATE=OTHER BAL=1000.00\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "0.00,C", "expected": "STATE=CLOSED BAL=1234.56\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "0.00,X", "expected": "STATE=CLOSED BAL=1234.56\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "-1234.56,A", "expected": "STATE=ACTIVE BAL=0.00\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "-2000.00,B", "expected": "STATE=OTHER BAL=-765.44\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "765.44,C", "expected": "STATE=CLOSED BAL=2000.00\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "50,A", "expected": "STATE=ACTIVE BAL=1284.56\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "0.01,a", "expected": "STATE=OTHER BAL=1234.57\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "8765432.10,A", "expected": "STATE=ACTIVE BAL=8766666.66\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": " 25.00 , A", "expected": "STATE=ACTIVE BAL=1259.56\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}
+{"input": "-0.01,X", "expected": "STATE=CLOSED BAL=1234.55\nRATE=0.0725 NAME=ACME LTD G1=AB G2=12 G3=CD", "expected_exit": 0}

@@ -1,7 +1,9 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. VALINIT01.
-      * DRAFT ORACLE CANDIDATE (WP-1.5.4) -- NOT SEALED, NOT IN CORPUS.
-      * Sealing/signing is Khaalis-only (ZCS-6 Phase 4, R7).
+      * ORACLE (WP-1.5.4) -- promoted to corpus for the v1.2 sealing
+      * prep. UNSEALED until Khaalis signs the v1.2 ledger (ZCS-6
+      * Phase 4, R7); the sealed bench commit must predate any grammar
+      * or dispatch-table merge claiming these constructs.
       * Exercises the VALUE clause everywhere C1 currently discards it:
       *   - numeric VALUE (packed and display)
       *   - alphanumeric VALUE

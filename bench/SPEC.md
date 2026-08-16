@@ -197,3 +197,62 @@ equivalence on 300 held-out oracle vectors and failed our own committed
 coverage gate at 56.5% — both numbers independently re-derivable."
 Still not supported: velocity, defect density, 50K-LOC capability, any
 claim beyond the corpus subset.
+
+---
+
+# v1.2 Addendum — exit codes, corpus 5 → 7 (PREPARED, UNSEALED)
+
+**Status: sealing prep only.** This addendum describes the v1.2 content
+prepared in-repo (PR "bench: v1.2 sealing prep"); it is **not sealed**
+until Khaalis re-hashes and Ed25519-signs `LEDGER_relian-bench-v1.2.json`
+(ZCS-6 Phase 4). Until that signature exists, v1.1 remains the benchmark
+of record and the CI gate scores against the v1.1 ledger. Runbook:
+`docs/SEALING_v1.2.md`.
+
+**Changes in v1.2:**
+
+1. **Behavioral equivalence includes RETURN-CODE** (WP-1.5.0d, merged
+   `c7b199f`): the runner captures each process's exit code and a vector
+   matches only if stdout AND exit code match. This is the intended
+   divergence from v1.1: every public vector now carries an explicit
+   `expected_exit` — `0` for all pre-existing vectors (each re-verified
+   against a freshly compiled GnuCOBOL 3.1.2 oracle before the rewrite;
+   they were only ever recorded against zero-exit runs), measured for
+   new vectors. Harness files (`runner.py`, `coverage.py`) changed after
+   the v1.1 signature and are re-hashed at sealing — the same
+   "harness files changed → re-version" rule the v1.1 addendum states.
+2. **Corpus grows 5 → 7** (WP-1.5.4 / WP-1.5.5 drafts promoted):
+   - `P06_valinit` (VALINIT01) — VALUE-clause semantics: numeric,
+     alphanumeric and COMP-3 VALUE, group-level VALUE over subordinates,
+     88-levels with single and multiple values. A zero-initializing
+     migration fails on vector 1.
+   - `P07_exitflow` (EXITFLW01, rev 3) — CONTINUE (bare / in IF / in
+     EVALUATE), EXIT PROGRAM in a main program (a measured no-op), and
+     GOBACK with RETURN-CODE 0, 4 and 8. Nonzero-exit vectors are
+     legitimate under the WP-1.5.0d scorer; 4 of its 12 public vectors
+     expect nonzero exits. No vector depends on the measured GnuCOBOL
+     3.1.2 lone-`EXIT PROGRAM`-in-`WHEN` chaining quirk (the program
+     structurally excludes it).
+   12 public vectors each, oracle-generated with GnuCOBOL 3.1.2 (the CI
+   toolchain). Held-out vectors: private generator at sealing (60 each;
+   UNSEALED input proposals in `bench/candidates/heldout_proposals_v1.2/`).
+3. **P04_taxtable +5 public vectors** in the SEARCH AT-END window
+   `(999999999.00, 999999999.99]`, closing the loop-exhaust /
+   AT-END-fallback vector-coverage gap (P04 branch coverage 11/16 →
+   13/16 measured). **Known limitation:** at the bracket edge the WHEN
+   and AT END paths print identical output (sub-cent differences vanish
+   in the final ROUNDED HALF_UP), so these vectors prove branch exercise
+   and behavioral agreement but cannot alone distinguish a candidate
+   that hard-codes bracket 5 as its fallback. A discriminating vector
+   (one requiring an observable AT-END-only effect) is flagged as a
+   **v1.3 candidate**.
+4. **Thresholds unchanged** (`ber_heldout_min 0.95`, `build_rate_min
+   1.00`, `branch_coverage_min 0.80`, jacoco).
+
+**Pre-implementation baseline (public split, measured 2026-08-16):**
+existing five programs byte-identical Java, BER 1.0 (65/65 incl. P04's
+17); P06_valinit compiles but scores 0/12 (C1 discards VALUE);
+P07_exitflow fails to transpile (honest uncompilable stub). Aggregate:
+BER 0.7303 (65/89), build_rate 0.8571 (6/7). The red is the point —
+bench precedes handlers (R7), and the first post-sealing CI run is the
+held-out measurement of record.

@@ -1,0 +1,12 @@
+{"input": "7,G", "expected": "TICK=7 SUM=28 MODE=G\nSTATE=DONE", "expected_exit": 0}
+{"input": "0,G", "expected": "TICK=0 SUM=0 MODE=G\nSTATE=DONE", "expected_exit": 0}
+{"input": "9000,G", "expected": "TICK=9000 SUM=40504500 MODE=G\nSTATE=DONE", "expected_exit": 0}
+{"input": "9001,G", "expected": "TICK=9001 SUM=40504500 MODE=G\nSTATE=DONE", "expected_exit": 0}
+{"input": "3,P", "expected": "TICK=4 SUM=6 MODE=P\nSTATE=RETURNED", "expected_exit": 0}
+{"input": "0,P", "expected": "TICK=1 SUM=0 MODE=P\nSTATE=RETURNED", "expected_exit": 0}
+{"input": "9999,P", "expected": "TICK=10000 SUM=40504500 MODE=P\nSTATE=RETURNED", "expected_exit": 0}
+{"input": "4,X", "expected": "TICK=5 SUM=10 MODE=X\nSTATE=DONE", "expected_exit": 0}
+{"input": "5,E", "expected": "TICK=6 SUM=15 MODE=E\nSTATE=FAULT", "expected_exit": 8}
+{"input": "9001,E", "expected": "TICK=9002 SUM=40504500 MODE=E\nSTATE=FAULT", "expected_exit": 8}
+{"input": "2,W", "expected": "TICK=3 SUM=3 MODE=W\nSTATE=WARN", "expected_exit": 4}
+{"input": "9999,W", "expected": "TICK=10000 SUM=40504500 MODE=W\nSTATE=WARN", "expected_exit": 4}

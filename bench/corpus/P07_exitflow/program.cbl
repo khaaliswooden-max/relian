@@ -1,33 +1,40 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. EXITFLW01.
-      * DRAFT ORACLE CANDIDATE (WP-1.5.5, rev 2) -- NOT SEALED, NOT IN
-      * CORPUS. Sealing/signing is Khaalis-only (ZCS-6 Phase 4, R7).
+      * ORACLE (WP-1.5.5, rev 3) -- promoted to corpus for the v1.2
+      * sealing prep. UNSEALED until Khaalis signs the v1.2 ledger
+      * (ZCS-6 Phase 4, R7); the sealed bench commit must predate any
+      * grammar or dispatch-table merge claiming these constructs.
       * Exercises exactly the constructs the WP-1.5.5 handlers would add,
       * on scaffolding C1 already supports (inline PERFORM VARYING,
       * EVALUATE/WHEN/WHEN OTHER, IF/ELSE -- all corpus-proven forms):
       *   - CONTINUE bare, CONTINUE inside IF, CONTINUE inside EVALUATE
       *   - EXIT PROGRAM in a main program (measured with GnuCOBOL 3.1.2:
       *     a no-op that falls through -- both surrounding DISPLAYs run)
-      *   - GOBACK without RETURN-CODE, and GOBACK after MOVE 0 TO
-      *     RETURN-CODE
+      *   - GOBACK without RETURN-CODE, GOBACK after MOVE 0 TO
+      *     RETURN-CODE, and (rev 3) GOBACK after MOVE 4/8 TO RETURN-CODE
       * Rev 2 (Bugbot finding on PR #10, confirmed): rev 1 drove its loop
       * with out-of-line PERFORM <para> and tested paragraph EXIT. C1's
       * PERFORM handler supports only the inline VARYING form, so rev 1
       * could never gate the three handlers alone. Paragraph EXIT is
       * inseparable from performed-paragraph support and moves to the
       * deferred list; it is NOT dispatch-table-only work.
-      * SEALING NOTE 1: no vector may set a NONZERO RETURN-CODE. The
-      * harness treats a nonzero exit as a failed run (runner._run_java
-      * returns None); exercising nonzero exit codes needs a harness
-      * decision first. Flagged for the sealing review, not smuggled in.
-      * SEALING NOTE 2 (measured, GnuCOBOL 3.1.2): a WHEN branch whose
+      * Rev 3 (v1.2 sealing prep): rev 2's SEALING NOTE 1 said nonzero
+      * RETURN-CODE needed a harness decision first. That decision is
+      * WP-1.5.0d (merged c7b199f): the scorer now compares the process
+      * exit code against the vector's expected_exit. Modes E and W
+      * exercise GOBACK with an explicit nonzero RETURN-CODE (8 and 4,
+      * conventional mainframe condition codes), so a migration that
+      * drops RETURN-CODE semantics fails behaviorally.
+      * SEALING NOTE (measured, GnuCOBOL 3.1.2): a WHEN branch whose
       * ONLY statement is EXIT PROGRAM compiles to an EMPTY branch in a
       * main program, and an empty WHEN chains into the next WHEN -- the
       * WHEN OTHER branch then ALSO executes. That is an oracle quirk no
       * reasonable translation would reproduce, so EXIT PROGRAM here sits
-      * inside a multi-statement IF block, where it is a measured no-op.
+      * inside a multi-statement IF block, where it is a measured no-op,
+      * and no vector's expected output may depend on the quirk.
       * Input : N,MODE          e.g. "7,G"
       * Output: TICK=t SUM=s MODE=m  (one line, then STATE line)
+      * Exit  : 0 (modes G/P/other), 4 (mode W), 8 (mode E)
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  WS-RAW      PIC X(80).
@@ -77,6 +84,16 @@
                EXIT PROGRAM
                DISPLAY "STATE=RETURNED"
                MOVE 0 TO RETURN-CODE
+               GOBACK
+           END-IF
+           IF WS-MODE = "E"
+               DISPLAY "STATE=FAULT"
+               MOVE 8 TO RETURN-CODE
+               GOBACK
+           END-IF
+           IF WS-MODE = "W"
+               DISPLAY "STATE=WARN"
+               MOVE 4 TO RETURN-CODE
                GOBACK
            END-IF
            DISPLAY "STATE=DONE"
