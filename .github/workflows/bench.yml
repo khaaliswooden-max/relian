@@ -108,7 +108,20 @@ jobs:
 
           rep = run_candidate('current', out, mains, split='heldout')
           print(json.dumps({'ber': rep.ber_overall, 'build_rate': rep.build_rate,
+                            'branch_coverage': rep.coverage_branch,
+                            'coverage_tool': rep.coverage_tool,
                             'valid': rep.valid, 'reason': rep.invalid_reason}, indent=2))
+
+          # Per-program detail, printed BEFORE the verdict so a red gate is
+          # diagnosable from the same log rather than needing a re-run.
+          print('--- per program ---')
+          for s in rep.scores:
+              d = s.coverage_detail or {}
+              branches = (f'{d.get("branches_covered")}/{d.get("branches_total")}'
+                          if d.get('branches_total') is not None else 'n/a')
+              print(f'  {s.program}: build_ok={s.build_ok} ber={s.ber} '
+                    f'branch={s.coverage_branch} ({branches})'
+                    + (f' note={d["note"]}' if d.get('note') else ''))
 
           failures = []
           if not rep.valid:
@@ -122,11 +135,33 @@ jobs:
           elif rep.build_rate < thresholds['build_rate_min']:
               failures.append(f'build_rate {rep.build_rate} < {thresholds["build_rate_min"]}')
 
+          # Branch coverage. The threshold is the ledger's single aggregate
+          # figure, so this gates the branch-weighted aggregate and prints the
+          # per-program breakdown above rather than inventing a per-program
+          # threshold the ledger does not define.
+          #
+          # None fails, and that is load-bearing rather than pedantic: the
+          # harness reports None when a candidate has ZERO branches, precisely
+          # so that straight-line placeholder code cannot dodge the metric by
+          # having nothing to cover. 0/0 is undefined, not 100%.
+          if rep.coverage_branch is None:
+              notes = sorted({s.coverage_detail['note'] for s in rep.scores
+                              if (s.coverage_detail or {}).get('note')})
+              failures.append(
+                  'branch coverage not measured (null) — unmeasured is not a pass'
+                  + (f'; {" | ".join(notes)}' if notes else ''))
+          elif rep.coverage_branch < thresholds['branch_coverage_min']:
+              failures.append(
+                  f'branch_coverage {rep.coverage_branch} < '
+                  f'{thresholds["branch_coverage_min"]}')
+
           if failures:
               for f in failures:
                   print(f'THRESHOLD FAILED: {f}')
               raise SystemExit(1)
 
           print(f'THRESHOLD MET: BER {rep.ber_overall} >= {thresholds["ber_heldout_min"]}, '
-                f'build_rate {rep.build_rate} >= {thresholds["build_rate_min"]}')
+                f'build_rate {rep.build_rate} >= {thresholds["build_rate_min"]}, '
+                f'branch_coverage {rep.coverage_branch} >= '
+                f'{thresholds["branch_coverage_min"]} ({rep.coverage_tool})')
           PY
