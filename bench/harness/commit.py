@@ -73,8 +73,8 @@ def build_manifest() -> Dict:
 
     manifest = {
         "benchmark": "RELIAN-BENCH",
-        "version": "1.1.0",
-        "tag": "relian-bench-v1.1",
+        "version": "1.2.0",
+        "tag": "relian-bench-v1.2",
         "committed_at": datetime.now(timezone.utc).isoformat(),
         "file_count": len(entries),
         "files": entries,
@@ -193,7 +193,7 @@ if __name__ == "__main__":
                 "coverage_branch": r["coverage_branch"],
             }
     m = sign(m, Path.home() / "zil-keys" / "relian-bench-v1.pem")
-    out = ROOT / "LEDGER_relian-bench-v1.0.json"
+    out = ROOT / "LEDGER_relian-bench-v1.2.json"
     out.write_text(json.dumps(m, indent=2))
     print(f"tag              : {m['tag']}")
     print(f"files            : {m['file_count']}")

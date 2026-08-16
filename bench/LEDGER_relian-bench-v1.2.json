@@ -1,0 +1,181 @@
+{
+  "benchmark": "RELIAN-BENCH",
+  "version": "1.2.0",
+  "tag": "relian-bench-v1.2",
+  "committed_at": "2026-08-16T19:27:21.628651+00:00",
+  "file_count": 29,
+  "files": [
+    {
+      "path": "SPEC.md",
+      "sha256": "409f6df7141b15fdee65ba24224cdb8daa762429df57f5948bf22231f3c87463"
+    },
+    {
+      "path": "corpus/P01_payroll/program.cbl",
+      "sha256": "a4b0d32852a107abbae2bed8c6d468afed3edae8c2709f519c4a7301f769c721"
+    },
+    {
+      "path": "corpus/P01_payroll/vectors/heldout.jsonl",
+      "sha256": "8c0bd6f48098ea0bf09aba8341d9cfd38f3dce5d146f20f8f818507dca533323"
+    },
+    {
+      "path": "corpus/P01_payroll/vectors/public.jsonl",
+      "sha256": "58fe6de4f0420ca049e7056843863fd5df4245f18d9d73c6c3242fb4e7e4f19e"
+    },
+    {
+      "path": "corpus/P02_interest/program.cbl",
+      "sha256": "eca429658d4d4882e74f931ee452c88977faf105f6bc4b7424699b1f7f46cc5b"
+    },
+    {
+      "path": "corpus/P02_interest/vectors/heldout.jsonl",
+      "sha256": "e9ddd0525c8126bfed723e2f60a9b21974cf281ddc8cfee4b91d3f186383e9dd"
+    },
+    {
+      "path": "corpus/P02_interest/vectors/public.jsonl",
+      "sha256": "bfd9814a7392f8ac9e9e59fbd170f5f67f2b9ec6dc6e0b8a117394e1205f4ca2"
+    },
+    {
+      "path": "corpus/P03_eligibility/program.cbl",
+      "sha256": "4d4fcb294665e67b9f79053fc56dd5e468d5b6af1ae472fbaa322d5eb03542b0"
+    },
+    {
+      "path": "corpus/P03_eligibility/vectors/heldout.jsonl",
+      "sha256": "1983edd10399bf9ecf77de40b1e5ac14c9735389925d1b246a9497f49262ca65"
+    },
+    {
+      "path": "corpus/P03_eligibility/vectors/public.jsonl",
+      "sha256": "24b8c2ff5d5b67e6714ea47c6663a6363a9b8affac899efa57573bdb0a9dce02"
+    },
+    {
+      "path": "corpus/P04_taxtable/program.cbl",
+      "sha256": "6dfa8a0461a45bd52e8a557df71639ec2bfff78e9031749ae126bff7d8e18c54"
+    },
+    {
+      "path": "corpus/P04_taxtable/vectors/heldout.jsonl",
+      "sha256": "bf2ba1cb4eca4181e1e4021ab79f52e9d56270fae296bc5ea4d747ed41c2b0be"
+    },
+    {
+      "path": "corpus/P04_taxtable/vectors/public.jsonl",
+      "sha256": "e8d39c0b795d9177d936c2bc42fe7bd847cc902661e209137b2c07e269147de7"
+    },
+    {
+      "path": "corpus/P05_validate/program.cbl",
+      "sha256": "65f5d5c5402effa0943cc9353becc1ed1c8a73ebbb1830e08fcdac99fa8b7d39"
+    },
+    {
+      "path": "corpus/P05_validate/vectors/heldout.jsonl",
+      "sha256": "500efe4671d72eafc8b529aa8842c922e6aae28c1cf0e62daca882ab56294b6f"
+    },
+    {
+      "path": "corpus/P05_validate/vectors/public.jsonl",
+      "sha256": "bd72a3e0cea8c5694921baa6d68f03769ee52365e8f07f6783948ff6816948a1"
+    },
+    {
+      "path": "corpus/P06_valinit/program.cbl",
+      "sha256": "950113b8470290d5a27ae81f0d32df6e7f92e93eaa8be42fed3ae5a7ea9a4231"
+    },
+    {
+      "path": "corpus/P06_valinit/vectors/heldout.jsonl",
+      "sha256": "11810c149f00a901d76d51b1d9d788ada01b0c679d353824e30588d70e1baec9"
+    },
+    {
+      "path": "corpus/P06_valinit/vectors/public.jsonl",
+      "sha256": "4a9db10e07f0c3f880f1918261c8530811b06e0dbebc2a8b28bcbd0aae6fe3e5"
+    },
+    {
+      "path": "corpus/P07_exitflow/program.cbl",
+      "sha256": "80a9eb6456c65634c192447cc49fbb71dca247f82e889609a9b3d9e616eea856"
+    },
+    {
+      "path": "corpus/P07_exitflow/vectors/heldout.jsonl",
+      "sha256": "2dc4cd75a54064c7123f220a6a6f7d4ac4a89d24acfe43bc6e73c073f86d04cf"
+    },
+    {
+      "path": "corpus/P07_exitflow/vectors/public.jsonl",
+      "sha256": "340597e67ae39ff5108b9a8d90ba40a844dceedcf6ad77a8ac6aca960372e79f"
+    },
+    {
+      "path": "harness/commit.py",
+      "sha256": "592a2834b1bbd22a2f77ec1d799aadc9337f1d638d95a22f9d7bfd47f267aa4e"
+    },
+    {
+      "path": "harness/coverage.py",
+      "sha256": "c724c305396346be6e17f14a59d230c05376ed1c1c2e918d93b908fa27c516d7"
+    },
+    {
+      "path": "harness/gen_vectors.py",
+      "sha256": "5aa6e591045e145cef85ed7b0de75086979cf74f9651ab207a1facc7b94c5911"
+    },
+    {
+      "path": "harness/mains.json",
+      "sha256": "5e747bfd98f61eadbcc1fbcd9968d6259846fde530811f772645a3756a165615"
+    },
+    {
+      "path": "harness/runner.py",
+      "sha256": "7ab0c36895a57d338ca97096de92cd71ce02fb2e6ad0c48a1c62ba686236351c"
+    },
+    {
+      "path": "harness/tools/jacocoagent.jar",
+      "sha256": "115e8e6e6593ca3a9892dfef695df4d487c706e59e71e64dc0ab95716ee02622"
+    },
+    {
+      "path": "harness/tools/jacococli.jar",
+      "sha256": "594c01125b84864a7fc5a9efab19b71b7de36b27346863f6d7cd0cd45400ceb0"
+    }
+  ],
+  "payload_sha256": "a8695c2cbb39c15204f1dd2a7c98751c4290cff5be29f3574e89c48d4dcb48be",
+  "vector_counts": {
+    "P01_payroll/vectors/heldout.jsonl": 60,
+    "P01_payroll/vectors/public.jsonl": 12,
+    "P02_interest/vectors/heldout.jsonl": 60,
+    "P02_interest/vectors/public.jsonl": 12,
+    "P03_eligibility/vectors/heldout.jsonl": 60,
+    "P03_eligibility/vectors/public.jsonl": 12,
+    "P04_taxtable/vectors/heldout.jsonl": 65,
+    "P04_taxtable/vectors/public.jsonl": 17,
+    "P05_validate/vectors/heldout.jsonl": 60,
+    "P05_validate/vectors/public.jsonl": 12,
+    "P06_valinit/vectors/heldout.jsonl": 60,
+    "P06_valinit/vectors/public.jsonl": 12,
+    "P07_exitflow/vectors/heldout.jsonl": 60,
+    "P07_exitflow/vectors/public.jsonl": 12
+  },
+  "toolchain": {
+    "cobc": "cobc (GnuCOBOL) 3.1.2.0",
+    "javac": "UNAVAILABLE",
+    "java": "UNAVAILABLE",
+    "jacoco": "0.8.12 (agent sha256:115e8e6e..., cli sha256:594c0112...)"
+  },
+  "thresholds": {
+    "ber_heldout_min": 0.95,
+    "build_rate_min": 1.0,
+    "branch_coverage_min": 0.8,
+    "coverage_required_tool": "jacoco",
+    "changelog_v1_1": "ADDITIVE: JaCoCo branch-coverage measurement wired into the runner. Thresholds unchanged. Corpus and vectors unchanged (hash-identical). Reason for re-version: harness files changed; ZCS-6 forbids silent edits to a committed benchmark.",
+    "notes": "BER is measured on HELD-OUT vectors only. A candidate that fails to compile scores 0 for that program's full vector count. Any metric that cannot be measured is reported as null and the run is INVALID; null is never substituted with a constant."
+  },
+  "baselines_recorded": {
+    "B0_null": {
+      "ber_overall": 0.0,
+      "build_rate": 1.0,
+      "coverage_branch": null
+    },
+    "B2_reference": {
+      "ber_overall": 1.0,
+      "build_rate": 1.0,
+      "coverage_branch": 0.8415
+    },
+    "C1_rulebased": {
+      "ber_overall": 0.7176,
+      "build_rate": 0.8571,
+      "coverage_branch": 0.8974
+    }
+  },
+  "signature": {
+    "alg": "Ed25519",
+    "manifest_sha256": "a47305c29bfeb004f4fb4812a7f94097038e4cc0d06cbb4e5859b920662ce156",
+    "signature_hex": "f0141b4adb4ccbc532fdaf205c1927b6fa3371e593b347e784d552fa1167d1db29088dd6036575aa72a0e55bc909462cbe755e827256be3b9ac2bec2dccbaf00",
+    "public_key_hex": "91b67d34b603f36a367051f0f5a0b3ec0b722a027f55092c1804ba36bd15dd13",
+    "key_fingerprint": "233bb4406e2de606",
+    "signed_at": "2026-08-16T19:27:21.952026+00:00"
+  }
+}

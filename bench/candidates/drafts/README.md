@@ -8,6 +8,14 @@ dispatch-table merge that claims support for the constructs it covers (R7).
 The vector generator and seed live only in `relian-bench-private` and are
 never part of this repository.
 
+> **v1.2 sealing prep status:** both drafts below were promoted into the
+> corpus (`bench/corpus/P06_valinit/`, `bench/corpus/P07_exitflow/`) with
+> measured public vectors; EXITFLW01 was revised to rev 3 (nonzero
+> RETURN-CODE modes, legitimate since WP-1.5.0d). The
+> `P04_search_exhaust.md` vectors were promoted into P04's public split.
+> All of it stays UNSEALED until Khaalis signs the v1.2 ledger — see
+> `docs/SEALING_v1.2.md`.
+
 Both drafts were compiled and executed with GnuCOBOL 3.1.2 (`cobc -x`, the
 same toolchain the CI gate uses) on 2026-08-16; the sample runs below are
 actual program output, not predictions.

@@ -2,6 +2,10 @@
 # RELIAN-BENCH: held-out vectors are NEVER committed to this repository.
 # They live only in the private relian-bench repo (CI deploy-key access).
 **/vectors/heldout.jsonl
+# The vector generator + seed live only in relian-bench-private (rule 6).
+# It sits in the working tree at signing time (the manifest hashes it), so
+# guard against a stray `git add -A` on the signing machine.
+bench/harness/gen_vectors.py
 klee-out/
 bench/**/_classes/
 __pycache__/

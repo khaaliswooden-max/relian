@@ -1,0 +1,12 @@
+{"input": "6772,P", "expected": "TICK=6773 SUM=22933378 MODE=P\nSTATE=RETURNED", "expected_exit": 0}
+{"input": "4051,G", "expected": "TICK=4051 SUM=8207326 MODE=G\nSTATE=DONE", "expected_exit": 0}
+{"input": "1478,G", "expected": "TICK=1478 SUM=1092981 MODE=G\nSTATE=DONE", "expected_exit": 0}
+{"input": "8686,W", "expected": "TICK=8687 SUM=37727641 MODE=W\nSTATE=WARN", "expected_exit": 4}
+{"input": "7199,P", "expected": "TICK=7200 SUM=25916400 MODE=P\nSTATE=RETURNED", "expected_exit": 0}
+{"input": "9467,P", "expected": "TICK=9468 SUM=40504500 MODE=P\nSTATE=RETURNED", "expected_exit": 0}
+{"input": "9807,W", "expected": "TICK=9808 SUM=40504500 MODE=W\nSTATE=WARN", "expected_exit": 4}
+{"input": "3869,X", "expected": "TICK=3870 SUM=7486515 MODE=X\nSTATE=DONE", "expected_exit": 0}
+{"input": "6178,G", "expected": "TICK=6178 SUM=19086931 MODE=G\nSTATE=DONE", "expected_exit": 0}
+{"input": "7655,E", "expected": "TICK=7656 SUM=29303340 MODE=E\nSTATE=FAULT", "expected_exit": 8}
+{"input": "3359,E", "expected": "TICK=3360 SUM=5643120 MODE=E\nSTATE=FAULT", "expected_exit": 8}
+{"input": "6470,G", "expected": "TICK=6470 SUM=20933685 MODE=G\nSTATE=DONE", "expected_exit": 0}
