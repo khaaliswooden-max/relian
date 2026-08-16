@@ -671,3 +671,78 @@ not of the emission. Caveat stated plainly: line-level identity was measured
 on the **public** split only; for held-out, CI reports the matching 11/16
 count but no line detail, so "same five branches" is consistent, not
 measured.
+
+---
+
+## 2026-08-16 · WP-1.5.1 · PR #3 close-out
+
+PR #3 merged to main as `33430d09` (merge commit). The post-merge `bench` run
+on main — [run 31944108333](https://github.com/khaaliswooden-max/relian/actions/runs/31944108333/job/95157439562)
+— scored the held-out split green on the merged tree (scoring step 79 s,
+completed 11:23:24Z). The rebase step of WP-1.5.1 was unnecessary: main's
+fixed gate (`c4e5047`) had already been merged into the branch (`4d07bea`)
+before the merge, so the branch's own PR runs #20/#22 scored held-out
+directly, as recorded in the criterion #2 entry above.
+
+## 2026-08-16 · WP-1.5.2 · Strict mode ON (R2)
+
+`Transpiler(..., strict=True)` is now the default. An unsupported verb
+raises `UnsupportedConstruct` carrying **verb + source line + paragraph**
+(paragraph tracking added to `_statements` as bookkeeping — no emission
+change). `strict=False` remains as the documented inventory mode: record
+every occurrence, emit nothing.
+
+**Finding: the corpus was never hit-free.** P01 and P04 contain a bare
+`END-UNSTRING` line that reached `stmt()` with no handler and took the
+silent fall-through on every run since WP-1.2 (it was also *recorded* as an
+"unsupported hit", which was a false positive — nothing was dropped, the
+UNSTRING handler had already consumed the construct and a bare terminator's
+correct translation is nothing). Naive strict therefore broke byte-identity
+on P01/P04 by refusing valid programs. Resolution: a **bare**
+`END-UNSTRING`/`END-SEARCH` (the exact token, no content) is a no-op
+terminator — not dropped, not flagged, not raised; anything content-bearing
+(`SUBTRACT …`, a stray `AT END …`, `END-UNSTRING <content>`) still raises.
+The "no unsupported verbs in the corpus by definition" premise in the work
+package was true of verbs but not of boundary tokens; recorded here rather
+than papered over.
+
+Callers:
+- `orchestrator._transform_to_java` catches `UnsupportedConstruct`, re-runs
+  in inventory mode, and surfaces the honest-failure result with the full
+  inventory: `unsupported COBOL construct 'SUBTRACT' at source line 9 in
+  paragraph MAIN-PARA … inventory: [SUBTRACT (line 9)]` (measured on a
+  synthetic program this session). Programs that fail before dispatch
+  (e.g. `banking-system.cbl`, parse failure in `__init__`) keep the
+  pre-existing generic honest-failure path — unchanged, re-verified.
+- Cross-check `_transpile` uses inventory mode explicitly (full-inventory
+  comparison is its job); new guarantee **G5** asserts that wherever
+  inventory mode records hits, the strict default raises.
+- Known narrowing unchanged (C1_SUPPORTED_VERBS_OBSERVED.md §3 case B): an
+  unsupported verb NOT in `VERBS` that follows another statement (e.g.
+  `GOBACK` after `DISPLAY`) is glued to its predecessor and never reaches
+  dispatch, so strict cannot see it. Fixing that changes statement
+  segmentation, which changes bytes — deferred exactly as in WP-1.3.
+
+### Gates, measured on this tree
+```
+python3 -m pytest -q -o addopts=""  → 4 failed, 242 passed, 12 skipped
+  (the same 4 pre-existing stale tests as the WP-0 baseline — WP-1.5.3 next)
+python3 scripts/bench_public.py     → ber_overall 1.0, build_rate 1.0, valid
+  all 5 generated-Java SHA-256 IDENTICAL to the WP-0 baseline
+  diff -r (java trees) vs pre-strict baseline: empty
+local gate replica (public split)   → branch_coverage 0.8088 (55/68), exit 0
+```
+Public split byte-identical, as the work package required. Held-out: the
+gate on this PR's CI run is the measurement; see the PR.
+
+### PR #8 review round — phantom paragraph names (Bugbot, confirmed)
+
+Bugbot flagged that the new paragraph tracker treated any lone `NAME.` line
+as a paragraph, so a standalone `END-IF.` / `GOBACK.` / `ELSE.` would
+pollute the paragraph reported by `UnsupportedConstruct`. Confirmed real —
+the assessment scanner solved this exact phantom-paragraph problem in
+WP-1.4 (defect #3) and the transpiler tracker did not mirror it. Fixed: the
+NAME assignment is now guarded (`VERBS`, `END-*`, and the reserved lone-line
+keywords are never paragraph names); the label-skip behavior itself is
+untouched (WP-1.2 byte-identity). Regression test added; suite 247 passed;
+all 5 public-split SHA-256 still identical to baseline.

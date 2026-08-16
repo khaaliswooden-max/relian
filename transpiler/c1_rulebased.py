@@ -33,13 +33,25 @@ VERBS = {"ACCEPT", "UNSTRING", "COMPUTE", "MOVE", "IF", "ELSE", "END-IF",
          "STOP", "END-UNSTRING", "SUBTRACT"}
 
 
-class UnsupportedConstruct(Exception):
-    """Raised by unsupported() only in strict mode (opt-in, default off)."""
+# Reserved words that can legally stand alone on a line followed by a period
+# and would otherwise be misread as paragraph names by _statements. Everything
+# in VERBS and every END-* token is excluded there too; this set covers the
+# statement keywords the C1 tokenizer does not know as VERBS.
+_NOT_PARAGRAPH_NAMES = frozenset(
+    {"ELSE", "THEN", "OTHER", "CONTINUE", "NEXT", "GOBACK", "EXIT"})
 
-    def __init__(self, verb: str, line_no: int):
+
+class UnsupportedConstruct(Exception):
+    """Raised by unsupported() in strict mode (the default since WP-1.5.2)."""
+
+    def __init__(self, verb: str, line_no: int, paragraph: Optional[str] = None):
         self.verb = verb
         self.line_no = line_no
-        super().__init__(f"unsupported COBOL construct {verb!r} at source line {line_no}")
+        self.paragraph = paragraph
+        where = f"at source line {line_no}"
+        if paragraph:
+            where += f" in paragraph {paragraph}"
+        super().__init__(f"unsupported COBOL construct {verb!r} {where}")
 
 
 def jname(cobol: str) -> str:
@@ -332,7 +344,7 @@ HELPERS = {
 
 
 class Transpiler:
-    def __init__(self, source: str, class_name: str, strict: bool = False):
+    def __init__(self, source: str, class_name: str, strict: bool = True):
         self.cls = class_name
         # strip fixed-format columns 1-6 + indicator, blank out comments.
         # Comment lines become empty lines rather than disappearing, so that
@@ -359,29 +371,46 @@ class Transpiler:
         self.ex = ExprTx(self.fields, self.used)
         self.j: List[str] = []
         self.ind = 2
-        # WP-1.2: honest-failure bookkeeping. `strict` is opt-in and OFF by
-        # default because turning a silent skip into a hard failure changes
-        # behavior, and that is an operator decision (see
-        # docs/C1_SUPPORTED_VERBS_OBSERVED.md §5).
+        # WP-1.5.2: strict is ON by default (operator decision, escalation
+        # item #1). A verb with no handler raises UnsupportedConstruct with
+        # verb + line + paragraph instead of being silently dropped -- a
+        # dropped statement is exactly the failure R2 forbids. strict=False
+        # remains available for inventory collection: it records every
+        # unsupported occurrence on `unsupported_hits` and emits nothing,
+        # which is what the pre-WP-1.5.2 default did.
         self.strict = strict
         self.unsupported_hits: List[Tuple[str, int]] = []
 
     def _statements(self, proc: str, line_offset: int = 0) -> List[str]:
         out: List[str] = []
         lines_out: List[int] = []
+        paras_out: List[Optional[str]] = []
+        current_para: Optional[str] = None
         for k, raw_line in enumerate(proc.splitlines()):
             l = raw_line.strip()
             if not l:
                 continue
             if re.match(r"^[A-Z0-9\-]+\.$", l):   # paragraph label
+                # A lone `END-IF.`, `ELSE.`, `GOBACK.` or `EXIT.` line matches
+                # the same regex but is a scope terminator or statement, not a
+                # label. Mirror src/assessment/coverage._paragraph_label so a
+                # strict-mode error never reports a phantom paragraph. Only
+                # the NAME assignment is guarded -- the skip itself is the
+                # pre-WP-1.5.2 behavior and must stay byte-identical.
+                name = l.rstrip(".")
+                if (name not in VERBS and not name.startswith("END-")
+                        and name not in _NOT_PARAGRAPH_NAMES):
+                    current_para = name
                 continue
             first = l.split()[0].rstrip(".")
             if first in VERBS or not out:
                 out.append(l)
                 lines_out.append(line_offset + k)
+                paras_out.append(current_para)
             else:
                 out[-1] += " " + l
         self.stmt_lines = lines_out
+        self.stmt_paras = paras_out
         return [s.rstrip(".").strip() for s in out]
 
     # -- emit helpers --
@@ -441,16 +470,19 @@ class Transpiler:
     # still emits nothing -- it now goes through unsupported() so the omission
     # is recorded instead of invisible.
 
-    def unsupported(self, verb: str, line_no: int) -> None:
+    def unsupported(self, verb: str, line_no: int,
+                    paragraph: Optional[str] = None) -> None:
         """The single honest-failure path for a construct C1 cannot transpile.
 
-        Default behavior emits nothing, exactly as the old fall-through did,
-        and records the occurrence on ``self.unsupported_hits``. In strict mode
-        it raises :class:`UnsupportedConstruct` instead.
+        In strict mode (the default, WP-1.5.2) it raises
+        :class:`UnsupportedConstruct` carrying verb, source line and
+        paragraph. With ``strict=False`` it emits nothing, exactly as the
+        pre-WP-1.5.2 fall-through did, and records the occurrence on
+        ``self.unsupported_hits`` so a caller can collect the full inventory.
         """
         self.unsupported_hits.append((verb, line_no))
         if self.strict:
-            raise UnsupportedConstruct(verb, line_no)
+            raise UnsupportedConstruct(verb, line_no, paragraph)
 
     def stmt(self, i: int) -> int:
         """Dispatch one statement; returns the index of the next statement."""
@@ -460,8 +492,18 @@ class Transpiler:
         v = s.split()[0]
         handler = SUPPORTED_STATEMENTS.get(v)
         if handler is None:
+            # A BARE scope terminator (exactly the token, no content) closes a
+            # construct whose handler already consumed everything before it
+            # (UNSTRING ... END-UNSTRING). Its correct translation is nothing:
+            # this is not a dropped statement, so strict mode must not refuse
+            # it. The corpus itself exercises this (P01/P04 END-UNSTRING).
+            # Anything content-bearing -- SUBTRACT, a stray 'AT END ...', or
+            # 'END-UNSTRING <garbage>' -- still goes through unsupported().
+            if s in ("END-UNSTRING", "END-SEARCH"):
+                return i + 1
             line_no = self.stmt_lines[i] if i < len(self.stmt_lines) else -1
-            self.unsupported(v, line_no)
+            para = self.stmt_paras[i] if i < len(self.stmt_paras) else None
+            self.unsupported(v, line_no, para)
             return i + 1
         return handler(self, i, s)
 

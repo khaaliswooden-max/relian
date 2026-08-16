@@ -112,23 +112,25 @@ def test_supported_verb_transpiles_without_hitting_unsupported(verb):
     ],
 )
 def test_verb_outside_the_table_hits_unsupported(stmt, verb):
-    tp = Transpiler(program([stmt]), "Probe")
+    tp = Transpiler(program([stmt]), "Probe", strict=False)
     tp.transpile()
     assert [v for v, _ in tp.unsupported_hits] == [verb]
 
 
 def test_unsupported_records_a_real_source_line():
     src = program(["ALTER OTHER-PARA TO PROCEED TO MAIN-PARA"])
-    tp = Transpiler(src, "Probe")
+    tp = Transpiler(src, "Probe", strict=False)
     tp.transpile()
     (_, line_no), = tp.unsupported_hits
     assert src.splitlines()[line_no - 1].strip().startswith("ALTER")
 
 
-def test_unsupported_default_emits_nothing_extra():
-    """The default path is silent-but-recorded — same bytes as before WP-1.2."""
-    with_alter = Transpiler(program(["ALTER X TO PROCEED TO Y", "DISPLAY WS-N"]), "P")
-    without = Transpiler(program(["DISPLAY WS-N"]), "P")
+def test_non_strict_emits_nothing_extra():
+    """Inventory mode (strict=False) is silent-but-recorded — the bytes an
+    unsupported verb contributes are exactly none, as before WP-1.2."""
+    with_alter = Transpiler(program(["ALTER X TO PROCEED TO Y", "DISPLAY WS-N"]),
+                            "P", strict=False)
+    without = Transpiler(program(["DISPLAY WS-N"]), "P", strict=False)
     assert with_alter.transpile() == without.transpile()
     assert with_alter.unsupported_hits and not without.unsupported_hits
 
@@ -140,8 +142,45 @@ def test_strict_mode_raises_instead_of_dropping():
     assert exc.value.verb == "ALTER"
 
 
-def test_strict_mode_is_off_by_default():
-    assert Transpiler(program(["DISPLAY WS-N"]), "Probe").strict is False
+def test_strict_mode_is_on_by_default():
+    """WP-1.5.2: silent-drop is no longer the default (R2)."""
+    tp = Transpiler(program(["ALTER X TO PROCEED TO Y"]), "Probe")
+    assert tp.strict is True
+    with pytest.raises(UnsupportedConstruct):
+        tp.transpile()
+
+
+def test_strict_error_paragraph_is_not_a_phantom_terminator():
+    """A lone END-IF. / GOBACK. line must not become the reported paragraph.
+
+    Bugbot finding on PR #8: any lone `NAME.` line updated the paragraph
+    tracker, so scope terminators standing alone (END-IF., GOBACK.) polluted
+    the paragraph carried by UnsupportedConstruct. Mirrors the assessment
+    scanner's phantom-paragraph rule (coverage._paragraph_label).
+    """
+    src = program([
+        "IF WS-N = 1",
+        "DISPLAY WS-N",
+        "END-IF.",
+        "SUBTRACT 1 FROM WS-N",
+    ])
+    tp = Transpiler(src, "Probe")
+    with pytest.raises(UnsupportedConstruct) as exc:
+        tp.transpile()
+    assert exc.value.verb == "SUBTRACT"
+    assert exc.value.paragraph == "MAIN-PARA"   # not "END-IF"
+
+
+def test_strict_error_carries_verb_line_and_paragraph():
+    src = program(["ALTER OTHER-PARA TO PROCEED TO MAIN-PARA"])
+    tp = Transpiler(src, "Probe")
+    with pytest.raises(UnsupportedConstruct) as exc:
+        tp.transpile()
+    assert exc.value.verb == "ALTER"
+    assert src.splitlines()[exc.value.line_no - 1].strip().startswith("ALTER")
+    assert exc.value.paragraph == "MAIN-PARA"
+    msg = str(exc.value)
+    assert "ALTER" in msg and "MAIN-PARA" in msg and str(exc.value.line_no) in msg
 
 
 def test_boundary_only_tokens_are_not_reported_as_supported():
