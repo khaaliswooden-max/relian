@@ -82,6 +82,27 @@ jobs:
                   java = failure_stub(cls, exc)
                   failed.append(f'{prog}: {type(exc).__name__}: {exc}')
                   print(f'{prog}: TRANSPILE FAILED: {type(exc).__name__}: {exc}')
+              # PLANTED RED — WP-1.5.0b proof that the coverage gate has
+              # teeth. Dead branches appended to every candidate class:
+              # behavior is unchanged (BER and build_rate stay 1.0), but the
+              # injected branches are never executed, so measured branch
+              # coverage falls below the ledger's branch_coverage_min (0.80)
+              # and the gate must exit 1 on that failure alone. The gate
+              # itself is untouched. REVERTED IN THE NEXT COMMIT; both runs
+              # stay in history as audit evidence (R10).
+              # Verified locally on the PUBLIC split: 0.8088 -> 0.5093, exit 1.
+              planted = (
+                  '    private static int plantedCoverageRed(int x) {\n'
+                  '        int n = 0;\n'
+                  '        if (x > 1) { n += 1; }\n'
+                  '        if (x > 2) { n += 2; }\n'
+                  '        if (x > 3) { n += 3; }\n'
+                  '        if (x > 4) { n += 4; }\n'
+                  '        return n;\n'
+                  '    }\n'
+              )
+              k = java.rstrip().rfind('}')
+              java = java.rstrip()[:k] + planted + '}\n'
               (dest / f'{cls}.java').write_text(java)
               print(f'{prog}: emitted {len(java)} bytes -> {dest / f"{cls}.java"}')
 
