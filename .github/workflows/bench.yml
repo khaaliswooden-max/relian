@@ -92,21 +92,66 @@ jobs:
       - name: Score candidate on HELD-OUT split
         run: |
           python3 - <<'PY'
-          import json, sys; sys.path.insert(0,'bench')
+          import json, os, sys; sys.path.insert(0,'bench')
           from harness.runner import run_candidate
           from pathlib import Path
 
-          thresholds = json.load(open('bench/LEDGER_relian-bench-v1.1.json'))['thresholds']
+          ledger = json.load(open('bench/LEDGER_relian-bench-v1.1.json'))
+          thresholds = ledger['thresholds']
           mains = json.loads(Path('bench/harness/mains.json').read_text())
           out = Path('candidates/current')
+
+          # WP-1.5.0c: the machine-readable summary the WP-1.5.0 contract
+          # asked for. Written on EVERY path -- red runs carry the evidence
+          # of what was (not) measured, which is the point of the artifact.
+          summary = {
+              'n_vectors': 0,
+              'ber': None,
+              'build_rate': None,
+              'branch_coverage': None,
+              'coverage_tool': None,
+              'git_sha': os.environ.get('GITHUB_SHA', 'unknown'),
+              'ledger_ref': {
+                  'tag': ledger.get('tag'),
+                  'manifest_sha256': ledger['signature']['manifest_sha256'],
+              },
+              'failures': [],
+          }
+
+          def emit_summary():
+              Path('bench_summary.json').write_text(
+                  json.dumps(summary, indent=2) + '\n')
+              print('--- bench_summary.json ---')
+              print(json.dumps(summary, indent=2))
 
           # A gate that cannot measure must FAIL, never pass. Exiting 0 here is
           # how this job stayed green for every commit while scoring nothing.
           if not out.exists():
+              summary['failures'] = ['no candidate at candidates/current']
+              emit_summary()
               raise SystemExit('FAIL: no candidate at candidates/current — '
                                'the gate cannot score, so it must not pass')
 
-          rep = run_candidate('current', out, mains, split='heldout')
+          try:
+              rep = run_candidate('current', out, mains, split='heldout')
+          except Exception as exc:
+              summary['failures'] = [f'scoring raised {type(exc).__name__}: {exc}']
+              emit_summary()
+              raise SystemExit(f'FAIL: held-out not scored — refusing to '
+                               f'certify ({type(exc).__name__}: {exc})')
+
+          # Vectors actually compared by the scorer. On the happy path this is
+          # the whole held-out split (the ledger records 60 per program = 300);
+          # a program that failed to build contributes 0 here, so a gate that
+          # compiled nothing cannot report having scored anything.
+          n_vectors = sum(s.vectors_total or 0 for s in rep.scores)
+          summary.update({
+              'n_vectors': n_vectors,
+              'ber': rep.ber_overall,
+              'build_rate': rep.build_rate,
+              'branch_coverage': rep.coverage_branch,
+              'coverage_tool': rep.coverage_tool,
+          })
           print(json.dumps({'ber': rep.ber_overall, 'build_rate': rep.build_rate,
                             'branch_coverage': rep.coverage_branch,
                             'coverage_tool': rep.coverage_tool,
@@ -124,6 +169,11 @@ jobs:
                     + (f' note={d["note"]}' if d.get('note') else ''))
 
           failures = []
+          # WP-1.5.0c: the explicit contract check. Zero vectors compared
+          # means nothing was certified, whatever the other fields claim.
+          if n_vectors == 0:
+              failures.append('held-out not scored — refusing to certify '
+                              '(n_vectors == 0)')
           if not rep.valid:
               failures.append(f'run INVALID: {rep.invalid_reason}')
           if rep.ber_overall is None:
@@ -155,13 +205,27 @@ jobs:
                   f'branch_coverage {rep.coverage_branch} < '
                   f'{thresholds["branch_coverage_min"]}')
 
+          summary['failures'] = failures
+          emit_summary()
+
           if failures:
               for f in failures:
                   print(f'THRESHOLD FAILED: {f}')
               raise SystemExit(1)
 
-          print(f'THRESHOLD MET: BER {rep.ber_overall} >= {thresholds["ber_heldout_min"]}, '
+          print(f'THRESHOLD MET: n_vectors {n_vectors}, '
+                f'BER {rep.ber_overall} >= {thresholds["ber_heldout_min"]}, '
                 f'build_rate {rep.build_rate} >= {thresholds["build_rate_min"]}, '
                 f'branch_coverage {rep.coverage_branch} >= '
                 f'{thresholds["branch_coverage_min"]} ({rep.coverage_tool})')
           PY
+      - name: Upload bench_summary.json artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench_summary
+          path: bench_summary.json
+          # Steps before scoring can fail (fetch, oracles) with no summary
+          # written; warn rather than masking that earlier failure with a
+          # second one here.
+          if-no-files-found: warn

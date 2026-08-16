@@ -867,3 +867,37 @@ three real-world corpora, plus GOBACK) is unchanged from the WP-1.9 entry.
   REFERENCE/CONTENT) and multi-binary oracles; also the vehicle for real
   EXIT PROGRAM vectors. Rank against WRITE/GO TO by demand after the 1.5.5
   re-run.
+
+---
+
+## 2026-08-16 · WP-1.5.0c · bench_summary.json + the explicit n_vectors check
+
+Completes the WP-1.5.0 contract literally (the deviations were recorded in
+the verification entry above rather than reinterpreted as done). Workflow
+change only; no harness or transpiler byte changed.
+
+- The scoring step now writes **`bench_summary.json`** on every path —
+  including the refusal paths, since a red run's evidence of what was NOT
+  measured is the point of the artifact. Fields: `n_vectors`, `ber`,
+  `build_rate`, `branch_coverage`, `coverage_tool`, `git_sha`,
+  `ledger_ref` (tag + signed manifest sha256), `failures`. Printed in the
+  job log and uploaded via `actions/upload-artifact` with `if: always()`.
+- `n_vectors` = vectors the scorer actually compared (`vectors_total` per
+  program); a program that fails to build contributes 0, so a gate that
+  compiled nothing cannot report having scored anything.
+- The explicit contract check: `n_vectors == 0` → exit 1 with
+  **"held-out not scored — refusing to certify"**. It fires even when other
+  metrics would already fail, so the certification refusal is named, not
+  implied.
+
+Verified locally against the PUBLIC split by extracting the exact heredoc
+from the workflow (R3 — held-out stays CI-only):
+
+| Path | Result |
+|---|---|
+| real candidate | exit 0, summary `n_vectors: 60` (5×12 public), no failures |
+| missing `candidates/current` | exit 1, summary written with the failure |
+| empty candidate dirs | exit 1, first failure line `held-out not scored — refusing to certify (n_vectors == 0)` |
+
+The ledger's own `vector_counts` records 60 held-out vectors per program, so
+the green CI run on this PR must show `n_vectors: 300` — recorded on the PR.
