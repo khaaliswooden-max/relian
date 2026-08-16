@@ -81,6 +81,51 @@ def test_coverage_below_point_eight_is_high():
     assert f.rule == "HIGH: coverage<0.80"
 
 
+def _cov_with_value_hit(status: str):
+    """A full-coverage CoverageResult carrying one VALUE-clause hit."""
+    from dataclasses import replace
+
+    from src.assessment.models import DataFeatureHit
+
+    c = cov(1.0)
+    return replace(c, data_feature_inventory=(
+        DataFeatureHit(feature="VALUE clause on a data item",
+                       status=status, file="P", line=7),
+    ))
+
+
+def test_discarded_value_clause_is_high_even_at_full_coverage():
+    """WP-1.5.4: C1 zero-inits every field, so a VALUE clause it discards is
+    lost initialization semantics — HIGH regardless of statement coverage."""
+    f = assess("P", _cov_with_value_hit("accepted_ignored"), comp(CLEAN))
+    assert f.tier is RiskTier.HIGH
+    assert "VALUE clause present but discarded" in f.rule
+    assert ("value_discarded_count", 1) in f.inputs
+
+
+def test_value_rule_retires_itself_when_value_probes_supported():
+    """The rule reads the PROBED status on each hit; the day VALUE probes
+    'supported' the rule stops firing with no edit to risk.py."""
+    f = assess("P", _cov_with_value_hit("supported"), comp(CLEAN))
+    assert f.tier is RiskTier.LOW
+
+
+def test_other_accepted_ignored_features_do_not_trip_the_value_rule():
+    """COMP-3 is accepted_ignored too, but BER 1.0000 on the corpus that uses
+    it everywhere proves the discard is behavior-preserving there; the rule
+    is deliberately scoped to VALUE."""
+    from dataclasses import replace
+
+    from src.assessment.models import DataFeatureHit
+
+    c = replace(cov(1.0), data_feature_inventory=(
+        DataFeatureHit(feature="USAGE COMP-3 (packed decimal)",
+                       status="accepted_ignored", file="P", line=5),
+    ))
+    f = assess("P", c, comp(CLEAN))
+    assert f.tier is RiskTier.LOW
+
+
 def test_partial_coverage_is_at_least_medium():
     f = assess("P", cov(0.90), comp(CLEAN))
     assert f.tier is RiskTier.MED

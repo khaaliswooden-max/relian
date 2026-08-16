@@ -769,3 +769,101 @@ python3 -m pytest -q -o addopts=""  → 247 passed, 12 skipped, 0 failed
 First fully green suite in the repository's recorded history: every WP-0
 baseline failure is now cleared, and "4 failed" stops being a number every
 future session must explain.
+
+---
+
+## 2026-08-16 · WP-1.5.4 · VALUE clause — flagged now, bench next
+
+**Interpretation recorded rather than silently applied.** The work package
+says "register VALUE as an unsupported data feature in
+`supported_data_features()`" — but that function is a *measurement* (it
+probes the transpiler), and the measured truth is `accepted_ignored`: the
+declaration parses, the field exists, the clause is discarded. Hard-coding
+"unsupported" would be a constant overriding a probe — the exact R1 failure
+this repo exists to prevent. What the work package is actually after is
+that programs using VALUE stop looking safe. Delivered where the decision
+lives:
+
+- **Risk rule (new, HIGH):** `HIGH: VALUE clause present but discarded by
+  the transpiler (initialization semantics lost)`. Fires on any VALUE-clause
+  hit whose *probed* status is not "supported" — so the rule retires itself
+  the day VALUE is implemented and probes supported, with no constant to
+  flip. Deliberately scoped to VALUE, not to every `accepted_ignored`
+  feature: COMP-3 is accepted_ignored too, and held-out BER 1.0000 on a
+  corpus that uses COMP-3 throughout is measured evidence that that discard
+  preserves behavior; the VALUE discard demonstrably does not (C1 zero-inits
+  every field).
+- The analyzer already inventoried VALUE per program (WP-1.4) and the report
+  already prints the three-state data-feature table; the missing link was
+  risk.
+
+Measured end-to-end this session: a program using VALUE (the VALINIT01
+draft) assessed via the CLI tiers **HIGH** with the new rule; the bench
+corpus re-assessed unchanged (all five LOW — no non-88 VALUE in the corpus).
+Suite: 250 passed (3 new rule tests, incl. the self-retirement case).
+
+**Draft oracle candidate:** `bench/candidates/drafts/VALINIT01/program.cbl`
+— VALUE on numeric/alphanumeric/COMP-3, group-level VALUE, 88-levels with
+single and multiple values; every output line depends on an initial value.
+Compiled and executed with GnuCOBOL 3.1.2 this session (`cobc -x`; sample
+runs in the drafts README are real output). **Sealing/signing is
+Khaalis-only; implementation of VALUE in `parse_working_storage`/emit is
+GATED on the sealed bench commit predating the grammar merge (R7). Not
+started.**
+
+## 2026-08-16 · WP-1.5.5 · EXIT / CONTINUE / GOBACK — draft only, implementation gated
+
+**Draft oracle candidate:** `bench/candidates/drafts/EXITFLW01/program.cbl`
+(rev 2) — CONTINUE (bare / in IF / in EVALUATE), EXIT PROGRAM in a main
+program, GOBACK with and without `MOVE 0 TO RETURN-CODE`. Compiled and
+executed with GnuCOBOL 3.1.2 this session.
+
+**Bugbot finding on PR #10, confirmed, and it narrows the work package.**
+Rev 1 drove its loop with out-of-line `PERFORM <para>` and tested paragraph
+EXIT. C1's `_tx_perform` supports only the inline
+`PERFORM VARYING … END-PERFORM` form — an out-of-line PERFORM crashes the
+handler — so rev 1 could never gate the three handlers alone. Consequence,
+recorded rather than papered over: **paragraph EXIT (the dominant form
+behind the 368-occurrence EXIT count) is inseparable from
+performed-paragraph support and is NOT dispatch-table-only work.** It joins
+the deferred list; the truly cheap constructs are CONTINUE, GOBACK, and
+EXIT PROGRAM-in-main.
+
+Three more measured findings from drafting, all in the drafts README:
+- vectors must not set a nonzero RETURN-CODE (`runner._run_java` treats a
+  nonzero exit as a failed run — needs a harness decision first);
+- GnuCOBOL quirk: a WHEN branch whose only statement is EXIT PROGRAM
+  compiles to an empty branch and chains into the next WHEN (`WHEN OTHER`
+  also runs). Vectors must never encode that oracle quirk;
+- counters must be wider than the input domain (`WS-I PIC 9(4)` wraps at
+  9999+1 and loops forever — rev 2 hung on input `9999,P` until widened).
+
+**Everything after the draft is gated:** Khaalis seals → handlers land in
+`SUPPORTED_STATEMENTS` → held-out green → analyzer picks the verbs up
+automatically (it reads the dispatch table) → WP-1.9 dry runs re-run and the
+before/after coverage numbers recorded side by side. None of that is
+started; the 696-occurrence demand signal (EXIT 368+CONTINUE 271 across the
+three real-world corpora, plus GOBACK) is unchanged from the WP-1.9 entry.
+
+### Deferred, with the written reason (work-package requirement)
+
+- **`EXEC` (306 occurrences):** CICS/SQL are external-interface semantics —
+  transaction context, cursors, commit scopes — not a dispatch-table job. A
+  handler that stubbed them would be a placeholder wearing a verb's name
+  (R2/R5). Phase 4 candidate after buyer signal.
+- **`WRITE` (224):** real file-section/record semantics; needs FD modelling
+  (currently `unsupported` in the data-feature probe) and its own oracle
+  program with file-based vectors — a harness extension, since vectors today
+  are stdin/stdout.
+- **`GO TO` (186):** unstructured control flow; the Java emission model has
+  no jump primitive — needs a control-flow restructuring design, not a
+  handler.
+- **Paragraph `EXIT` / out-of-line `PERFORM <para>` (moved here by the
+  PR #10 Bugbot finding):** paragraph EXIT is only meaningful as the return
+  point of a performed paragraph, and C1 has no performed-paragraph
+  emission (paragraphs would need to become methods). That is an emission
+  architecture change, not a `SUPPORTED_STATEMENTS` entry.
+- **`CALL` (183):** cross-program linkage (LINKAGE SECTION, BY
+  REFERENCE/CONTENT) and multi-binary oracles; also the vehicle for real
+  EXIT PROGRAM vectors. Rank against WRITE/GO TO by demand after the 1.5.5
+  re-run.

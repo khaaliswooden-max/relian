@@ -48,6 +48,11 @@ RISK_RULES: Tuple[Tuple[RiskTier, str, Callable[[Dict[str, Any]], bool]], ...] =
      lambda i: i["exec_sql_count"] > 0),
 
     (RiskTier.HIGH,
+     "HIGH: VALUE clause present but discarded by the transpiler "
+     "(initialization semantics lost)",
+     lambda i: i["value_discarded_count"] > 0),
+
+    (RiskTier.HIGH,
      "HIGH: coverage<0.80",
      lambda i: i["coverage_ratio"] < 0.80),
 
@@ -94,6 +99,15 @@ def rule_table() -> Tuple[str, ...]:
 def _inputs(coverage: CoverageResult,
             complexity: Optional[ComplexityResult]) -> Dict[str, Any]:
     ratio = coverage.coverage_ratio.value if coverage.coverage_ratio else None
+    # WP-1.5.4: a VALUE clause the transpiler discards loses initialization
+    # semantics -- C1 zero-inits every field regardless. The status on each
+    # hit comes from probing the transpiler at analysis time
+    # (supported.supported_data_features), so this rule retires ITSELF the
+    # day VALUE probes as "supported": no constant here to forget to flip.
+    value_discarded = sum(
+        1 for h in coverage.data_feature_inventory
+        if h.feature == "VALUE clause on a data item" and h.status != "supported"
+    )
     if complexity is None:
         # Neutral counts for a program with no complexity result. These never
         # decide anything: complexity is absent only when no statements were
@@ -101,6 +115,7 @@ def _inputs(coverage: CoverageResult,
         # fires BLOCKED before any of these values is compared.
         return {
             "coverage_ratio": ratio,
+            "value_discarded_count": value_discarded,
             "alter_present": False,
             "exec_cics_count": 0,
             "exec_sql_count": 0,
@@ -112,6 +127,7 @@ def _inputs(coverage: CoverageResult,
         }
     return {
         "coverage_ratio": ratio,
+        "value_discarded_count": value_discarded,
         "alter_present": complexity.alter_present,
         "exec_cics_count": complexity.exec_cics_count,
         "exec_sql_count": complexity.exec_sql_count,
