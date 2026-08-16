@@ -530,7 +530,7 @@ def render_docx(markdown: str, path: Path) -> Optional[str]:
 
 def render(bundle: AssessmentBundle, out_dir: Path, root_label: str = "",
            scope_by_construct: Sequence[Tuple[str, int]] = (),
-           json_only: bool = False) -> Dict[str, Optional[str]]:
+           json_only: bool = False, docx: bool = True) -> Dict[str, Optional[str]]:
     """Write the report artifacts. Returns paths plus the ledger hash."""
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -557,6 +557,13 @@ def render(bundle: AssessmentBundle, out_dir: Path, root_label: str = "",
     md_path = out_dir / "assessment.md"
     md_path.write_text(markdown, encoding="utf-8")
     result["md"] = str(md_path)
+
+    if not docx:
+        # DOCX rendering is quadratic-ish in table rows and dominates wall time
+        # on large portfolios (measured: it is the bulk of a 44-program run).
+        # Skipping it is an explicit choice, recorded as one.
+        result["docx_skipped_reason"] = "--no-docx was passed"
+        return result
 
     docx_path = render_docx(markdown, out_dir / "assessment.docx")
     if docx_path is None:

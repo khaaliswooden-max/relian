@@ -105,6 +105,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--out", type=Path, required=True, help="output directory")
     parser.add_argument("--json-only", action="store_true",
                         help="write assessment.json only (skip Markdown and DOCX)")
+    parser.add_argument("--no-docx", action="store_true",
+                        help="skip the DOCX rendering, which dominates wall time "
+                             "on large portfolios")
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args(argv)
 
@@ -116,6 +119,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         root_label=args.root.as_posix(),
         scope_by_construct=by_construct,
         json_only=args.json_only,
+        docx=not args.no_docx,
     )
     elapsed = time.time() - started
 
