@@ -415,3 +415,57 @@ Dry-run artifacts regenerated at the commit containing the fix.
 or portfolio level — every affected program was already tiered by an
 earlier-firing rule, so the nesting rule was not the deciding one anywhere in
 these corpora.
+
+---
+
+## 2026-08-16 · Acceptance criterion #2 — RESOLVED, measured for the first time
+
+PR #4 merged the gate fix into its own branch and CI ran it. This is the first
+time in the history of this repository that the `bench` job has scored the
+held-out split. From
+[job 95154014247](https://github.com/khaaliswooden-max/relian/actions/runs/31942680176/job/95154014247)
+(head `0ae61b6`):
+
+```
+P01_payroll: emitted 3424 bytes -> candidates/current/P01_payroll/Payroll01.java
+P02_interest: emitted 2759 bytes -> candidates/current/P02_interest/Interest01.java
+P03_eligibility: emitted 3150 bytes -> candidates/current/P03_eligibility/Eligible01.java
+P04_taxtable: emitted 5150 bytes -> candidates/current/P04_taxtable/Taxtbl01.java
+P05_validate: emitted 3219 bytes -> candidates/current/P05_validate/Validat01.java
+
+rep = run_candidate('current', out, mains, split='heldout')
+{
+  "ber": 1.0,
+  "build_rate": 1.0,
+  "valid": true,
+  "reason": null
+}
+THRESHOLD MET: BER 1.0 >= 0.95, build_rate 1.0 >= 1.0
+```
+
+**BER 1.0000 on the HELD-OUT split. build_rate 1.00. valid.**
+
+The `no candidate output at candidates/current — skipping score` line is gone,
+and the scoring step took ~56 s where the skipping version took under one, which
+is what running the vectors actually costs.
+
+Corroborating detail: the five emitted byte counts are identical to the local
+generation run, which was in turn byte-identical to
+`bench/candidates/C1_rulebased/**`. So the artifact CI scored is the same
+artifact verified locally.
+
+### What this does and does not certify
+
+It certifies the transpiler **on `main`** (`9d364d8`), because PR #4 branches
+from main and does not contain the WP-1.2 refactor.
+
+It certifies PR #3's transpiler too, by deduction rather than by a separate run:
+the WP-1.2 gate is that all five corpus programs regenerate **byte-identical**
+output, asserted locally and by
+`test_supported.py::test_refactor_is_byte_identical_to_committed_candidate`.
+Identical Java handed to the same scorer against the same vectors produces the
+same score. Once PR #4 is on main and PR #3 picks it up, that becomes a direct
+measurement rather than a deduction, and it should be re-read then.
+
+**Acceptance criterion #2 is met**, and escalation item #5 is resolved pending
+the merge of PR #4.
