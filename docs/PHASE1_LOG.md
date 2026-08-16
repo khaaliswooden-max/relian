@@ -946,3 +946,34 @@ Measured this session (probes + full public leg):
 | suite | 250 passed, 12 skipped |
 
 Held-out under the extended scorer: this PR's CI run is the measurement.
+
+### WP-1.5.0d acceptance — measured on the PR
+
+PR #12 green run ([job 95192592695](https://github.com/khaaliswooden-max/relian/actions/runs/31958430551/job/95192592695)):
+all **300 held-out vectors pass under the exit-code comparison** — BER
+1.0000, build 1.00, branch_coverage 0.8824, `n_vectors: 300`, no failures.
+The extended scorer changed no held-out result, which is the expected
+outcome: every existing vector was recorded against programs that exit 0.
+Merged as `c7b199f`.
+
+---
+
+## 2026-08-16 · P04 SEARCH-exhaust vector additions — draft for v1.2 sealing
+
+`bench/candidates/drafts/P04_search_exhaust.md`. Five proposed held-out
+vectors with incomes in the AT END window (999999999.00, 999999999.99],
+expected outputs measured from the oracle (cobc 3.1.2) this session.
+Measured effect against the committed `Taxtbl01.java`: BER 1.0 (17/17 on
+public + the five), P04 branch coverage **11/16 → 13/16** with JaCoCo
+line-level confirming the two `_tx_search` branches (Java lines 85, 91) are
+the ones that close; only runtime-helper branches remain (lines 13, 19).
+Public aggregate would rise 55/68 → 57/68 (0.8382); held-out 62/68 = 0.9118
+is *expected*, to be measured by the first CI run after sealing.
+
+Two honesty notes are in the draft itself: at the bracket boundary the WHEN
+and AT END paths are output-indistinguishable (sub-cent differences vanish
+in ROUNDED HALF_UP), so these vectors prove branch exercise and behavioral
+agreement but cannot alone distinguish a hard-coded bracket-5 fallback; and
+all rows expect exit 0, now verified explicitly by the WP-1.5.0d scorer.
+`relian-bench-private` untouched (R3); authoritative vectors come from the
+private generator at sealing.
