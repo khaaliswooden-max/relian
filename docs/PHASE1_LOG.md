@@ -746,3 +746,26 @@ NAME assignment is now guarded (`VERBS`, `END-*`, and the reserved lone-line
 keywords are never paragraph names); the label-skip behavior itself is
 untouched (WP-1.2 byte-identity). Regression test added; suite 247 passed;
 all 5 public-split SHA-256 still identical to baseline.
+
+---
+
+## 2026-08-16 · WP-1.5.3 · The four stale tests — remediation debt cleared
+
+No production code changed. Each test asserted a pre-remediation fabricated
+value; each now asserts the honest behavior the code has had since
+remediation. Measured before editing (each old assertion re-run and observed
+failing for exactly the documented reason):
+
+| Test | Was asserting | Now asserts |
+|---|---|---|
+| `test_core.py::TestMigrationResult::test_default_values` | `semantic_score == 0.0`, `risk_score == 0.0` (fabricated defaults) | both `None` — unmeasured is `None`, never a number (R1) |
+| `test_core.py::TestMigrationOrchestrator::test_migrate_with_cobol_parser` | `COMPLETED` + `semantic_score > 0` for a program outside the C1 subset | `FAILED`, an error containing "refusing to emit a placeholder", `semantic_score is None` (R2) |
+| `test_generator.py::test_generate_tests` | 3 fabricated test cases with invented `expected_output 15` from a nonexistent executable | `tests == []` — no oracle, no cases (R1) |
+| `test_generator.py::test_generate_pytest_file` | fabricated `def test_calc_func_path_0` present in the emitted file | no `def test_` in the emitted file |
+
+```
+python3 -m pytest -q -o addopts=""  → 247 passed, 12 skipped, 0 failed
+```
+First fully green suite in the repository's recorded history: every WP-0
+baseline failure is now cleared, and "4 failed" stops being a number every
+future session must explain.
