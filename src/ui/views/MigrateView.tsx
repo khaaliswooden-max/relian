@@ -17,6 +17,8 @@ export function MigrateView(): JSX.Element {
     const [template, setTemplate] = useState<string>('banking');
 
     const [status, setStatus] = useState<MigrationStatus | null>(null);
+    // Last non-terminal stage observed, so a failure can be attributed to it.
+    const [lastActive, setLastActive] = useState<MigrationStatus | null>(null);
     const [result, setResult] = useState<MigrationResult | null>(null);
     const [running, setRunning] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,7 @@ export function MigrateView(): JSX.Element {
         setSource(s.code);
         setResult(null);
         setStatus(null);
+        setLastActive(null);
         setError(null);
     }
 
@@ -34,6 +37,7 @@ export function MigrateView(): JSX.Element {
         setRunning(true);
         setError(null);
         setResult(null);
+        setLastActive(null);
         setStatus('pending');
         try {
             const started = await api.startMigration({
@@ -50,6 +54,7 @@ export function MigrateView(): JSX.Element {
                 current = await api.getMigration(id);
                 setStatus(current.status);
                 if (TERMINAL.includes(current.status)) break;
+                if (current.status !== 'pending') setLastActive(current.status);
                 if (Date.now() > deadline) {
                     throw new ApiError('Migration timed out while polling for completion.');
                 }
@@ -165,7 +170,7 @@ export function MigrateView(): JSX.Element {
                     )}
                 </div>
 
-                {status && <Pipeline status={status} />}
+                {status && <Pipeline status={status} lastActive={lastActive} />}
             </div>
 
             {error && (

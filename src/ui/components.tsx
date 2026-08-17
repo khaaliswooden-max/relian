@@ -160,19 +160,40 @@ function stageIndexForStatus(status: MigrationStatus): number {
     return i;
 }
 
-export function Pipeline({ status }: { status: MigrationStatus | null }): JSX.Element {
+export function Pipeline({
+    status,
+    lastActive,
+}: {
+    status: MigrationStatus | null;
+    // The last in-progress stage seen before a terminal status arrived. Used to
+    // attribute a failure to a stage, since the API's terminal `failed` status
+    // does not itself name the stage that failed.
+    lastActive?: MigrationStatus | null;
+}): JSX.Element {
     const failed = status === 'failed';
-    const activeIdx = status ? stageIndexForStatus(status) : -1;
+    // Live progress index (not meaningful once failed — `failed` is not a stage).
+    const liveIdx = status && !failed ? stageIndexForStatus(status) : -1;
+    // Where the failure lands. If we never observed a stage (immediate failure,
+    // status went straight to `failed` from `pending`), attribute it to the
+    // first stage rather than pretending stages completed.
+    let failIdx = -1;
+    if (failed) {
+        const li = lastActive ? stageIndexForStatus(lastActive) : -1;
+        failIdx = li >= 0 ? li : 0;
+    }
     return (
-        <div className="pipeline">
+        <div className={`pipeline${failed ? ' pipeline-failed' : ''}`}>
             {PIPELINE_STAGES.map((stage, i) => {
                 let cls = 'stage';
-                if (failed && i <= (activeIdx < 0 ? STAGE_ORDER.length : activeIdx)) {
-                    // On failure, mark the reached stages; the failing one is red.
-                    cls += activeIdx >= 0 && i === activeIdx ? ' failed' : ' done';
-                } else if (activeIdx >= 0) {
-                    if (i < activeIdx) cls += ' done';
-                    else if (i === activeIdx) cls += status === 'completed' ? ' done' : ' active';
+                if (failed) {
+                    // Only stages strictly before the failing one are proven done.
+                    // The failing stage is red; later stages stay neutral. Never
+                    // paint an unreached or failed stage green (R2: honest failure).
+                    if (i < failIdx) cls += ' done';
+                    else if (i === failIdx) cls += ' failed';
+                } else if (liveIdx >= 0) {
+                    if (i < liveIdx) cls += ' done';
+                    else if (i === liveIdx) cls += status === 'completed' ? ' done' : ' active';
                 }
                 return (
                     <div key={stage.key} className={cls} title={stage.blurb}>
