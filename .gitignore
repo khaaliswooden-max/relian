@@ -13,3 +13,8 @@ __pycache__/
 
 # deliverable archives never get committed
 *.zip
+
+# frontend build output and dependencies
+node_modules/
+dist/
+*.tsbuildinfo
