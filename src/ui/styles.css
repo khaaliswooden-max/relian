@@ -560,17 +560,34 @@ input:focus {
     animation: pulse 1.1s infinite;
 }
 
-.stage.failed {
-    border-color: var(--danger);
-    box-shadow: 0 0 0 1px var(--danger);
+/* Coarse, honest phase treatment applied at the container level — the API does
+   not report per-stage status, so we never fake green/red on individual stages
+   while running or failed. */
+.pipeline-running {
+    position: relative;
 }
 
-.stage.failed .stage-dot {
+.pipeline-running .stage-dot {
+    animation: pulse 1.1s infinite;
+    background: var(--primary);
+}
+
+.pipeline-failed .stage {
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.pipeline-failed .stage-dot {
     background: var(--danger);
 }
 
-.stage.failed .stage-label {
-    color: var(--danger);
+.pipeline-note {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+}
+
+.pipeline-failed + .pipeline-note {
+    color: #fca5a5;
 }
 
 @keyframes pulse {

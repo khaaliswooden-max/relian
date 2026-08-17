@@ -151,60 +151,51 @@ export function CodeEditor({
     );
 }
 
-const STAGE_ORDER = PIPELINE_STAGES.map((s) => s.key);
+type Phase = 'idle' | 'running' | 'done' | 'failed';
 
-/** Maps a live status to an index in the stage list. */
-function stageIndexForStatus(status: MigrationStatus): number {
-    if (status === 'completed') return STAGE_ORDER.length - 1;
-    const i = STAGE_ORDER.indexOf(status);
-    return i;
+// The demo API (src/api/main.py) only ever reports job-level status —
+// pending → processing → completed | failed. It does NOT surface the
+// orchestrator's per-stage transitions, so the UI must not claim to know which
+// stage is live or which one failed. We render the fixed 7-stage flow as a
+// process diagram and reflect only the coarse phase the API actually gives us.
+function phaseOf(status: MigrationStatus | null): Phase {
+    if (!status) return 'idle';
+    if (status === 'completed') return 'done';
+    if (status === 'failed') return 'failed';
+    return 'running'; // pending, processing (or a stage name, were one ever exposed)
 }
 
-export function Pipeline({
-    status,
-    lastActive,
-}: {
-    status: MigrationStatus | null;
-    // The last in-progress stage seen before a terminal status arrived. Used to
-    // attribute a failure to a stage, since the API's terminal `failed` status
-    // does not itself name the stage that failed.
-    lastActive?: MigrationStatus | null;
-}): JSX.Element {
-    const failed = status === 'failed';
-    // Live progress index (not meaningful once failed — `failed` is not a stage).
-    const liveIdx = status && !failed ? stageIndexForStatus(status) : -1;
-    // Where the failure lands. If we never observed a stage (immediate failure,
-    // status went straight to `failed` from `pending`), attribute it to the
-    // first stage rather than pretending stages completed.
-    let failIdx = -1;
-    if (failed) {
-        const li = lastActive ? stageIndexForStatus(lastActive) : -1;
-        failIdx = li >= 0 ? li : 0;
-    }
+export function Pipeline({ status }: { status: MigrationStatus | null }): JSX.Element {
+    const phase = phaseOf(status);
     return (
-        <div className={`pipeline${failed ? ' pipeline-failed' : ''}`}>
-            {PIPELINE_STAGES.map((stage, i) => {
-                let cls = 'stage';
-                if (failed) {
-                    // Only stages strictly before the failing one are proven done.
-                    // The failing stage is red; later stages stay neutral. Never
-                    // paint an unreached or failed stage green (R2: honest failure).
-                    if (i < failIdx) cls += ' done';
-                    else if (i === failIdx) cls += ' failed';
-                } else if (liveIdx >= 0) {
-                    if (i < liveIdx) cls += ' done';
-                    else if (i === liveIdx) cls += status === 'completed' ? ' done' : ' active';
-                }
-                return (
-                    <div key={stage.key} className={cls} title={stage.blurb}>
-                        <div className="stage-top">
-                            <span className="stage-dot" />
-                            <span className="stage-label">{stage.label}</span>
+        <div>
+            <div className={`pipeline pipeline-${phase}`}>
+                {PIPELINE_STAGES.map((stage) => {
+                    // On completion the run traversed every stage → all done.
+                    // While running or failed we cannot attribute per-stage state
+                    // (the API does not report it), so stages stay neutral and the
+                    // phase is conveyed by the container, not by faking green/red
+                    // on individual stages (R2: honest failure, no false success).
+                    const cls = `stage${phase === 'done' ? ' done' : ''}`;
+                    return (
+                        <div key={stage.key} className={cls} title={stage.blurb}>
+                            <div className="stage-top">
+                                <span className="stage-dot" />
+                                <span className="stage-label">{stage.label}</span>
+                            </div>
+                            <div className="stage-blurb">{stage.blurb}</div>
                         </div>
-                        <div className="stage-blurb">{stage.blurb}</div>
-                    </div>
-                );
-            })}
+                    );
+                })}
+            </div>
+            <div className="pipeline-note">
+                {phase === 'running' &&
+                    'Running — the demo API reports job-level status only, not live per-stage progress.'}
+                {phase === 'failed' &&
+                    'Failed — see the failure detail below. The API does not report which stage failed, so no stage is singled out here.'}
+                {phase === 'done' && 'Completed — the pipeline ran end to end.'}
+                {phase === 'idle' && 'The 7-stage pipeline the transform runs through.'}
+            </div>
         </div>
     );
 }
