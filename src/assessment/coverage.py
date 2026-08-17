@@ -38,7 +38,11 @@ Token-scan counting rules (reproduced verbatim in the report appendix):
    immediately following ``.``, ``THEN``, ``ELSE``, or an ``END-…`` scope
    terminator. This deliberately under-counts verbs buried mid-clause (e.g.
    ``WHEN 1 DISPLAY X``); under-counting a construct is a smaller lie than
-   guessing at one, and the grade says PLAUSIBLE.
+   guessing at one, and the grade says PLAUSIBLE. A verb is classified
+   supported if the dispatch table holds the bare verb or its qualified
+   two-word form (``EXIT PROGRAM``); a qualified-only verb whose qualifier
+   is absent or unrecovered counts unsupported, in the same under-counting
+   direction.
 5. ``EXEC CICS`` / ``EXEC SQL`` / ``EXEC DLI`` count as one statement with verb
    ``EXEC`` and the product recorded as its context.
 6. A paragraph label is a line whose code area is a single name followed by a
@@ -266,6 +270,12 @@ class StatementHit:
     line: int
     paragraph: Optional[str]
     context: Optional[str]
+    # Token immediately following the verb on the same line, if any. Needed
+    # because the transpiler's dispatch table may support only a QUALIFIED
+    # form of a verb (WP-1.5.5: "EXIT PROGRAM" is supported, bare EXIT --
+    # paragraph exit -- is not). Without the qualifier every paragraph EXIT
+    # in a customer codebase would count as supported, which is an overclaim.
+    next_tok: Optional[str] = None
 
 
 def _exec_product(code_upper: str, pos: int) -> str:
@@ -283,12 +293,14 @@ def statements_by_token_scan(scanned: ScannedSource) -> Tuple[StatementHit, ...]
         if _paragraph_label(line.code) or _SECTION_RE.match(line.code):
             continue
         prev: Optional[str] = None          # None == start of line
-        for m in _TOKEN_RE.finditer(code):
-            tok = m.group(0)
+        toks = [m.group(0) for m in _TOKEN_RE.finditer(code)]
+        starts = [m.start() for m in _TOKEN_RE.finditer(code)]
+        for k, tok in enumerate(toks):
             at_start = prev is None or prev in _START_CONTEXTS or prev.startswith("END-")
             if tok in COBOL_VERBS and at_start:
-                context = _exec_product(code, m.start()) if tok == "EXEC" else None
-                hits.append(StatementHit(tok, line.lineno, line.paragraph, context))
+                context = _exec_product(code, starts[k]) if tok == "EXEC" else None
+                nxt = toks[k + 1] if k + 1 < len(toks) and toks[k + 1] != "." else None
+                hits.append(StatementHit(tok, line.lineno, line.paragraph, context, nxt))
             prev = tok
     return tuple(hits)
 
@@ -464,7 +476,14 @@ def analyze(program: FileRecord, source: str) -> CoverageResult:
     inventory: List[ConstructHit] = []
     n_supported = 0
     for h in hits:
-        ok = h.verb in supported
+        # A verb counts as supported if the dispatch table has the bare verb
+        # OR its qualified two-word form ("EXIT PROGRAM"). Both reads come
+        # from SUPPORTED_STATEMENTS -- nothing here is hand-maintained. A
+        # qualified-only verb whose qualifier was not recovered (ANTLR path,
+        # or line-final EXIT) counts unsupported: under-counting is the
+        # smaller lie (rule 4).
+        ok = h.verb in supported or (
+            h.next_tok is not None and f"{h.verb} {h.next_tok}" in supported)
         n_supported += int(ok)
         if not ok:
             inventory.append(

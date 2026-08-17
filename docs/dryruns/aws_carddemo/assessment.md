@@ -1,4 +1,4 @@
-# Legacy Code Assessment — /tmp/claude-0/-home-user-relian/6c4a97f5-ec1c-5d63-a60f-18b41426a644/scratchpad/carddemo
+# Legacy Code Assessment — /tmp/claude-0/-home-user-relian/edca33b0-bec2-500a-808c-f08e8406d6eb/scratchpad/dryruns/carddemo
 Schema `relian-assessment-1` · manifest `24665cbf3cf2a909adf2523b231a3447692213a84c32ab18e799cc01c01315c2`
 
 Every number in this report is a measurement with a stated origin and a Trutina grade, or it is absent. Nothing here is a default, an estimate, or a target reported as a result.
@@ -7,9 +7,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.8209 | PLAUSIBLE | 7994/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
-| Quotable-today code lines | 21160 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (1744) across 44 program(s) |
-| Code lines requiring grammar expansion | 1744 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 44 program(s) |
+| Portfolio construct coverage | 0.8511 | PLAUSIBLE | 8288/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
+| Quotable-today code lines | 21454 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (1450) across 44 program(s) |
+| Code lines requiring grammar expansion | 1450 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 44 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
@@ -419,68 +419,67 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 0.8273 | PLAUSIBLE | 91/110 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl (sha256:309468a5c4745f92); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 0.8547 | PLAUSIBLE | 294/344 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl (sha256:224856ce6ef1b741); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 0.9081 | PLAUSIBLE | 336/370 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl (sha256:7ab6dadad6d9d738); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 0.8912 | PLAUSIBLE | 172/193 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl (sha256:27a969cbee69426f); method=token_scan, source_format=fixed; antlr_syntax_errors=24 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 0.8772 | PLAUSIBLE | 50/57 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl (sha256:57232060f8bdaecc); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 0.7164 | PLAUSIBLE | 48/67 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL (sha256:13c409d1b14b52c4); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 0.7159 | PLAUSIBLE | 63/88 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL (sha256:5694a2ed8a12dd4d); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 0.6575 | PLAUSIBLE | 48/73 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL (sha256:cf174417cd833193); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 0.6271 | PLAUSIBLE | 37/59 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-transaction-type-db2/cbl/COBTUPDT.cbl (sha256:0213fd5718c6aadd); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0.7943 | PLAUSIBLE | 471/593 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-transaction-type-db2/cbl/COTRTLIC.cbl (sha256:916a5fe2279ad626); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0.7255 | PLAUSIBLE | 296/408 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-transaction-type-db2/cbl/COTRTUPC.cbl (sha256:c16e40c391c0ad2d); method=token_scan, source_format=fixed; antlr_syntax_errors=38 |
-| app/app-vsam-mq/cbl/COACCT01.cbl | 0.9024 | PLAUSIBLE | 185/205 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-vsam-mq/cbl/COACCT01.cbl (sha256:92776ed2801da114); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
-| app/app-vsam-mq/cbl/CODATE01.cbl | 0.8901 | PLAUSIBLE | 162/182 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/app-vsam-mq/cbl/CODATE01.cbl (sha256:97fcba3faa272c98); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
-| app/cbl/CBACT01C.cbl | 0.8053 | PLAUSIBLE | 153/190 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT01C.cbl (sha256:f8eb6e3a561ff96a); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/CBACT02C.cbl | 0.7937 | PLAUSIBLE | 50/63 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT02C.cbl (sha256:d290cbbbec1e2585); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBACT03C.cbl | 0.7969 | PLAUSIBLE | 51/64 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT03C.cbl (sha256:ee1019bc3ef7bc4e); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBACT04C.cbl | 0.7993 | PLAUSIBLE | 235/294 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBACT04C.cbl (sha256:5084bb8b0c9a0f01); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBCUS01C.cbl | 0.7969 | PLAUSIBLE | 51/64 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBCUS01C.cbl (sha256:233dbc3bc33a3b9a); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBEXPORT.cbl | 0.8571 | PLAUSIBLE | 192/224 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBEXPORT.cbl (sha256:598e3c9055b96b79); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/cbl/CBIMPORT.cbl | 0.84 | PLAUSIBLE | 147/175 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBIMPORT.cbl (sha256:0eccb28695cb3a8e); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
-| app/cbl/CBSTM03A.CBL | 0.592 | PLAUSIBLE | 251/424 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBSTM03A.CBL (sha256:23c8753b6b4e0c24); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
-| app/cbl/CBSTM03B.CBL | 0.434 | PLAUSIBLE | 23/53 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBSTM03B.CBL (sha256:ac004f7f40dcb3f2); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBTRN01C.cbl | 0.7963 | PLAUSIBLE | 172/216 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBTRN01C.cbl (sha256:55c2aebd59528aa4); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBTRN02C.cbl | 0.7965 | PLAUSIBLE | 270/339 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBTRN02C.cbl (sha256:708f3cadc555acab); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
-| app/cbl/CBTRN03C.cbl | 0.8025 | PLAUSIBLE | 252/314 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CBTRN03C.cbl (sha256:8691e625502b7efc); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COACTUPC.cbl | 0.783 | PLAUSIBLE | 891/1138 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COACTUPC.cbl (sha256:b5bb7d6ccad022e0); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| app/cbl/COACTVWC.cbl | 0.8016 | PLAUSIBLE | 198/247 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COACTVWC.cbl (sha256:4f1e55176f69edfb); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
-| app/cbl/COADM01C.cbl | 0.8625 | PLAUSIBLE | 69/80 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COADM01C.cbl (sha256:4e49afda5f685f3e); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
-| app/cbl/COBIL00C.cbl | 0.8842 | PLAUSIBLE | 168/190 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COBIL00C.cbl (sha256:b5c46039eb8fd2f7); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COBSWAIT.cbl | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COBSWAIT.cbl (sha256:38a8d28235e58509); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| app/cbl/COCRDLIC.cbl | 0.828 | PLAUSIBLE | 390/471 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COCRDLIC.cbl (sha256:d6a9210ad3062bd6); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COCRDSLC.cbl | 0.817 | PLAUSIBLE | 192/235 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COCRDSLC.cbl (sha256:d5af307fb4b1a155); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COCRDUPC.cbl | 0.833 | PLAUSIBLE | 384/461 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COCRDUPC.cbl (sha256:c245cf383a4a3f72); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
-| app/cbl/COMEN01C.cbl | 0.8791 | PLAUSIBLE | 80/91 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COMEN01C.cbl (sha256:c77747b4caaf00b4); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
-| app/cbl/CORPT00C.cbl | 0.9136 | PLAUSIBLE | 201/220 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CORPT00C.cbl (sha256:0b06bd5d4f38f178); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COSGN00C.cbl | 0.8451 | PLAUSIBLE | 60/71 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COSGN00C.cbl (sha256:4f901ae6b113eeba); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| app/cbl/COTRN00C.cbl | 0.9354 | PLAUSIBLE | 275/294 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COTRN00C.cbl (sha256:51479f131b4fb300); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
-| app/cbl/COTRN01C.cbl | 0.9263 | PLAUSIBLE | 88/95 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COTRN01C.cbl (sha256:fc24ff879ac6ae12); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COTRN02C.cbl | 0.9133 | PLAUSIBLE | 274/300 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COTRN02C.cbl (sha256:dc33b4c797a98d27); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
-| app/cbl/COUSR00C.cbl | 0.9306 | PLAUSIBLE | 268/288 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR00C.cbl (sha256:831433c6ec830603); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COUSR01C.cbl | 0.9255 | PLAUSIBLE | 87/94 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR01C.cbl (sha256:aa131b1e3382dc6d); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COUSR02C.cbl | 0.9324 | PLAUSIBLE | 138/148 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR02C.cbl (sha256:85d36699cbd30793); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COUSR03C.cbl | 0.913 | PLAUSIBLE | 105/115 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/COUSR03C.cbl (sha256:bcd68f08c145b3b9); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CSUTLDTC.cbl | 0.8519 | PLAUSIBLE | 23/27 statements supported via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) on app/cbl/CSUTLDTC.cbl (sha256:58c165dcfc392723); method=token_scan, source_format=fixed; antlr_syntax_errors=27 |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 0.8455 | PLAUSIBLE | 93/110 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl (sha256:309468a5c4745f92); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 0.8634 | PLAUSIBLE | 297/344 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl (sha256:224856ce6ef1b741); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 0.9189 | PLAUSIBLE | 340/370 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl (sha256:7ab6dadad6d9d738); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 0.8912 | PLAUSIBLE | 172/193 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl (sha256:27a969cbee69426f); method=token_scan, source_format=fixed; antlr_syntax_errors=24 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 0.8772 | PLAUSIBLE | 50/57 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl (sha256:57232060f8bdaecc); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 0.7463 | PLAUSIBLE | 50/67 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL (sha256:13c409d1b14b52c4); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 0.7841 | PLAUSIBLE | 69/88 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL (sha256:5694a2ed8a12dd4d); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 0.7397 | PLAUSIBLE | 54/73 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL (sha256:cf174417cd833193); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 0.6271 | PLAUSIBLE | 37/59 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-transaction-type-db2/cbl/COBTUPDT.cbl (sha256:0213fd5718c6aadd); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0.8263 | PLAUSIBLE | 490/593 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-transaction-type-db2/cbl/COTRTLIC.cbl (sha256:916a5fe2279ad626); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0.7672 | PLAUSIBLE | 313/408 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-transaction-type-db2/cbl/COTRTUPC.cbl (sha256:c16e40c391c0ad2d); method=token_scan, source_format=fixed; antlr_syntax_errors=38 |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 0.9073 | PLAUSIBLE | 186/205 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-vsam-mq/cbl/COACCT01.cbl (sha256:92776ed2801da114); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 0.8956 | PLAUSIBLE | 163/182 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-vsam-mq/cbl/CODATE01.cbl (sha256:97fcba3faa272c98); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
+| app/cbl/CBACT01C.cbl | 0.8421 | PLAUSIBLE | 160/190 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBACT01C.cbl (sha256:f8eb6e3a561ff96a); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/CBACT02C.cbl | 0.8571 | PLAUSIBLE | 54/63 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBACT02C.cbl (sha256:d290cbbbec1e2585); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBACT03C.cbl | 0.8594 | PLAUSIBLE | 55/64 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBACT03C.cbl (sha256:ee1019bc3ef7bc4e); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBACT04C.cbl | 0.8605 | PLAUSIBLE | 253/294 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBACT04C.cbl (sha256:5084bb8b0c9a0f01); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBCUS01C.cbl | 0.8594 | PLAUSIBLE | 55/64 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBCUS01C.cbl (sha256:233dbc3bc33a3b9a); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBEXPORT.cbl | 0.8616 | PLAUSIBLE | 193/224 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBEXPORT.cbl (sha256:598e3c9055b96b79); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/cbl/CBIMPORT.cbl | 0.8457 | PLAUSIBLE | 148/175 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBIMPORT.cbl (sha256:0eccb28695cb3a8e); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
+| app/cbl/CBSTM03A.CBL | 0.6226 | PLAUSIBLE | 264/424 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBSTM03A.CBL (sha256:23c8753b6b4e0c24); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
+| app/cbl/CBSTM03B.CBL | 0.4528 | PLAUSIBLE | 24/53 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBSTM03B.CBL (sha256:ac004f7f40dcb3f2); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBTRN01C.cbl | 0.8611 | PLAUSIBLE | 186/216 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBTRN01C.cbl (sha256:55c2aebd59528aa4); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBTRN02C.cbl | 0.8643 | PLAUSIBLE | 293/339 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBTRN02C.cbl (sha256:708f3cadc555acab); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
+| app/cbl/CBTRN03C.cbl | 0.8535 | PLAUSIBLE | 268/314 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBTRN03C.cbl (sha256:8691e625502b7efc); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COACTUPC.cbl | 0.8234 | PLAUSIBLE | 937/1138 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COACTUPC.cbl (sha256:b5bb7d6ccad022e0); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| app/cbl/COACTVWC.cbl | 0.8016 | PLAUSIBLE | 198/247 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COACTVWC.cbl (sha256:4f1e55176f69edfb); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
+| app/cbl/COADM01C.cbl | 0.875 | PLAUSIBLE | 70/80 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COADM01C.cbl (sha256:4e49afda5f685f3e); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
+| app/cbl/COBIL00C.cbl | 0.9158 | PLAUSIBLE | 174/190 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COBIL00C.cbl (sha256:b5c46039eb8fd2f7); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COBSWAIT.cbl | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COBSWAIT.cbl (sha256:38a8d28235e58509); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| app/cbl/COCRDLIC.cbl | 0.8705 | PLAUSIBLE | 410/471 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COCRDLIC.cbl (sha256:d6a9210ad3062bd6); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COCRDSLC.cbl | 0.817 | PLAUSIBLE | 192/235 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COCRDSLC.cbl (sha256:d5af307fb4b1a155); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COCRDUPC.cbl | 0.8547 | PLAUSIBLE | 394/461 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COCRDUPC.cbl (sha256:c245cf383a4a3f72); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
+| app/cbl/COMEN01C.cbl | 0.8901 | PLAUSIBLE | 81/91 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COMEN01C.cbl (sha256:c77747b4caaf00b4); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
+| app/cbl/CORPT00C.cbl | 0.9364 | PLAUSIBLE | 206/220 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CORPT00C.cbl (sha256:0b06bd5d4f38f178); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COSGN00C.cbl | 0.8592 | PLAUSIBLE | 61/71 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COSGN00C.cbl (sha256:4f901ae6b113eeba); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| app/cbl/COTRN00C.cbl | 0.9626 | PLAUSIBLE | 283/294 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COTRN00C.cbl (sha256:51479f131b4fb300); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
+| app/cbl/COTRN01C.cbl | 0.9474 | PLAUSIBLE | 90/95 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COTRN01C.cbl (sha256:fc24ff879ac6ae12); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COTRN02C.cbl | 0.95 | PLAUSIBLE | 285/300 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COTRN02C.cbl (sha256:dc33b4c797a98d27); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
+| app/cbl/COUSR00C.cbl | 0.9583 | PLAUSIBLE | 276/288 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COUSR00C.cbl (sha256:831433c6ec830603); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COUSR01C.cbl | 0.9362 | PLAUSIBLE | 88/94 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COUSR01C.cbl (sha256:aa131b1e3382dc6d); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COUSR02C.cbl | 0.9527 | PLAUSIBLE | 141/148 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COUSR02C.cbl (sha256:85d36699cbd30793); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COUSR03C.cbl | 0.9391 | PLAUSIBLE | 108/115 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COUSR03C.cbl (sha256:bcd68f08c145b3b9); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CSUTLDTC.cbl | 0.8889 | PLAUSIBLE | 24/27 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CSUTLDTC.cbl (sha256:58c165dcfc392723); method=token_scan, source_format=fixed; antlr_syntax_errors=27 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.8209 | PLAUSIBLE | 7994/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b); method=token_scan |
+| Coverage ratio | 0.8511 | PLAUSIBLE | 8288/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
-| EXIT | 367 |
+| EXIT | 366 |
 | EXEC | 286 |
-| CONTINUE | 271 |
 | GO | 185 |
 | STRING | 120 |
 | WRITE | 117 |
@@ -490,7 +489,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | CLOSE | 52 |
 | COPY | 48 |
 | READ | 34 |
-| GOBACK | 22 |
 | SUBTRACT | 17 |
 | REWRITE | 6 |
 | CANCEL | 5 |
@@ -503,7 +501,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 
 | File | Line | Paragraph | Construct | Context |
 | --- | --- | --- | --- | --- |
-| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 180 | MAIN-PARA | GOBACK | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 213 | 1000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 223 | 2000-FIND-NEXT-AUTH-SUMMARY | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 244 | 2000-EXIT | EXIT | — |
@@ -520,7 +517,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 349 | 6000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 355 | 9000-TAKE-CHECKPOINT | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 374 | 9000-EXIT | EXIT | — |
-| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 383 | 9999-ABEND | GOBACK | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 386 | 9999-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 226 | MAIN-PARA | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 233 | 1000-INITIALIZE | EXEC | EXEC CICS |
@@ -545,7 +541,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 613 | 5300-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 620 | 5500-READ-AUTH-SUMMRY | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 644 | 5500-EXIT | EXIT | — |
-| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 650 | 5600-READ-PROFILE-DATA | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 654 | 5600-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 722 | 6000-MAKE-DECISION | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 735 | 6000-EXIT | EXIT | — |
@@ -555,12 +550,10 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 802 | 8400-UPDATE-SUMMARY | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 825 | 8400-UPDATE-SUMMARY | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 830 | 8400-UPDATE-SUMMARY | EXEC | EXEC DLI |
-| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 838 | 8400-UPDATE-SUMMARY | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 851 | 8400-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 857 | 8500-INSERT-AUTH | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 861 | 8500-INSERT-AUTH | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 913 | 8500-INSERT-AUTH | EXEC | EXEC DLI |
-| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 923 | 8500-INSERT-AUTH | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 936 | 8500-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 944 | 9000-TERMINATE | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 951 | 9000-EXIT | EXIT | — |
@@ -579,8 +572,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 476 | GET-AUTHORIZATIONS | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 493 | REPOSITION-AUTHORIZATIONS | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 509 | REPOSITION-AUTHORIZATIONS | STRING | — |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 604 | POPULATE-AUTH-LIST | CONTINUE | — |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 659 | INITIALIZE-AUTH-DATA | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 674 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 686 | SEND-PAULST-SCREEN | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 695 | SEND-PAULST-SCREEN | EXEC | EXEC CICS |
@@ -593,11 +584,9 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 836 | GETCARDXREF-BYACCT | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 851 | GETCARDXREF-BYACCT | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 869 | GETACCTDATA-BYACCT | EXEC | EXEC CICS |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 881 | GETACCTDATA-BYACCT | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 886 | GETACCTDATA-BYACCT | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 901 | GETACCTDATA-BYACCT | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 920 | GETCUSTDATA-BYCUST | EXEC | EXEC CICS |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 932 | GETCUSTDATA-BYCUST | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 937 | GETCUSTDATA-BYCUST | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 952 | GETCUSTDATA-BYCUST | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 973 | GET-AUTH-SUMMARY | EXEC | EXEC DLI |
@@ -635,7 +624,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 222 | FRAUD-UPDATE | EXEC | EXEC SQL |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 239 | FRAUD-UPDATE | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 165 | MAIN-PARA | ENTRY | — |
-| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 179 | PADFLPCB | GOBACK | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 213 | 1000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 221 | 2000-FIND-NEXT-AUTH-SUMMARY | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 222 | 2000-FIND-NEXT-AUTH-SUMMARY | CALL | — |
@@ -651,14 +639,10 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 321 | 3200-INSERT-CHILD-SEG-GSAM | CALL | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 336 | 3200-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 355 | 4000-EXIT | EXIT | — |
-| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 363 | 9999-ABEND | GOBACK | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 366 | 9999-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 171 | MAIN-PARA | ENTRY | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 187 | MAIN-PARA | GOBACK | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 201 | 1000-INITIALIZE | OPEN | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 203 | 1000-INITIALIZE | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 209 | 1000-INITIALIZE | OPEN | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 211 | 1000-INITIALIZE | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 219 | 1000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 226 | 2000-READ-ROOT-SEG-FILE | READ | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 240 | 2000-EXIT | EXIT | — |
@@ -672,18 +656,12 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 321 | 3200-INSERT-IMS-CALL | CALL | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 339 | 3200-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 343 | 4000-FILE-CLOSE | CLOSE | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 346 | 4000-FILE-CLOSE | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 350 | 4000-FILE-CLOSE | CLOSE | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 353 | 4000-FILE-CLOSE | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 358 | 4000-EXIT | EXIT | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 366 | 9999-ABEND | GOBACK | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 369 | 9999-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 158 | MAIN-PARA | ENTRY | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 170 | MAIN-PARA | GOBACK | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 186 | 1000-INITIALIZE | OPEN | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 188 | 1000-INITIALIZE | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 194 | 1000-INITIALIZE | OPEN | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 196 | 1000-INITIALIZE | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 204 | 1000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 212 | 2000-FIND-NEXT-AUTH-SUMMARY | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 213 | 2000-FIND-NEXT-AUTH-SUMMARY | CALL | — |
@@ -697,11 +675,8 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 284 | CHILD-UNQUAL-SSA | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 286 | 3000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 291 | 4000-FILE-CLOSE | CLOSE | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 294 | 4000-FILE-CLOSE | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 298 | 4000-FILE-CLOSE | CLOSE | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 301 | 4000-FILE-CLOSE | CONTINUE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 306 | 4000-EXIT | EXIT | — |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 314 | 9999-ABEND | GOBACK | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 317 | 9999-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 83 | 0001-OPEN-FILES | OPEN | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 89 | 0001-OPEN-FILES | EXIT | — |
@@ -731,9 +706,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 616 | 0000-MAIN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 620 | 0000-MAIN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 648 | 0000-MAIN | EXEC | EXEC CICS |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 658 | 0000-MAIN | CONTINUE | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 672 | 0000-MAIN | CONTINUE | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 677 | 0000-MAIN | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 690 | 0000-MAIN | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 720 | 0000-MAIN | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 734 | 0000-MAIN | GO | — |
@@ -755,12 +727,10 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 917 | 0000-MAIN-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 927 | 1000-RECEIVE-MAP-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 931 | 1100-RECEIVE-SCREEN | EXEC | EXEC CICS |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 947 | 1100-RECEIVE-SCREEN | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 957 | 1100-RECEIVE-SCREEN-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 979 | 1200-EDIT-INPUTS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 993 | 1210-EDIT-ARRAY | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 994 | 1210-EDIT-ARRAY | GO | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1033 | 1210-EDIT-ARRAY | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1056 | 1210-EDIT-ARRAY-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1073 | 1211-EDIT-ARRAY-DESC | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1093 | 1211-EDIT-ARRAY-DESC-EXIT | EXIT | — |
@@ -774,40 +744,30 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1177 | 1230-EDIT-DESC-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1196 | 1240-EDIT-ALPHANUM-REQD | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1204 | 1240-EDIT-ALPHANUM-REQD | GO | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1218 | 1240-EDIT-ALPHANUM-REQD | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1223 | 1240-EDIT-ALPHANUM-REQD | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1230 | 1240-EDIT-ALPHANUM-REQD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1236 | 1240-EDIT-ALPHANUM-REQD-EXIT | EXIT | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1243 | 1290-CROSS-EDITS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1245 | 1290-CROSS-EDITS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1266 | 1290-CROSS-EDITS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1270 | 1290-CROSS-EDITS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1291 | 2000-SEND-MAP-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1326 | 2100-SCREEN-INIT-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1378 | 2200-SETUP-ARRAY-ATTRIBS-EXIT | EXIT | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1389 | 2300-SCREEN-ARRAY-INIT | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1434 | 2300-SCREEN-ARRAY-INIT-EXIT | EXIT | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1443 | 2400-SETUP-SCREEN-ATTRS | CONTINUE | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1493 | 2400-SETUP-SCREEN-ATTRS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1500 | 2400-SETUP-SCREEN-ATTRS-EXIT | EXIT | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1513 | 2500-SETUP-MESSAGE | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1583 | 2500-SETUP-MESSAGE-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1588 | 2600-SEND-SCREEN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1598 | 2600-SEND-SCREEN-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1613 | 8000-READ-FORWARD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1624 | 8000-READ-FORWARD | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1626 | 8000-READ-FORWARD | EXEC | EXEC SQL |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1649 | 8000-READ-FORWARD | CONTINUE | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1652 | 8000-READ-FORWARD | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1661 | 8000-READ-FORWARD | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1725 | 8000-READ-FORWARD-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1751 | 8100-READ-BACKWARDS | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1753 | 8100-READ-BACKWARDS | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1769 | 8100-READ-BACKWARDS | SUBTRACT | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1775 | 8100-READ-BACKWARDS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1798 | 8100-READ-BACKWARDS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1803 | 9100-CHECK-FILTERS | EXEC | EXEC SQL |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1821 | 9100-CHECK-FILTERS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1831 | 9100-CHECK-FILTERS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1835 | 9100-CHECK-FILTERS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1846 | 9200-UPDATE-RECORD | EXEC | EXEC SQL |
@@ -825,19 +785,15 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1939 | 9300-DELETE-RECORD-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1943 | 9400-OPEN-FORWARD-CURSOR | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1944 | 9400-OPEN-FORWARD-CURSOR | OPEN | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1951 | 9400-OPEN-FORWARD-CURSOR | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1966 | 9400-OPEN-FORWARD-CURSOR-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1971 | 9450-CLOSE-FORWARD-CURSOR | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1972 | 9450-CLOSE-FORWARD-CURSOR | CLOSE | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1979 | 9450-CLOSE-FORWARD-CURSOR | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1994 | 9450-CLOSE-FORWARD-CURSOR-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1998 | 9500-OPEN-BACKWARD-CURSOR | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1999 | 9500-OPEN-BACKWARD-CURSOR | OPEN | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2006 | 9500-OPEN-BACKWARD-CURSOR | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2022 | 9500-OPEN-BACKWARD-CURSOR-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2027 | 9550-CLOSE-BACK-CURSOR | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2028 | 9550-CLOSE-BACK-CURSOR | CLOSE | — |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2035 | 9550-CLOSE-BACK-CURSOR | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2050 | 9550-CLOSE-BACK-CURSOR-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2055 | 9550-CLOSE-BACK-CURSOR-EXIT | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2060 | 9550-CLOSE-BACK-CURSOR-EXIT | COPY | — |
@@ -868,47 +824,32 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 642 | 1100-RECEIVE-MAP | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 650 | 1100-RECEIVE-MAP-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 658 | 1150-STORE-MAP-IN-NEW | GO | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 660 | 1150-STORE-MAP-IN-NEW | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 663 | 1150-STORE-MAP-IN-NEW | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 687 | 1150-STORE-MAP-IN-NEW-EXIT | EXIT | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 702 | 1200-EDIT-MAP-INPUTS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 707 | 1200-EDIT-MAP-INPUTS | GO | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 709 | 1200-EDIT-MAP-INPUTS | CONTINUE | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 714 | 1200-EDIT-MAP-INPUTS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 725 | 1200-EDIT-MAP-INPUTS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 731 | 1200-EDIT-MAP-INPUTS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 735 | 1200-EDIT-MAP-INPUTS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 750 | 1200-EDIT-MAP-INPUTS | GO | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 773 | 1200-EDIT-MAP-INPUTS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 780 | 1200-EDIT-MAP-INPUTS-EXIT | EXIT | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 802 | 1205-COMPARE-OLD-NEW | CONTINUE | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 808 | 1205-COMPARE-OLD-NEW | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 810 | 1205-COMPARE-OLD-NEW | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 815 | 1205-COMPARE-OLD-NEW-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 846 | 1210-EDIT-TRANTYPE-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 864 | 1230-EDIT-ALPHANUM-REQD | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 872 | 1230-EDIT-ALPHANUM-REQD | GO | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 886 | 1230-EDIT-ALPHANUM-REQD | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 891 | 1230-EDIT-ALPHANUM-REQD | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 898 | 1230-EDIT-ALPHANUM-REQD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 904 | 1230-EDIT-ALPHANUM-REQD-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 922 | 1245-EDIT-NUM-REQD | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 929 | 1245-EDIT-NUM-REQD | GO | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 936 | 1245-EDIT-NUM-REQD | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 941 | 1245-EDIT-NUM-REQD | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 948 | 1245-EDIT-NUM-REQD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 959 | 1245-EDIT-NUM-REQD | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 966 | 1245-EDIT-NUM-REQD | GO | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 968 | 1245-EDIT-NUM-REQD | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 975 | 1245-EDIT-NUM-REQD-EXIT | EXIT | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1027 | 2000-DECIDE-ACTION | CONTINUE | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1036 | 2000-DECIDE-ACTION | CONTINUE | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1047 | 2000-DECIDE-ACTION | CONTINUE | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1061 | 2000-DECIDE-ACTION | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1084 | 2000-DECIDE-ACTION-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1107 | 3000-SEND-MAP-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1137 | 3100-SCREEN-INIT-EXIT | EXIT | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1143 | 3200-SETUP-SCREEN-VARS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1154 | 3200-SETUP-SCREEN-VARS | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1166 | 3200-SETUP-SCREEN-VARS | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1173 | 3200-SETUP-SCREEN-VARS-EXIT | EXIT | — |
@@ -916,9 +857,7 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1195 | 3202-SHOW-ORIGINAL-VALUES-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1204 | 3203-SHOW-UPDATED-VALUES-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1267 | 3250-SETUP-INFOMSG-EXIT | EXIT | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1295 | 3300-SETUP-SCREEN-ATTRS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1347 | 3300-SETUP-SCREEN-ATTRS | GO | — |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1349 | 3300-SETUP-SCREEN-ATTRS | CONTINUE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1358 | 3300-SETUP-SCREEN-ATTRS | COPY | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1365 | 3300-SETUP-SCREEN-ATTRS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1374 | 3310-PROTECT-ALL-ATTRS-EXIT | EXIT | — |
@@ -975,7 +914,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-vsam-mq/cbl/COACCT01.cbl | 479 | 4100-PUT-REPLY | CALL | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 516 | 9000-ERROR | CALL | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 549 | 8000-TERMINATION | EXEC | EXEC CICS |
-| app/app-vsam-mq/cbl/COACCT01.cbl | 550 | 8000-TERMINATION | GOBACK | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 557 | 5000-CLOSE-INPUT-QUEUE | CALL | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 579 | 5100-CLOSE-OUTPUT-QUEUE | CALL | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 602 | 5200-CLOSE-ERROR-QUEUE | CALL | — |
@@ -995,15 +933,12 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-vsam-mq/cbl/CODATE01.cbl | 383 | 4100-PUT-REPLY | CALL | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 420 | 9000-ERROR | CALL | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 453 | 8000-TERMINATION | EXEC | EXEC CICS |
-| app/app-vsam-mq/cbl/CODATE01.cbl | 454 | 8000-TERMINATION | GOBACK | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 461 | 5000-CLOSE-INPUT-QUEUE | CALL | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 483 | 5100-CLOSE-OUTPUT-QUEUE | CALL | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 506 | 5200-CLOSE-ERROR-QUEUE | CALL | — |
-| app/cbl/CBACT01C.cbl | 160 | — | GOBACK | — |
 | app/cbl/CBACT01C.cbl | 166 | 1000-ACCTFILE-GET-NEXT | READ | — |
 | app/cbl/CBACT01C.cbl | 169 | 1000-ACCTFILE-GET-NEXT | INITIALIZE | — |
 | app/cbl/CBACT01C.cbl | 175 | 1000-ACCTFILE-GET-NEXT | INITIALIZE | — |
-| app/cbl/CBACT01C.cbl | 187 | 1000-ACCTFILE-GET-NEXT | CONTINUE | — |
 | app/cbl/CBACT01C.cbl | 198 | 1000-ACCTFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBACT01C.cbl | 213 | 1100-DISPLAY-ACCT-RECORD | EXIT | — |
 | app/cbl/CBACT01C.cbl | 231 | WS-REISSUE-DATE | CALL | — |
@@ -1019,122 +954,86 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBACT01C.cbl | 305 | 1575-WRITE-VB2-RECORD | WRITE | — |
 | app/cbl/CBACT01C.cbl | 315 | 1575-WRITE-VB2-RECORD | EXIT | — |
 | app/cbl/CBACT01C.cbl | 319 | 0000-ACCTFILE-OPEN | OPEN | — |
-| app/cbl/CBACT01C.cbl | 326 | 0000-ACCTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBACT01C.cbl | 333 | 0000-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBACT01C.cbl | 336 | 2000-OUTFILE-OPEN | OPEN | — |
-| app/cbl/CBACT01C.cbl | 343 | 2000-OUTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBACT01C.cbl | 350 | 2000-OUTFILE-OPEN | EXIT | — |
 | app/cbl/CBACT01C.cbl | 354 | 3000-ARRFILE-OPEN | OPEN | — |
-| app/cbl/CBACT01C.cbl | 361 | 3000-ARRFILE-OPEN | CONTINUE | — |
 | app/cbl/CBACT01C.cbl | 368 | 3000-ARRFILE-OPEN | EXIT | — |
 | app/cbl/CBACT01C.cbl | 372 | 4000-VBRFILE-OPEN | OPEN | — |
-| app/cbl/CBACT01C.cbl | 379 | 4000-VBRFILE-OPEN | CONTINUE | — |
 | app/cbl/CBACT01C.cbl | 386 | 4000-VBRFILE-OPEN | EXIT | — |
 | app/cbl/CBACT01C.cbl | 390 | 9000-ACCTFILE-CLOSE | CLOSE | — |
 | app/cbl/CBACT01C.cbl | 392 | 9000-ACCTFILE-CLOSE | SUBTRACT | — |
-| app/cbl/CBACT01C.cbl | 397 | 9000-ACCTFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBACT01C.cbl | 404 | 9000-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT01C.cbl | 410 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBACT01C.cbl | 426 | 9910-DISPLAY-IO-STATUS | EXIT | — |
-| app/cbl/CBACT02C.cbl | 87 | — | GOBACK | — |
 | app/cbl/CBACT02C.cbl | 93 | 1000-CARDFILE-GET-NEXT | READ | — |
-| app/cbl/CBACT02C.cbl | 105 | 1000-CARDFILE-GET-NEXT | CONTINUE | — |
 | app/cbl/CBACT02C.cbl | 116 | 1000-CARDFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBACT02C.cbl | 120 | 0000-CARDFILE-OPEN | OPEN | — |
-| app/cbl/CBACT02C.cbl | 127 | 0000-CARDFILE-OPEN | CONTINUE | — |
 | app/cbl/CBACT02C.cbl | 134 | 0000-CARDFILE-OPEN | EXIT | — |
 | app/cbl/CBACT02C.cbl | 138 | 9000-CARDFILE-CLOSE | CLOSE | — |
 | app/cbl/CBACT02C.cbl | 140 | 9000-CARDFILE-CLOSE | SUBTRACT | — |
-| app/cbl/CBACT02C.cbl | 145 | 9000-CARDFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBACT02C.cbl | 152 | 9000-CARDFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT02C.cbl | 158 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBACT02C.cbl | 174 | 9910-DISPLAY-IO-STATUS | EXIT | — |
-| app/cbl/CBACT03C.cbl | 87 | — | GOBACK | — |
 | app/cbl/CBACT03C.cbl | 93 | 1000-XREFFILE-GET-NEXT | READ | — |
-| app/cbl/CBACT03C.cbl | 105 | 1000-XREFFILE-GET-NEXT | CONTINUE | — |
 | app/cbl/CBACT03C.cbl | 116 | 1000-XREFFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBACT03C.cbl | 120 | 0000-XREFFILE-OPEN | OPEN | — |
-| app/cbl/CBACT03C.cbl | 127 | 0000-XREFFILE-OPEN | CONTINUE | — |
 | app/cbl/CBACT03C.cbl | 134 | 0000-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBACT03C.cbl | 138 | 9000-XREFFILE-CLOSE | CLOSE | — |
 | app/cbl/CBACT03C.cbl | 140 | 9000-XREFFILE-CLOSE | SUBTRACT | — |
-| app/cbl/CBACT03C.cbl | 145 | 9000-XREFFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBACT03C.cbl | 152 | 9000-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT03C.cbl | 158 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBACT03C.cbl | 174 | 9910-DISPLAY-IO-STATUS | EXIT | — |
-| app/cbl/CBACT04C.cbl | 232 | — | GOBACK | — |
 | app/cbl/CBACT04C.cbl | 236 | 0000-TCATBALF-OPEN | OPEN | — |
-| app/cbl/CBACT04C.cbl | 243 | 0000-TCATBALF-OPEN | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 250 | 0000-TCATBALF-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 254 | 0100-XREFFILE-OPEN | OPEN | — |
-| app/cbl/CBACT04C.cbl | 261 | 0100-XREFFILE-OPEN | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 268 | 0100-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 272 | 0200-DISCGRP-OPEN | OPEN | — |
-| app/cbl/CBACT04C.cbl | 279 | 0200-DISCGRP-OPEN | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 286 | 0200-DISCGRP-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 291 | 0300-ACCTFILE-OPEN | OPEN | — |
-| app/cbl/CBACT04C.cbl | 298 | 0300-ACCTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 305 | 0300-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 309 | 0400-TRANFILE-OPEN | OPEN | — |
-| app/cbl/CBACT04C.cbl | 316 | 0400-TRANFILE-OPEN | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 323 | 0400-TRANFILE-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 326 | 1000-TCATBALF-GET-NEXT | READ | — |
-| app/cbl/CBACT04C.cbl | 337 | 1000-TCATBALF-GET-NEXT | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 348 | 1000-TCATBALF-GET-NEXT | EXIT | — |
 | app/cbl/CBACT04C.cbl | 356 | 1050-UPDATE-ACCOUNT | REWRITE | — |
-| app/cbl/CBACT04C.cbl | 363 | 1050-UPDATE-ACCOUNT | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 370 | 1050-UPDATE-ACCOUNT | EXIT | — |
 | app/cbl/CBACT04C.cbl | 373 | 1100-GET-ACCT-DATA | READ | — |
-| app/cbl/CBACT04C.cbl | 384 | 1100-GET-ACCT-DATA | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 391 | 1100-GET-ACCT-DATA | EXIT | — |
 | app/cbl/CBACT04C.cbl | 394 | 1110-GET-XREF-DATA | READ | — |
-| app/cbl/CBACT04C.cbl | 406 | 1110-GET-XREF-DATA | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 413 | 1110-GET-XREF-DATA | EXIT | — |
 | app/cbl/CBACT04C.cbl | 416 | 1200-GET-INTEREST-RATE | READ | — |
-| app/cbl/CBACT04C.cbl | 429 | 1200-GET-INTEREST-RATE | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 440 | 1200-GET-INTEREST-RATE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 444 | 1200-A-GET-DEFAULT-INT-RATE | READ | — |
-| app/cbl/CBACT04C.cbl | 453 | 1200-A-GET-DEFAULT-INT-RATE | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 460 | 1200-A-GET-DEFAULT-INT-RATE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 470 | 1300-COMPUTE-INTEREST | EXIT | — |
 | app/cbl/CBACT04C.cbl | 476 | 1300-B-WRITE-TX | STRING | — |
 | app/cbl/CBACT04C.cbl | 485 | 1300-B-WRITE-TX | STRING | — |
 | app/cbl/CBACT04C.cbl | 500 | 1300-B-WRITE-TX | WRITE | — |
-| app/cbl/CBACT04C.cbl | 508 | 1300-B-WRITE-TX | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 515 | 1300-B-WRITE-TX | EXIT | — |
 | app/cbl/CBACT04C.cbl | 520 | 1400-COMPUTE-FEES | EXIT | — |
 | app/cbl/CBACT04C.cbl | 524 | 9000-TCATBALF-CLOSE | CLOSE | — |
-| app/cbl/CBACT04C.cbl | 531 | 9000-TCATBALF-CLOSE | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 538 | 9000-TCATBALF-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 543 | 9100-XREFFILE-CLOSE | CLOSE | — |
-| app/cbl/CBACT04C.cbl | 550 | 9100-XREFFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 557 | 9100-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 561 | 9200-DISCGRP-CLOSE | CLOSE | — |
-| app/cbl/CBACT04C.cbl | 568 | 9200-DISCGRP-CLOSE | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 575 | 9200-DISCGRP-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 579 | 9300-ACCTFILE-CLOSE | CLOSE | — |
-| app/cbl/CBACT04C.cbl | 586 | 9300-ACCTFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 593 | 9300-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 597 | 9400-TRANFILE-CLOSE | CLOSE | — |
-| app/cbl/CBACT04C.cbl | 604 | 9400-TRANFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBACT04C.cbl | 611 | 9400-TRANFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 626 | Z-GET-DB2-FORMAT-TIMESTAMP | EXIT | — |
 | app/cbl/CBACT04C.cbl | 632 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBACT04C.cbl | 648 | 9910-DISPLAY-IO-STATUS | EXIT | — |
-| app/cbl/CBCUS01C.cbl | 87 | — | GOBACK | — |
 | app/cbl/CBCUS01C.cbl | 93 | 1000-CUSTFILE-GET-NEXT | READ | — |
-| app/cbl/CBCUS01C.cbl | 105 | 1000-CUSTFILE-GET-NEXT | CONTINUE | — |
 | app/cbl/CBCUS01C.cbl | 116 | 1000-CUSTFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBCUS01C.cbl | 120 | 0000-CUSTFILE-OPEN | OPEN | — |
-| app/cbl/CBCUS01C.cbl | 127 | 0000-CUSTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBCUS01C.cbl | 134 | 0000-CUSTFILE-OPEN | EXIT | — |
 | app/cbl/CBCUS01C.cbl | 138 | 9000-CUSTFILE-CLOSE | CLOSE | — |
 | app/cbl/CBCUS01C.cbl | 140 | 9000-CUSTFILE-CLOSE | SUBTRACT | — |
-| app/cbl/CBCUS01C.cbl | 145 | 9000-CUSTFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBCUS01C.cbl | 152 | 9000-CUSTFILE-CLOSE | EXIT | — |
 | app/cbl/CBCUS01C.cbl | 158 | Z-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBCUS01C.cbl | 174 | Z-DISPLAY-IO-STATUS | EXIT | — |
-| app/cbl/CBEXPORT.cbl | 158 | 0000-MAIN-PROCESSING | GOBACK | — |
 | app/cbl/CBEXPORT.cbl | 179 | 1050-GENERATE-TIMESTAMP | STRING | — |
 | app/cbl/CBEXPORT.cbl | 185 | 1050-GENERATE-TIMESTAMP | STRING | — |
 | app/cbl/CBEXPORT.cbl | 191 | 1050-GENERATE-TIMESTAMP | STRING | — |
@@ -1166,7 +1065,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBEXPORT.cbl | 560 | 6000-FINALIZE | CLOSE | — |
 | app/cbl/CBEXPORT.cbl | 561 | 6000-FINALIZE | CLOSE | — |
 | app/cbl/CBEXPORT.cbl | 579 | 9999-ABEND-PROGRAM | CALL | — |
-| app/cbl/CBIMPORT.cbl | 171 | 0000-MAIN-PROCESSING | GOBACK | — |
 | app/cbl/CBIMPORT.cbl | 198 | 1100-OPEN-FILES | OPEN | — |
 | app/cbl/CBIMPORT.cbl | 205 | 1100-OPEN-FILES | OPEN | — |
 | app/cbl/CBIMPORT.cbl | 212 | 1100-OPEN-FILES | OPEN | — |
@@ -1207,15 +1105,11 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBSTM03A.CBL | 312 | 0000-START | GO | — |
 | app/cbl/CBSTM03A.CBL | 314 | 0000-START | GO | — |
 | app/cbl/CBSTM03A.CBL | 339 | 1000-MAINLINE | CLOSE | — |
-| app/cbl/CBSTM03A.CBL | 342 | 9999-GOBACK | GOBACK | — |
 | app/cbl/CBSTM03A.CBL | 351 | 1000-XREFFILE-GET-NEXT | CALL | — |
-| app/cbl/CBSTM03A.CBL | 355 | 1000-XREFFILE-GET-NEXT | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 366 | 1000-XREFFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 377 | 2000-CUSTFILE-GET | CALL | — |
-| app/cbl/CBSTM03A.CBL | 381 | 2000-CUSTFILE-GET | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 390 | 2000-CUSTFILE-GET | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 401 | 3000-ACCTFILE-GET | CALL | — |
-| app/cbl/CBSTM03A.CBL | 405 | 3000-ACCTFILE-GET | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 414 | 3000-ACCTFILE-GET | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 435 | 4000-TRNXFILE-GET | WRITE | — |
 | app/cbl/CBSTM03A.CBL | 436 | 4000-TRNXFILE-GET | WRITE | — |
@@ -1332,21 +1226,16 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBSTM03A.CBL | 723 | 6000-WRITE-TRANS | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 727 | 8100-FILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 734 | 8100-TRNXFILE-OPEN | CALL | — |
-| app/cbl/CBSTM03A.CBL | 737 | 8100-TRNXFILE-OPEN | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 746 | 8100-TRNXFILE-OPEN | CALL | — |
-| app/cbl/CBSTM03A.CBL | 749 | 8100-TRNXFILE-OPEN | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 761 | 8100-TRNXFILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 762 | 8100-TRNXFILE-OPEN | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 769 | 8200-XREFFILE-OPEN | CALL | — |
-| app/cbl/CBSTM03A.CBL | 772 | 8200-XREFFILE-OPEN | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 780 | 8200-XREFFILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 781 | 8200-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 787 | 8300-CUSTFILE-OPEN | CALL | — |
-| app/cbl/CBSTM03A.CBL | 790 | 8300-CUSTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 798 | 8300-CUSTFILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 799 | 8300-CUSTFILE-OPEN | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 805 | 8400-ACCTFILE-OPEN | CALL | — |
-| app/cbl/CBSTM03A.CBL | 808 | 8400-ACCTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 815 | 8400-ACCTFILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 816 | 8400-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 835 | 8500-READTRNX-READ | CALL | — |
@@ -1355,20 +1244,15 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBSTM03A.CBL | 852 | 8599-EXIT | GO | — |
 | app/cbl/CBSTM03A.CBL | 853 | 8599-EXIT | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 860 | 9100-TRNXFILE-CLOSE | CALL | — |
-| app/cbl/CBSTM03A.CBL | 863 | 9100-TRNXFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 870 | 9100-TRNXFILE-CLOSE | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 877 | 9200-XREFFILE-CLOSE | CALL | — |
-| app/cbl/CBSTM03A.CBL | 880 | 9200-XREFFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 887 | 9200-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 893 | 9300-CUSTFILE-CLOSE | CALL | — |
-| app/cbl/CBSTM03A.CBL | 896 | 9300-CUSTFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 903 | 9300-CUSTFILE-CLOSE | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 909 | 9400-ACCTFILE-CLOSE | CALL | — |
-| app/cbl/CBSTM03A.CBL | 912 | 9400-ACCTFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBSTM03A.CBL | 919 | 9400-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 923 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBSTM03B.CBL | 128 | 0000-START | GO | — |
-| app/cbl/CBSTM03B.CBL | 131 | 9999-GOBACK | GOBACK | — |
 | app/cbl/CBSTM03B.CBL | 136 | 1000-TRNXFILE-PROC | OPEN | — |
 | app/cbl/CBSTM03B.CBL | 137 | 1000-TRNXFILE-PROC | GO | — |
 | app/cbl/CBSTM03B.CBL | 141 | 1000-TRNXFILE-PROC | READ | — |
@@ -1397,124 +1281,84 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBSTM03B.CBL | 221 | 4000-ACCTFILE-PROC | CLOSE | — |
 | app/cbl/CBSTM03B.CBL | 222 | 4000-ACCTFILE-PROC | GO | — |
 | app/cbl/CBSTM03B.CBL | 229 | 4999-EXIT | EXIT | — |
-| app/cbl/CBTRN01C.cbl | 197 | MAIN-PARA | GOBACK | — |
 | app/cbl/CBTRN01C.cbl | 203 | 1000-DALYTRAN-GET-NEXT | READ | — |
-| app/cbl/CBTRN01C.cbl | 214 | 1000-DALYTRAN-GET-NEXT | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 225 | 1000-DALYTRAN-GET-NEXT | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 229 | 2000-LOOKUP-XREF | READ | — |
 | app/cbl/CBTRN01C.cbl | 243 | 3000-READ-ACCOUNT | READ | — |
 | app/cbl/CBTRN01C.cbl | 254 | 0000-DALYTRAN-OPEN | OPEN | — |
-| app/cbl/CBTRN01C.cbl | 261 | 0000-DALYTRAN-OPEN | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 268 | 0000-DALYTRAN-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 273 | 0100-CUSTFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN01C.cbl | 280 | 0100-CUSTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 287 | 0100-CUSTFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 291 | 0200-XREFFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN01C.cbl | 298 | 0200-XREFFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 305 | 0200-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 309 | 0300-CARDFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN01C.cbl | 316 | 0300-CARDFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 323 | 0300-CARDFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 327 | 0400-ACCTFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN01C.cbl | 334 | 0400-ACCTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 341 | 0400-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 345 | 0500-TRANFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN01C.cbl | 352 | 0500-TRANFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 359 | 0500-TRANFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 363 | 9000-DALYTRAN-CLOSE | CLOSE | — |
-| app/cbl/CBTRN01C.cbl | 370 | 9000-DALYTRAN-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 377 | 9000-DALYTRAN-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 381 | 9100-CUSTFILE-CLOSE | CLOSE | — |
-| app/cbl/CBTRN01C.cbl | 388 | 9100-CUSTFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 395 | 9100-CUSTFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 399 | 9200-XREFFILE-CLOSE | CLOSE | — |
-| app/cbl/CBTRN01C.cbl | 406 | 9200-XREFFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 413 | 9200-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 417 | 9300-CARDFILE-CLOSE | CLOSE | — |
-| app/cbl/CBTRN01C.cbl | 424 | 9300-CARDFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 431 | 9300-CARDFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 435 | 9400-ACCTFILE-CLOSE | CLOSE | — |
-| app/cbl/CBTRN01C.cbl | 442 | 9400-ACCTFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 449 | 9400-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 453 | 9500-TRANFILE-CLOSE | CLOSE | — |
-| app/cbl/CBTRN01C.cbl | 460 | 9500-TRANFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN01C.cbl | 467 | 9500-TRANFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 473 | Z-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBTRN01C.cbl | 489 | Z-DISPLAY-IO-STATUS | EXIT | — |
-| app/cbl/CBTRN02C.cbl | 234 | — | GOBACK | — |
 | app/cbl/CBTRN02C.cbl | 238 | 0000-DALYTRAN-OPEN | OPEN | — |
-| app/cbl/CBTRN02C.cbl | 245 | 0000-DALYTRAN-OPEN | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 252 | 0000-DALYTRAN-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 256 | 0100-TRANFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN02C.cbl | 263 | 0100-TRANFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 270 | 0100-TRANFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 275 | 0200-XREFFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN02C.cbl | 282 | 0200-XREFFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 289 | 0200-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 293 | 0300-DALYREJS-OPEN | OPEN | — |
-| app/cbl/CBTRN02C.cbl | 300 | 0300-DALYREJS-OPEN | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 307 | 0300-DALYREJS-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 311 | 0400-ACCTFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN02C.cbl | 318 | 0400-ACCTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 325 | 0400-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 329 | 0500-TCATBALF-OPEN | OPEN | — |
-| app/cbl/CBTRN02C.cbl | 336 | 0500-TCATBALF-OPEN | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 343 | 0500-TCATBALF-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 346 | 1000-DALYTRAN-GET-NEXT | READ | — |
-| app/cbl/CBTRN02C.cbl | 358 | 1000-DALYTRAN-GET-NEXT | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 369 | 1000-DALYTRAN-GET-NEXT | EXIT | — |
-| app/cbl/CBTRN02C.cbl | 375 | 1500-VALIDATE-TRAN | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 378 | 1500-VALIDATE-TRAN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 383 | 1500-A-LOOKUP-XREF | READ | — |
-| app/cbl/CBTRN02C.cbl | 390 | 1500-A-LOOKUP-XREF | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 392 | 1500-A-LOOKUP-XREF | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 395 | 1500-B-LOOKUP-ACCT | READ | — |
-| app/cbl/CBTRN02C.cbl | 408 | 1500-B-LOOKUP-ACCT | CONTINUE | — |
-| app/cbl/CBTRN02C.cbl | 415 | 1500-B-LOOKUP-ACCT | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 422 | 1500-B-LOOKUP-ACCT | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 444 | 2000-POST-TRANSACTION | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 451 | 2500-WRITE-REJECT-REC | WRITE | — |
-| app/cbl/CBTRN02C.cbl | 458 | 2500-WRITE-REJECT-REC | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 465 | 2500-WRITE-REJECT-REC | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 474 | 2700-UPDATE-TCATBAL | READ | — |
-| app/cbl/CBTRN02C.cbl | 487 | 2700-UPDATE-TCATBAL | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 501 | 2700-UPDATE-TCATBAL | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 504 | 2700-A-CREATE-TCATBAL-REC | INITIALIZE | — |
 | app/cbl/CBTRN02C.cbl | 510 | 2700-A-CREATE-TCATBAL-REC | WRITE | — |
-| app/cbl/CBTRN02C.cbl | 518 | 2700-A-CREATE-TCATBAL-REC | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 528 | 2700-B-UPDATE-TCATBAL-REC | REWRITE | — |
-| app/cbl/CBTRN02C.cbl | 536 | 2700-B-UPDATE-TCATBAL-REC | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 554 | 2800-UPDATE-ACCOUNT-REC | REWRITE | — |
 | app/cbl/CBTRN02C.cbl | 560 | 2800-UPDATE-ACCOUNT-REC | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 564 | 2900-WRITE-TRANSACTION-FILE | WRITE | — |
-| app/cbl/CBTRN02C.cbl | 572 | 2900-WRITE-TRANSACTION-FILE | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 579 | 2900-WRITE-TRANSACTION-FILE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 584 | 9000-DALYTRAN-CLOSE | CLOSE | — |
-| app/cbl/CBTRN02C.cbl | 591 | 9000-DALYTRAN-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 598 | 9000-DALYTRAN-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 602 | 9100-TRANFILE-CLOSE | CLOSE | — |
-| app/cbl/CBTRN02C.cbl | 609 | 9100-TRANFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 616 | 9100-TRANFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 621 | 9200-XREFFILE-CLOSE | CLOSE | — |
-| app/cbl/CBTRN02C.cbl | 628 | 9200-XREFFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 635 | 9200-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 639 | 9300-DALYREJS-CLOSE | CLOSE | — |
-| app/cbl/CBTRN02C.cbl | 646 | 9300-DALYREJS-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 653 | 9300-DALYREJS-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 657 | 9400-ACCTFILE-CLOSE | CLOSE | — |
-| app/cbl/CBTRN02C.cbl | 664 | 9400-ACCTFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 671 | 9400-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 676 | 9500-TCATBALF-CLOSE | CLOSE | — |
-| app/cbl/CBTRN02C.cbl | 683 | 9500-TCATBALF-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN02C.cbl | 690 | 9500-TCATBALF-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 705 | Z-GET-DB2-FORMAT-TIMESTAMP | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 711 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBTRN02C.cbl | 727 | 9910-DISPLAY-IO-STATUS | EXIT | — |
-| app/cbl/CBTRN03C.cbl | 175 | — | CONTINUE | — |
-| app/cbl/CBTRN03C.cbl | 217 | — | GOBACK | — |
 | app/cbl/CBTRN03C.cbl | 221 | 0550-DATEPARM-READ | READ | — |
 | app/cbl/CBTRN03C.cbl | 249 | 1000-TRANFILE-GET-NEXT | READ | — |
-| app/cbl/CBTRN03C.cbl | 261 | 1000-TRANFILE-GET-NEXT | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 272 | 1000-TRANFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 290 | 1100-WRITE-TRANSACTION-REPORT | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 304 | 1110-WRITE-PAGE-TOTALS | EXIT | — |
@@ -1522,27 +1366,20 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBTRN03C.cbl | 322 | 1110-WRITE-GRAND-TOTALS | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 341 | 1120-WRITE-HEADERS | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 345 | 1111-WRITE-REPORT-REC | WRITE | — |
-| app/cbl/CBTRN03C.cbl | 352 | 1111-WRITE-REPORT-REC | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 359 | 1111-WRITE-REPORT-REC | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 362 | 1120-WRITE-DETAIL | INITIALIZE | — |
 | app/cbl/CBTRN03C.cbl | 374 | 1120-WRITE-DETAIL | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 378 | 0000-TRANFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN03C.cbl | 385 | 0000-TRANFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 392 | 0000-TRANFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 396 | 0100-REPTFILE-OPEN | OPEN | — |
-| app/cbl/CBTRN03C.cbl | 403 | 0100-REPTFILE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 410 | 0100-REPTFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 414 | 0200-CARDXREF-OPEN | OPEN | — |
-| app/cbl/CBTRN03C.cbl | 421 | 0200-CARDXREF-OPEN | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 428 | 0200-CARDXREF-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 432 | 0300-TRANTYPE-OPEN | OPEN | — |
-| app/cbl/CBTRN03C.cbl | 439 | 0300-TRANTYPE-OPEN | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 446 | 0300-TRANTYPE-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 450 | 0400-TRANCATG-OPEN | OPEN | — |
-| app/cbl/CBTRN03C.cbl | 457 | 0400-TRANCATG-OPEN | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 464 | 0400-TRANCATG-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 468 | 0500-DATEPARM-OPEN | OPEN | — |
-| app/cbl/CBTRN03C.cbl | 475 | 0500-DATEPARM-OPEN | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 482 | 0500-DATEPARM-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 485 | 1500-A-LOOKUP-XREF | READ | — |
 | app/cbl/CBTRN03C.cbl | 492 | 1500-A-LOOKUP-XREF | EXIT | — |
@@ -1552,23 +1389,17 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBTRN03C.cbl | 512 | 1500-C-LOOKUP-TRANCATG | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 516 | 9000-TRANFILE-CLOSE | CLOSE | — |
 | app/cbl/CBTRN03C.cbl | 518 | 9000-TRANFILE-CLOSE | SUBTRACT | — |
-| app/cbl/CBTRN03C.cbl | 523 | 9000-TRANFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 530 | 9000-TRANFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 534 | 9100-REPTFILE-CLOSE | CLOSE | — |
 | app/cbl/CBTRN03C.cbl | 536 | 9100-REPTFILE-CLOSE | SUBTRACT | — |
-| app/cbl/CBTRN03C.cbl | 541 | 9100-REPTFILE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 548 | 9100-REPTFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 553 | 9200-CARDXREF-CLOSE | CLOSE | — |
-| app/cbl/CBTRN03C.cbl | 560 | 9200-CARDXREF-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 567 | 9200-CARDXREF-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 571 | 9300-TRANTYPE-CLOSE | CLOSE | — |
-| app/cbl/CBTRN03C.cbl | 578 | 9300-TRANTYPE-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 585 | 9300-TRANTYPE-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 589 | 9400-TRANCATG-CLOSE | CLOSE | — |
-| app/cbl/CBTRN03C.cbl | 596 | 9400-TRANCATG-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 603 | 9400-TRANCATG-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 607 | 9500-DATEPARM-CLOSE | CLOSE | — |
-| app/cbl/CBTRN03C.cbl | 614 | 9500-DATEPARM-CLOSE | CONTINUE | — |
 | app/cbl/CBTRN03C.cbl | 621 | 9500-DATEPARM-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 630 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBTRN03C.cbl | 646 | 9910-DISPLAY-IO-STATUS | EXIT | — |
@@ -1588,18 +1419,10 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTUPC.cbl | 1040 | 1100-RECEIVE-MAP | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 1047 | 1100-RECEIVE-MAP | INITIALIZE | — |
 | app/cbl/COACTUPC.cbl | 1061 | 1100-RECEIVE-MAP | GO | — |
-| app/cbl/COACTUPC.cbl | 1082 | 1100-RECEIVE-MAP | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 1096 | 1100-RECEIVE-MAP | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 1110 | 1100-RECEIVE-MAP | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 1124 | 1100-RECEIVE-MAP | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 1138 | 1100-RECEIVE-MAP | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 1427 | 1100-RECEIVE-MAP-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 1446 | 1200-EDIT-MAP-INPUTS | GO | — |
-| app/cbl/COACTUPC.cbl | 1448 | 1200-EDIT-MAP-INPUTS | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 1467 | 1200-EDIT-MAP-INPUTS | GO | — |
-| app/cbl/COACTUPC.cbl | 1672 | 1200-EDIT-MAP-INPUTS | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 1679 | 1200-EDIT-MAP-INPUTS-EXIT | EXIT | — |
-| app/cbl/COACTUPC.cbl | 1701 | 1205-COMPARE-OLD-NEW | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 1704 | 1205-COMPARE-OLD-NEW | GO | — |
 | app/cbl/COACTUPC.cbl | 1772 | 1205-COMPARE-OLD-NEW | GO | — |
 | app/cbl/COACTUPC.cbl | 1778 | 1205-COMPARE-OLD-NEW-EXIT | EXIT | — |
@@ -1612,115 +1435,83 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTUPC.cbl | 1853 | 1215-EDIT-MANDATORY-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 1867 | 1220-EDIT-YESNO | STRING | — |
 | app/cbl/COACTUPC.cbl | 1874 | 1220-EDIT-YESNO | GO | — |
-| app/cbl/COACTUPC.cbl | 1879 | 1220-EDIT-YESNO | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 1884 | 1220-EDIT-YESNO | STRING | — |
 | app/cbl/COACTUPC.cbl | 1891 | 1220-EDIT-YESNO | GO | — |
 | app/cbl/COACTUPC.cbl | 1895 | 1220-EDIT-YESNO-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 1913 | 1225-EDIT-ALPHA-REQD | STRING | — |
 | app/cbl/COACTUPC.cbl | 1921 | 1225-EDIT-ALPHA-REQD | GO | — |
-| app/cbl/COACTUPC.cbl | 1934 | 1225-EDIT-ALPHA-REQD | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 1939 | 1225-EDIT-ALPHA-REQD | STRING | — |
 | app/cbl/COACTUPC.cbl | 1946 | 1225-EDIT-ALPHA-REQD | GO | — |
 | app/cbl/COACTUPC.cbl | 1952 | 1225-EDIT-ALPHA-REQD-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 1970 | 1230-EDIT-ALPHANUM-REQD | STRING | — |
 | app/cbl/COACTUPC.cbl | 1978 | 1230-EDIT-ALPHANUM-REQD | GO | — |
-| app/cbl/COACTUPC.cbl | 1992 | 1230-EDIT-ALPHANUM-REQD | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 1997 | 1230-EDIT-ALPHANUM-REQD | STRING | — |
 | app/cbl/COACTUPC.cbl | 2004 | 1230-EDIT-ALPHANUM-REQD | GO | — |
 | app/cbl/COACTUPC.cbl | 2010 | 1230-EDIT-ALPHANUM-REQD-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2025 | 1235-EDIT-ALPHA-OPT | GO | — |
-| app/cbl/COACTUPC.cbl | 2027 | 1235-EDIT-ALPHA-OPT | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 2040 | 1235-EDIT-ALPHA-OPT | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2045 | 1235-EDIT-ALPHA-OPT | STRING | — |
 | app/cbl/COACTUPC.cbl | 2052 | 1235-EDIT-ALPHA-OPT | GO | — |
 | app/cbl/COACTUPC.cbl | 2058 | 1235-EDIT-ALPHA-OPT-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2073 | 1240-EDIT-ALPHANUM-OPT | GO | — |
-| app/cbl/COACTUPC.cbl | 2075 | 1240-EDIT-ALPHANUM-OPT | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 2088 | 1240-EDIT-ALPHANUM-OPT | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2093 | 1240-EDIT-ALPHANUM-OPT | STRING | — |
 | app/cbl/COACTUPC.cbl | 2100 | 1240-EDIT-ALPHANUM-OPT | GO | — |
 | app/cbl/COACTUPC.cbl | 2106 | 1240-EDIT-ALPHANUM-OPT-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2124 | 1245-EDIT-NUM-REQD | STRING | — |
 | app/cbl/COACTUPC.cbl | 2132 | 1245-EDIT-NUM-REQD | GO | — |
-| app/cbl/COACTUPC.cbl | 2139 | 1245-EDIT-NUM-REQD | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2144 | 1245-EDIT-NUM-REQD | STRING | — |
 | app/cbl/COACTUPC.cbl | 2151 | 1245-EDIT-NUM-REQD | GO | — |
 | app/cbl/COACTUPC.cbl | 2161 | 1245-EDIT-NUM-REQD | STRING | — |
 | app/cbl/COACTUPC.cbl | 2168 | 1245-EDIT-NUM-REQD | GO | — |
-| app/cbl/COACTUPC.cbl | 2170 | 1245-EDIT-NUM-REQD | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2177 | 1245-EDIT-NUM-REQD-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2189 | 1250-EDIT-SIGNED-9V2 | STRING | — |
 | app/cbl/COACTUPC.cbl | 2196 | 1250-EDIT-SIGNED-9V2 | GO | — |
-| app/cbl/COACTUPC.cbl | 2198 | 1250-EDIT-SIGNED-9V2 | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 2202 | 1250-EDIT-SIGNED-9V2 | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2207 | 1250-EDIT-SIGNED-9V2 | STRING | — |
 | app/cbl/COACTUPC.cbl | 2213 | 1250-EDIT-SIGNED-9V2 | GO | — |
 | app/cbl/COACTUPC.cbl | 2222 | 1250-EDIT-SIGNED-9V2-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2241 | 1260-EDIT-US-PHONE-NUM | GO | — |
-| app/cbl/COACTUPC.cbl | 2243 | 1260-EDIT-US-PHONE-NUM | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2252 | EDIT-AREA-CODE | STRING | — |
 | app/cbl/COACTUPC.cbl | 2259 | EDIT-AREA-CODE | GO | — |
-| app/cbl/COACTUPC.cbl | 2261 | EDIT-AREA-CODE | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 2265 | EDIT-AREA-CODE | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2270 | EDIT-AREA-CODE | STRING | — |
 | app/cbl/COACTUPC.cbl | 2277 | EDIT-AREA-CODE | GO | — |
 | app/cbl/COACTUPC.cbl | 2284 | EDIT-AREA-CODE | STRING | — |
 | app/cbl/COACTUPC.cbl | 2291 | EDIT-AREA-CODE | GO | — |
-| app/cbl/COACTUPC.cbl | 2293 | EDIT-AREA-CODE | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 2299 | EDIT-AREA-CODE | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2304 | EDIT-AREA-CODE | STRING | — |
 | app/cbl/COACTUPC.cbl | 2311 | EDIT-AREA-CODE | GO | — |
 | app/cbl/COACTUPC.cbl | 2323 | EDIT-US-PHONE-PREFIX | STRING | — |
 | app/cbl/COACTUPC.cbl | 2330 | EDIT-US-PHONE-PREFIX | GO | — |
-| app/cbl/COACTUPC.cbl | 2332 | EDIT-US-PHONE-PREFIX | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 2336 | EDIT-US-PHONE-PREFIX | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2341 | EDIT-US-PHONE-PREFIX | STRING | — |
 | app/cbl/COACTUPC.cbl | 2348 | EDIT-US-PHONE-PREFIX | GO | — |
 | app/cbl/COACTUPC.cbl | 2355 | EDIT-US-PHONE-PREFIX | STRING | — |
 | app/cbl/COACTUPC.cbl | 2362 | EDIT-US-PHONE-PREFIX | GO | — |
-| app/cbl/COACTUPC.cbl | 2364 | EDIT-US-PHONE-PREFIX | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2376 | EDIT-US-PHONE-LINENUM | STRING | — |
 | app/cbl/COACTUPC.cbl | 2383 | EDIT-US-PHONE-LINENUM | GO | — |
-| app/cbl/COACTUPC.cbl | 2385 | EDIT-US-PHONE-LINENUM | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 2389 | EDIT-US-PHONE-LINENUM | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2394 | EDIT-US-PHONE-LINENUM | STRING | — |
 | app/cbl/COACTUPC.cbl | 2401 | EDIT-US-PHONE-LINENUM | GO | — |
 | app/cbl/COACTUPC.cbl | 2408 | EDIT-US-PHONE-LINENUM | STRING | — |
 | app/cbl/COACTUPC.cbl | 2415 | EDIT-US-PHONE-LINENUM | GO | — |
-| app/cbl/COACTUPC.cbl | 2417 | EDIT-US-PHONE-LINENUM | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2425 | EDIT-US-PHONE-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2428 | 1260-EDIT-US-PHONE-NUM-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2455 | 1265-EDIT-US-SSN | STRING | — |
-| app/cbl/COACTUPC.cbl | 2462 | 1265-EDIT-US-SSN | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2490 | 1265-EDIT-US-SSN-EXIT | EXIT | — |
-| app/cbl/COACTUPC.cbl | 2496 | 1270-EDIT-US-STATE-CD | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2501 | 1270-EDIT-US-STATE-CD | STRING | — |
 | app/cbl/COACTUPC.cbl | 2508 | 1270-EDIT-US-STATE-CD | GO | — |
 | app/cbl/COACTUPC.cbl | 2512 | 1270-EDIT-US-STATE-CD-EXIT | EXIT | — |
-| app/cbl/COACTUPC.cbl | 2516 | 1275-EDIT-FICO-SCORE | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2521 | 1275-EDIT-FICO-SCORE | STRING | — |
 | app/cbl/COACTUPC.cbl | 2528 | 1275-EDIT-FICO-SCORE | GO | — |
 | app/cbl/COACTUPC.cbl | 2532 | 1275-EDIT-FICO-SCORE-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2537 | 1280-EDIT-US-STATE-ZIP-CD | STRING | — |
-| app/cbl/COACTUPC.cbl | 2543 | 1280-EDIT-US-STATE-ZIP-CD | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2549 | 1280-EDIT-US-STATE-ZIP-CD | STRING | — |
 | app/cbl/COACTUPC.cbl | 2555 | 1280-EDIT-US-STATE-ZIP-CD | GO | — |
 | app/cbl/COACTUPC.cbl | 2559 | 1280-EDIT-US-STATE-ZIP-CD-EXIT | EXIT | — |
-| app/cbl/COACTUPC.cbl | 2588 | 2000-DECIDE-ACTION | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 2597 | 2000-DECIDE-ACTION | CONTINUE | — |
-| app/cbl/COACTUPC.cbl | 2621 | 2000-DECIDE-ACTION | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2644 | 2000-DECIDE-ACTION-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2665 | 3000-SEND-MAP-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2695 | 3100-SCREEN-INIT-EXIT | EXIT | — |
-| app/cbl/COACTUPC.cbl | 2701 | 3200-SETUP-SCREEN-VARS | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 2728 | 3200-SETUP-SCREEN-VARS-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2784 | 3201-SHOW-INITIAL-VALUES-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2868 | 3202-SHOW-ORIGINAL-VALUES-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2952 | 3203-SHOW-UPDATED-VALUES-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2984 | 3250-SETUP-INFOMSG-EXIT | EXIT | — |
-| app/cbl/COACTUPC.cbl | 3003 | 3300-SETUP-SCREEN-ATTRS | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 3189 | 3300-SETUP-SCREEN-ATTRS | GO | — |
-| app/cbl/COACTUPC.cbl | 3191 | 3300-SETUP-SCREEN-ATTRS | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 3208 | 3300-SETUP-SCREEN-ATTRS | COPY | — |
 | app/cbl/COACTUPC.cbl | 3214 | 3300-SETUP-SCREEN-ATTRS | COPY | — |
 | app/cbl/COACTUPC.cbl | 3220 | 3300-SETUP-SCREEN-ATTRS | COPY | — |
@@ -1783,10 +1574,8 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTUPC.cbl | 3813 | 9500-STORE-FETCHED-DATA | INITIALIZE | — |
 | app/cbl/COACTUPC.cbl | 3886 | 9500-STORE-FETCHED-DATA-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 3894 | 9600-WRITE-PROCESSING | EXEC | EXEC CICS |
-| app/cbl/COACTUPC.cbl | 3908 | 9600-WRITE-PROCESSING | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 3914 | 9600-WRITE-PROCESSING | GO | — |
 | app/cbl/COACTUPC.cbl | 3921 | 9600-WRITE-PROCESSING | EXEC | EXEC CICS |
-| app/cbl/COACTUPC.cbl | 3935 | 9600-WRITE-PROCESSING | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 3941 | 9600-WRITE-PROCESSING | GO | — |
 | app/cbl/COACTUPC.cbl | 3951 | 9600-WRITE-PROCESSING | GO | — |
 | app/cbl/COACTUPC.cbl | 3956 | 9600-WRITE-PROCESSING | INITIALIZE | — |
@@ -1799,17 +1588,13 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTUPC.cbl | 4047 | 9600-WRITE-PROCESSING | STRING | — |
 | app/cbl/COACTUPC.cbl | 4065 | 9600-WRITE-PROCESSING | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 4066 | 9600-WRITE-PROCESSING | REWRITE | — |
-| app/cbl/COACTUPC.cbl | 4077 | 9600-WRITE-PROCESSING | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 4080 | 9600-WRITE-PROCESSING | GO | — |
 | app/cbl/COACTUPC.cbl | 4085 | 9600-WRITE-PROCESSING | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 4086 | 9600-WRITE-PROCESSING | REWRITE | — |
-| app/cbl/COACTUPC.cbl | 4096 | 9600-WRITE-PROCESSING | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 4099 | 9600-WRITE-PROCESSING | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 4102 | 9600-WRITE-PROCESSING | GO | — |
 | app/cbl/COACTUPC.cbl | 4106 | 9600-WRITE-PROCESSING-EXIT | EXIT | — |
-| app/cbl/COACTUPC.cbl | 4141 | 9700-CHECK-CHANGE-IN-REC | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 4144 | 9700-CHECK-CHANGE-IN-REC | GO | — |
-| app/cbl/COACTUPC.cbl | 4187 | 9700-CHECK-CHANGE-IN-REC | CONTINUE | — |
 | app/cbl/COACTUPC.cbl | 4190 | 9700-CHECK-CHANGE-IN-REC | GO | — |
 | app/cbl/COACTUPC.cbl | 4194 | 9700-CHECK-CHANGE-IN-REC-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 4199 | 9700-CHECK-CHANGE-IN-REC-EXIT | COPY | — |
@@ -1876,11 +1661,9 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COADM01C.cbl | 182 | SEND-MENU-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COADM01C.cbl | 194 | RECEIVE-MENU-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COADM01C.cbl | 236 | BUILD-MENU-OPTIONS | STRING | — |
-| app/cbl/COADM01C.cbl | 263 | BUILD-MENU-OPTIONS | CONTINUE | — |
 | app/cbl/COADM01C.cbl | 273 | PGMIDERR-ERR-PARA | STRING | — |
 | app/cbl/COADM01C.cbl | 280 | PGMIDERR-ERR-PARA | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 146 | MAIN-PARA | EXEC | EXEC CICS |
-| app/cbl/COBIL00C.cbl | 166 | PROCESS-ENTER-KEY | CONTINUE | — |
 | app/cbl/COBIL00C.cbl | 218 | PROCESS-ENTER-KEY | INITIALIZE | — |
 | app/cbl/COBIL00C.cbl | 251 | GET-CURRENT-TIMESTAMP | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 255 | GET-CURRENT-TIMESTAMP | EXEC | EXEC CICS |
@@ -1889,15 +1672,10 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COBIL00C.cbl | 295 | SEND-BILLPAY-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 308 | RECEIVE-BILLPAY-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 345 | READ-ACCTDAT-FILE | EXEC | EXEC CICS |
-| app/cbl/COBIL00C.cbl | 358 | READ-ACCTDAT-FILE | CONTINUE | — |
 | app/cbl/COBIL00C.cbl | 379 | UPDATE-ACCTDAT-FILE | EXEC | EXEC CICS |
-| app/cbl/COBIL00C.cbl | 389 | UPDATE-ACCTDAT-FILE | CONTINUE | — |
 | app/cbl/COBIL00C.cbl | 410 | READ-CXACAIX-FILE | EXEC | EXEC CICS |
-| app/cbl/COBIL00C.cbl | 422 | READ-CXACAIX-FILE | CONTINUE | — |
 | app/cbl/COBIL00C.cbl | 443 | STARTBR-TRANSACT-FILE | EXEC | EXEC CICS |
-| app/cbl/COBIL00C.cbl | 453 | STARTBR-TRANSACT-FILE | CONTINUE | — |
 | app/cbl/COBIL00C.cbl | 474 | READPREV-TRANSACT-FILE | EXEC | EXEC CICS |
-| app/cbl/COBIL00C.cbl | 486 | READPREV-TRANSACT-FILE | CONTINUE | — |
 | app/cbl/COBIL00C.cbl | 503 | ENDBR-TRANSACT-FILE | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 512 | WRITE-TRANSACT-FILE | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 527 | WRITE-TRANSACT-FILE | STRING | — |
@@ -1906,7 +1684,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDLIC.cbl | 316 | 0000-MAIN | INITIALIZE | — |
 | app/cbl/COCRDLIC.cbl | 338 | 0000-MAIN | INITIALIZE | — |
 | app/cbl/COCRDLIC.cbl | 402 | 0000-MAIN | EXEC | EXEC CICS |
-| app/cbl/COCRDLIC.cbl | 411 | 0000-MAIN | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 438 | 0000-MAIN | GO | — |
 | app/cbl/COCRDLIC.cbl | 454 | 0000-MAIN | GO | — |
 | app/cbl/COCRDLIC.cbl | 462 | 0000-MAIN | INITIALIZE | — |
@@ -1923,18 +1700,9 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDLIC.cbl | 622 | 0000-MAIN-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 640 | 1000-SEND-MAP-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 675 | 1100-SCREEN-INIT-EXIT | EXIT | — |
-| app/cbl/COCRDLIC.cbl | 681 | 1200-SCREEN-ARRAY-INIT | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 690 | 1200-SCREEN-ARRAY-INIT | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 699 | 1200-SCREEN-ARRAY-INIT | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 708 | 1200-SCREEN-ARRAY-INIT | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 717 | 1200-SCREEN-ARRAY-INIT | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 727 | 1200-SCREEN-ARRAY-INIT | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 736 | 1200-SCREEN-ARRAY-INIT | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 746 | 1200-SCREEN-ARRAY-INIT-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 835 | 1250-SETUP-ARRAY-ATTRIBS-EXIT | EXIT | — |
-| app/cbl/COCRDLIC.cbl | 842 | 1300-SETUP-SCREEN-ATTRS | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 891 | 1300-SETUP-SCREEN-ATTRS-EXIT | EXIT | — |
-| app/cbl/COCRDLIC.cbl | 900 | 1400-SETUP-MESSAGE | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 934 | 1400-SETUP-MESSAGE-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 939 | 1500-SEND-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 949 | 1500-SEND-SCREEN-EXIT | EXIT | — |
@@ -1949,13 +1717,9 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDLIC.cbl | 1062 | 2220-EDIT-CARD | GO | — |
 | app/cbl/COCRDLIC.cbl | 1070 | 2220-EDIT-CARD-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 1076 | 2250-EDIT-ARRAY | GO | — |
-| app/cbl/COCRDLIC.cbl | 1107 | 2250-EDIT-ARRAY | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 1120 | 2250-EDIT-ARRAY-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 1129 | 9000-READ-FORWARD | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 1146 | 9000-READ-FORWARD | EXEC | EXEC CICS |
-| app/cbl/COCRDLIC.cbl | 1180 | 9000-READ-FORWARD | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 1183 | 9000-READ-FORWARD | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 1186 | 9000-READ-FORWARD | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 1197 | 9000-READ-FORWARD | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 1258 | 9000-READ-FORWARD | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 1262 | 9000-READ-FORWARD-EXIT | EXIT | — |
@@ -1965,16 +1729,10 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDLIC.cbl | 1317 | 9100-READ-BACKWARDS | GO | — |
 | app/cbl/COCRDLIC.cbl | 1322 | 9100-READ-BACKWARDS | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 1346 | 9100-READ-BACKWARDS | SUBTRACT | — |
-| app/cbl/COCRDLIC.cbl | 1355 | 9100-READ-BACKWARDS | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 1358 | 9100-READ-BACKWARDS | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 1375 | 9100-READ-BACKWARDS-EXIT | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 1379 | 9100-READ-BACKWARDS-EXIT | EXIT | — |
-| app/cbl/COCRDLIC.cbl | 1387 | 9500-FILTER-RECORDS | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 1390 | 9500-FILTER-RECORDS | GO | — |
-| app/cbl/COCRDLIC.cbl | 1393 | 9500-FILTER-RECORDS | CONTINUE | — |
-| app/cbl/COCRDLIC.cbl | 1398 | 9500-FILTER-RECORDS | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 1401 | 9500-FILTER-RECORDS | GO | — |
-| app/cbl/COCRDLIC.cbl | 1404 | 9500-FILTER-RECORDS | CONTINUE | — |
 | app/cbl/COCRDLIC.cbl | 1410 | 9500-FILTER-RECORDS-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 1416 | 9500-FILTER-RECORDS-EXIT | COPY | — |
 | app/cbl/COCRDLIC.cbl | 1423 | SEND-PLAIN-TEXT | EXEC | EXEC CICS |
@@ -2044,9 +1802,7 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDUPC.cbl | 586 | 1100-RECEIVE-MAP | INITIALIZE | — |
 | app/cbl/COCRDUPC.cbl | 639 | 1100-RECEIVE-MAP-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 661 | 1200-EDIT-MAP-INPUTS | GO | — |
-| app/cbl/COCRDUPC.cbl | 664 | 1200-EDIT-MAP-INPUTS | CONTINUE | — |
 | app/cbl/COCRDUPC.cbl | 692 | 1200-EDIT-MAP-INPUTS | GO | — |
-| app/cbl/COCRDUPC.cbl | 711 | 1200-EDIT-MAP-INPUTS | CONTINUE | — |
 | app/cbl/COCRDUPC.cbl | 718 | 1200-EDIT-MAP-INPUTS-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 735 | 1210-EDIT-ACCOUNT | GO | — |
 | app/cbl/COCRDUPC.cbl | 750 | 1210-EDIT-ACCOUNT | GO | — |
@@ -2055,7 +1811,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDUPC.cbl | 794 | 1220-EDIT-CARD | GO | — |
 | app/cbl/COCRDUPC.cbl | 803 | 1220-EDIT-CARD-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 819 | 1230-EDIT-NAME | GO | — |
-| app/cbl/COCRDUPC.cbl | 829 | 1230-EDIT-NAME | CONTINUE | — |
 | app/cbl/COCRDUPC.cbl | 836 | 1230-EDIT-NAME | GO | — |
 | app/cbl/COCRDUPC.cbl | 842 | 1230-EDIT-NAME-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 858 | 1240-EDIT-CARDSTATUS | GO | — |
@@ -2067,13 +1822,9 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDUPC.cbl | 924 | 1260-EDIT-EXPIRY-YEAR | GO | — |
 | app/cbl/COCRDUPC.cbl | 942 | 1260-EDIT-EXPIRY-YEAR | GO | — |
 | app/cbl/COCRDUPC.cbl | 946 | 1260-EDIT-EXPIRY-YEAR-EXIT | EXIT | — |
-| app/cbl/COCRDUPC.cbl | 974 | 2000-DECIDE-ACTION | CONTINUE | — |
-| app/cbl/COCRDUPC.cbl | 983 | 2000-DECIDE-ACTION | CONTINUE | — |
-| app/cbl/COCRDUPC.cbl | 1007 | 2000-DECIDE-ACTION | CONTINUE | — |
 | app/cbl/COCRDUPC.cbl | 1030 | 2000-DECIDE-ACTION-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1049 | 3000-SEND-MAP-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1079 | 3100-SCREEN-INIT-EXIT | EXIT | — |
-| app/cbl/COCRDUPC.cbl | 1085 | 3200-SETUP-SCREEN-VARS | CONTINUE | — |
 | app/cbl/COCRDUPC.cbl | 1136 | 3200-SETUP-SCREEN-VARS-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1166 | 3250-SETUP-INFOMSG-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1320 | 3300-SETUP-SCREEN-ATTRS-EXIT | EXIT | — |
@@ -2084,16 +1835,13 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDUPC.cbl | 1382 | 9100-GETCARD-BYACCTCARD | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 1416 | 9100-GETCARD-BYACCTCARD-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1427 | 9200-WRITE-PROCESSING | EXEC | EXEC CICS |
-| app/cbl/COCRDUPC.cbl | 1442 | 9200-WRITE-PROCESSING | CONTINUE | — |
 | app/cbl/COCRDUPC.cbl | 1448 | 9200-WRITE-PROCESSING | GO | — |
 | app/cbl/COCRDUPC.cbl | 1456 | 9200-WRITE-PROCESSING | GO | — |
 | app/cbl/COCRDUPC.cbl | 1461 | 9200-WRITE-PROCESSING | INITIALIZE | — |
 | app/cbl/COCRDUPC.cbl | 1467 | 9200-WRITE-PROCESSING | STRING | — |
 | app/cbl/COCRDUPC.cbl | 1477 | 9200-WRITE-PROCESSING | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 1478 | 9200-WRITE-PROCESSING | REWRITE | — |
-| app/cbl/COCRDUPC.cbl | 1489 | 9200-WRITE-PROCESSING | CONTINUE | — |
 | app/cbl/COCRDUPC.cbl | 1495 | 9200-WRITE-PROCESSING-EXIT | EXIT | — |
-| app/cbl/COCRDUPC.cbl | 1509 | 9300-CHECK-CHANGE-IN-REC | CONTINUE | — |
 | app/cbl/COCRDUPC.cbl | 1518 | 9300-CHECK-CHANGE-IN-REC | GO | — |
 | app/cbl/COCRDUPC.cbl | 1519 | 9300-CHECK-CHANGE-IN-REC | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1522 | 9300-CHECK-CHANGE-IN-REC-EXIT | EXIT | — |
@@ -2113,19 +1861,13 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COMEN01C.cbl | 215 | SEND-MENU-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COMEN01C.cbl | 227 | RECEIVE-MENU-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COMEN01C.cbl | 269 | BUILD-MENU-OPTIONS | STRING | — |
-| app/cbl/COMEN01C.cbl | 300 | BUILD-MENU-OPTIONS | CONTINUE | — |
 | app/cbl/CORPT00C.cbl | 199 | MAIN-PARA | EXEC | EXEC CICS |
-| app/cbl/CORPT00C.cbl | 302 | PROCESS-ENTER-KEY | CONTINUE | — |
 | app/cbl/CORPT00C.cbl | 392 | PROCESS-ENTER-KEY | CALL | — |
-| app/cbl/CORPT00C.cbl | 397 | PROCESS-ENTER-KEY | CONTINUE | — |
 | app/cbl/CORPT00C.cbl | 412 | PROCESS-ENTER-KEY | CALL | — |
-| app/cbl/CORPT00C.cbl | 417 | PROCESS-ENTER-KEY | CONTINUE | — |
 | app/cbl/CORPT00C.cbl | 449 | PROCESS-ENTER-KEY | STRING | — |
 | app/cbl/CORPT00C.cbl | 465 | SUBMIT-JOB-TO-INTRDR | STRING | — |
-| app/cbl/CORPT00C.cbl | 479 | SUBMIT-JOB-TO-INTRDR | CONTINUE | — |
 | app/cbl/CORPT00C.cbl | 485 | SUBMIT-JOB-TO-INTRDR | STRING | — |
 | app/cbl/CORPT00C.cbl | 517 | WIRTE-JOBSUB-TDQ | EXEC | EXEC CICS |
-| app/cbl/CORPT00C.cbl | 527 | WIRTE-JOBSUB-TDQ | CONTINUE | — |
 | app/cbl/CORPT00C.cbl | 548 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/cbl/CORPT00C.cbl | 563 | SEND-TRNRPT-SCREEN | EXEC | EXEC CICS |
 | app/cbl/CORPT00C.cbl | 571 | SEND-TRNRPT-SCREEN | EXEC | EXEC CICS |
@@ -2135,7 +1877,6 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CORPT00C.cbl | 636 | INITIALIZE-ALL-FIELDS | INITIALIZE | — |
 | app/cbl/COSGN00C.cbl | 98 | MAIN-PARA | EXEC | EXEC CICS |
 | app/cbl/COSGN00C.cbl | 110 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
-| app/cbl/COSGN00C.cbl | 129 | PROCESS-ENTER-KEY | CONTINUE | — |
 | app/cbl/COSGN00C.cbl | 151 | SEND-SIGNON-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COSGN00C.cbl | 164 | SEND-PLAIN-TEXT | EXEC | EXEC CICS |
 | app/cbl/COSGN00C.cbl | 171 | SEND-PLAIN-TEXT | EXEC | EXEC CICS |
@@ -2147,52 +1888,31 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COTRN00C.cbl | 138 | MAIN-PARA | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 192 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 364 | PROCESS-PAGE-BACKWARD | SUBTRACT | — |
-| app/cbl/COTRN00C.cbl | 444 | POPULATE-TRAN-DATA | CONTINUE | — |
-| app/cbl/COTRN00C.cbl | 504 | INITIALIZE-TRAN-DATA | CONTINUE | — |
 | app/cbl/COTRN00C.cbl | 518 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 534 | SEND-TRNLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 542 | SEND-TRNLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 556 | RECEIVE-TRNLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 593 | STARTBR-TRANSACT-FILE | EXEC | EXEC CICS |
-| app/cbl/COTRN00C.cbl | 604 | STARTBR-TRANSACT-FILE | CONTINUE | — |
-| app/cbl/COTRN00C.cbl | 606 | STARTBR-TRANSACT-FILE | CONTINUE | — |
 | app/cbl/COTRN00C.cbl | 626 | READNEXT-TRANSACT-FILE | EXEC | EXEC CICS |
-| app/cbl/COTRN00C.cbl | 638 | READNEXT-TRANSACT-FILE | CONTINUE | — |
-| app/cbl/COTRN00C.cbl | 640 | READNEXT-TRANSACT-FILE | CONTINUE | — |
 | app/cbl/COTRN00C.cbl | 660 | READPREV-TRANSACT-FILE | EXEC | EXEC CICS |
-| app/cbl/COTRN00C.cbl | 672 | READPREV-TRANSACT-FILE | CONTINUE | — |
-| app/cbl/COTRN00C.cbl | 674 | READPREV-TRANSACT-FILE | CONTINUE | — |
 | app/cbl/COTRN00C.cbl | 694 | ENDBR-TRANSACT-FILE | EXEC | EXEC CICS |
 | app/cbl/COTRN01C.cbl | 136 | MAIN-PARA | EXEC | EXEC CICS |
-| app/cbl/COTRN01C.cbl | 155 | PROCESS-ENTER-KEY | CONTINUE | — |
 | app/cbl/COTRN01C.cbl | 205 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN01C.cbl | 219 | SEND-TRNVIEW-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN01C.cbl | 232 | RECEIVE-TRNVIEW-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN01C.cbl | 269 | READ-TRANSACT-FILE | EXEC | EXEC CICS |
-| app/cbl/COTRN01C.cbl | 282 | READ-TRANSACT-FILE | CONTINUE | — |
 | app/cbl/COTRN02C.cbl | 156 | MAIN-PARA | EXEC | EXEC CICS |
-| app/cbl/COTRN02C.cbl | 319 | VALIDATE-INPUT-DATA-FIELDS | CONTINUE | — |
-| app/cbl/COTRN02C.cbl | 336 | VALIDATE-INPUT-DATA-FIELDS | CONTINUE | — |
-| app/cbl/COTRN02C.cbl | 350 | VALIDATE-INPUT-DATA-FIELDS | CONTINUE | — |
-| app/cbl/COTRN02C.cbl | 365 | VALIDATE-INPUT-DATA-FIELDS | CONTINUE | — |
-| app/cbl/COTRN02C.cbl | 380 | VALIDATE-INPUT-DATA-FIELDS | CONTINUE | — |
 | app/cbl/COTRN02C.cbl | 393 | VALIDATE-INPUT-DATA-FIELDS | CALL | — |
-| app/cbl/COTRN02C.cbl | 398 | VALIDATE-INPUT-DATA-FIELDS | CONTINUE | — |
 | app/cbl/COTRN02C.cbl | 413 | VALIDATE-INPUT-DATA-FIELDS | CALL | — |
-| app/cbl/COTRN02C.cbl | 418 | VALIDATE-INPUT-DATA-FIELDS | CONTINUE | — |
 | app/cbl/COTRN02C.cbl | 450 | ADD-TRANSACTION | INITIALIZE | — |
 | app/cbl/COTRN02C.cbl | 508 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 522 | SEND-TRNADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 530 | SEND-TRNADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 541 | RECEIVE-TRNADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 578 | READ-CXACAIX-FILE | EXEC | EXEC CICS |
-| app/cbl/COTRN02C.cbl | 590 | READ-CXACAIX-FILE | CONTINUE | — |
 | app/cbl/COTRN02C.cbl | 611 | READ-CCXREF-FILE | EXEC | EXEC CICS |
-| app/cbl/COTRN02C.cbl | 623 | READ-CCXREF-FILE | CONTINUE | — |
 | app/cbl/COTRN02C.cbl | 644 | STARTBR-TRANSACT-FILE | EXEC | EXEC CICS |
-| app/cbl/COTRN02C.cbl | 654 | STARTBR-TRANSACT-FILE | CONTINUE | — |
 | app/cbl/COTRN02C.cbl | 675 | READPREV-TRANSACT-FILE | EXEC | EXEC CICS |
-| app/cbl/COTRN02C.cbl | 687 | READPREV-TRANSACT-FILE | CONTINUE | — |
 | app/cbl/COTRN02C.cbl | 704 | ENDBR-TRANSACT-FILE | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 713 | WRITE-TRANSACT-FILE | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 728 | WRITE-TRANSACT-FILE | STRING | — |
@@ -2200,51 +1920,35 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COUSR00C.cbl | 196 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 206 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 367 | PROCESS-PAGE-BACKWARD | SUBTRACT | — |
-| app/cbl/COUSR00C.cbl | 440 | POPULATE-USER-DATA | CONTINUE | — |
-| app/cbl/COUSR00C.cbl | 500 | INITIALIZE-USER-DATA | CONTINUE | — |
 | app/cbl/COUSR00C.cbl | 514 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 529 | SEND-USRLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 537 | SEND-USRLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 551 | RECEIVE-USRLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 588 | STARTBR-USER-SEC-FILE | EXEC | EXEC CICS |
-| app/cbl/COUSR00C.cbl | 599 | STARTBR-USER-SEC-FILE | CONTINUE | — |
-| app/cbl/COUSR00C.cbl | 601 | STARTBR-USER-SEC-FILE | CONTINUE | — |
 | app/cbl/COUSR00C.cbl | 621 | READNEXT-USER-SEC-FILE | EXEC | EXEC CICS |
-| app/cbl/COUSR00C.cbl | 633 | READNEXT-USER-SEC-FILE | CONTINUE | — |
-| app/cbl/COUSR00C.cbl | 635 | READNEXT-USER-SEC-FILE | CONTINUE | — |
 | app/cbl/COUSR00C.cbl | 655 | READPREV-USER-SEC-FILE | EXEC | EXEC CICS |
-| app/cbl/COUSR00C.cbl | 667 | READPREV-USER-SEC-FILE | CONTINUE | — |
-| app/cbl/COUSR00C.cbl | 669 | READPREV-USER-SEC-FILE | CONTINUE | — |
 | app/cbl/COUSR00C.cbl | 689 | ENDBR-USER-SEC-FILE | EXEC | EXEC CICS |
 | app/cbl/COUSR01C.cbl | 107 | MAIN-PARA | EXEC | EXEC CICS |
-| app/cbl/COUSR01C.cbl | 150 | PROCESS-ENTER-KEY | CONTINUE | — |
 | app/cbl/COUSR01C.cbl | 175 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR01C.cbl | 190 | SEND-USRADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR01C.cbl | 203 | RECEIVE-USRADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR01C.cbl | 240 | WRITE-USER-SEC-FILE | EXEC | EXEC CICS |
 | app/cbl/COUSR01C.cbl | 255 | WRITE-USER-SEC-FILE | STRING | — |
 | app/cbl/COUSR02C.cbl | 135 | MAIN-PARA | EXEC | EXEC CICS |
-| app/cbl/COUSR02C.cbl | 154 | PROCESS-ENTER-KEY | CONTINUE | — |
-| app/cbl/COUSR02C.cbl | 212 | UPDATE-USER-INFO | CONTINUE | — |
 | app/cbl/COUSR02C.cbl | 258 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR02C.cbl | 272 | SEND-USRUPD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR02C.cbl | 285 | RECEIVE-USRUPD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR02C.cbl | 322 | READ-USER-SEC-FILE | EXEC | EXEC CICS |
-| app/cbl/COUSR02C.cbl | 335 | READ-USER-SEC-FILE | CONTINUE | — |
 | app/cbl/COUSR02C.cbl | 360 | UPDATE-USER-SEC-FILE | EXEC | EXEC CICS |
 | app/cbl/COUSR02C.cbl | 372 | UPDATE-USER-SEC-FILE | STRING | — |
 | app/cbl/COUSR03C.cbl | 134 | MAIN-PARA | EXEC | EXEC CICS |
-| app/cbl/COUSR03C.cbl | 153 | PROCESS-ENTER-KEY | CONTINUE | — |
-| app/cbl/COUSR03C.cbl | 185 | DELETE-USER-INFO | CONTINUE | — |
 | app/cbl/COUSR03C.cbl | 205 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR03C.cbl | 219 | SEND-USRDEL-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR03C.cbl | 232 | RECEIVE-USRDEL-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR03C.cbl | 269 | READ-USER-SEC-FILE | EXEC | EXEC CICS |
-| app/cbl/COUSR03C.cbl | 282 | READ-USER-SEC-FILE | CONTINUE | — |
 | app/cbl/COUSR03C.cbl | 307 | DELETE-USER-SEC-FILE | EXEC | EXEC CICS |
 | app/cbl/COUSR03C.cbl | 318 | DELETE-USER-SEC-FILE | STRING | — |
 | app/cbl/CSUTLDTC.cbl | 90 | — | INITIALIZE | — |
-| app/cbl/CSUTLDTC.cbl | 100 | — | EXIT | — |
 | app/cbl/CSUTLDTC.cbl | 116 | A000-MAIN | CALL | — |
 | app/cbl/CSUTLDTC.cbl | 153 | A000-MAIN-EXIT | EXIT | — |
 
@@ -2262,7 +1966,7 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | REDEFINES | 103 | accepted_ignored |
 | USAGE COMP / BINARY | 206 | accepted_ignored |
 | USAGE COMP-3 (packed decimal) | 30 | accepted_ignored |
-| VALUE clause on a data item | 589 | accepted_ignored |
+| VALUE clause on a data item | 589 | supported |
 
 
 ## 7. Complexity findings
@@ -2412,16 +2116,16 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-vsam-mq/cbl/COACCT01.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/app-vsam-mq/cbl/CODATE01.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/cbl/CBACT01C.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBACT02C.cbl | HIGH | `HIGH: coverage<0.80` |
-| app/cbl/CBACT03C.cbl | HIGH | `HIGH: coverage<0.80` |
-| app/cbl/CBACT04C.cbl | HIGH | `HIGH: coverage<0.80` |
-| app/cbl/CBCUS01C.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBACT02C.cbl | MED | `MED: coverage<1.00` |
+| app/cbl/CBACT03C.cbl | MED | `MED: coverage<1.00` |
+| app/cbl/CBACT04C.cbl | MED | `MED: coverage<1.00` |
+| app/cbl/CBCUS01C.cbl | MED | `MED: coverage<1.00` |
 | app/cbl/CBEXPORT.cbl | MED | `MED: coverage<1.00` |
 | app/cbl/CBIMPORT.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBSTM03A.CBL | BLOCKED | `BLOCKED: coverage<0.60` |
+| app/cbl/CBSTM03A.CBL | BLOCKED | `BLOCKED: ALTER present (static control flow is undecidable)` |
 | app/cbl/CBSTM03B.CBL | BLOCKED | `BLOCKED: coverage<0.60` |
-| app/cbl/CBTRN01C.cbl | HIGH | `HIGH: coverage<0.80` |
-| app/cbl/CBTRN02C.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBTRN01C.cbl | MED | `MED: coverage<1.00` |
+| app/cbl/CBTRN02C.cbl | HIGH | `HIGH: cyclomatic>50` |
 | app/cbl/CBTRN03C.cbl | HIGH | `HIGH: cyclomatic>50` |
 | app/cbl/COACTUPC.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/cbl/COACTVWC.cbl | HIGH | `HIGH: EXEC CICS present` |
@@ -2446,17 +2150,17 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | Tier | Programs |
 | --- | --- |
 | BLOCKED | 2 |
-| HIGH | 37 |
+| HIGH | 32 |
 | LOW | 0 |
-| MED | 5 |
+| MED | 10 |
 
 
 ## 9. Migration-scope recommendation
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Quotable-today code lines | 21160 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (1744) across 44 program(s) |
-| Code lines requiring grammar expansion | 1744 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) across 44 program(s) |
+| Quotable-today code lines | 21454 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (1450) across 44 program(s) |
+| Code lines requiring grammar expansion | 1450 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 44 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -2467,9 +2171,8 @@ Attribution is by source line: a code line requires grammar expansion if it carr
 
 | Construct | Occurrences |
 | --- | --- |
-| EXIT | 367 |
+| EXIT | 366 |
 | EXEC | 286 |
-| CONTINUE | 271 |
 | GO | 185 |
 | STRING | 120 |
 | WRITE | 117 |
@@ -2479,7 +2182,6 @@ Attribution is by source line: a code line requires grammar expansion if it carr
 | CLOSE | 52 |
 | COPY | 48 |
 | READ | 34 |
-| GOBACK | 22 |
 | SUBTRACT | 17 |
 | REWRITE | 6 |
 | CANCEL | 5 |
@@ -2637,6 +2339,7 @@ BLOCKED: coverage<0.60
 BLOCKED: ALTER present (static control flow is undecidable)
 HIGH: EXEC CICS present
 HIGH: EXEC SQL present
+HIGH: VALUE clause present but discarded by the transpiler (initialization semantics lost)
 HIGH: coverage<0.80
 HIGH: cyclomatic>50
 HIGH: goto_density>0.10
@@ -2692,7 +2395,11 @@ Token-scan counting rules (reproduced verbatim in the report appendix):
    immediately following ``.``, ``THEN``, ``ELSE``, or an ``END-…`` scope
    terminator. This deliberately under-counts verbs buried mid-clause (e.g.
    ``WHEN 1 DISPLAY X``); under-counting a construct is a smaller lie than
-   guessing at one, and the grade says PLAUSIBLE.
+   guessing at one, and the grade says PLAUSIBLE. A verb is classified
+   supported if the dispatch table holds the bare verb or its qualified
+   two-word form (``EXIT PROGRAM``); a qualified-only verb whose qualifier
+   is absent or unrecovered counts unsupported, in the same under-counting
+   direction.
 5. ``EXEC CICS`` / ``EXEC SQL`` / ``EXEC DLI`` count as one statement with verb
    ``EXEC`` and the product recorded as its context.
 6. A paragraph label is a line whose code area is a single name followed by a
@@ -2706,11 +2413,11 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b)`
+Registry: `SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553)`
 
-Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
+Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
-Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `SUBTRACT`
+Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `SUBTRACT`
 
 | DATA DIVISION feature | C1 status |
 | --- | --- |
@@ -2729,7 +2436,7 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | SIGN IS SEPARATE | accepted_ignored |
 | USAGE COMP / BINARY | accepted_ignored |
 | USAGE COMP-3 (packed decimal) | accepted_ignored |
-| VALUE clause on a data item | accepted_ignored |
+| VALUE clause on a data item | supported |
 | edited picture (Z / - / .) | supported |
 
 
@@ -2741,8 +2448,8 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | cli | cli.py |
 | platform | Linux |
 | python | 3.11.15 |
-| python-docx | 1.2.0 |
-| relian_transpiler | SUPPORTED_STATEMENTS@2823e78 (c1_rulebased.py sha256:0bad5dd59b092e4b) |
+| python-docx | not installed |
+| relian_transpiler | SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) |
 | schema | relian-assessment-1 |
 
 

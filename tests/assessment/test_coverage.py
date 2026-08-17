@@ -69,8 +69,16 @@ def test_unsupported_inventory_is_ranked_by_frequency(records):
 
 def test_single_word_statements_are_not_mistaken_for_paragraph_labels(records):
     """`GOBACK.` and `EXIT.` look exactly like paragraph labels."""
+    scanned = scan_source(read_source(FIXTURES / "HEAVY.cbl"))
+    counted = {h.verb for h in statements_by_token_scan(scanned)}
+    # Both are counted as statements, not swallowed as paragraph labels…
+    assert {"GOBACK", "EXIT"} <= counted
+    assert not {"GOBACK", "EXIT"} & set(scanned.paragraph_names())
+    # …and since WP-1.5.5 GOBACK is supported while bare EXIT (paragraph
+    # exit, no PROGRAM qualifier) remains honestly unsupported.
     verbs = {h.verb for h in result_for(records, "HEAVY.cbl").unsupported_inventory}
-    assert {"GOBACK", "EXIT"} <= verbs
+    assert "EXIT" in verbs
+    assert "GOBACK" not in verbs
 
 
 def test_exec_products_are_distinguished(records):
