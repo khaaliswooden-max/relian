@@ -1,0 +1,14 @@
+{"input": "125000.00,1,12", "expected": "STATUS=OK BASE=2500.00 BONUS=250.00 TOTAL=2750.00", "expected_exit": 0}
+{"input": "125000.00,2,7", "expected": "STATUS=OK BASE=4375.00 BONUS=218.75 TOTAL=4593.75", "expected_exit": 0}
+{"input": "125000.00,3,2", "expected": "STATUS=OK BASE=6250.00 BONUS=0.00 TOTAL=6250.00", "expected_exit": 0}
+{"input": "125000.00,4,25", "expected": "STATUS=OK BASE=9375.00 BONUS=937.50 TOTAL=10312.50", "expected_exit": 0}
+{"input": "90000.00,3,10", "expected": "STATUS=OK BASE=4500.00 BONUS=450.00 TOTAL=4950.00", "expected_exit": 0}
+{"input": "90000.00,3,9", "expected": "STATUS=OK BASE=4500.00 BONUS=225.00 TOTAL=4725.00", "expected_exit": 0}
+{"input": "90000.00,3,5", "expected": "STATUS=OK BASE=4500.00 BONUS=225.00 TOTAL=4725.00", "expected_exit": 0}
+{"input": "90000.00,3,4", "expected": "STATUS=OK BASE=4500.00 BONUS=0.00 TOTAL=4500.00", "expected_exit": 0}
+{"input": "1234.10,3,2", "expected": "STATUS=OK BASE=61.71 BONUS=0.00 TOTAL=61.71", "expected_exit": 0}
+{"input": "1234.10,3,7", "expected": "STATUS=OK BASE=61.71 BONUS=3.09 TOTAL=64.80", "expected_exit": 0}
+{"input": "999999.99,4,12", "expected": "STATUS=OK BASE=75000.00 BONUS=7500.00 TOTAL=82500.00", "expected_exit": 0}
+{"input": "1000000.00,3,5", "expected": "STATUS=REJECT BASE=0.00 BONUS=0.00 TOTAL=0.00", "expected_exit": 8}
+{"input": "80000.00,0,5", "expected": "STATUS=REJECT BASE=0.00 BONUS=0.00 TOTAL=0.00", "expected_exit": 8}
+{"input": "80000.00,5,5", "expected": "STATUS=REJECT BASE=0.00 BONUS=0.00 TOTAL=0.00", "expected_exit": 8}
