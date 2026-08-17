@@ -57,8 +57,8 @@ BODIES = {
     "EVALUATE": ["EVALUATE TRUE", "WHEN WS-N > 0", "DISPLAY WS-N", "END-EVALUATE"],
     "WHEN": ["EVALUATE TRUE", "WHEN WS-N > 0", "DISPLAY WS-N", "END-EVALUATE"],
     "END-EVALUATE": ["EVALUATE TRUE", "WHEN WS-N > 0", "DISPLAY WS-N", "END-EVALUATE"],
-    "PERFORM": ["PERFORM VARYING WS-N FROM 1 BY 1 UNTIL WS-N > 3",
-                "DISPLAY WS-N", "END-PERFORM"],
+    "PERFORM VARYING": ["PERFORM VARYING WS-N FROM 1 BY 1 UNTIL WS-N > 3",
+                        "DISPLAY WS-N", "END-PERFORM"],
     "END-PERFORM": ["PERFORM VARYING WS-N FROM 1 BY 1 UNTIL WS-N > 3",
                     "DISPLAY WS-N", "END-PERFORM"],
     "SEARCH": ["SET BI TO 1", "SEARCH WS-T", "AT END DISPLAY WS-N",
@@ -203,6 +203,46 @@ def test_boundary_only_tokens_are_not_reported_as_supported():
     # WP-1.5.5: bare EXIT splits statements but only "EXIT PROGRAM" has a
     # handler, so EXIT itself must stay boundary-only.
     assert "EXIT" in boundary_only_tokens()
+    # PR #16: same shape. Only the inline "PERFORM VARYING" form has a
+    # handler, so bare PERFORM must not be claimed — registering it claimed
+    # out-of-line PERFORM <paragraph> too, which crashed the transpiler and
+    # made the analyzer over-report coverage.
+    assert "PERFORM" in boundary_only_tokens()
+    assert "PERFORM" not in supported_verbs()
+    assert "PERFORM VARYING" in supported_verbs()
+
+
+@pytest.mark.parametrize("stmt,expected_verb", [
+    ("PERFORM POST-LINE", "PERFORM"),            # out-of-line
+    ("PERFORM A-PARA THRU B-PARA", "PERFORM"),   # THRU span
+    ("PERFORM UNTIL WS-N > 3", "PERFORM"),       # inline, no VARYING
+    ("PERFORM 5 TIMES", "PERFORM"),              # inline, n TIMES
+    # Reaches the handler on the two-word key, but not in the shape it
+    # parses (no BY phrase) — the handler's own guard must diagnose it
+    # rather than dying on a None match.
+    ("PERFORM VARYING WS-N FROM 1 UNTIL WS-N > 3", "PERFORM VARYING"),
+])
+def test_unsupported_perform_forms_are_diagnosed_not_crashed(stmt, expected_verb):
+    """PR #16: every PERFORM form without a handler must name itself.
+
+    Before the fix these reached ``_tx_perform``, whose regex returned None,
+    and the transpile died with an unhandled AttributeError — a crash where a
+    diagnosis was owed (R2).
+    """
+    src = program([stmt])
+    with pytest.raises(UnsupportedConstruct) as exc:
+        Transpiler(src, "Probe").transpile()
+    assert exc.value.verb == expected_verb
+    assert exc.value.paragraph == "MAIN-PARA"
+    assert exc.value.line_no > 0
+
+
+def test_supported_perform_varying_still_transpiles():
+    """The narrowing must not cost the form that was always supported."""
+    src = program(["PERFORM VARYING WS-N FROM 1 BY 1 UNTIL WS-N > 3",
+                   "DISPLAY WS-N", "END-PERFORM"])
+    java = Transpiler(src, "Probe").transpile()
+    assert "for (" in java
 
 
 def test_value_figuratives_match_the_oracle():

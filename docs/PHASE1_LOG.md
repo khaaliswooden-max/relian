@@ -1129,3 +1129,62 @@ P01–P05 public-split Java byte-identical to the WP-1.5.0d baseline; the
 coverage analyzer picked up the new verbs from SUPPORTED_STATEMENTS with
 zero hand-edits; WP-1.9 dry runs re-run with before/after recorded
 (CardDemo 0.8209→0.8511, OMP 0.6606→0.6945, GnuCOBOL 0.5763→0.5968).
+
+---
+
+## 2026-08-17 · PR #16 · `PERFORM` registered under its qualified key
+
+Found while building the end-to-end demo (`python3 -m demo`), which runs the
+assessment engine and the transpiler over the same program and compares their
+verdicts. A program whose only out-of-subset construct was `PERFORM POST-LINE`
+made the two disagree: the analyzer said 1.0000 transpilable, and the
+transpiler died with `AttributeError: 'NoneType' object has no attribute
+'groups'`.
+
+**One cause, two symptoms.** `SUPPORTED_STATEMENTS` registered the bare verb
+`PERFORM`, but `_tx_perform` only parses the inline
+`PERFORM VARYING … FROM … BY … UNTIL` form.
+
+1. Dispatch routed every `PERFORM` — out-of-line, `THRU`, `UNTIL`, `n TIMES` —
+   into that handler, whose regex returned `None`. An undiagnosed crash where a
+   diagnosis was owed (R2). Safe in outcome (no Java emitted) but not honest
+   failure: a crash is not a refusal.
+2. `supported_verbs()` reads those keys, so the assessment counted every
+   `PERFORM` as transpilable and over-reported coverage.
+
+**Fix:** register `"PERFORM VARYING"` — the same two-word-key mechanism
+WP-1.5.5 used to keep paragraph `EXIT` honestly unsupported — plus a guard in
+`_tx_perform` for a `VARYING` shape it cannot parse (no `BY` phrase), which
+calls `unsupported()` instead of dereferencing `None`. Both symptoms fall out
+of the one change; the analyzer needed no edit, because it reads the table.
+
+**Behaviour-preserving on everything supported.** All 7 corpus programs'
+generated Java is byte-identical to the WP-1.5.5 baseline (sha256 unchanged for
+P01–P07), public split BER 1.0, build 1.0. Nothing became supported, so R7 is
+not engaged — the claimed surface shrank to match the implementation.
+
+**WP-1.9 re-run (same input trees, manifest hashes identical).** This is the
+first re-run in this log whose numbers go DOWN, because it withdraws a claim
+rather than adding capability:
+
+- CardDemo **0.8511 → 0.7248** (−1,230 statements)
+- OMP course **0.6945 → 0.5287** (−127)
+- GnuCOBOL **0.5968 → 0.5444** (−23)
+- examples_cobol **0.7545 → 0.5818** (−19)
+- bench_corpus **1.0000 → 1.0000** (unchanged; the corpus uses only the inline
+  `VARYING` form, so the sealed benchmark never rested on the false claim)
+
+Artifacts refreshed in `docs/dryruns/`.
+
+**Consequence for planning.** Out-of-line `PERFORM` is now the largest single
+blocker in real COBOL: **1,380 occurrences, 42.6%** of all unsupported
+constructs across the three third-party corpora — larger than CICS, file I/O or
+`GO TO` individually. With paragraph `EXIT` (367), which is the same feature,
+performed paragraphs are **53.9%** of all blockers. This was invisible while the
+analyzer counted them as supported.
+
+**Not done here, and bench-gated (R7):** actually supporting performed
+paragraphs. RELIAN-BENCH v1.2 contains no program exercising an out-of-line
+`PERFORM`, so a sealed corpus addition must land before any implementation.
+P07_exitflow's own header already anticipates this ("rev 2 … with out-of-line
+PERFORM <para> and tested paragraph EXIT"). Operator decision.

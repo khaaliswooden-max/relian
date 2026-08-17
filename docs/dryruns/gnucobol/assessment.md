@@ -1,4 +1,4 @@
-# Legacy Code Assessment — /tmp/claude-0/-home-user-relian/edca33b0-bec2-500a-808c-f08e8406d6eb/scratchpad/dryruns/gnucobol
+# Legacy Code Assessment — /tmp/claude-0/-home-user/f2df2865-c5ad-56fb-9929-a95ffe40b35f/scratchpad/dryrun/gnucobol
 Schema `relian-assessment-1` · manifest `b612f755cbe6e8ea0a51f8f6a889e7ce1a6defbbbc8efcc8a050e826e839257e`
 
 Every number in this report is a measurement with a stated origin and a Trutina grade, or it is absent. Nothing here is a default, an estimate, or a target reported as a result.
@@ -7,9 +7,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.5968 | PLAUSIBLE | 262/439 statements supported across 6 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan; 1 program(s) excluded, no statements recovered |
-| Quotable-today code lines | 5584 | PLAUSIBLE | code lines (5761) minus lines carrying an unsupported construct (177) across 6 program(s); 1 program(s) excluded (coverage not measured) |
-| Code lines requiring grammar expansion | 177 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 6 program(s); 1 program(s) excluded (coverage not measured) |
+| Portfolio construct coverage | 0.5444 | PLAUSIBLE | 239/439 statements supported across 6 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan; 1 program(s) excluded, no statements recovered |
+| Quotable-today code lines | 5561 | PLAUSIBLE | code lines (5761) minus lines carrying an unsupported construct (200) across 6 program(s); 1 program(s) excluded (coverage not measured) |
+| Code lines requiring grammar expansion | 200 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 6 program(s); 1 program(s) excluded (coverage not measured) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
@@ -454,20 +454,20 @@ Portfolio totals — physical 14471, code 6191, comment 4149, blank 4131, logica
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| NEWS | 0.3333 | PLAUSIBLE | 2/6 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on NEWS (sha256:bbc1c1afeee17c18); method=token_scan, source_format=free; antlr_syntax_errors=50 |
-| cobc/ChangeLog | 0.4792 | PLAUSIBLE | 23/48 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on cobc/ChangeLog (sha256:904273a2977d6d1d); method=token_scan, source_format=free; antlr_syntax_errors=50 |
-| extras/CBL_OC_DUMP.cob | 0.9516 | PLAUSIBLE | 59/62 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on extras/CBL_OC_DUMP.cob (sha256:6e143a805abad43b); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| NEWS | 0.3333 | PLAUSIBLE | 2/6 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on NEWS (sha256:bbc1c1afeee17c18); method=token_scan, source_format=free; antlr_syntax_errors=50 |
+| cobc/ChangeLog | 0.4792 | PLAUSIBLE | 23/48 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on cobc/ChangeLog (sha256:904273a2977d6d1d); method=token_scan, source_format=free; antlr_syntax_errors=50 |
+| extras/CBL_OC_DUMP.cob | 0.9516 | PLAUSIBLE | 59/62 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on extras/CBL_OC_DUMP.cob (sha256:6e143a805abad43b); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
 | tests/ChangeLog | — | — | no statements recovered by either method — no coverage ratio is reported (R1) |
-| tests/testsuite.src/numeric-display.cob | 1.0 | PLAUSIBLE | 37/37 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on tests/testsuite.src/numeric-display.cob (sha256:b3597f74d35bd8fa); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| tests/testsuite.src/numeric-dump.cob | 0.2044 | PLAUSIBLE | 37/181 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on tests/testsuite.src/numeric-dump.cob (sha256:a629c4a5de538af3); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| tests/testsuite.src/tutorial.cob | 0.9905 | PLAUSIBLE | 104/105 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on tests/testsuite.src/tutorial.cob (sha256:75aac7d42bc73467); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| tests/testsuite.src/numeric-display.cob | 1.0 | PLAUSIBLE | 37/37 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on tests/testsuite.src/numeric-display.cob (sha256:b3597f74d35bd8fa); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| tests/testsuite.src/numeric-dump.cob | 0.2044 | PLAUSIBLE | 37/181 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on tests/testsuite.src/numeric-dump.cob (sha256:a629c4a5de538af3); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| tests/testsuite.src/tutorial.cob | 0.7714 | PLAUSIBLE | 81/105 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on tests/testsuite.src/tutorial.cob (sha256:75aac7d42bc73467); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.5968 | PLAUSIBLE | 262/439 statements supported across 6 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan; 1 program(s) excluded, no statements recovered |
+| Coverage ratio | 0.5444 | PLAUSIBLE | 239/439 statements supported across 6 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan; 1 program(s) excluded, no statements recovered |
 
 
 ### Programs excluded from the ratio
@@ -477,12 +477,13 @@ Portfolio totals — physical 14471, code 6191, comment 4149, blank 4131, logica
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
 | CALL | 117 |
 | INITIALIZE | 39 |
+| PERFORM | 23 |
 | USE | 6 |
 | GENERATE | 5 |
 | SORT | 3 |
@@ -674,7 +675,30 @@ Portfolio totals — physical 14471, code 6191, comment 4149, blank 4131, logica
 | tests/testsuite.src/numeric-dump.cob | 447 | — | CALL | — |
 | tests/testsuite.src/numeric-dump.cob | 450 | — | CALL | — |
 | tests/testsuite.src/numeric-dump.cob | 453 | — | CALL | — |
+| tests/testsuite.src/tutorial.cob | 102 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 104 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 105 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 112 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 115 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 120 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 121 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 140 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 141 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 143 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 144 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 147 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 174 | — | PERFORM | — |
 | tests/testsuite.src/tutorial.cob | 189 | — | CALL | — |
+| tests/testsuite.src/tutorial.cob | 208 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 215 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 217 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 218 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 224 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 233 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 236 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 238 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 244 | — | PERFORM | — |
+| tests/testsuite.src/tutorial.cob | 252 | — | PERFORM | — |
 
 
 ## 6. DATA DIVISION features found
@@ -731,22 +755,22 @@ Portfolio totals — physical 14471, code 6191, comment 4149, blank 4131, logica
 | tests/ChangeLog | BLOCKED | `BLOCKED: coverage not measured (program did not yield statements)` |
 | tests/testsuite.src/numeric-display.cob | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
 | tests/testsuite.src/numeric-dump.cob | BLOCKED | `BLOCKED: coverage<0.60` |
-| tests/testsuite.src/tutorial.cob | MED | `MED: coverage<1.00` |
+| tests/testsuite.src/tutorial.cob | HIGH | `HIGH: coverage<0.80` |
 
 | Tier | Programs |
 | --- | --- |
 | BLOCKED | 4 |
-| HIGH | 0 |
+| HIGH | 1 |
 | LOW | 1 |
-| MED | 2 |
+| MED | 1 |
 
 
 ## 9. Migration-scope recommendation
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Quotable-today code lines | 5584 | PLAUSIBLE | code lines (5761) minus lines carrying an unsupported construct (177) across 6 program(s); 1 program(s) excluded (coverage not measured) |
-| Code lines requiring grammar expansion | 177 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 6 program(s); 1 program(s) excluded (coverage not measured) |
+| Quotable-today code lines | 5561 | PLAUSIBLE | code lines (5761) minus lines carrying an unsupported construct (200) across 6 program(s); 1 program(s) excluded (coverage not measured) |
+| Code lines requiring grammar expansion | 200 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 6 program(s); 1 program(s) excluded (coverage not measured) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -759,6 +783,7 @@ Attribution is by source line: a code line requires grammar expansion if it carr
 | --- | --- |
 | CALL | 117 |
 | INITIALIZE | 39 |
+| PERFORM | 23 |
 | USE | 6 |
 | GENERATE | 5 |
 | SORT | 3 |
@@ -993,11 +1018,11 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553)`
+Registry: `SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d)`
 
-Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
+Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM VARYING`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
-Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `SUBTRACT`
+Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `PERFORM`, `SUBTRACT`
 
 | DATA DIVISION feature | C1 status |
 | --- | --- |
@@ -1029,7 +1054,7 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | platform | Linux |
 | python | 3.11.15 |
 | python-docx | not installed |
-| relian_transpiler | SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) |
+| relian_transpiler | SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) |
 | schema | relian-assessment-1 |
 
 

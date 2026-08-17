@@ -1,32 +1,34 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. LEDGRPST.
       *****************************************************************
-      * Ledger posting -- the ROUGH-EDGE case, included deliberately.
+      * Ledger posting -- the NEARLY-TRANSPILABLE case.
       *
       * Valid COBOL-85; GnuCOBOL compiles and runs it. Every verb it
       * uses is inside the committed subset EXCEPT one: it PERFORMs a
-      * named paragraph (PERFORM POST-LINE), which the C1 transpiler
-      * does not support.
+      * named paragraph (PERFORM POST-LINE), the commonest control-flow
+      * idiom in production COBOL.
       *
-      * The designed behavior for an unsupported construct is a clean
-      * UnsupportedConstruct naming the verb, line and paragraph --
-      * which is what CUSTUPD.cbl gets. This program does NOT get that:
-      * PERFORM has a handler, and that handler assumes the inline
-      * PERFORM ... UNTIL / VARYING forms, so a paragraph-name operand
-      * makes its regex return None and the transpile dies with an
-      * unhandled AttributeError instead of a diagnosis.
+      * That single statement is why this program is here. 13 of its 14
+      * statements are transpilable -- 0.9286 -- and Relian still
+      * refuses the whole program, naming the verb and the line. There
+      * is no partial migration, no "we did the 93% we could": a
+      * migration that silently dropped one PERFORM would produce Java
+      * that compiles, runs, and computes the wrong balance.
       *
-      * The outcome is still safe -- no Java is emitted and nothing is
-      * attested. But two things go wrong on the way there, and the
-      * demo names both rather than dressing them up:
+      * This case previously documented two defects, both now fixed
+      * (see PR #16):
       *
-      *   1. A crash is not a refusal. The verdict is
-      *      TRANSPILE_CRASHED, not REFUSED_UNSUPPORTED.
-      *   2. The read-only assessment does NOT catch this in advance.
-      *      It classifies statements by bare verb, and PERFORM is in
-      *      the dispatch table, so it reports 1.0000 transpilable and
-      *      is wrong. Coverage over-reports wherever only some forms
-      *      of a verb are supported.
+      *   1. The transpiler CRASHED here (AttributeError) instead of
+      *      diagnosing, because PERFORM was registered as a bare verb
+      *      while only the inline VARYING form had a handler.
+      *   2. The assessment reported 1.0000 transpilable and was wrong,
+      *      because it classifies by bare verb and read the same
+      *      over-broad registration.
+      *
+      * Registering the qualified key "PERFORM VARYING" fixed both at
+      * once. The demo still distinguishes a crash from a refusal
+      * (verdict TRANSPILE_CRASHED) -- no shipped program triggers it
+      * now, and a unit test exercises that path directly.
       *
       * Input  (stdin, CSV): AMOUNT,ACCOUNT,PERIOD
       * Output (stdout)    : ACCT=x PERIOD=y POSTED=z

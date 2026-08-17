@@ -120,9 +120,9 @@ _REFUSAL_NOTES = {
                "EXIT — all outside the committed subset. The transpiler stops at the "
                "first one and names it.",
     "LEDGRPST": "Valid COBOL-85 whose only out-of-subset construct is PERFORM of a "
-                "named paragraph. Included because the transpiler does not diagnose "
-                "that one — it crashes instead of refusing. Still safe (no output, no "
-                "attestation), but a defect rather than designed behavior.",
+                "named paragraph — the commonest control-flow idiom in production "
+                "COBOL. 13 of its 14 statements are transpilable and the program is "
+                "still refused whole: there is no partial migration.",
 }
 
 

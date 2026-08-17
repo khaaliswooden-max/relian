@@ -36,19 +36,27 @@ correctly reports zero programs on it.
 
 ## Results
 
-> **Re-run after WP-1.5.4 / WP-1.5.5** (VALUE clause; CONTINUE / GOBACK /
-> EXIT PROGRAM). The committed artifacts and the tables below are the re-run;
-> the original WP-1.9 figures appear in the before/after table at the end.
-> Input trees are content-identical to the originals (same manifest hashes),
-> so every delta is attributable to the transpiler change alone.
+> **Re-run after PR #16** (`PERFORM` registered under its qualified key). The
+> committed artifacts and the tables below are that re-run. Input trees are
+> content-identical to every prior run (same manifest hashes), so every delta
+> is attributable to the transpiler change alone.
+>
+> **These figures are LOWER than the WP-1.5.4/1.5.5 ones they replace, and the
+> earlier numbers were wrong.** `PERFORM` was registered as a bare verb while
+> only the inline `PERFORM VARYING` form had a handler, so the analyzer —
+> which reads the dispatch table — counted every out-of-line
+> `PERFORM <paragraph>` as transpilable. It is not. Correcting the
+> registration removed 1,380 falsely-claimed statements across the three
+> third-party corpora. Nothing about the transpiler's actual capability
+> changed; the claim came down to meet it.
 
 | Run | Coverage | Grade | Portfolio risk | Quotable-today LOC | LOC needing grammar work |
 |---|---|---|---|---|---|
-| `bench_corpus` (now 7 programs, v1.2) | 1.0000 | PLAUSIBLE | LOW | 384 | 0 |
-| `examples_cobol` | 0.7545 | PLAUSIBLE | HIGH | 241 | 27 |
-| `aws_carddemo` | 0.8511 | PLAUSIBLE | BLOCKED | 21,454 | 1,450 |
-| `omp_cobol_course` | 0.6945 | PLAUSIBLE | BLOCKED | 2,505 | 234 |
-| `gnucobol` | 0.5968 | PLAUSIBLE | BLOCKED | 5,584 | 177 |
+| `bench_corpus` (7 programs, v1.2) | 1.0000 | PLAUSIBLE | LOW | 384 | 0 |
+| `examples_cobol` | 0.5818 | PLAUSIBLE | BLOCKED | 222 | 46 |
+| `aws_carddemo` | 0.7248 | PLAUSIBLE | BLOCKED | 20,224 | 2,680 |
+| `omp_cobol_course` | 0.5287 | PLAUSIBLE | BLOCKED | 2,378 | 361 |
+| `gnucobol` | 0.5444 | PLAUSIBLE | BLOCKED | 5,561 | 200 |
 
 Two results are worth reading carefully.
 
@@ -65,34 +73,48 @@ most affects Phase 2 planning; see "Escalation" in `docs/PHASE1_LOG.md`.
 
 ## The demand signal — unsupported constructs across the three real-world corpora
 
-1,861 occurrences of constructs C1 cannot transpile (2,190 before
-WP-1.5.4/1.5.5 — `CONTINUE` and `GOBACK` cleared entirely, and one same-line
-`EXIT PROGRAM`; the 367 remaining `EXIT`s are paragraph exits or line-final,
-deliberately still unsupported pending performed-paragraph work).
+3,241 occurrences of constructs C1 cannot transpile. The jump from the 1,861
+previously reported is not new code and not a regression — it is the 1,380
+out-of-line `PERFORM`s that were always unsupported and were being counted as
+supported (PR #16).
 
 | Rank | Construct | Occurrences | Share | Cumulative |
 |---|---|---|---|---|
-| 1 | `EXIT` (paragraph form) | 367 | 19.7% | 19.7% |
-| 2 | `EXEC` (CICS/SQL) | 306 | 16.4% | 36.2% |
-| 3 | `WRITE` | 224 | 12.0% | 48.2% |
-| 4 | `GO TO` | 186 | 10.0% | 58.2% |
-| 5 | `CALL` | 183 | 9.8% | 68.0% |
-| 6 | `INITIALIZE` | 124 | 6.7% | 74.7% |
-| 7 | `STRING` | 121 | 6.5% | 81.2% |
-| 8 | `OPEN` | 96 | 5.2% | 86.4% |
-| 9 | `CLOSE` | 91 | 4.9% | 91.2% |
-| 10 | `READ` | 56 | 3.0% | 94.3% |
-| 11 | `COPY` | 50 | 2.7% | 96.9% |
-| 12 | `SUBTRACT` | 18 | 1.0% | 97.9% |
-| 13– | `REWRITE`, `USE`, `CANCEL`, `DELETE`, `GENERATE`, `ALTER`, `ENTRY`, `SORT`, `DIVIDE` | 39 | 2.1% | 100% |
+| 1 | `PERFORM` (out-of-line / non-VARYING) | 1,380 | 42.6% | 42.6% |
+| 2 | `EXIT` (paragraph form) | 367 | 11.3% | 53.9% |
+| 3 | `EXEC` (CICS/SQL) | 306 | 9.4% | 63.3% |
+| 4 | `WRITE` | 224 | 6.9% | 70.2% |
+| 5 | `GO TO` | 186 | 5.7% | 76.0% |
+| 6 | `CALL` | 183 | 5.6% | 81.6% |
+| 7 | `INITIALIZE` | 124 | 3.8% | 85.4% |
+| 8 | `STRING` | 121 | 3.7% | 89.2% |
+| 9 | `OPEN` | 96 | 3.0% | 92.1% |
+| 10 | `CLOSE` | 91 | 2.8% | 94.9% |
+| 11 | `READ` | 56 | 1.7% | 96.7% |
+| 12 | `COPY` | 50 | 1.5% | 98.2% |
+| 13 | `SUBTRACT` | 18 | 0.6% | 98.8% |
+| 14– | `REWRITE`, `USE`, `CANCEL`, `DELETE`, `GENERATE`, `ALTER`, `ENTRY`, `SORT`, `DIVIDE` | 39 | 1.2% | 100% |
+
+**Out-of-line `PERFORM` is now, by a wide margin, the single largest blocker to
+migrating real COBOL** — bigger than CICS, file I/O and `GO TO` individually.
+It also subsumes the paragraph-`EXIT` item below: the two are the same feature
+(a performed paragraph needs an exit), so items 1 and 2 together are 53.9% of
+all blockers and are one work package, not two.
 
 Reading it as Phase 4 work items, cheapest-first:
 
+0. **Performed paragraphs — `PERFORM <paragraph>` + paragraph `EXIT` (1,747,
+   53.9%)** is now the top item and was previously invisible, because the
+   analyzer counted these `PERFORM`s as already supported. It is a control-flow
+   model change (paragraphs become callable units), not dispatch-table work,
+   and it is bench-gated: RELIAN-BENCH has no program exercising an out-of-line
+   `PERFORM`, so a sealed corpus addition must land before any implementation
+   (R7).
 1. ~~`EXIT`, `CONTINUE`, `GOBACK` — dispatch entries~~ **Done for
    `CONTINUE`, `GOBACK` and the qualified `EXIT PROGRAM` (WP-1.5.5,
    bench-gated by RELIAN-BENCH v1.2's P07_exitflow). Paragraph `EXIT`
-   remains: it is inseparable from performed-paragraph support (Bugbot
-   finding, PR #10) and is NOT dispatch-table-only work.**
+   remains, and folds into item 0 above: it is inseparable from
+   performed-paragraph support (Bugbot finding, PR #10).**
 2. **`SUBTRACT` and `DIVIDE` (20)** are arithmetic C1 already models; `SUBTRACT`
    is currently a statement-boundary token with no handler, which is the exact
    silent-drop hazard WP-0.3 documented.
@@ -135,23 +157,36 @@ zero-initialising migration on vector 1. Unrepresentable VALUE forms raise
 `UnsupportedConstruct`-style errors rather than silently zero-initialising
 (R2).
 
-## Before / after — WP-1.5.4 + WP-1.5.5 re-run (same input trees)
+## Before / after — PR #16 correction (same input trees)
 
 Coverage is statements-supported / statements-recovered, token-scan, graded
-PLAUSIBLE. Manifest hashes match the original WP-1.9 runs, so the input code
-is byte-identical and the delta is the transpiler change alone.
+PLAUSIBLE. Manifest hashes match every prior run, so the input code is
+byte-identical and the delta is the registration change alone.
 
-| Run | Before | After | Newly supported statements |
+This table runs the wrong way on purpose. Every other re-run in this file
+raised coverage by adding capability; this one lowers it by withdrawing a claim
+that was never true.
+
+| Run | WP-1.5.4/1.5.5 (overstated) | PR #16 (corrected) | Statements withdrawn |
 |---|---|---|---|
-| `aws_carddemo` | 0.8209 (7,994/9,738) | **0.8511** (8,288/9,738) | +294 |
-| `omp_cobol_course` | 0.6606 (506/766) | **0.6945** (532/766) | +26 |
-| `gnucobol` | 0.5763 (253/439) | **0.5968** (262/439) | +9 |
-| `examples_cobol` | 0.7545 (83/110) | 0.7545 (83/110) | 0 (no CONTINUE/GOBACK/EXIT PROGRAM) |
-| `bench_corpus` | 1.0000 (126/126, 5 programs) | **1.0000** (173/173, 7 programs, v1.2) | corpus grew |
+| `aws_carddemo` | 0.8511 (8,288/9,738) | **0.7248** (7,058/9,738) | −1,230 |
+| `omp_cobol_course` | 0.6945 (532/766) | **0.5287** (405/766) | −127 |
+| `gnucobol` | 0.5968 (262/439) | **0.5444** (239/439) | −23 |
+| `examples_cobol` | 0.7545 (83/110) | **0.5818** (64/110) | −19 |
+| `bench_corpus` | 1.0000 (173/173) | **1.0000** (173/173) | 0 |
 
-+329 across the three real-world corpora = the demand table's `CONTINUE`
-(271) + `GOBACK` (57) + 1 same-line `EXIT PROGRAM`. Paragraph `EXIT` (367)
-is deliberately unclaimed.
+−1,380 across the three third-party corpora, exactly the demand table's new
+`PERFORM` row. `bench_corpus` is unchanged at 1.0000 because every `PERFORM` in
+the committed corpus is the inline `VARYING` form, which is genuinely
+supported — and the corpus still cross-validates against BER 1.0000 on the
+public split. The sealed benchmark never depended on the false claim.
+
+### For the earlier before/after (WP-1.5.4 + WP-1.5.5)
+
+That re-run added `CONTINUE` (271), `GOBACK` (57) and one same-line
+`EXIT PROGRAM` — +329 real statements, from 0.8209 / 0.6606 / 0.5763. Those
+gains are still real and are included in the corrected figures above; the
+`PERFORM` correction is subtracted on top of them.
 
 ## Reproducing
 

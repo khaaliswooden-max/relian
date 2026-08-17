@@ -79,10 +79,10 @@ replayed from a file, and where the legacy side cannot be executed it reports
 equivalence as *not measured* rather than assuming it.
 
 It also runs two programs it is expected to fail on, because what a migration
-tool does outside its depth is the only question that matters: one gets a
-diagnosed refusal naming the verb and line, and one exposes a construct the
-engine crashes on instead of diagnosing. Both are real open gaps, and the demo
-labels them as such. See [`demo/README.md`](demo/README.md).
+tool does outside its depth is the only question that matters. Both get a
+diagnosed refusal naming the verb and the line, emit no Java, and issue no
+attestation — including one that is 93% transpilable, because 93% is not 100%.
+See [`demo/README.md`](demo/README.md).
 
 ## License
 

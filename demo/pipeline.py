@@ -215,6 +215,18 @@ class CaseResult:
             return None
         return self.vectors_total - self.vectors_executed
 
+    @property
+    def execution_outage(self) -> bool:
+        """Both sides built, inputs were attempted, and none of them ran.
+
+        This is NOT_MEASURED for the same reason the offline mode is — nothing
+        was observed — but the two must not be treated alike. Running without
+        GnuCOBOL is a supported mode; a toolchain that is present and then
+        fails on every single input is a fault, and a caller deciding an exit
+        status needs to tell them apart.
+        """
+        return bool(self.vectors_total) and self.vectors_executed == 0
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "case_id": self.case_id,
@@ -507,9 +519,9 @@ def run_case(case: Case, workdir: Path,
     if result.ber is None:
         result.verdict = NOT_MEASURED
         result.attestation_reason = (
-            f"none of the {result.vectors_total or 0} input(s) could be run on both "
-            f"sides, so nothing was compared. This is an absent measurement, not a "
-            f"passing or failing one.")
+            f"both sides built, but none of the {result.vectors_total or 0} input(s) "
+            f"could be run, so nothing was compared. Nothing was measured — and a "
+            f"toolchain that fails on every input is a fault, not a quiet pass.")
     elif absent:
         # Something ran, but not everything. Whatever the executed subset
         # showed, this program was not fully compared.

@@ -63,21 +63,31 @@ runs, using `SUBTRACT`, `MULTIPLY`, `DIVIDE`, `STRING`, `GO TO` and paragraph
 paragraph, emits no Java and issues no attestation. The assessment predicted
 the refusal before the transpiler ran.
 
-**`LEDGRPST.cbl` — an undiagnosed failure, shown on purpose.** Its only
-out-of-subset construct is `PERFORM` of a named paragraph. Two things go wrong:
+**`LEDGRPST.cbl` — 93% transpilable, refused anyway.** Its only out-of-subset
+construct is `PERFORM` of a named paragraph, the commonest control-flow idiom in
+production COBOL. 13 of its 14 statements are transpilable — and Relian refuses
+the whole program, naming the verb and the line. There is no partial migration
+and no "we did the 93% we could", because Java that silently dropped one
+`PERFORM` would compile, run, and post the wrong balance.
 
-1. The transpiler **crashes** (`AttributeError`) instead of refusing. `PERFORM`
-   has a handler that assumes the inline `UNTIL`/`VARYING` forms, so a
-   paragraph-name operand makes its regex return `None`. The outcome is still
-   safe — no Java is emitted — but a crash is not a diagnosis, so the demo
-   reports `TRANSPILE_CRASHED`, not `REFUSED_UNSUPPORTED`.
-2. The **assessment does not catch it in advance**. It classifies statements by
-   bare verb, and `PERFORM` is in the dispatch table, so it reports `1.0000`
-   transpilable and is wrong. Coverage over-reports wherever only *some* forms
-   of a verb are supported.
+This case previously documented two defects, both fixed in PR #16:
 
-Both are real, open gaps in this repository. They are in the demo because
-hiding them would make the demo a worse tool than the thing it demonstrates.
+1. The transpiler **crashed** here (`AttributeError`) instead of diagnosing.
+   `PERFORM` was registered as a bare verb while only the inline `VARYING` form
+   had a handler, so a paragraph-name operand made its regex return `None`.
+2. The **assessment reported `1.0000` transpilable and was wrong**, because it
+   classifies by bare verb and read the same over-broad registration.
+
+Registering the qualified key `PERFORM VARYING` fixed both at once — dispatch
+now refuses the unsupported forms by name, and the analyzer picked up the
+narrower claim with no hand-edit. The demo still distinguishes a crash from a
+refusal; no shipped program triggers `TRANSPILE_CRASHED` now, and a unit test
+exercises that path directly.
+
+The correction was not cosmetic. Re-measured on the same input trees, real-world
+coverage fell from 0.8511 to 0.7248 (AWS CardDemo), 0.6945 to 0.5287 (OMP
+course) and 0.5968 to 0.5444 (GnuCOBOL) — 1,380 statements that had been
+counted as migratable and were not. See [`docs/dryruns/README.md`](../docs/dryruns/README.md).
 
 ## Without GnuCOBOL
 

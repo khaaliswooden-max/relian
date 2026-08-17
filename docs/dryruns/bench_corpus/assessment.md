@@ -7,9 +7,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 1.0 | PLAUSIBLE | 173/173 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
+| Portfolio construct coverage | 1.0 | PLAUSIBLE | 173/173 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
 | Quotable-today code lines | 384 | PLAUSIBLE | code lines (384) minus lines carrying an unsupported construct (0) across 7 program(s) |
-| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 7 program(s) |
+| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 7 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
@@ -67,20 +67,20 @@ Portfolio totals — physical 464, code 384, comment 75, blank 5, logical 173 (7
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| P01_payroll/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P01_payroll/program.cbl (sha256:a4b0d32852a107ab); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
-| P02_interest/program.cbl | 1.0 | PLAUSIBLE | 19/19 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P02_interest/program.cbl (sha256:eca429658d4d4882); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
-| P03_eligibility/program.cbl | 1.0 | PLAUSIBLE | 24/24 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P03_eligibility/program.cbl (sha256:4d4fcb294665e67b); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
-| P04_taxtable/program.cbl | 1.0 | PLAUSIBLE | 33/33 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P04_taxtable/program.cbl (sha256:6dfa8a0461a45bd5); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
-| P05_validate/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P05_validate/program.cbl (sha256:65f5d5c5402effa0); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| P06_valinit/program.cbl | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P06_valinit/program.cbl (sha256:950113b8470290d5); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| P07_exitflow/program.cbl | 1.0 | PLAUSIBLE | 33/33 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on P07_exitflow/program.cbl (sha256:80a9eb6456c65634); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| P01_payroll/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P01_payroll/program.cbl (sha256:a4b0d32852a107ab); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
+| P02_interest/program.cbl | 1.0 | PLAUSIBLE | 19/19 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P02_interest/program.cbl (sha256:eca429658d4d4882); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
+| P03_eligibility/program.cbl | 1.0 | PLAUSIBLE | 24/24 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P03_eligibility/program.cbl (sha256:4d4fcb294665e67b); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
+| P04_taxtable/program.cbl | 1.0 | PLAUSIBLE | 33/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P04_taxtable/program.cbl (sha256:6dfa8a0461a45bd5); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
+| P05_validate/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P05_validate/program.cbl (sha256:65f5d5c5402effa0); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| P06_valinit/program.cbl | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P06_valinit/program.cbl (sha256:950113b8470290d5); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| P07_exitflow/program.cbl | 1.0 | PLAUSIBLE | 33/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P07_exitflow/program.cbl (sha256:80a9eb6456c65634); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 1.0 | PLAUSIBLE | 173/173 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
+| Coverage ratio | 1.0 | PLAUSIBLE | 173/173 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
@@ -142,7 +142,7 @@ No construct outside the supported set was found.
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
 | Quotable-today code lines | 384 | PLAUSIBLE | code lines (384) minus lines carrying an unsupported construct (0) across 7 program(s) |
-| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 7 program(s) |
+| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 7 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -370,11 +370,11 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553)`
+Registry: `SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d)`
 
-Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
+Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM VARYING`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
-Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `SUBTRACT`
+Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `PERFORM`, `SUBTRACT`
 
 | DATA DIVISION feature | C1 status |
 | --- | --- |
@@ -405,8 +405,8 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | cli | cli.py |
 | platform | Linux |
 | python | 3.11.15 |
-| python-docx | not installed |
-| relian_transpiler | SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) |
+| python-docx | 1.2.0 |
+| relian_transpiler | SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) |
 | schema | relian-assessment-1 |
 
 

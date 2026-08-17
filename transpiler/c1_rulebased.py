@@ -767,6 +767,17 @@ def _tx_when(tp: Transpiler, i: int, s: str) -> int:
 
 def _tx_perform(tp: Transpiler, i: int, s: str) -> int:
     m = re.match(r"PERFORM\s+VARYING\s+([A-Z0-9\-]+)\s+FROM\s+(\S+)\s+BY\s+(\S+)\s+UNTIL\s+(.*)$", s)
+    if m is None:
+        # Reached only for a PERFORM VARYING whose shape this handler does not
+        # cover (e.g. no BY phrase). The two-word dispatch key already routes
+        # every other PERFORM form to unsupported(); this guard closes the last
+        # path by which an unhandled form could reach `.groups()` on None and
+        # die with an AttributeError instead of being diagnosed (R2 -- an
+        # undiagnosed crash is not an honest failure, it just looks like one).
+        line_no = tp.stmt_lines[i] if i < len(tp.stmt_lines) else -1
+        para = tp.stmt_paras[i] if i < len(tp.stmt_paras) else None
+        tp.unsupported("PERFORM VARYING", line_no, para)
+        return i + 1
     var, frm, by, until = m.groups()
     f = tp.fields[var]
     tp.w(f'for ({jname(var)} = new BigDecimal("{frm}"); '
@@ -913,7 +924,17 @@ SUPPORTED_STATEMENTS: Dict[str, Callable[[Transpiler, int, str], int]] = {
     "IF": _tx_if,
     "INSPECT": _tx_inspect,
     "MOVE": _tx_move,
-    "PERFORM": _tx_perform,
+    # Two-word key, same reasoning as EXIT PROGRAM above. Only the inline
+    # VARYING form has a handler; out-of-line PERFORM <paragraph> (and inline
+    # PERFORM UNTIL / n TIMES) do not. Registering the bare verb claimed all of
+    # them: `PERFORM POST-LINE` reached _tx_perform, whose regex returned None,
+    # and the transpile died with an AttributeError -- a crash where a
+    # diagnosis was owed (R2). Worse, supported_verbs() reads these keys, so
+    # the assessment counted every PERFORM as transpilable and over-reported
+    # coverage on programs C1 cannot migrate. The qualified key fixes both at
+    # once: dispatch refuses the unsupported forms by name, and the analyzer
+    # picks up the narrower claim with no hand-edit.
+    "PERFORM VARYING": _tx_perform,
     "SEARCH": _tx_search,
     "SET": _tx_set,
     "STOP": _tx_stop,

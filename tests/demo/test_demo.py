@@ -76,26 +76,53 @@ def test_refusal_is_diagnosed_not_crashed(tmp_path):
     assert result.attestation_gate == "BLOCKED"
 
 
-def test_crash_is_not_reported_as_a_refusal(tmp_path):
-    """A defect in the diagnosis path must not masquerade as designed behavior."""
-    result = pipeline.run_case(_case("LEDGRPST"), tmp_path)
+def test_crash_is_not_reported_as_a_refusal(tmp_path, monkeypatch):
+    """A defect in the diagnosis path must not masquerade as designed behavior.
+
+    No shipped program crashes the transpiler any more (PR #16 closed the
+    PERFORM gap), so this drives the path directly. The distinction still has
+    to hold: if the transpiler ever dies undiagnosed again, the demo must say
+    TRANSPILE_CRASHED rather than dressing the defect up as honest failure.
+    """
+    def boom(*_a, **_k):
+        raise AttributeError("'NoneType' object has no attribute 'groups'")
+
+    monkeypatch.setattr(pipeline, "Transpiler", boom)
+    result = pipeline.run_case(_case("P01_payroll"), tmp_path)
     assert result.verdict == pipeline.TRANSPILE_CRASHED
     assert result.verdict != pipeline.REFUSED_UNSUPPORTED
     assert result.refused_verb is None
-    assert result.transpile_error
+    assert "AttributeError" in (result.transpile_error or "")
     assert result.ber is None
     assert result.attestation_gate == "BLOCKED"
 
 
-def test_assessment_overreport_is_recorded(tmp_path):
-    """The demo must record that the assessment got LEDGRPST wrong.
+def test_perform_of_a_paragraph_is_diagnosed_not_crashed(tmp_path):
+    """PR #16: PERFORM <paragraph> used to die with an unhandled AttributeError.
 
-    If this ever starts failing because ``prediction_confirmed`` became True,
-    the coverage analyzer learned to distinguish PERFORM's forms — good news,
-    but the demo's narrative and README need updating with it.
+    It must now be refused by name, like any other out-of-subset construct.
     """
     result = pipeline.run_case(_case("LEDGRPST"), tmp_path)
-    assert result.prediction_confirmed is False
+    assert result.verdict == pipeline.REFUSED_UNSUPPORTED
+    assert result.refused_verb == "PERFORM"
+    assert result.refused_line is not None
+    assert result.transpiled is False
+    assert result.java_sha256 is None
+
+
+def test_assessment_no_longer_overreports_perform(tmp_path):
+    """PR #16: coverage counted every PERFORM as transpilable and was wrong.
+
+    LEDGRPST is 13/14 transpilable — the analyzer must say so rather than
+    1.0000, and its prediction must now agree with what the transpiler does.
+    """
+    result = pipeline.run_case(_case("LEDGRPST"), tmp_path)
+    assert result.prediction_confirmed is True
+    cov = result.assess.coverage_ratio
+    assert cov is not None
+    assert cov.value < 1.0
+    assert result.assess.supported_statements == result.assess.total_statements - 1
+    assert ("PERFORM", 1) in result.assess.unsupported_ranked
 
 
 def test_no_metric_is_invented_without_the_oracle(tmp_path, monkeypatch):
@@ -189,6 +216,40 @@ def test_all_inputs_unrunnable_is_not_measured(tmp_path, monkeypatch):
     assert result.ber is None
     assert result.verdict == pipeline.NOT_MEASURED
     assert result.attestation_gate == "BLOCKED"
+    # Bugbot: a total outage is NOT_MEASURED like the offline mode, but it is
+    # a fault and must be distinguishable from it by a caller setting an exit
+    # status. Before the fix this case was silently green in CI.
+    assert result.execution_outage is True
+
+
+def test_offline_run_is_not_an_execution_outage(tmp_path, monkeypatch):
+    """No GnuCOBOL at all is a supported mode, not a fault."""
+    monkeypatch.setattr(oracle, "detect",
+                        lambda: oracle.OracleInfo(False, None, None))
+    result = pipeline.run_case(_case("P01_payroll", limit=2), tmp_path)
+    assert result.verdict == pipeline.NOT_MEASURED
+    assert result.execution_outage is False
+
+
+@needs_cobc
+def test_execution_outage_exits_nonzero(tmp_path, monkeypatch):
+    """The CLI must not report a total execution outage as success."""
+    from demo import __main__ as cli
+
+    monkeypatch.setattr(oracle, "run", lambda *_a, **_k: (None, None))
+    rc = cli.main(["--case", "P01_payroll", "--inputs", "2", "--no-color",
+                   "--workdir", str(tmp_path)])
+    assert rc == 1
+
+
+def test_offline_run_exits_zero(tmp_path, monkeypatch):
+    from demo import __main__ as cli
+
+    monkeypatch.setattr(oracle, "detect",
+                        lambda: oracle.OracleInfo(False, None, None))
+    rc = cli.main(["--case", "P01_payroll", "--inputs", "2", "--no-color",
+                   "--workdir", str(tmp_path)])
+    assert rc == 0
 
 
 @needs_cobc

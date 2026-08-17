@@ -264,11 +264,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     # show; it is loudly labelled a defect in the output rather than smuggled
     # into the exit status of a demo that chose to run it.
     # INCOMPLETE_MEASUREMENT counts: the toolchain was there and an input still
-    # failed to run, which is an anomaly worth surfacing. A wholly unmeasured
-    # run (no GnuCOBOL at all) does not — that is a supported offline mode.
+    # failed to run, which is an anomaly worth surfacing. So does a total
+    # execution outage — both sides built and then every input failed to run.
+    # That reaches NOT_MEASURED, but it is a fault, not the supported offline
+    # mode (no GnuCOBOL at all), which stays 0.
     bad = [c for c in run.cases
            if c.verdict in (DIVERGENCE_MEASURED, BUILD_FAILED, GAMING_TRIPPED,
-                            INCOMPLETE_MEASUREMENT)]
+                            INCOMPLETE_MEASUREMENT)
+           or c.execution_outage]
     return 1 if bad else 0
 
 
