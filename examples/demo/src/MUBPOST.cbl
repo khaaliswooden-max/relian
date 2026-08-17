@@ -138,8 +138,8 @@
                INVALID KEY
                    GO TO 0700-SUSPEND
            END-READ
-           GO TO WS-BRANCH-SWITCH
-               DEPENDING ON 0300-POST-CASH 0400-POST-ADJUST.
+           GO TO 0300-POST-CASH 0400-POST-ADJUST
+               DEPENDING ON WS-BRANCH-SWITCH.
       *
        0300-POST-CASH.
            SUBTRACT PR-AMOUNT FROM CM-BALANCE
