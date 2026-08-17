@@ -1,0 +1,27 @@
+--- a/bench/harness/mains.json
++++ b/bench/harness/mains.json
+@@ -1 +1 @@
+-{"P01_payroll":"Payroll01","P02_interest":"Interest01","P03_eligibility":"Eligible01","P04_taxtable":"Taxtbl01","P05_validate":"Validat01","P06_valinit":"Valinit01","P07_exitflow":"Exitflw01"}
++{"P01_payroll":"Payroll01","P02_interest":"Interest01","P03_eligibility":"Eligible01","P04_taxtable":"Taxtbl01","P05_validate":"Validat01","P06_valinit":"Valinit01","P07_exitflow":"Exitflw01","P08_performpara":"Perfpar01"}
+--- a/bench/harness/commit.py
++++ b/bench/harness/commit.py
+@@ -73,8 +73,8 @@
+ 
+     manifest = {
+         "benchmark": "RELIAN-BENCH",
+-        "version": "1.2.0",
+-        "tag": "relian-bench-v1.2",
++        "version": "1.3.0",
++        "tag": "relian-bench-v1.3",
+         "committed_at": datetime.now(timezone.utc).isoformat(),
+         "file_count": len(entries),
+         "files": entries,
+@@ -193,7 +193,7 @@
+                 "coverage_branch": r["coverage_branch"],
+             }
+     m = sign(m, Path.home() / "zil-keys" / "relian-bench-v1.pem")
+-    out = ROOT / "LEDGER_relian-bench-v1.2.json"
++    out = ROOT / "LEDGER_relian-bench-v1.3.json"
+     out.write_text(json.dumps(m, indent=2))
+     print(f"tag              : {m['tag']}")
+     print(f"files            : {m['file_count']}")
