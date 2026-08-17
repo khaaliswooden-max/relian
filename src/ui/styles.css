@@ -320,6 +320,31 @@ body {
     border-color: rgba(239, 68, 68, 0.35);
 }
 
+/* Assessment risk tiers (src.assessment): LOW / MED / HIGH / BLOCKED. */
+.badge-low {
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.35);
+}
+
+.badge-med {
+    color: var(--warning);
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.35);
+}
+
+.badge-high {
+    color: var(--danger);
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.badge-blocked {
+    color: #e2e8f0;
+    background: rgba(100, 116, 139, 0.28);
+    border-color: rgba(100, 116, 139, 0.5);
+}
+
 .grade {
     font-size: 0.62rem;
     font-weight: 700;

@@ -59,3 +59,19 @@ This transpiles the three tier-A programs through the deterministic C1 core,
 compiles the emitted Java with `javac`, runs each on a sample record from
 `data/`, and confirms the tier-B/C programs refuse rather than emit a
 placeholder. It writes nothing back into the repository.
+
+## Run the assessment from the UI
+
+The same assessment is reachable from the Relian frontend. The API exposes it
+read-only and offline at `GET /api/v1/assess/demo` (see `src/api/main.py`),
+which runs the engine over this corpus and returns the measured bundle — the
+identical object the CLI serialises to `assessment.json`, including its
+`report_hash`. The **Assess (demo)** tab in the UI (`src/ui/views/AssessView.tsx`)
+renders the portfolio coverage, per-program risk tiers (LOW → MED → BLOCKED),
+and the ranked unsupported-construct inventory, each figure carrying its Trutina
+grade. Start both services and open the tab:
+
+```bash
+uvicorn src.api.main:app          # API on :8000
+npm run dev                       # UI on :5173
+```
