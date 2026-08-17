@@ -135,10 +135,77 @@ def test_both_sides_actually_ran(tmp_path):
     """Guard against an equivalence rate computed from two absent executions."""
     result = pipeline.run_case(_case("P01_payroll", limit=2), tmp_path)
     for outcome in result.vectors:
+        assert outcome.executed is True
         assert outcome.cobol_stdout is not None
         assert outcome.java_stdout is not None
         assert outcome.cobol_exit is not None
         assert outcome.java_exit is not None
+    assert result.vectors_executed == result.vectors_total
+    assert result.vectors_absent == 0
+
+
+# --------------------------------------------------------------------------
+# absent executions are not divergences
+#
+# Bugbot #16: an input that could not be run was being folded into the rate as
+# a failure, manufacturing a measured divergence out of a missing measurement.
+# --------------------------------------------------------------------------
+
+
+@needs_cobc
+def test_unrunnable_input_is_absent_not_divergent(tmp_path, monkeypatch):
+    """A COBOL side that will not run must not score as a divergence."""
+    real_run = oracle.run
+    calls = {"n": 0}
+
+    def flaky(binary, stdin_line):
+        calls["n"] += 1
+        if calls["n"] == 1:          # first input: pretend the process died
+            return None, None
+        return real_run(binary, stdin_line)
+
+    monkeypatch.setattr(oracle, "run", flaky)
+    result = pipeline.run_case(_case("P01_payroll", limit=3), tmp_path)
+
+    assert result.vectors_total == 3
+    assert result.vectors_absent == 1
+    assert result.vectors_executed == 2
+    assert result.vectors_equivalent == 2
+    # The rate is over what ran — 2/2 — not 2/3.
+    assert result.ber is not None and result.ber.value == 1.0
+    # The absent input is not a divergence.
+    assert result.verdict != pipeline.DIVERGENCE_MEASURED
+    assert result.verdict == pipeline.INCOMPLETE_MEASUREMENT
+    # A partial comparison never attests.
+    assert result.attestation_gate == "BLOCKED"
+    absent = [o for o in result.vectors if not o.executed]
+    assert len(absent) == 1 and absent[0].equivalent is False
+
+
+@needs_cobc
+def test_all_inputs_unrunnable_is_not_measured(tmp_path, monkeypatch):
+    monkeypatch.setattr(oracle, "run", lambda *_a, **_k: (None, None))
+    result = pipeline.run_case(_case("P01_payroll", limit=2), tmp_path)
+    assert result.ber is None
+    assert result.verdict == pipeline.NOT_MEASURED
+    assert result.attestation_gate == "BLOCKED"
+
+
+@needs_cobc
+def test_portfolio_rate_excludes_absent_inputs(tmp_path, monkeypatch):
+    real_run = oracle.run
+    calls = {"n": 0}
+
+    def flaky(binary, stdin_line):
+        calls["n"] += 1
+        return (None, None) if calls["n"] == 1 else real_run(binary, stdin_line)
+
+    monkeypatch.setattr(oracle, "run", flaky)
+    run = pipeline.run([_case("P01_payroll", limit=3)], tmp_path)
+    pb = run.portfolio_ber()
+    assert pb is not None
+    assert pb.value == 1.0                     # 2/2, not 2/3
+    assert "excluded" in pb.provenance
 
 
 @needs_cobc
@@ -178,6 +245,16 @@ def test_report_renders_and_never_invents_a_number(tmp_path, monkeypatch):
     # An unmeasured run can never render a passed gate.
     assert "Attestation gate: PASSED" not in html
     assert "Attestation gate: BLOCKED" in html
+
+
+def test_report_does_not_double_escape(tmp_path, monkeypatch):
+    """Bugbot #16: a pre-escaped tile label was escaped again by _tile."""
+    monkeypatch.setattr(oracle, "detect",
+                        lambda: oracle.OracleInfo(False, None, None))
+    run = pipeline.run([_case("P01_payroll")], tmp_path)
+    html = report.render_html(run)
+    assert "&amp;amp;" not in html
+    assert "Programs migrated &amp; verified" in html
 
 
 @needs_cobc

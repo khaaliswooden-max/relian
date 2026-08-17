@@ -27,6 +27,7 @@ from .pipeline import (
     DIVERGENCE_MEASURED,
     EQUIVALENCE_MEASURED,
     GAMING_TRIPPED,
+    INCOMPLETE_MEASUREMENT,
     NOT_MEASURED,
     REFUSED_UNSUPPORTED,
     TRANSPILE_CRASHED,
@@ -57,6 +58,7 @@ VERDICT_STYLE = {
     TRANSPILE_CRASHED: ("red", "TRANSPILE CRASHED"),
     BUILD_FAILED: ("red", "BUILD FAILED"),
     NOT_MEASURED: ("yellow", "NOT MEASURED"),
+    INCOMPLETE_MEASUREMENT: ("yellow", "INCOMPLETE MEASUREMENT"),
     GAMING_TRIPPED: ("red", "INVALID — GAMING CONTROLS"),
 }
 
@@ -135,13 +137,22 @@ def _print_case(st: Style, r: CaseResult) -> None:
         rate = f"{r.ber.value:.4f}"
         painted = st.green(rate) if r.ber.value == 1.0 else st.red(rate)
         print(f"      {st.dim('equivalence:')} {painted} "
-              f"{st.dim(f'({r.vectors_equivalent}/{r.vectors_total} inputs, stdout + exit code)')}")
+              f"{st.dim(f'({r.vectors_equivalent}/{r.vectors_executed} executed inputs, stdout + exit code)')}")
+    if r.vectors_absent:
+        print(st.yellow(f"      not run    : {r.vectors_absent} of {r.vectors_total} "
+                        f"input(s) could not be executed on both sides"))
+        print(st.dim("      these are absent from the rate above — not counted as "
+                     "divergences."))
     if r.oracle_agreement is not None:
         print(st.dim(f"      oracle x-ck: {r.oracle_agreement.value:.4f} vs the "
                      f"sealed public vectors"))
 
     for o in r.vectors:
-        if not o.equivalent:
+        if not o.executed:
+            print(st.yellow(f"      not run    : input {o.stdin!r} — "
+                            f"cobol {'ok' if o.cobol_stdout is not None else 'no result'}, "
+                            f"java {'ok' if o.java_stdout is not None else 'no result'}"))
+        elif not o.equivalent:
             print(st.red(f"      diverged   : input {o.stdin!r}"))
             print(st.dim(f"          cobol → {o.cobol_stdout!r} (exit {o.cobol_exit})"))
             print(st.dim(f"          java  → {o.java_stdout!r} (exit {o.java_exit})"))
@@ -159,7 +170,8 @@ def _print_summary(st: Style, run: RunResult) -> None:
         by_verdict.setdefault(c.verdict, []).append(c.case_id)
 
     for verdict in (EQUIVALENCE_MEASURED, DIVERGENCE_MEASURED, REFUSED_UNSUPPORTED,
-                    TRANSPILE_CRASHED, BUILD_FAILED, GAMING_TRIPPED, NOT_MEASURED):
+                    TRANSPILE_CRASHED, BUILD_FAILED, GAMING_TRIPPED,
+                    INCOMPLETE_MEASUREMENT, NOT_MEASURED):
         ids = by_verdict.get(verdict)
         if not ids:
             continue
@@ -251,8 +263,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     # deliberately-included crash case, which is a known gap the demo exists to
     # show; it is loudly labelled a defect in the output rather than smuggled
     # into the exit status of a demo that chose to run it.
+    # INCOMPLETE_MEASUREMENT counts: the toolchain was there and an input still
+    # failed to run, which is an anomaly worth surfacing. A wholly unmeasured
+    # run (no GnuCOBOL at all) does not — that is a supported offline mode.
     bad = [c for c in run.cases
-           if c.verdict in (DIVERGENCE_MEASURED, BUILD_FAILED, GAMING_TRIPPED)]
+           if c.verdict in (DIVERGENCE_MEASURED, BUILD_FAILED, GAMING_TRIPPED,
+                            INCOMPLETE_MEASUREMENT)]
     return 1 if bad else 0
 
 

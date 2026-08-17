@@ -21,6 +21,7 @@ from .pipeline import (
     DIVERGENCE_MEASURED,
     EQUIVALENCE_MEASURED,
     GAMING_TRIPPED,
+    INCOMPLETE_MEASUREMENT,
     NOT_MEASURED,
     REFUSED_UNSUPPORTED,
     TRANSPILE_CRASHED,
@@ -35,6 +36,7 @@ VERDICT_LABEL = {
     TRANSPILE_CRASHED: ("bad", "Transpile crashed"),
     BUILD_FAILED: ("bad", "Build failed"),
     NOT_MEASURED: ("warn", "Not measured"),
+    INCOMPLETE_MEASUREMENT: ("warn", "Incomplete measurement"),
     GAMING_TRIPPED: ("bad", "Invalid — gaming controls"),
 }
 
@@ -198,7 +200,14 @@ def _case_html(c: CaseResult) -> str:
         rows.append(("Equivalence",
                      f"<b>{_measured(c.ber)}</b>{_grade(c.ber)}"
                      f"<div class='prov'>{_e(c.vectors_equivalent)}/"
-                     f"{_e(c.vectors_total)} inputs — {_e(c.ber.provenance)}</div>"))
+                     f"{_e(c.vectors_executed)} executed inputs — "
+                     f"{_e(c.ber.provenance)}</div>"))
+    if c.vectors_absent:
+        rows.append(("Not run",
+                     f"{_e(c.vectors_absent)} of {_e(c.vectors_total)} input(s)"
+                     "<div class='prov'>Could not be executed on both sides. Absent "
+                     "from the rate above — an execution that did not happen is not "
+                     "a divergence.</div>"))
     if c.oracle_agreement is not None:
         rows.append(("Oracle cross-check",
                      f"{_measured(c.oracle_agreement)}{_grade(c.oracle_agreement)}"
@@ -226,7 +235,12 @@ def _vector_table(c: CaseResult) -> str:
             "<th>Java stdout</th><th>exit</th><th>equal</th></tr>")
     body = []
     for o in c.vectors:
-        cell = ('<td class="eq">yes</td>' if o.equivalent else '<td class="ne">NO</td>')
+        if not o.executed:
+            cell = '<td>not run</td>'
+        elif o.equivalent:
+            cell = '<td class="eq">yes</td>'
+        else:
+            cell = '<td class="ne">NO</td>'
         body.append(
             f"<tr><td>{o.index}</td><td>{_e(o.stdin)}</td>"
             f"<td>{_e(o.cobol_stdout)}</td><td>{_e(o.cobol_exit)}</td>"
@@ -258,15 +272,21 @@ def render_html(run: RunResult) -> str:
     n_ref = len(by.get(REFUSED_UNSUPPORTED, []))
     n_crash = len(by.get(TRANSPILE_CRASHED, []))
     attestable = [c for c in run.cases if c.attestable]
-    total_inputs = sum(c.vectors_total or 0 for c in run.cases)
+    # The tile says "executed on both sides", so it must count executions, not
+    # attempts.
+    total_executed = sum(c.vectors_executed or 0 for c in run.cases)
+    total_absent = sum(c.vectors_absent or 0 for c in run.cases)
 
     tiles = [
         _tile("Portfolio equivalence",
               "not measured" if pb is None else f"{pb.value:.4f}",
               "" if pb is None else f"{pb.grade} — {_e(pb.provenance)}"),
-        _tile("Inputs executed on both sides", f"{total_inputs}",
-              "each compared on stdout and process exit code"),
-        _tile("Programs migrated &amp; verified", f"{n_eq}",
+        _tile("Inputs executed on both sides", f"{total_executed}",
+              "each compared on stdout and process exit code"
+              + (f"; {total_absent} input(s) could not be run and are excluded"
+                 if total_absent else "")),
+        # Plain "&" — _tile escapes its label, so pre-escaping double-escapes it.
+        _tile("Programs migrated & verified", f"{n_eq}",
               "behavioral equivalence measured on every input"),
         _tile("Programs refused", f"{n_ref}",
               "outside the committed subset — no output, no attestation"),

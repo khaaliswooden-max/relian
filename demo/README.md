@@ -87,6 +87,14 @@ expectation for an execution that did not happen.
 
 ## Reading the numbers
 
+**Equivalence is a rate over inputs that actually ran.** Each input lands in one
+of three states, not two: *equivalent*, *divergent*, or *not run* (a timeout, or
+a process that would not launch). An input that could not be executed is
+excluded from the denominator and reported separately — it is not a divergence,
+because nothing was observed to diverge. If any input goes unrun the program's
+verdict is `INCOMPLETE_MEASUREMENT` and the attestation gate blocks, whatever
+the executed subset scored: a partial comparison is not an equivalence claim.
+
 Every figure carries a Trutina grade and a provenance string. `VERIFIED` means
 a process ran and was observed. `PLAUSIBLE` means a documented method produced
 it under stated assumptions — the assessment's coverage ratio is `PLAUSIBLE`

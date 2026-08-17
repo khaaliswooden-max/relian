@@ -59,6 +59,10 @@ REFUSED_UNSUPPORTED = "REFUSED_UNSUPPORTED"
 TRANSPILE_CRASHED = "TRANSPILE_CRASHED"
 BUILD_FAILED = "BUILD_FAILED"
 NOT_MEASURED = "NOT_MEASURED"
+# Some inputs could not be run on both sides (a timeout, or a process that
+# would not launch). Whatever the executed subset showed, the program was not
+# fully compared — and a partial comparison is not an equivalence claim.
+INCOMPLETE_MEASUREMENT = "INCOMPLETE_MEASUREMENT"
 GAMING_TRIPPED = "GAMING_TRIPPED"
 
 
@@ -87,7 +91,15 @@ def _measured_to_dict(m: Optional[Measured]) -> Optional[Dict[str, Any]]:
 
 @dataclass(frozen=True)
 class VectorOutcome:
-    """One input, run through both implementations."""
+    """One input, run through both implementations.
+
+    Three states, not two. ``executed`` is False when a side could not be run
+    at all — a timeout, or a process that would not launch. Such an input is
+    **not** a divergence: nothing was observed, so nothing diverged. Collapsing
+    it into ``equivalent=False`` would manufacture a measured failure out of an
+    absent measurement, which is the R1 violation this whole demo exists to
+    argue against.
+    """
 
     index: int
     stdin: str
@@ -95,6 +107,7 @@ class VectorOutcome:
     cobol_exit: Optional[int]
     java_stdout: Optional[str]
     java_exit: Optional[int]
+    executed: bool
     equivalent: bool
     # Did the locally-built COBOL reproduce the sealed public vector? None when
     # the case carries no sealed expectation, or the COBOL did not run.
@@ -108,6 +121,7 @@ class VectorOutcome:
             "cobol_exit": self.cobol_exit,
             "java_stdout": self.java_stdout,
             "java_exit": self.java_exit,
+            "executed": self.executed,
             "equivalent": self.equivalent,
             "oracle_corroborated": self.oracle_corroborated,
         }
@@ -176,8 +190,9 @@ class CaseResult:
     cobol_build_error: Optional[str] = None
 
     vectors: List[VectorOutcome] = field(default_factory=list)
-    vectors_total: Optional[int] = None
-    vectors_equivalent: Optional[int] = None
+    vectors_total: Optional[int] = None        # inputs attempted
+    vectors_executed: Optional[int] = None     # inputs that ran on BOTH sides
+    vectors_equivalent: Optional[int] = None   # executed AND identical
     ber: Optional[Measured] = None
     oracle_agreement: Optional[Measured] = None
 
@@ -192,6 +207,13 @@ class CaseResult:
     @property
     def attestable(self) -> bool:
         return self.attestation_gate == "PASSED"
+
+    @property
+    def vectors_absent(self) -> Optional[int]:
+        """Inputs that could not be run on both sides. Not divergences."""
+        if self.vectors_total is None or self.vectors_executed is None:
+            return None
+        return self.vectors_total - self.vectors_executed
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -214,6 +236,8 @@ class CaseResult:
             "cobol_build_ok": self.cobol_build_ok,
             "cobol_build_error": self.cobol_build_error,
             "vectors_total": self.vectors_total,
+            "vectors_executed": self.vectors_executed,
+            "vectors_absent": self.vectors_absent,
             "vectors_equivalent": self.vectors_equivalent,
             "ber": _measured_to_dict(self.ber),
             "oracle_agreement": _measured_to_dict(self.oracle_agreement),
@@ -250,15 +274,21 @@ class RunResult:
         measured = self.measured_cases
         if not measured:
             return None
-        total = sum(c.vectors_total or 0 for c in measured)
+        # Denominator is inputs that RAN on both sides, matching the per-case
+        # rule. Inputs that could not be executed are reported as absent, never
+        # averaged in as though they had been observed and failed.
+        executed = sum(c.vectors_executed or 0 for c in measured)
         eq = sum(c.vectors_equivalent or 0 for c in measured)
-        if not total:
+        absent = sum(c.vectors_absent or 0 for c in measured)
+        if not executed:
             return None
         return Measured(
-            value=round(eq / total, 4),
-            provenance=(f"differential execution of {total} input(s) across "
+            value=round(eq / executed, 4),
+            provenance=(f"differential execution of {executed} input(s) across "
                         f"{len(measured)} program(s), {self.oracle_label} vs "
-                        f"javac/java, this run"),
+                        f"javac/java, this run"
+                        + (f"; {absent} input(s) could not be run on both sides and "
+                           f"are excluded" if absent else "")),
             grade="VERIFIED",
         )
 
@@ -421,11 +451,13 @@ def run_case(case: Case, workdir: Path,
     for i, stdin_line in enumerate(case.inputs):
         c_out, c_rc = oracle.run(cobol_bin, stdin_line)
         j_out, j_rc = target.run(classes, case.main_class, stdin_line)
-        equivalent = (
-            c_out is not None and j_out is not None
-            and c_rc == j_rc
-            and _norm(c_out) == _norm(j_out)
-        )
+        # An input only counts as compared if BOTH sides actually produced a
+        # result. If either could not be run, there is nothing to compare —
+        # `executed` is False and the input stays out of the rate entirely.
+        executed = (c_out is not None and c_rc is not None
+                    and j_out is not None and j_rc is not None)
+        equivalent = (executed and c_rc == j_rc
+                      and _norm(c_out) == _norm(j_out))
         corr: Optional[bool] = None
         if case.sealed is not None and i < len(case.sealed) and c_out is not None:
             sealed = case.sealed[i]
@@ -438,20 +470,28 @@ def run_case(case: Case, workdir: Path,
                 index=i, stdin=stdin_line,
                 cobol_stdout=c_out, cobol_exit=c_rc,
                 java_stdout=j_out, java_exit=j_rc,
-                equivalent=equivalent, oracle_corroborated=corr,
+                executed=executed, equivalent=equivalent,
+                oracle_corroborated=corr,
             )
         )
 
     result.vectors = outcomes
     result.vectors_total = len(outcomes)
+    result.vectors_executed = sum(1 for o in outcomes if o.executed)
     result.vectors_equivalent = sum(1 for o in outcomes if o.equivalent)
 
-    if result.vectors_total:
+    # The denominator is what RAN, not what was attempted. An input that could
+    # not be executed is absent from the rate and reported separately.
+    if result.vectors_executed:
+        absent = result.vectors_absent or 0
         result.ber = Measured(
-            value=round(result.vectors_equivalent / result.vectors_total, 4),
-            provenance=(f"differential execution of {result.vectors_total} input(s): "
-                        f"{oracle.detect().label} vs javac/java, this run; stdout "
-                        f"and process exit code both compared"),
+            value=round(result.vectors_equivalent / result.vectors_executed, 4),
+            provenance=(f"differential execution of {result.vectors_executed} of "
+                        f"{result.vectors_total} input(s): {oracle.detect().label} vs "
+                        f"javac/java, this run; stdout and process exit code both "
+                        f"compared"
+                        + (f"; {absent} input(s) could not be run on both sides and "
+                           f"are excluded from this rate" if absent else "")),
             grade="VERIFIED",
         )
     if corroboration_possible:
@@ -463,15 +503,28 @@ def run_case(case: Case, workdir: Path,
         )
 
     # --- 6. gate ---------------------------------------------------------
+    absent = result.vectors_absent or 0
     if result.ber is None:
         result.verdict = NOT_MEASURED
-        result.attestation_reason = "no inputs were executed"
+        result.attestation_reason = (
+            f"none of the {result.vectors_total or 0} input(s) could be run on both "
+            f"sides, so nothing was compared. This is an absent measurement, not a "
+            f"passing or failing one.")
+    elif absent:
+        # Something ran, but not everything. Whatever the executed subset
+        # showed, this program was not fully compared.
+        result.verdict = INCOMPLETE_MEASUREMENT
+        result.attestation_reason = (
+            f"{absent} of {result.vectors_total} input(s) could not be run on both "
+            f"sides. The {result.vectors_executed} that ran scored "
+            f"{result.ber.value:.4f}, but a partial comparison is not an equivalence "
+            f"claim and does not attest.")
     elif result.ber.value == 1.0:
         result.verdict = EQUIVALENCE_MEASURED
         if result.deterministic:
             result.attestation_gate = "PASSED"
             result.attestation_reason = (
-                f"all {result.vectors_total} input(s) produced identical stdout and "
+                f"all {result.vectors_executed} input(s) produced identical stdout and "
                 f"exit code on both implementations, the transpile is reproducible, "
                 f"and anti-gaming controls are clean. Signing is not performed here: "
                 f"key custody is operator-only and this demo ships no simulated "
@@ -484,8 +537,9 @@ def run_case(case: Case, workdir: Path,
     else:
         result.verdict = DIVERGENCE_MEASURED
         result.attestation_reason = (
-            f"{result.vectors_total - result.vectors_equivalent} of "
-            f"{result.vectors_total} input(s) diverged from the legacy oracle")
+            f"{result.vectors_executed - result.vectors_equivalent} of "
+            f"{result.vectors_executed} executed input(s) diverged from the legacy "
+            f"oracle")
 
     result.wall_seconds = time.time() - started
     return result
