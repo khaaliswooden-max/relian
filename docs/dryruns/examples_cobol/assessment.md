@@ -7,16 +7,16 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
-| Quotable-today code lines | 241 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (27) across 1 program(s) |
-| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 1 program(s) |
+| Portfolio construct coverage | 0.5818 | PLAUSIBLE | 64/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
+| Quotable-today code lines | 222 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (46) across 1 program(s) |
+| Code lines requiring grammar expansion | 46 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 1 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
 | Measure | Value |
 | --- | --- |
-| Portfolio risk tier | HIGH |
-| Rule that fired | `HIGH: worst program tier across 1 program(s) (1 at HIGH)` |
+| Portfolio risk tier | BLOCKED |
+| Rule that fired | `BLOCKED: worst program tier across 1 program(s) (1 at BLOCKED)` |
 
 
 ## 2. Manifest
@@ -43,22 +43,23 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| banking-system.cbl | 0.7545 | PLAUSIBLE | 83/110 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on banking-system.cbl (sha256:24ba36227dc35845); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| banking-system.cbl | 0.5818 | PLAUSIBLE | 64/110 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on banking-system.cbl (sha256:24ba36227dc35845); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.7545 | PLAUSIBLE | 83/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
+| Coverage ratio | 0.5818 | PLAUSIBLE | 64/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
+| PERFORM | 19 |
 | STRING | 7 |
 | WRITE | 6 |
 | READ | 4 |
@@ -73,18 +74,37 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 
 | File | Line | Paragraph | Construct | Context |
 | --- | --- | --- | --- | --- |
+| banking-system.cbl | 128 | MAIN-PROCEDURE | PERFORM | — |
+| banking-system.cbl | 129 | MAIN-PROCEDURE | PERFORM | — |
+| banking-system.cbl | 131 | MAIN-PROCEDURE | PERFORM | — |
+| banking-system.cbl | 132 | MAIN-PROCEDURE | PERFORM | — |
+| banking-system.cbl | 133 | MAIN-PROCEDURE | PERFORM | — |
 | banking-system.cbl | 140 | INITIALIZATION | STRING | — |
 | banking-system.cbl | 143 | INITIALIZATION | OPEN | — |
+| banking-system.cbl | 147 | INITIALIZATION | PERFORM | — |
 | banking-system.cbl | 150 | INITIALIZATION | OPEN | — |
+| banking-system.cbl | 154 | INITIALIZATION | PERFORM | — |
 | banking-system.cbl | 157 | INITIALIZATION | OPEN | — |
+| banking-system.cbl | 161 | INITIALIZATION | PERFORM | — |
 | banking-system.cbl | 169 | PROCESS-TRANSACTIONS | READ | — |
+| banking-system.cbl | 175 | PROCESS-TRANSACTIONS | PERFORM | — |
+| banking-system.cbl | 177 | PROCESS-TRANSACTIONS | PERFORM | — |
+| banking-system.cbl | 179 | PROCESS-TRANSACTIONS | PERFORM | — |
+| banking-system.cbl | 184 | PROCESS-TRANSACTIONS | PERFORM | — |
 | banking-system.cbl | 195 | PROCESS-DEPOSIT | READ | — |
+| banking-system.cbl | 200 | PROCESS-DEPOSIT | PERFORM | — |
 | banking-system.cbl | 205 | PROCESS-DEPOSIT | REWRITE | — |
+| banking-system.cbl | 212 | PROCESS-DEPOSIT | PERFORM | — |
 | banking-system.cbl | 224 | PROCESS-WITHDRAWAL | READ | — |
+| banking-system.cbl | 229 | PROCESS-WITHDRAWAL | PERFORM | — |
+| banking-system.cbl | 236 | PROCESS-WITHDRAWAL | PERFORM | — |
+| banking-system.cbl | 242 | PROCESS-WITHDRAWAL | PERFORM | — |
 | banking-system.cbl | 244 | PROCESS-WITHDRAWAL | SUBTRACT | — |
 | banking-system.cbl | 246 | PROCESS-WITHDRAWAL | SUBTRACT | — |
 | banking-system.cbl | 253 | PROCESS-WITHDRAWAL | REWRITE | — |
+| banking-system.cbl | 262 | PROCESS-WITHDRAWAL | PERFORM | — |
 | banking-system.cbl | 283 | CALCULATE-DAILY-INTEREST | START | — |
+| banking-system.cbl | 285 | CALCULATE-DAILY-INTEREST | PERFORM | — |
 | banking-system.cbl | 286 | CALCULATE-DAILY-INTEREST | READ | — |
 | banking-system.cbl | 299 | CALCULATE-DAILY-INTEREST | REWRITE | — |
 | banking-system.cbl | 309 | GENERATE-REPORTS | STRING | — |
@@ -129,12 +149,12 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 
 | Program | Tier | Rule that fired |
 | --- | --- | --- |
-| banking-system.cbl | HIGH | `HIGH: coverage<0.80` |
+| banking-system.cbl | BLOCKED | `BLOCKED: coverage<0.60` |
 
 | Tier | Programs |
 | --- | --- |
-| BLOCKED | 0 |
-| HIGH | 1 |
+| BLOCKED | 1 |
+| HIGH | 0 |
 | LOW | 0 |
 | MED | 0 |
 
@@ -143,8 +163,8 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Quotable-today code lines | 241 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (27) across 1 program(s) |
-| Code lines requiring grammar expansion | 27 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 1 program(s) |
+| Quotable-today code lines | 222 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (46) across 1 program(s) |
+| Code lines requiring grammar expansion | 46 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 1 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -155,6 +175,7 @@ Attribution is by source line: a code line requires grammar expansion if it carr
 
 | Construct | Occurrences |
 | --- | --- |
+| PERFORM | 19 |
 | STRING | 7 |
 | WRITE | 6 |
 | READ | 4 |
@@ -388,11 +409,11 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553)`
+Registry: `SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d)`
 
-Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
+Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM VARYING`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
-Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `SUBTRACT`
+Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `PERFORM`, `SUBTRACT`
 
 | DATA DIVISION feature | C1 status |
 | --- | --- |
@@ -424,7 +445,7 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | platform | Linux |
 | python | 3.11.15 |
 | python-docx | not installed |
-| relian_transpiler | SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) |
+| relian_transpiler | SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) |
 | schema | relian-assessment-1 |
 
 

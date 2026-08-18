@@ -1,4 +1,4 @@
-# Legacy Code Assessment — /tmp/claude-0/-home-user-relian/edca33b0-bec2-500a-808c-f08e8406d6eb/scratchpad/dryruns/omp
+# Legacy Code Assessment — /tmp/claude-0/-home-user/f2df2865-c5ad-56fb-9929-a95ffe40b35f/scratchpad/dryrun/omp
 Schema `relian-assessment-1` · manifest `eb61e3d54c42e2fc89ad1cb1aacb2b7e60f27775c47c20da1e1329f966047a57`
 
 Every number in this report is a measurement with a stated origin and a Trutina grade, or it is absent. Nothing here is a default, an estimate, or a target reported as a result.
@@ -7,16 +7,16 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.6945 | PLAUSIBLE | 532/766 statements supported across 30 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
-| Quotable-today code lines | 2505 | PLAUSIBLE | code lines (2739) minus lines carrying an unsupported construct (234) across 30 program(s) |
-| Code lines requiring grammar expansion | 234 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 30 program(s) |
+| Portfolio construct coverage | 0.5287 | PLAUSIBLE | 405/766 statements supported across 30 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
+| Quotable-today code lines | 2378 | PLAUSIBLE | code lines (2739) minus lines carrying an unsupported construct (361) across 30 program(s) |
+| Code lines requiring grammar expansion | 361 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 30 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
 | Measure | Value |
 | --- | --- |
 | Portfolio risk tier | BLOCKED |
-| Rule that fired | `BLOCKED: worst program tier across 30 program(s) (3 at BLOCKED)` |
+| Rule that fired | `BLOCKED: worst program tier across 30 program(s) (22 at BLOCKED)` |
 
 
 ## 2. Manifest
@@ -431,51 +431,52 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | 1.0 | PLAUSIBLE | 16/16 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol (sha256:4780cd35bb05fb30); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 0.6471 | PLAUSIBLE | 11/17 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol (sha256:99bb990cd6d5a6b2); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 0.6471 | PLAUSIBLE | 11/17 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol (sha256:a7f1aa0a9dd5048b); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 0.5769 | PLAUSIBLE | 15/26 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol (sha256:c1b33960dae402a7); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 0.5769 | PLAUSIBLE | 15/26 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol (sha256:4cf168b2a6dee21e); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 0.6 | PLAUSIBLE | 18/30 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol (sha256:8460c449a9c6220e); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 0.5862 | PLAUSIBLE | 17/29 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol (sha256:ce42c43112947cd1); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 0.6061 | PLAUSIBLE | 20/33 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol (sha256:92d1800fa4142b55); method=token_scan, source_format=fixed; antlr_syntax_errors=32 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 0.6061 | PLAUSIBLE | 20/33 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol (sha256:876b92b9b7aa0690); method=token_scan, source_format=fixed; antlr_syntax_errors=32 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 0.6061 | PLAUSIBLE | 20/33 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol (sha256:f688f84bc5fc8216); method=token_scan, source_format=fixed; antlr_syntax_errors=32 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 0.6176 | PLAUSIBLE | 21/34 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol (sha256:e404f5c79ef349c7); method=token_scan, source_format=fixed; antlr_syntax_errors=36 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 0.6176 | PLAUSIBLE | 21/34 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol (sha256:abde21d8572de0c9); method=token_scan, source_format=fixed; antlr_syntax_errors=36 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol (sha256:9306ee1c9fb936cc); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0014.cobol | 1.0 | PLAUSIBLE | 4/4 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0014.cobol (sha256:9d691aefd942b39a); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 0.6667 | PLAUSIBLE | 16/24 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol (sha256:9c9f224e00b88f2e); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 0.6 | PLAUSIBLE | 18/30 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol (sha256:e3c28e03e7676ee3); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 0.6 | PLAUSIBLE | 18/30 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol (sha256:de3d3f99d8e05bb6); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 0.6 | PLAUSIBLE | 9/15 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol (sha256:c62148f383b60087); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol | 1.0 | PLAUSIBLE | 2/2 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol (sha256:cacd03611329857d); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol (sha256:7d5b5d0b797fba8a); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol (sha256:feaaa22973031aa0); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 0.7273 | PLAUSIBLE | 8/11 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol (sha256:a7cacd97cf5d52c7); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 0.7273 | PLAUSIBLE | 8/11 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol (sha256:85ffe54793ea02d3); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 0.7021 | PLAUSIBLE | 33/47 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl (sha256:3cde3ac691111fcb); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 0.7255 | PLAUSIBLE | 37/51 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl (sha256:9a4d0689f9cae7d3); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 0.7576 | PLAUSIBLE | 25/33 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl (sha256:6b451aabffa72343); method=token_scan, source_format=fixed; antlr_syntax_errors=23 |
-| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 0.7222 | PLAUSIBLE | 39/54 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl (sha256:0fc6be67b763e6a8); method=token_scan, source_format=fixed; antlr_syntax_errors=34 |
-| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 0.7115 | PLAUSIBLE | 37/52 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl (sha256:78a180507e31ce2a); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
-| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 1.0 | PLAUSIBLE | 16/16 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL (sha256:cdac72e76397e771); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 1.0 | PLAUSIBLE | 26/26 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL (sha256:2471ecfbad466ea5); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | 0.9375 | PLAUSIBLE | 15/16 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol (sha256:4780cd35bb05fb30); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 0.4118 | PLAUSIBLE | 7/17 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol (sha256:99bb990cd6d5a6b2); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 0.4118 | PLAUSIBLE | 7/17 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol (sha256:a7f1aa0a9dd5048b); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 0.4231 | PLAUSIBLE | 11/26 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol (sha256:c1b33960dae402a7); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 0.4231 | PLAUSIBLE | 11/26 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol (sha256:4cf168b2a6dee21e); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 0.4333 | PLAUSIBLE | 13/30 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol (sha256:8460c449a9c6220e); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 0.4138 | PLAUSIBLE | 12/29 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol (sha256:ce42c43112947cd1); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 0.4545 | PLAUSIBLE | 15/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol (sha256:92d1800fa4142b55); method=token_scan, source_format=fixed; antlr_syntax_errors=32 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 0.4545 | PLAUSIBLE | 15/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol (sha256:876b92b9b7aa0690); method=token_scan, source_format=fixed; antlr_syntax_errors=32 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 0.4545 | PLAUSIBLE | 15/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol (sha256:f688f84bc5fc8216); method=token_scan, source_format=fixed; antlr_syntax_errors=32 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 0.4706 | PLAUSIBLE | 16/34 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol (sha256:e404f5c79ef349c7); method=token_scan, source_format=fixed; antlr_syntax_errors=36 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 0.4706 | PLAUSIBLE | 16/34 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol (sha256:abde21d8572de0c9); method=token_scan, source_format=fixed; antlr_syntax_errors=36 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol (sha256:9306ee1c9fb936cc); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0014.cobol | 1.0 | PLAUSIBLE | 4/4 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0014.cobol (sha256:9d691aefd942b39a); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 0.375 | PLAUSIBLE | 9/24 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol (sha256:9c9f224e00b88f2e); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 0.4333 | PLAUSIBLE | 13/30 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol (sha256:e3c28e03e7676ee3); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 0.4333 | PLAUSIBLE | 13/30 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol (sha256:de3d3f99d8e05bb6); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 0.4667 | PLAUSIBLE | 7/15 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol (sha256:c62148f383b60087); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol | 1.0 | PLAUSIBLE | 2/2 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol (sha256:cacd03611329857d); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol (sha256:7d5b5d0b797fba8a); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol (sha256:feaaa22973031aa0); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 0.5455 | PLAUSIBLE | 6/11 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol (sha256:a7cacd97cf5d52c7); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 0.5455 | PLAUSIBLE | 6/11 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol (sha256:85ffe54793ea02d3); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 0.5532 | PLAUSIBLE | 26/47 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl (sha256:3cde3ac691111fcb); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 0.5882 | PLAUSIBLE | 30/51 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl (sha256:9a4d0689f9cae7d3); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 0.5758 | PLAUSIBLE | 19/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl (sha256:6b451aabffa72343); method=token_scan, source_format=fixed; antlr_syntax_errors=23 |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 0.4815 | PLAUSIBLE | 26/54 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl (sha256:0fc6be67b763e6a8); method=token_scan, source_format=fixed; antlr_syntax_errors=34 |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 0.4615 | PLAUSIBLE | 24/52 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl (sha256:78a180507e31ce2a); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
+| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 0.875 | PLAUSIBLE | 14/16 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL (sha256:cdac72e76397e771); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 0.8462 | PLAUSIBLE | 22/26 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL (sha256:2471ecfbad466ea5); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.6945 | PLAUSIBLE | 532/766 statements supported across 30 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
+| Coverage ratio | 0.5287 | PLAUSIBLE | 405/766 statements supported across 30 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
+| PERFORM | 127 |
 | WRITE | 106 |
 | OPEN | 41 |
 | CLOSE | 39 |
@@ -490,14 +491,23 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 
 | File | Line | Paragraph | Construct | Context |
 | --- | --- | --- | --- | --- |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | 24 | 100-MAIN | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 64 | OPEN-FILES | OPEN | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 65 | OPEN-FILES | OPEN | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 68 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 74 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 75 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 76 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 81 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 82 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 86 | READ-RECORD | READ | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 97 | WRITE-RECORD | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 50 | OPEN-FILES | OPEN | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 51 | OPEN-FILES | OPEN | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 54 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 55 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 56 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 57 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 62 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 63 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 67 | READ-RECORD | READ | — |
@@ -509,6 +519,10 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 128 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 129 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 130 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 134 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 139 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 142 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 143 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 148 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 149 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 153 | READ-RECORD | READ | — |
@@ -520,6 +534,10 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 128 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 129 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 130 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 134 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 139 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 142 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 143 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 148 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 149 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 153 | READ-RECORD | READ | — |
@@ -531,6 +549,11 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 122 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 123 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 124 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 128 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 129 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 130 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 131 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 132 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 137 | CLOSE-STOP | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 138 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 139 | CLOSE-STOP | CLOSE | — |
@@ -543,6 +566,11 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 122 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 123 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 124 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 128 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 129 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 130 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 131 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 132 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 137 | CLOSE-STOP | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 138 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 139 | CLOSE-STOP | CLOSE | — |
@@ -555,6 +583,11 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 139 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 140 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 141 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 145 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 146 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 147 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 148 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 149 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 156 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 157 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 160 | CLOSE-STOP | CLOSE | — |
@@ -568,6 +601,11 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 139 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 140 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 141 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 145 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 146 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 147 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 148 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 149 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 156 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 157 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 160 | CLOSE-STOP | CLOSE | — |
@@ -581,6 +619,11 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 143 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 144 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 145 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 149 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 150 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 151 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 152 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 153 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 159 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 160 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 163 | CLOSE-STOP | CLOSE | — |
@@ -594,6 +637,11 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 130 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 131 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 132 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 136 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 137 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 138 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 139 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 140 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 146 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 147 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 150 | CLOSE-STOP | CLOSE | — |
@@ -607,6 +655,11 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 125 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 126 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 127 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 131 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 132 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 133 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 134 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 135 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 141 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 142 | WRITE-TLIMIT-TBALANCE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 145 | CLOSE-STOP | CLOSE | — |
@@ -616,7 +669,14 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol | 14 | MAIN-PROCEDURE | DIVIDE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 52 | 1000-OPEN-FILES | OPEN | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 53 | 1000-OPEN-FILES | OPEN | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 63 | 2000-READ-FIRST-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 64 | 2000-READ-FIRST-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 65 | 2000-READ-FIRST-RECORD | GO | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 76 | 2100-READ-TEN-RECORDS | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 77 | 2100-READ-TEN-RECORDS | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 78 | 2100-READ-TEN-RECORDS | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 85 | 2200-READ-ANOTHER-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 92 | 2300-READ-NEXT-RECORDS | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 101 | 2400-CALLING-SUBPROGRAM | CALL | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 108 | 3000-CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 109 | 3000-CLOSE-STOP | CLOSE | — |
@@ -629,6 +689,11 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 121 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 122 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 123 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 127 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 128 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 131 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 132 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 133 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 138 | CLOSE-STOP | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 139 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 140 | CLOSE-STOP | CLOSE | — |
@@ -641,21 +706,32 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 121 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 122 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 123 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 127 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 128 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 131 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 132 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 133 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 138 | CLOSE-STOP | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 139 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 140 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 144 | READ-RECORD | READ | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 170 | WRITE-RECORD | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 48 | A000-START | OPEN | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 49 | A000-START | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 50 | A000-START | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 51 | A000-START | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 57 | A000-COUNT | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 60 | A000-DONE | OPEN | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 66 | A000-DONE | WRITE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 67 | A000-DONE | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 48 | OPEN-FILES | OPEN | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 51 | LOAD-TABLES | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 55 | LOAD-TABLES | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 66 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 70 | READ-RECORD | READ | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 47 | OPEN-FILES | OPEN | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 50 | LOAD-TABLES | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 54 | LOAD-TABLES | PERFORM | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 65 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 69 | READ-RECORD | READ | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 124 | OPEN-FILES | OPEN | — |
@@ -665,7 +741,14 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 135 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 136 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 137 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 142 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 143 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 144 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 145 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 146 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 147 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 152 | CLOSE-STOP | WRITE | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 153 | CLOSE-STOP | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 154 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 155 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 159 | READ-RECORD | READ | — |
@@ -679,7 +762,14 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 136 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 137 | WRITE-HEADERS | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 138 | WRITE-HEADERS | WRITE | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 143 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 144 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 145 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 146 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 147 | READ-NEXT-RECORD | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 148 | READ-NEXT-RECORD | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 153 | CLOSE-STOP | WRITE | — |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 154 | CLOSE-STOP | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 155 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 156 | CLOSE-STOP | CLOSE | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 160 | READ-RECORD | READ | — |
@@ -687,43 +777,81 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 195 | WRITE-OVERLIMIT | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 203 | WRITE-RECORD | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 93 | PROG-START | OPEN | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 94 | PROG-START | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 96 | PROG-END | CLOSE | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 102 | LIST-ALL | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 105 | LIST-ALL | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 107 | LIST-ALL | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 108 | LIST-ALL | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 112 | LIST-ALL | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 114 | LIST-ALL | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 117 | LIST-ALL | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 121 | PRINT-AND-GET1 | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 122 | PRINT-AND-GET1 | EXEC | EXEC SQL |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 130 | PRINT-A-LINE | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 134 | SQL-ERROR-HANDLING | CALL | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 112 | PROG-START | OPEN | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 113 | PROG-START | OPEN | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 114 | PROG-START | READ | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 116 | PROG-START | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 120 | PROG-END | CLOSE | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 126 | PROCESS-INPUT | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 128 | PROCESS-INPUT | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 129 | PROCESS-INPUT | READ | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 133 | GET-ALL | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 136 | GET-ALL | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 138 | GET-ALL | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 139 | GET-ALL | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 143 | GET-ALL | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 145 | GET-ALL | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 148 | GET-ALL | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 153 | PRINT-ALL | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 154 | PRINT-ALL | EXEC | EXEC SQL |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 157 | GET-SPECIFIC | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 160 | GET-SPECIFIC | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 162 | GET-SPECIFIC | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 163 | GET-SPECIFIC | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 167 | GET-SPECIFIC | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 169 | GET-SPECIFIC | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 172 | GET-SPECIFIC | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 177 | PRINT-SPECIFIC | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 178 | PRINT-SPECIFIC | EXEC | EXEC SQL |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 187 | PRINT-A-LINE | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 191 | SQL-ERROR-HANDLING | CALL | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 108 | PROG-START | OPEN | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 109 | PROG-START | OPEN | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 110 | PROG-START | READ | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 112 | PROG-START | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 115 | PROG-END | CLOSE | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 120 | PROCESS-INPUT | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 122 | PROCESS-INPUT | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 123 | PROCESS-INPUT | READ | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 126 | GET-ALL | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 129 | GET-ALL | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 131 | GET-ALL | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 132 | GET-ALL | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 136 | GET-ALL | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 138 | GET-ALL | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 141 | GET-ALL | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 145 | PRINT-ALL | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 146 | PRINT-ALL | EXEC | EXEC SQL |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 148 | GET-SPECIFIC | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 151 | GET-SPECIFIC | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 153 | GET-SPECIFIC | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 154 | GET-SPECIFIC | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 158 | GET-SPECIFIC | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 160 | GET-SPECIFIC | EXEC | EXEC SQL |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 163 | GET-SPECIFIC | PERFORM | — |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 167 | PRINT-SPECIFIC | PERFORM | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 168 | PRINT-SPECIFIC | EXEC | EXEC SQL |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 174 | PRINT-A-LINE | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 178 | SQL-ERROR-HANDLING | CALL | — |
+| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 15 | — | PERFORM | — |
+| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 16 | — | PERFORM | — |
+| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 20 | — | PERFORM | — |
+| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 21 | — | PERFORM | — |
+| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 22 | — | PERFORM | — |
+| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 23 | — | PERFORM | — |
 
 
 ## 6. DATA DIVISION features found
@@ -785,51 +913,51 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 
 | Program | Tier | Rule that fired |
 | --- | --- | --- |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | HIGH | `HIGH: coverage<0.80` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | MED | `MED: coverage<1.00` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | HIGH | `HIGH: coverage<0.80` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | HIGH | `HIGH: coverage<0.80` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol | HIGH | `HIGH: coverage<0.80` |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0014.cobol | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | HIGH | `HIGH: coverage<0.80` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | HIGH | `HIGH: coverage<0.80` |
-| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | HIGH | `HIGH: EXEC SQL present` |
-| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | HIGH | `HIGH: EXEC SQL present` |
-| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | HIGH | `HIGH: EXEC SQL present` |
-| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
-| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | LOW | `LOW: coverage=1.00, no external interface, no ALTER, cyclomatic<=20, nesting<=4` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | BLOCKED | `BLOCKED: coverage<0.60` |
+| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | MED | `MED: coverage<1.00` |
+| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | MED | `MED: coverage<1.00` |
 
 | Tier | Programs |
 | --- | --- |
-| BLOCKED | 3 |
-| HIGH | 20 |
-| LOW | 7 |
-| MED | 0 |
+| BLOCKED | 22 |
+| HIGH | 1 |
+| LOW | 4 |
+| MED | 3 |
 
 
 ## 9. Migration-scope recommendation
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Quotable-today code lines | 2505 | PLAUSIBLE | code lines (2739) minus lines carrying an unsupported construct (234) across 30 program(s) |
-| Code lines requiring grammar expansion | 234 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 30 program(s) |
+| Quotable-today code lines | 2378 | PLAUSIBLE | code lines (2739) minus lines carrying an unsupported construct (361) across 30 program(s) |
+| Code lines requiring grammar expansion | 361 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 30 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -840,6 +968,7 @@ Attribution is by source line: a code line requires grammar expansion if it carr
 
 | Construct | Occurrences |
 | --- | --- |
+| PERFORM | 127 |
 | WRITE | 106 |
 | OPEN | 41 |
 | CLOSE | 39 |
@@ -1073,11 +1202,11 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553)`
+Registry: `SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d)`
 
-Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
+Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM VARYING`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
-Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `SUBTRACT`
+Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `PERFORM`, `SUBTRACT`
 
 | DATA DIVISION feature | C1 status |
 | --- | --- |
@@ -1109,7 +1238,7 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | platform | Linux |
 | python | 3.11.15 |
 | python-docx | not installed |
-| relian_transpiler | SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) |
+| relian_transpiler | SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) |
 | schema | relian-assessment-1 |
 
 

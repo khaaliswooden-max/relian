@@ -1,4 +1,4 @@
-# Legacy Code Assessment — /tmp/claude-0/-home-user-relian/edca33b0-bec2-500a-808c-f08e8406d6eb/scratchpad/dryruns/carddemo
+# Legacy Code Assessment — /tmp/claude-0/-home-user/f2df2865-c5ad-56fb-9929-a95ffe40b35f/scratchpad/dryrun/carddemo
 Schema `relian-assessment-1` · manifest `24665cbf3cf2a909adf2523b231a3447692213a84c32ab18e799cc01c01315c2`
 
 Every number in this report is a measurement with a stated origin and a Trutina grade, or it is absent. Nothing here is a default, an estimate, or a target reported as a result.
@@ -7,16 +7,16 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.8511 | PLAUSIBLE | 8288/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
-| Quotable-today code lines | 21454 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (1450) across 44 program(s) |
-| Code lines requiring grammar expansion | 1450 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 44 program(s) |
+| Portfolio construct coverage | 0.7248 | PLAUSIBLE | 7058/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
+| Quotable-today code lines | 20224 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (2680) across 44 program(s) |
+| Code lines requiring grammar expansion | 2680 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 44 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
 | Measure | Value |
 | --- | --- |
 | Portfolio risk tier | BLOCKED |
-| Rule that fired | `BLOCKED: worst program tier across 44 program(s) (2 at BLOCKED)` |
+| Rule that fired | `BLOCKED: worst program tier across 44 program(s) (4 at BLOCKED)` |
 
 
 ## 2. Manifest
@@ -419,65 +419,66 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 0.8455 | PLAUSIBLE | 93/110 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl (sha256:309468a5c4745f92); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 0.8634 | PLAUSIBLE | 297/344 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl (sha256:224856ce6ef1b741); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 0.9189 | PLAUSIBLE | 340/370 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl (sha256:7ab6dadad6d9d738); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 0.8912 | PLAUSIBLE | 172/193 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl (sha256:27a969cbee69426f); method=token_scan, source_format=fixed; antlr_syntax_errors=24 |
-| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 0.8772 | PLAUSIBLE | 50/57 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl (sha256:57232060f8bdaecc); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 0.7463 | PLAUSIBLE | 50/67 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL (sha256:13c409d1b14b52c4); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 0.7841 | PLAUSIBLE | 69/88 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL (sha256:5694a2ed8a12dd4d); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 0.7397 | PLAUSIBLE | 54/73 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL (sha256:cf174417cd833193); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 0.6271 | PLAUSIBLE | 37/59 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-transaction-type-db2/cbl/COBTUPDT.cbl (sha256:0213fd5718c6aadd); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0.8263 | PLAUSIBLE | 490/593 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-transaction-type-db2/cbl/COTRTLIC.cbl (sha256:916a5fe2279ad626); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0.7672 | PLAUSIBLE | 313/408 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-transaction-type-db2/cbl/COTRTUPC.cbl (sha256:c16e40c391c0ad2d); method=token_scan, source_format=fixed; antlr_syntax_errors=38 |
-| app/app-vsam-mq/cbl/COACCT01.cbl | 0.9073 | PLAUSIBLE | 186/205 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-vsam-mq/cbl/COACCT01.cbl (sha256:92776ed2801da114); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
-| app/app-vsam-mq/cbl/CODATE01.cbl | 0.8956 | PLAUSIBLE | 163/182 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/app-vsam-mq/cbl/CODATE01.cbl (sha256:97fcba3faa272c98); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
-| app/cbl/CBACT01C.cbl | 0.8421 | PLAUSIBLE | 160/190 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBACT01C.cbl (sha256:f8eb6e3a561ff96a); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/CBACT02C.cbl | 0.8571 | PLAUSIBLE | 54/63 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBACT02C.cbl (sha256:d290cbbbec1e2585); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBACT03C.cbl | 0.8594 | PLAUSIBLE | 55/64 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBACT03C.cbl (sha256:ee1019bc3ef7bc4e); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBACT04C.cbl | 0.8605 | PLAUSIBLE | 253/294 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBACT04C.cbl (sha256:5084bb8b0c9a0f01); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBCUS01C.cbl | 0.8594 | PLAUSIBLE | 55/64 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBCUS01C.cbl (sha256:233dbc3bc33a3b9a); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBEXPORT.cbl | 0.8616 | PLAUSIBLE | 193/224 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBEXPORT.cbl (sha256:598e3c9055b96b79); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| app/cbl/CBIMPORT.cbl | 0.8457 | PLAUSIBLE | 148/175 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBIMPORT.cbl (sha256:0eccb28695cb3a8e); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
-| app/cbl/CBSTM03A.CBL | 0.6226 | PLAUSIBLE | 264/424 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBSTM03A.CBL (sha256:23c8753b6b4e0c24); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
-| app/cbl/CBSTM03B.CBL | 0.4528 | PLAUSIBLE | 24/53 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBSTM03B.CBL (sha256:ac004f7f40dcb3f2); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBTRN01C.cbl | 0.8611 | PLAUSIBLE | 186/216 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBTRN01C.cbl (sha256:55c2aebd59528aa4); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CBTRN02C.cbl | 0.8643 | PLAUSIBLE | 293/339 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBTRN02C.cbl (sha256:708f3cadc555acab); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
-| app/cbl/CBTRN03C.cbl | 0.8535 | PLAUSIBLE | 268/314 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CBTRN03C.cbl (sha256:8691e625502b7efc); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COACTUPC.cbl | 0.8234 | PLAUSIBLE | 937/1138 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COACTUPC.cbl (sha256:b5bb7d6ccad022e0); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
-| app/cbl/COACTVWC.cbl | 0.8016 | PLAUSIBLE | 198/247 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COACTVWC.cbl (sha256:4f1e55176f69edfb); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
-| app/cbl/COADM01C.cbl | 0.875 | PLAUSIBLE | 70/80 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COADM01C.cbl (sha256:4e49afda5f685f3e); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
-| app/cbl/COBIL00C.cbl | 0.9158 | PLAUSIBLE | 174/190 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COBIL00C.cbl (sha256:b5c46039eb8fd2f7); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COBSWAIT.cbl | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COBSWAIT.cbl (sha256:38a8d28235e58509); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| app/cbl/COCRDLIC.cbl | 0.8705 | PLAUSIBLE | 410/471 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COCRDLIC.cbl (sha256:d6a9210ad3062bd6); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COCRDSLC.cbl | 0.817 | PLAUSIBLE | 192/235 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COCRDSLC.cbl (sha256:d5af307fb4b1a155); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| app/cbl/COCRDUPC.cbl | 0.8547 | PLAUSIBLE | 394/461 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COCRDUPC.cbl (sha256:c245cf383a4a3f72); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
-| app/cbl/COMEN01C.cbl | 0.8901 | PLAUSIBLE | 81/91 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COMEN01C.cbl (sha256:c77747b4caaf00b4); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
-| app/cbl/CORPT00C.cbl | 0.9364 | PLAUSIBLE | 206/220 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CORPT00C.cbl (sha256:0b06bd5d4f38f178); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COSGN00C.cbl | 0.8592 | PLAUSIBLE | 61/71 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COSGN00C.cbl (sha256:4f901ae6b113eeba); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| app/cbl/COTRN00C.cbl | 0.9626 | PLAUSIBLE | 283/294 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COTRN00C.cbl (sha256:51479f131b4fb300); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
-| app/cbl/COTRN01C.cbl | 0.9474 | PLAUSIBLE | 90/95 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COTRN01C.cbl (sha256:fc24ff879ac6ae12); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COTRN02C.cbl | 0.95 | PLAUSIBLE | 285/300 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COTRN02C.cbl (sha256:dc33b4c797a98d27); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
-| app/cbl/COUSR00C.cbl | 0.9583 | PLAUSIBLE | 276/288 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COUSR00C.cbl (sha256:831433c6ec830603); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COUSR01C.cbl | 0.9362 | PLAUSIBLE | 88/94 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COUSR01C.cbl (sha256:aa131b1e3382dc6d); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COUSR02C.cbl | 0.9527 | PLAUSIBLE | 141/148 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COUSR02C.cbl (sha256:85d36699cbd30793); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/COUSR03C.cbl | 0.9391 | PLAUSIBLE | 108/115 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/COUSR03C.cbl (sha256:bcd68f08c145b3b9); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| app/cbl/CSUTLDTC.cbl | 0.8889 | PLAUSIBLE | 24/27 statements supported via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) on app/cbl/CSUTLDTC.cbl (sha256:58c165dcfc392723); method=token_scan, source_format=fixed; antlr_syntax_errors=27 |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 0.6909 | PLAUSIBLE | 76/110 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl (sha256:309468a5c4745f92); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 0.7558 | PLAUSIBLE | 260/344 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl (sha256:224856ce6ef1b741); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 0.7973 | PLAUSIBLE | 295/370 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl (sha256:7ab6dadad6d9d738); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 0.715 | PLAUSIBLE | 138/193 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl (sha256:27a969cbee69426f); method=token_scan, source_format=fixed; antlr_syntax_errors=24 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 0.8596 | PLAUSIBLE | 49/57 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl (sha256:57232060f8bdaecc); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 0.597 | PLAUSIBLE | 40/67 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL (sha256:13c409d1b14b52c4); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 0.6477 | PLAUSIBLE | 57/88 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL (sha256:5694a2ed8a12dd4d); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 0.6301 | PLAUSIBLE | 46/73 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL (sha256:cf174417cd833193); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 0.3898 | PLAUSIBLE | 23/59 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-transaction-type-db2/cbl/COBTUPDT.cbl (sha256:0213fd5718c6aadd); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0.7268 | PLAUSIBLE | 431/593 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-transaction-type-db2/cbl/COTRTLIC.cbl (sha256:916a5fe2279ad626); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0.6691 | PLAUSIBLE | 273/408 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-transaction-type-db2/cbl/COTRTUPC.cbl (sha256:c16e40c391c0ad2d); method=token_scan, source_format=fixed; antlr_syntax_errors=38 |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 0.7512 | PLAUSIBLE | 154/205 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-vsam-mq/cbl/COACCT01.cbl (sha256:92776ed2801da114); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 0.7418 | PLAUSIBLE | 135/182 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/app-vsam-mq/cbl/CODATE01.cbl (sha256:97fcba3faa272c98); method=token_scan, source_format=fixed; antlr_syntax_errors=18 |
+| app/cbl/CBACT01C.cbl | 0.6579 | PLAUSIBLE | 125/190 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBACT01C.cbl (sha256:f8eb6e3a561ff96a); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/CBACT02C.cbl | 0.6984 | PLAUSIBLE | 44/63 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBACT02C.cbl (sha256:d290cbbbec1e2585); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBACT03C.cbl | 0.7031 | PLAUSIBLE | 45/64 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBACT03C.cbl (sha256:ee1019bc3ef7bc4e); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBACT04C.cbl | 0.6701 | PLAUSIBLE | 197/294 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBACT04C.cbl (sha256:5084bb8b0c9a0f01); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBCUS01C.cbl | 0.7031 | PLAUSIBLE | 45/64 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBCUS01C.cbl (sha256:233dbc3bc33a3b9a); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBEXPORT.cbl | 0.6607 | PLAUSIBLE | 148/224 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBEXPORT.cbl (sha256:598e3c9055b96b79); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| app/cbl/CBIMPORT.cbl | 0.68 | PLAUSIBLE | 119/175 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBIMPORT.cbl (sha256:0eccb28695cb3a8e); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
+| app/cbl/CBSTM03A.CBL | 0.559 | PLAUSIBLE | 237/424 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBSTM03A.CBL (sha256:23c8753b6b4e0c24); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
+| app/cbl/CBSTM03B.CBL | 0.3774 | PLAUSIBLE | 20/53 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBSTM03B.CBL (sha256:ac004f7f40dcb3f2); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBTRN01C.cbl | 0.6667 | PLAUSIBLE | 144/216 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBTRN01C.cbl (sha256:55c2aebd59528aa4); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CBTRN02C.cbl | 0.6844 | PLAUSIBLE | 232/339 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBTRN02C.cbl (sha256:708f3cadc555acab); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
+| app/cbl/CBTRN03C.cbl | 0.6242 | PLAUSIBLE | 196/314 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CBTRN03C.cbl (sha256:8691e625502b7efc); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COACTUPC.cbl | 0.7698 | PLAUSIBLE | 876/1138 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COACTUPC.cbl (sha256:b5bb7d6ccad022e0); method=token_scan, source_format=fixed; antlr_syntax_errors=50 |
+| app/cbl/COACTVWC.cbl | 0.7287 | PLAUSIBLE | 180/247 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COACTVWC.cbl (sha256:4f1e55176f69edfb); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
+| app/cbl/COADM01C.cbl | 0.7375 | PLAUSIBLE | 59/80 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COADM01C.cbl (sha256:4e49afda5f685f3e); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
+| app/cbl/COBIL00C.cbl | 0.7158 | PLAUSIBLE | 136/190 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COBIL00C.cbl (sha256:b5c46039eb8fd2f7); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COBSWAIT.cbl | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COBSWAIT.cbl (sha256:38a8d28235e58509); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| app/cbl/COCRDLIC.cbl | 0.8089 | PLAUSIBLE | 381/471 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COCRDLIC.cbl (sha256:d6a9210ad3062bd6); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COCRDSLC.cbl | 0.7362 | PLAUSIBLE | 173/235 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COCRDSLC.cbl (sha256:d5af307fb4b1a155); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
+| app/cbl/COCRDUPC.cbl | 0.7983 | PLAUSIBLE | 368/461 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COCRDUPC.cbl (sha256:c245cf383a4a3f72); method=token_scan, source_format=fixed; antlr_syntax_errors=14 |
+| app/cbl/COMEN01C.cbl | 0.7692 | PLAUSIBLE | 70/91 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COMEN01C.cbl (sha256:c77747b4caaf00b4); method=token_scan, source_format=fixed; antlr_syntax_errors=6 |
+| app/cbl/CORPT00C.cbl | 0.7864 | PLAUSIBLE | 173/220 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CORPT00C.cbl (sha256:0b06bd5d4f38f178); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COSGN00C.cbl | 0.7042 | PLAUSIBLE | 50/71 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COSGN00C.cbl (sha256:4f901ae6b113eeba); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
+| app/cbl/COTRN00C.cbl | 0.8265 | PLAUSIBLE | 243/294 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COTRN00C.cbl (sha256:51479f131b4fb300); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
+| app/cbl/COTRN01C.cbl | 0.7684 | PLAUSIBLE | 73/95 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COTRN01C.cbl (sha256:fc24ff879ac6ae12); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COTRN02C.cbl | 0.7467 | PLAUSIBLE | 224/300 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COTRN02C.cbl (sha256:dc33b4c797a98d27); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
+| app/cbl/COUSR00C.cbl | 0.8229 | PLAUSIBLE | 237/288 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COUSR00C.cbl (sha256:831433c6ec830603); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COUSR01C.cbl | 0.7234 | PLAUSIBLE | 68/94 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COUSR01C.cbl (sha256:aa131b1e3382dc6d); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COUSR02C.cbl | 0.7432 | PLAUSIBLE | 110/148 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COUSR02C.cbl (sha256:85d36699cbd30793); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/COUSR03C.cbl | 0.713 | PLAUSIBLE | 82/115 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/COUSR03C.cbl (sha256:bcd68f08c145b3b9); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
+| app/cbl/CSUTLDTC.cbl | 0.8519 | PLAUSIBLE | 23/27 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on app/cbl/CSUTLDTC.cbl (sha256:58c165dcfc392723); method=token_scan, source_format=fixed; antlr_syntax_errors=27 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.8511 | PLAUSIBLE | 8288/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553); method=token_scan |
+| Coverage ratio | 0.7248 | PLAUSIBLE | 7058/9738 statements supported across 44 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
+| PERFORM | 1230 |
 | EXIT | 366 |
 | EXEC | 286 |
 | GO | 185 |
@@ -501,10 +502,24 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 
 | File | Line | Paragraph | Construct | Context |
 | --- | --- | --- | --- | --- |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 138 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 140 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 142 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 144 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 146 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 147 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 150 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 153 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 157 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 161 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 165 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 169 | MAIN-PARA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 213 | 1000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 223 | 2000-FIND-NEXT-AUTH-SUMMARY | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 240 | 2000-FIND-NEXT-AUTH-SUMMARY | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 244 | 2000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 255 | 3000-FIND-NEXT-AUTH-DTL | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 270 | 3000-FIND-NEXT-AUTH-DTL | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 274 | 3000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 288 | 4000-CHECK-IF-EXPIRED | SUBTRACT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 289 | 4000-CHECK-IF-EXPIRED | SUBTRACT | — |
@@ -512,156 +527,303 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 292 | 4000-CHECK-IF-EXPIRED | SUBTRACT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 300 | 4000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 310 | 5000-DELETE-AUTH-DTL | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 320 | 5000-DELETE-AUTH-DTL | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 325 | 5000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 335 | 6000-DELETE-AUTH-SUMMARY | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 345 | 6000-DELETE-AUTH-SUMMARY | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 349 | 6000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 355 | 9000-TAKE-CHECKPOINT | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 369 | 9000-TAKE-CHECKPOINT | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 374 | 9000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | 386 | 9999-EXIT | EXIT | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 222 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 223 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 224 | MAIN-PARA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 226 | MAIN-PARA | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 233 | 1000-INITIALIZE | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 244 | 1000-INITIALIZE | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 246 | 1000-INITIALIZE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 250 | 1000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 262 | 1100-OPEN-REQUEST-QUEUE | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 282 | 1100-OPEN-REQUEST-QUEUE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 287 | 1100-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 293 | 1200-SCHEDULE-PSB | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 299 | 1200-SCHEDULE-PSB | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 302 | 1200-SCHEDULE-PSB | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 316 | 1200-SCHEDULE-PSB | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 320 | 1200-EXIT | EXIT | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 326 | 2000-MAIN-PROCESS | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 328 | 2000-MAIN-PROCESS | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 330 | 2000-MAIN-PROCESS | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 334 | 2000-MAIN-PROCESS | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 342 | 2000-MAIN-PROCESS | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 348 | 2000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 383 | 2100-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 400 | 3100-READ-REQUEST-MQ | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 429 | 3100-READ-REQUEST-MQ | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 435 | 3100-EXIT | EXIT | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 443 | 5000-PROCESS-AUTH | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 448 | 5000-PROCESS-AUTH | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 451 | 5000-PROCESS-AUTH | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 452 | 5000-PROCESS-AUTH | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 454 | 5000-PROCESS-AUTH | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 456 | 5000-PROCESS-AUTH | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 459 | 5000-PROCESS-AUTH | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 461 | 5000-PROCESS-AUTH | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 464 | 5000-PROCESS-AUTH | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 469 | 5000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 477 | 5100-READ-XREF-RECORD | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 500 | 5100-READ-XREF-RECORD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 512 | 5100-READ-XREF-RECORD | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 517 | 5100-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 525 | 5200-READ-ACCT-RECORD | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 547 | 5200-READ-ACCT-RECORD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 560 | 5200-READ-ACCT-RECORD | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 565 | 5200-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 573 | 5300-READ-CUST-RECORD | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 595 | 5300-READ-CUST-RECORD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 608 | 5300-READ-CUST-RECORD | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 613 | 5300-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 620 | 5500-READ-AUTH-SUMMRY | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 639 | 5500-READ-AUTH-SUMMRY | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 644 | 5500-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 654 | 5600-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 722 | 6000-MAKE-DECISION | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 735 | 6000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 758 | 7100-SEND-RESPONSE | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 778 | 7100-SEND-RESPONSE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 783 | 7100-EXIT | EXIT | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 790 | 8000-WRITE-AUTH-TO-DB | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 791 | 8000-WRITE-AUTH-TO-DB | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 795 | 8000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 802 | 8400-UPDATE-SUMMARY | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 825 | 8400-UPDATE-SUMMARY | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 830 | 8400-UPDATE-SUMMARY | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 846 | 8400-UPDATE-SUMMARY | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 851 | 8400-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 857 | 8500-INSERT-AUTH | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 861 | 8500-INSERT-AUTH | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 913 | 8500-INSERT-AUTH | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 931 | 8500-INSERT-AUTH | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 936 | 8500-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 944 | 9000-TERMINATE | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 947 | 9000-TERMINATE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 951 | 9000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 956 | 9100-CLOSE-REQUEST-QUEUE | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 975 | 9100-CLOSE-REQUEST-QUEUE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 980 | 9100-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 986 | 9500-LOG-ERROR | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 990 | 9500-LOG-ERROR | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 1001 | 9500-LOG-ERROR | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 1009 | 9500-LOG-ERROR | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 1013 | 9500-EXIT | EXIT | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 1019 | 9990-END-ROUTINE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 1021 | 9990-END-ROUTINE | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | 1025 | 9990-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 191 | MAIN-PARA | INITIALIZE | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 198 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 215 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 219 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 222 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 226 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 234 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 237 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 238 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 240 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 241 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 243 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 244 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 249 | MAIN-PARA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 254 | MAIN-PARA | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 322 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 337 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 350 | GATHER-DETAILS | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 352 | GATHER-DETAILS | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 355 | GATHER-DETAILS | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 370 | PROCESS-PF7-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 377 | PROCESS-PF7-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 379 | PROCESS-PF7-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 396 | PROCESS-PF8-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 397 | PROCESS-PF8-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 405 | PROCESS-PF8-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 407 | PROCESS-PF8-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 424 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 426 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 428 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 431 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 446 | PROCESS-PAGE-FORWARD | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 461 | GET-AUTHORIZATIONS | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 476 | GET-AUTHORIZATIONS | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 483 | GET-AUTHORIZATIONS | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 493 | REPOSITION-AUTHORIZATIONS | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 509 | REPOSITION-AUTHORIZATIONS | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 516 | REPOSITION-AUTHORIZATIONS | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 674 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 686 | SEND-PAULST-SCREEN | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 690 | SEND-PAULST-SCREEN | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 695 | SEND-PAULST-SCREEN | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 703 | SEND-PAULST-SCREEN | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 715 | RECEIVE-PAULST-SCREEN | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 753 | GATHER-ACCOUNT-DETAILS | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 754 | GATHER-ACCOUNT-DETAILS | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 755 | GATHER-ACCOUNT-DETAILS | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 758 | GATHER-ACCOUNT-DETAILS | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 766 | GATHER-ACCOUNT-DETAILS | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 771 | GATHER-ACCOUNT-DETAILS | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 785 | GATHER-ACCOUNT-DETAILS | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 818 | GETCARDXREF-BYACCT | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 836 | GETCARDXREF-BYACCT | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 845 | GETCARDXREF-BYACCT | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 851 | GETCARDXREF-BYACCT | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 860 | GETCARDXREF-BYACCT | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 869 | GETACCTDATA-BYACCT | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 886 | GETACCTDATA-BYACCT | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 895 | GETACCTDATA-BYACCT | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 901 | GETACCTDATA-BYACCT | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 910 | GETACCTDATA-BYACCT | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 920 | GETCUSTDATA-BYCUST | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 937 | GETCUSTDATA-BYCUST | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 946 | GETCUSTDATA-BYCUST | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 952 | GETCUSTDATA-BYCUST | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 961 | GETCUSTDATA-BYCUST | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 969 | GET-AUTH-SUMMARY | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 973 | GET-AUTH-SUMMARY | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 988 | GET-AUTH-SUMMARY | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 995 | GET-AUTH-SUMMARY | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 1002 | SCHEDULE-PSB | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 1008 | SCHEDULE-PSB | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 1011 | SCHEDULE-PSB | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 1022 | SCHEDULE-PSB | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | 1029 | SCHEDULE-PSB | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 166 | MAIN-PARA | INITIALIZE | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 169 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 175 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 177 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 179 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 182 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 183 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 186 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 188 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 189 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 191 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 192 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 194 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 197 | MAIN-PARA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 202 | MAIN-PARA | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 216 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 220 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 227 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 234 | MARK-AUTH-FRAUD | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 248 | MARK-AUTH-FRAUD | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 255 | MARK-AUTH-FRAUD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 258 | MARK-AUTH-FRAUD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 261 | MARK-AUTH-FRAUD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 265 | MARK-AUTH-FRAUD | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 273 | PROCESS-PF8-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 274 | PROCESS-PF8-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 278 | PROCESS-PF8-KEY | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 287 | PROCESS-PF8-KEY | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 367 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 375 | SEND-AUTHVIEW-SCREEN | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 381 | SEND-AUTHVIEW-SCREEN | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 389 | SEND-AUTHVIEW-SCREEN | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 400 | RECEIVE-AUTHVIEW-SCREEN | EXEC | EXEC CICS |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 433 | READ-AUTH-RECORD | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 439 | READ-AUTH-RECORD | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 455 | READ-AUTH-RECORD | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 461 | READ-AUTH-RECORD | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 465 | READ-AUTH-RECORD | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 481 | READ-AUTH-RECORD | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 487 | READ-AUTH-RECORD | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 495 | READ-NEXT-AUTH-RECORD | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 510 | READ-NEXT-AUTH-RECORD | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 516 | READ-NEXT-AUTH-RECORD | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 525 | UPDATE-AUTH-DETAILS | EXEC | EXEC DLI |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 533 | UPDATE-AUTH-DETAILS | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 540 | UPDATE-AUTH-DETAILS | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 544 | UPDATE-AUTH-DETAILS | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 550 | UPDATE-AUTH-DETAILS | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 558 | TAKE-SYNCPOINT | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 566 | ROLL-BACK | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 575 | SCHEDULE-PSB | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 581 | SCHEDULE-PSB | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 584 | SCHEDULE-PSB | EXEC | EXEC DLI |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 595 | SCHEDULE-PSB | STRING | — |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | 601 | SCHEDULE-PSB | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 91 | MAIN-PARA | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 95 | MAIN-PARA | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 141 | MAIN-PARA | EXEC | EXEC SQL |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 204 | MAIN-PARA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 211 | MAIN-PARA | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 218 | MAIN-PARA | EXEC | EXEC CICS |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 222 | FRAUD-UPDATE | EXEC | EXEC SQL |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | 239 | FRAUD-UPDATE | STRING | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 165 | MAIN-PARA | ENTRY | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 170 | PADFLPCB | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 172 | PADFLPCB | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 175 | PADFLPCB | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 213 | 1000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 221 | 2000-FIND-NEXT-AUTH-SUMMARY | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 222 | 2000-FIND-NEXT-AUTH-SUMMARY | CALL | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 237 | ROOT-UNQUAL-SSA | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 238 | ROOT-UNQUAL-SSA | INITIALIZE | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 243 | ROOT-UNQUAL-SSA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 244 | ROOT-UNQUAL-SSA | INITIALIZE | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 245 | ROOT-UNQUAL-SSA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 256 | ROOT-UNQUAL-SSA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 259 | 2000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 267 | 3000-FIND-NEXT-AUTH-DTL | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 282 | CHILD-UNQUAL-SSA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 293 | CHILD-UNQUAL-SSA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 295 | CHILD-UNQUAL-SSA | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 297 | 3000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 302 | 3100-INSERT-PARENT-SEG-GSAM | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 314 | PENDING-AUTH-SUMMARY | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 317 | 3100-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 321 | 3200-INSERT-CHILD-SEG-GSAM | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 333 | PENDING-AUTH-DETAILS | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 336 | 3200-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 355 | 4000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | 366 | 9999-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 171 | MAIN-PARA | ENTRY | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 175 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 177 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 180 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 183 | MAIN-PARA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 201 | 1000-INITIALIZE | OPEN | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 206 | 1000-INITIALIZE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 209 | 1000-INITIALIZE | OPEN | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 214 | 1000-INITIALIZE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 219 | 1000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 226 | 2000-READ-ROOT-SEG-FILE | READ | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 230 | 2000-READ-ROOT-SEG-FILE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 240 | 2000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 244 | 2100-INSERT-ROOT-SEG | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 261 | ROOT-UNQUAL-SSA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 265 | 2100-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 272 | 3000-READ-CHILD-SEG-FILE | READ | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 281 | 3000-READ-CHILD-SEG-FILE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 291 | 3000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 295 | 3100-INSERT-CHILD-SEG | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 296 | 3100-INSERT-CHILD-SEG | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 309 | ROOT-QUAL-SSA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 313 | ROOT-QUAL-SSA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 316 | 3100-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 321 | 3200-INSERT-IMS-CALL | CALL | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 335 | CHILD-UNQUAL-SSA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 339 | 3200-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 343 | 4000-FILE-CLOSE | CLOSE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 350 | 4000-FILE-CLOSE | CLOSE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 358 | 4000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | 369 | 9999-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 158 | MAIN-PARA | ENTRY | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 161 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 163 | MAIN-PARA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 166 | MAIN-PARA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 186 | 1000-INITIALIZE | OPEN | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 191 | 1000-INITIALIZE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 194 | 1000-INITIALIZE | OPEN | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 199 | 1000-INITIALIZE | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 204 | 1000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 212 | 2000-FIND-NEXT-AUTH-SUMMARY | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 213 | 2000-FIND-NEXT-AUTH-SUMMARY | CALL | — |
@@ -669,9 +831,12 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 229 | ROOT-UNQUAL-SSA | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 233 | ROOT-UNQUAL-SSA | WRITE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 234 | ROOT-UNQUAL-SSA | INITIALIZE | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 235 | ROOT-UNQUAL-SSA | PERFORM | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 246 | ROOT-UNQUAL-SSA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 249 | 2000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 257 | 3000-FIND-NEXT-AUTH-DTL | CALL | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 271 | CHILD-UNQUAL-SSA | WRITE | — |
+| app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 282 | CHILD-UNQUAL-SSA | PERFORM | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 284 | CHILD-UNQUAL-SSA | INITIALIZE | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 286 | 3000-EXIT | EXIT | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 291 | 4000-FILE-CLOSE | CLOSE | — |
@@ -680,59 +845,106 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | 317 | 9999-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 83 | 0001-OPEN-FILES | OPEN | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 89 | 0001-OPEN-FILES | EXIT | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 92 | 1001-READ-NEXT-RECORDS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 93 | 1001-READ-NEXT-RECORDS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 94 | 1001-READ-NEXT-RECORDS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 95 | 1001-READ-NEXT-RECORDS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 97 | 1001-READ-NEXT-RECORDS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 98 | 1001-READ-NEXT-RECORDS | EXIT | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 101 | 1002-READ-RECORDS | READ | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 107 | 1002-READ-RECORDS | EXIT | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 113 | 1003-TREAT-RECORD | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 116 | 1003-TREAT-RECORD | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 119 | 1003-TREAT-RECORD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 123 | 1003-TREAT-RECORD | STRING | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 128 | 1003-TREAT-RECORD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 130 | 1003-TREAT-RECORD | EXIT | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 137 | 10031-INSERT-DB | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 155 | 10031-INSERT-DB | STRING | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 162 | 10031-INSERT-DB | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 164 | 10031-INSERT-DB | EXIT | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 171 | 10032-UPDATE-DB | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 181 | 10032-UPDATE-DB | STRING | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 184 | 10032-UPDATE-DB | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 186 | 10032-UPDATE-DB | STRING | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 193 | 10032-UPDATE-DB | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 195 | 10032-UPDATE-DB | EXIT | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 201 | 10033-DELETE-DB | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 202 | 10033-DELETE-DB | DELETE | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 211 | 10033-DELETE-DB | STRING | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 214 | 10033-DELETE-DB | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 217 | 10033-DELETE-DB | STRING | — |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 224 | 10033-DELETE-DB | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 226 | 10033-DELETE-DB | EXIT | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 233 | 9999-ABEND | EXIT | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 235 | 2001-CLOSE-STOP | CLOSE | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 236 | 2001-CLOSE-STOP | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 500 | 0000-MAIN | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 516 | 0000-MAIN | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 538 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 548 | 0000-MAIN | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 563 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 616 | 0000-MAIN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 620 | 0000-MAIN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 648 | 0000-MAIN | EXEC | EXEC CICS |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 684 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 688 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 690 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 715 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 718 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 720 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 730 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 732 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 734 | 0000-MAIN | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 742 | 0000-MAIN | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 758 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 760 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 762 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 771 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 773 | 0000-MAIN | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 774 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 776 | 0000-MAIN | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 784 | 0000-MAIN | SUBTRACT | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 785 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 787 | 0000-MAIN | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 788 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 790 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 801 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 804 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 806 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 814 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 823 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 827 | 0000-MAIN | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 834 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 845 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 848 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 850 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 858 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 865 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 867 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 874 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 876 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 878 | 0000-MAIN | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 892 | 0000-MAIN | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 896 | 0000-MAIN | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 910 | COMMON-RETURN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 917 | 0000-MAIN-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 920 | 1000-RECEIVE-MAP | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 923 | 1000-RECEIVE-MAP | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 927 | 1000-RECEIVE-MAP-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 931 | 1100-RECEIVE-SCREEN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 957 | 1100-RECEIVE-SCREEN-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 965 | 1200-EDIT-INPUTS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 968 | 1200-EDIT-INPUTS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 971 | 1200-EDIT-INPUTS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 974 | 1200-EDIT-INPUTS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 979 | 1200-EDIT-INPUTS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 993 | 1210-EDIT-ARRAY | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 994 | 1210-EDIT-ARRAY | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1029 | 1210-EDIT-ARRAY | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1056 | 1210-EDIT-ARRAY-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1073 | 1211-EDIT-ARRAY-DESC | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1086 | 1211-EDIT-ARRAY-DESC | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1093 | 1211-EDIT-ARRAY-DESC-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1106 | 1220-EDIT-TYPECD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1118 | 1220-EDIT-TYPECD | GO | — |
@@ -748,8 +960,15 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1230 | 1240-EDIT-ALPHANUM-REQD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1236 | 1240-EDIT-ALPHANUM-REQD-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1245 | 1290-CROSS-EDITS | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1248 | 1290-CROSS-EDITS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1266 | 1290-CROSS-EDITS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1270 | 1290-CROSS-EDITS-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1276 | 1290-CROSS-EDITS-EXIT | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1278 | 1290-CROSS-EDITS-EXIT | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1280 | 1290-CROSS-EDITS-EXIT | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1282 | 1290-CROSS-EDITS-EXIT | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1284 | 1290-CROSS-EDITS-EXIT | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1286 | 1290-CROSS-EDITS-EXIT | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1291 | 2000-SEND-MAP-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1326 | 2100-SCREEN-INIT-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1378 | 2200-SETUP-ARRAY-ATTRIBS-EXIT | EXIT | — |
@@ -758,42 +977,61 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1583 | 2500-SETUP-MESSAGE-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1588 | 2600-SEND-SCREEN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1598 | 2600-SEND-SCREEN-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1609 | 8000-READ-FORWARD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1613 | 8000-READ-FORWARD | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1622 | 8000-READ-FORWARD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1624 | 8000-READ-FORWARD | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1626 | 8000-READ-FORWARD | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1661 | 8000-READ-FORWARD | EXEC | EXEC SQL |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1689 | 8000-READ-FORWARD | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1715 | 8000-READ-FORWARD | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1721 | 8000-READ-FORWARD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1725 | 8000-READ-FORWARD-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1746 | 8100-READ-BACKWARDS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1749 | 8100-READ-BACKWARDS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1751 | 8100-READ-BACKWARDS | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1753 | 8100-READ-BACKWARDS | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1769 | 8100-READ-BACKWARDS | SUBTRACT | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1786 | 8100-READ-BACKWARDS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1795 | 8100-READ-BACKWARDS-EXIT | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1798 | 8100-READ-BACKWARDS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1803 | 9100-CHECK-FILTERS | EXEC | EXEC SQL |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1828 | 9100-CHECK-FILTERS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1831 | 9100-CHECK-FILTERS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1835 | 9100-CHECK-FILTERS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1846 | 9200-UPDATE-RECORD | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1856 | 9200-UPDATE-RECORD | EXEC | EXEC CICS |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1866 | 9200-UPDATE-RECORD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1869 | 9200-UPDATE-RECORD | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1876 | 9200-UPDATE-RECORD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1879 | 9200-UPDATE-RECORD | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1885 | 9200-UPDATE-RECORD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1888 | 9200-UPDATE-RECORD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1893 | 9200-UPDATE-RECORD-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1900 | 9300-DELETE-RECORD | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1901 | 9300-DELETE-RECORD | DELETE | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1909 | 9300-DELETE-RECORD | EXEC | EXEC CICS |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1921 | 9300-DELETE-RECORD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1925 | 9300-DELETE-RECORD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1929 | 9300-DELETE-RECORD | DELETE | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1931 | 9300-DELETE-RECORD | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1934 | 9300-DELETE-RECORD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1939 | 9300-DELETE-RECORD-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1943 | 9400-OPEN-FORWARD-CURSOR | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1944 | 9400-OPEN-FORWARD-CURSOR | OPEN | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1960 | 9400-OPEN-FORWARD-CURSOR | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1966 | 9400-OPEN-FORWARD-CURSOR-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1971 | 9450-CLOSE-FORWARD-CURSOR | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1972 | 9450-CLOSE-FORWARD-CURSOR | CLOSE | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1988 | 9450-CLOSE-FORWARD-CURSOR | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1994 | 9450-CLOSE-FORWARD-CURSOR-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1998 | 9500-OPEN-BACKWARD-CURSOR | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 1999 | 9500-OPEN-BACKWARD-CURSOR | OPEN | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2015 | 9500-OPEN-BACKWARD-CURSOR | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2022 | 9500-OPEN-BACKWARD-CURSOR-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2027 | 9550-CLOSE-BACK-CURSOR | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2028 | 9550-CLOSE-BACK-CURSOR | CLOSE | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2044 | 9550-CLOSE-BACK-CURSOR | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2050 | 9550-CLOSE-BACK-CURSOR-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2055 | 9550-CLOSE-BACK-CURSOR-EXIT | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2060 | 9550-CLOSE-BACK-CURSOR-EXIT | COPY | — |
@@ -806,20 +1044,38 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 348 | 0000-MAIN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 352 | 0000-MAIN | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 371 | 0000-MAIN | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 386 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 400 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 453 | 0000-MAIN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 457 | 0000-MAIN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 471 | 0000-MAIN | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 474 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 478 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 485 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 487 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 489 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 496 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 498 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 506 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 508 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 516 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 518 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 520 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 529 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 531 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 533 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 540 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 542 | 0000-MAIN | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 549 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 551 | 0000-MAIN | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 553 | 0000-MAIN | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 555 | 0000-MAIN | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 567 | COMMON-RETURN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 574 | 0000-MAIN-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 622 | 0001-CHECK-PFKEYS-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 626 | 1000-PROCESS-INPUTS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 628 | 1000-PROCESS-INPUTS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 630 | 1000-PROCESS-INPUTS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 639 | 1000-PROCESS-INPUTS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 642 | 1100-RECEIVE-MAP | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 650 | 1100-RECEIVE-MAP-EXIT | EXIT | — |
@@ -827,13 +1083,17 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 663 | 1150-STORE-MAP-IN-NEW | INITIALIZE | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 687 | 1150-STORE-MAP-IN-NEW-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 707 | 1200-EDIT-MAP-INPUTS | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 716 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 725 | 1200-EDIT-MAP-INPUTS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 731 | 1200-EDIT-MAP-INPUTS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 735 | 1200-EDIT-MAP-INPUTS | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 743 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 750 | 1200-EDIT-MAP-INPUTS | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 761 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 780 | 1200-EDIT-MAP-INPUTS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 810 | 1205-COMPARE-OLD-NEW | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 815 | 1205-COMPARE-OLD-NEW-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 829 | 1210-EDIT-TRANTYPE | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 846 | 1210-EDIT-TRANTYPE-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 864 | 1230-EDIT-ALPHANUM-REQD | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 872 | 1230-EDIT-ALPHANUM-REQD | GO | — |
@@ -847,16 +1107,31 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 959 | 1245-EDIT-NUM-REQD | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 966 | 1245-EDIT-NUM-REQD | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 975 | 1245-EDIT-NUM-REQD-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 991 | 2000-DECIDE-ACTION | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1079 | 2000-DECIDE-ACTION | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1084 | 2000-DECIDE-ACTION-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1090 | 3000-SEND-MAP | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1092 | 3000-SEND-MAP | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1094 | 3000-SEND-MAP | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1096 | 3000-SEND-MAP | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1098 | 3000-SEND-MAP | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1100 | 3000-SEND-MAP | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1102 | 3000-SEND-MAP | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1107 | 3000-SEND-MAP-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1137 | 3100-SCREEN-INIT-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1147 | 3200-SETUP-SCREEN-VARS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1154 | 3200-SETUP-SCREEN-VARS | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1155 | 3200-SETUP-SCREEN-VARS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1163 | 3200-SETUP-SCREEN-VARS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1166 | 3200-SETUP-SCREEN-VARS | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1167 | 3200-SETUP-SCREEN-VARS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1173 | 3200-SETUP-SCREEN-VARS-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1182 | 3201-SHOW-INITIAL-VALUES-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1195 | 3202-SHOW-ORIGINAL-VALUES-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1204 | 3203-SHOW-UPDATED-VALUES-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1267 | 3250-SETUP-INFOMSG-EXIT | EXIT | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1272 | 3300-SETUP-SCREEN-ATTRS | PERFORM | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1289 | 3300-SETUP-SCREEN-ATTRS | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1347 | 3300-SETUP-SCREEN-ATTRS | GO | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1358 | 3300-SETUP-SCREEN-ATTRS | COPY | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1365 | 3300-SETUP-SCREEN-ATTRS-EXIT | EXIT | — |
@@ -867,7 +1142,9 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1433 | 3400-SEND-SCREEN | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1443 | 3400-SEND-SCREEN-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1449 | 9000-READ-TRANTYPE | INITIALIZE | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1453 | 9000-READ-TRANTYPE | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1457 | 9000-READ-TRANTYPE | GO | — |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1461 | 9000-READ-TRANTYPE | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1467 | 9000-READ-TRANTYPE-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1475 | 9100-GET-TRANSACTION-TYPE | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1499 | 9100-GET-TRANSACTION-TYPE | STRING | — |
@@ -877,6 +1154,7 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1529 | 9500-STORE-FETCHED-DATA-EXIT | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1544 | 9600-WRITE-PROCESSING | EXEC | EXEC SQL |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1557 | 9600-WRITE-PROCESSING | EXEC | EXEC CICS |
+| app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1559 | 9600-WRITE-PROCESSING | PERFORM | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1569 | 9600-WRITE-PROCESSING | STRING | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1591 | 9600-WRITE-PROCESSING | EXIT | — |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1594 | 9600-WRITE-PROCESSING-EXIT | EXIT | — |
@@ -899,165 +1177,391 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1695 | ABEND-ROUTINE | EXEC | EXEC CICS |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 1700 | ABEND-ROUTINE-EXIT | EXIT | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 185 | 1000-CONTROL | INITIALIZE | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 187 | 1000-CONTROL | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 191 | 1000-CONTROL | EXEC | EXEC CICS |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 203 | 1000-CONTROL | STRING | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 208 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 209 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 212 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 213 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 214 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 215 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 218 | 1000-CONTROL | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 233 | 2300-OPEN-INPUT-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 251 | 2300-OPEN-INPUT-QUEUE | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 252 | 2300-OPEN-INPUT-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 267 | 2400-OPEN-OUTPUT-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 285 | 2400-OPEN-OUTPUT-QUEUE | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 286 | 2400-OPEN-OUTPUT-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 302 | 2100-OPEN-ERROR-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 321 | 2100-OPEN-ERROR-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 326 | 4000-MAIN-PROCESS | EXEC | EXEC CICS |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 330 | 4000-MAIN-PROCESS | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 345 | 3000-GET-REQUEST | INITIALIZE | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 352 | 3000-GET-REQUEST | CALL | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 374 | 3000-GET-REQUEST | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 385 | 3000-GET-REQUEST | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 386 | 3000-GET-REQUEST | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 392 | 4000-PROCESS-REQUEST-REPLY | INITIALIZE | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 396 | 4000-PROCESS-REQUEST-REPLY | EXEC | EXEC CICS |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 427 | 4000-PROCESS-REQUEST-REPLY | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 429 | 4000-PROCESS-REQUEST-REPLY | STRING | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 435 | 4000-PROCESS-REQUEST-REPLY | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 444 | 4000-PROCESS-REQUEST-REPLY | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 445 | 4000-PROCESS-REQUEST-REPLY | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 449 | 4000-PROCESS-REQUEST-REPLY | STRING | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 456 | 4000-PROCESS-REQUEST-REPLY | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 479 | 4100-PUT-REPLY | CALL | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 497 | 4100-PUT-REPLY | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 498 | 4100-PUT-REPLY | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 516 | 9000-ERROR | CALL | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 535 | 9000-ERROR | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 541 | 8000-TERMINATION | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 544 | 8000-TERMINATION | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 547 | 8000-TERMINATION | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 549 | 8000-TERMINATION | EXEC | EXEC CICS |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 557 | 5000-CLOSE-INPUT-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 572 | 5000-CLOSE-INPUT-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 579 | 5100-CLOSE-OUTPUT-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 594 | 5100-CLOSE-OUTPUT-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/COACCT01.cbl | 602 | 5200-CLOSE-ERROR-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 617 | 5200-CLOSE-ERROR-QUEUE | PERFORM | — |
+| app/app-vsam-mq/cbl/COACCT01.cbl | 618 | 5200-CLOSE-ERROR-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 134 | 1000-CONTROL | INITIALIZE | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 136 | 1000-CONTROL | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 140 | 1000-CONTROL | EXEC | EXEC CICS |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 152 | 1000-CONTROL | STRING | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 157 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 158 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 161 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 162 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 163 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 164 | 1000-CONTROL | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 167 | 1000-CONTROL | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 182 | 2300-OPEN-INPUT-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 200 | 2300-OPEN-INPUT-QUEUE | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 201 | 2300-OPEN-INPUT-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 216 | 2400-OPEN-OUTPUT-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 234 | 2400-OPEN-OUTPUT-QUEUE | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 235 | 2400-OPEN-OUTPUT-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 251 | 2100-OPEN-ERROR-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 270 | 2100-OPEN-ERROR-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 275 | 4000-MAIN-PROCESS | EXEC | EXEC CICS |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 279 | 4000-MAIN-PROCESS | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 294 | 3000-GET-REQUEST | INITIALIZE | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 301 | 3000-GET-REQUEST | CALL | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 323 | 3000-GET-REQUEST | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 334 | 3000-GET-REQUEST | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 335 | 3000-GET-REQUEST | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 341 | 4000-PROCESS-REQUEST-REPLY | INITIALIZE | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 343 | 4000-PROCESS-REQUEST-REPLY | EXEC | EXEC CICS |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 347 | 4000-PROCESS-REQUEST-REPLY | EXEC | EXEC CICS |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 355 | 4000-PROCESS-REQUEST-REPLY | STRING | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 361 | 4000-PROCESS-REQUEST-REPLY | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 383 | 4100-PUT-REPLY | CALL | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 401 | 4100-PUT-REPLY | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 402 | 4100-PUT-REPLY | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 420 | 9000-ERROR | CALL | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 439 | 9000-ERROR | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 445 | 8000-TERMINATION | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 448 | 8000-TERMINATION | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 451 | 8000-TERMINATION | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 453 | 8000-TERMINATION | EXEC | EXEC CICS |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 461 | 5000-CLOSE-INPUT-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 476 | 5000-CLOSE-INPUT-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 483 | 5100-CLOSE-OUTPUT-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 498 | 5100-CLOSE-OUTPUT-QUEUE | PERFORM | — |
 | app/app-vsam-mq/cbl/CODATE01.cbl | 506 | 5200-CLOSE-ERROR-QUEUE | CALL | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 521 | 5200-CLOSE-ERROR-QUEUE | PERFORM | — |
+| app/app-vsam-mq/cbl/CODATE01.cbl | 522 | 5200-CLOSE-ERROR-QUEUE | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 142 | — | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 143 | — | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 144 | — | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 145 | — | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 147 | — | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 149 | — | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 156 | — | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 166 | 1000-ACCTFILE-GET-NEXT | READ | — |
 | app/cbl/CBACT01C.cbl | 169 | 1000-ACCTFILE-GET-NEXT | INITIALIZE | — |
+| app/cbl/CBACT01C.cbl | 170 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 171 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 172 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 173 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 174 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 175 | 1000-ACCTFILE-GET-NEXT | INITIALIZE | — |
+| app/cbl/CBACT01C.cbl | 176 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 177 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 178 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 194 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 195 | 1000-ACCTFILE-GET-NEXT | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 198 | 1000-ACCTFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBACT01C.cbl | 213 | 1100-DISPLAY-ACCT-RECORD | EXIT | — |
 | app/cbl/CBACT01C.cbl | 231 | WS-REISSUE-DATE | CALL | — |
 | app/cbl/CBACT01C.cbl | 240 | WS-REISSUE-DATE | EXIT | — |
 | app/cbl/CBACT01C.cbl | 243 | 1350-WRITE-ACCT-RECORD | WRITE | — |
+| app/cbl/CBACT01C.cbl | 248 | 1350-WRITE-ACCT-RECORD | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 249 | 1350-WRITE-ACCT-RECORD | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 251 | 1350-WRITE-ACCT-RECORD | EXIT | — |
 | app/cbl/CBACT01C.cbl | 261 | 1400-POPUL-ARRAY-RECORD | EXIT | — |
 | app/cbl/CBACT01C.cbl | 264 | 1450-WRITE-ARRY-RECORD | WRITE | — |
+| app/cbl/CBACT01C.cbl | 271 | 1450-WRITE-ARRY-RECORD | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 272 | 1450-WRITE-ARRY-RECORD | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 274 | 1450-WRITE-ARRY-RECORD | EXIT | — |
 | app/cbl/CBACT01C.cbl | 285 | VB2-ACCT-ID | EXIT | — |
 | app/cbl/CBACT01C.cbl | 290 | 1550-WRITE-VB1-RECORD | WRITE | — |
+| app/cbl/CBACT01C.cbl | 297 | 1550-WRITE-VB1-RECORD | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 298 | 1550-WRITE-VB1-RECORD | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 300 | 1550-WRITE-VB1-RECORD | EXIT | — |
 | app/cbl/CBACT01C.cbl | 305 | 1575-WRITE-VB2-RECORD | WRITE | — |
+| app/cbl/CBACT01C.cbl | 312 | 1575-WRITE-VB2-RECORD | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 313 | 1575-WRITE-VB2-RECORD | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 315 | 1575-WRITE-VB2-RECORD | EXIT | — |
 | app/cbl/CBACT01C.cbl | 319 | 0000-ACCTFILE-OPEN | OPEN | — |
+| app/cbl/CBACT01C.cbl | 330 | 0000-ACCTFILE-OPEN | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 331 | 0000-ACCTFILE-OPEN | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 333 | 0000-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBACT01C.cbl | 336 | 2000-OUTFILE-OPEN | OPEN | — |
+| app/cbl/CBACT01C.cbl | 347 | 2000-OUTFILE-OPEN | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 348 | 2000-OUTFILE-OPEN | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 350 | 2000-OUTFILE-OPEN | EXIT | — |
 | app/cbl/CBACT01C.cbl | 354 | 3000-ARRFILE-OPEN | OPEN | — |
+| app/cbl/CBACT01C.cbl | 365 | 3000-ARRFILE-OPEN | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 366 | 3000-ARRFILE-OPEN | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 368 | 3000-ARRFILE-OPEN | EXIT | — |
 | app/cbl/CBACT01C.cbl | 372 | 4000-VBRFILE-OPEN | OPEN | — |
+| app/cbl/CBACT01C.cbl | 383 | 4000-VBRFILE-OPEN | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 384 | 4000-VBRFILE-OPEN | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 386 | 4000-VBRFILE-OPEN | EXIT | — |
 | app/cbl/CBACT01C.cbl | 390 | 9000-ACCTFILE-CLOSE | CLOSE | — |
 | app/cbl/CBACT01C.cbl | 392 | 9000-ACCTFILE-CLOSE | SUBTRACT | — |
+| app/cbl/CBACT01C.cbl | 401 | 9000-ACCTFILE-CLOSE | PERFORM | — |
+| app/cbl/CBACT01C.cbl | 402 | 9000-ACCTFILE-CLOSE | PERFORM | — |
 | app/cbl/CBACT01C.cbl | 404 | 9000-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT01C.cbl | 410 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBACT01C.cbl | 426 | 9910-DISPLAY-IO-STATUS | EXIT | — |
+| app/cbl/CBACT02C.cbl | 72 | — | PERFORM | — |
+| app/cbl/CBACT02C.cbl | 74 | — | PERFORM | — |
+| app/cbl/CBACT02C.cbl | 76 | — | PERFORM | — |
+| app/cbl/CBACT02C.cbl | 83 | — | PERFORM | — |
 | app/cbl/CBACT02C.cbl | 93 | 1000-CARDFILE-GET-NEXT | READ | — |
+| app/cbl/CBACT02C.cbl | 112 | 1000-CARDFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT02C.cbl | 113 | 1000-CARDFILE-GET-NEXT | PERFORM | — |
 | app/cbl/CBACT02C.cbl | 116 | 1000-CARDFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBACT02C.cbl | 120 | 0000-CARDFILE-OPEN | OPEN | — |
+| app/cbl/CBACT02C.cbl | 131 | 0000-CARDFILE-OPEN | PERFORM | — |
+| app/cbl/CBACT02C.cbl | 132 | 0000-CARDFILE-OPEN | PERFORM | — |
 | app/cbl/CBACT02C.cbl | 134 | 0000-CARDFILE-OPEN | EXIT | — |
 | app/cbl/CBACT02C.cbl | 138 | 9000-CARDFILE-CLOSE | CLOSE | — |
 | app/cbl/CBACT02C.cbl | 140 | 9000-CARDFILE-CLOSE | SUBTRACT | — |
+| app/cbl/CBACT02C.cbl | 149 | 9000-CARDFILE-CLOSE | PERFORM | — |
+| app/cbl/CBACT02C.cbl | 150 | 9000-CARDFILE-CLOSE | PERFORM | — |
 | app/cbl/CBACT02C.cbl | 152 | 9000-CARDFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT02C.cbl | 158 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBACT02C.cbl | 174 | 9910-DISPLAY-IO-STATUS | EXIT | — |
+| app/cbl/CBACT03C.cbl | 72 | — | PERFORM | — |
+| app/cbl/CBACT03C.cbl | 74 | — | PERFORM | — |
+| app/cbl/CBACT03C.cbl | 76 | — | PERFORM | — |
+| app/cbl/CBACT03C.cbl | 83 | — | PERFORM | — |
 | app/cbl/CBACT03C.cbl | 93 | 1000-XREFFILE-GET-NEXT | READ | — |
+| app/cbl/CBACT03C.cbl | 112 | 1000-XREFFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT03C.cbl | 113 | 1000-XREFFILE-GET-NEXT | PERFORM | — |
 | app/cbl/CBACT03C.cbl | 116 | 1000-XREFFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBACT03C.cbl | 120 | 0000-XREFFILE-OPEN | OPEN | — |
+| app/cbl/CBACT03C.cbl | 131 | 0000-XREFFILE-OPEN | PERFORM | — |
+| app/cbl/CBACT03C.cbl | 132 | 0000-XREFFILE-OPEN | PERFORM | — |
 | app/cbl/CBACT03C.cbl | 134 | 0000-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBACT03C.cbl | 138 | 9000-XREFFILE-CLOSE | CLOSE | — |
 | app/cbl/CBACT03C.cbl | 140 | 9000-XREFFILE-CLOSE | SUBTRACT | — |
+| app/cbl/CBACT03C.cbl | 149 | 9000-XREFFILE-CLOSE | PERFORM | — |
+| app/cbl/CBACT03C.cbl | 150 | 9000-XREFFILE-CLOSE | PERFORM | — |
 | app/cbl/CBACT03C.cbl | 152 | 9000-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT03C.cbl | 158 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBACT03C.cbl | 174 | 9910-DISPLAY-IO-STATUS | EXIT | — |
+| app/cbl/CBACT04C.cbl | 182 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 183 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 184 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 185 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 186 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 188 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 190 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 196 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 203 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 205 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 213 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 215 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 216 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 220 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 224 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 225 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 226 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 227 | — | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 228 | — | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 236 | 0000-TCATBALF-OPEN | OPEN | — |
+| app/cbl/CBACT04C.cbl | 247 | 0000-TCATBALF-OPEN | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 248 | 0000-TCATBALF-OPEN | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 250 | 0000-TCATBALF-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 254 | 0100-XREFFILE-OPEN | OPEN | — |
+| app/cbl/CBACT04C.cbl | 265 | 0100-XREFFILE-OPEN | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 266 | 0100-XREFFILE-OPEN | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 268 | 0100-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 272 | 0200-DISCGRP-OPEN | OPEN | — |
+| app/cbl/CBACT04C.cbl | 283 | 0200-DISCGRP-OPEN | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 284 | 0200-DISCGRP-OPEN | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 286 | 0200-DISCGRP-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 291 | 0300-ACCTFILE-OPEN | OPEN | — |
+| app/cbl/CBACT04C.cbl | 302 | 0300-ACCTFILE-OPEN | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 303 | 0300-ACCTFILE-OPEN | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 305 | 0300-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 309 | 0400-TRANFILE-OPEN | OPEN | — |
+| app/cbl/CBACT04C.cbl | 320 | 0400-TRANFILE-OPEN | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 321 | 0400-TRANFILE-OPEN | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 323 | 0400-TRANFILE-OPEN | EXIT | — |
 | app/cbl/CBACT04C.cbl | 326 | 1000-TCATBALF-GET-NEXT | READ | — |
+| app/cbl/CBACT04C.cbl | 344 | 1000-TCATBALF-GET-NEXT | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 345 | 1000-TCATBALF-GET-NEXT | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 348 | 1000-TCATBALF-GET-NEXT | EXIT | — |
 | app/cbl/CBACT04C.cbl | 356 | 1050-UPDATE-ACCOUNT | REWRITE | — |
+| app/cbl/CBACT04C.cbl | 367 | 1050-UPDATE-ACCOUNT | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 368 | 1050-UPDATE-ACCOUNT | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 370 | 1050-UPDATE-ACCOUNT | EXIT | — |
 | app/cbl/CBACT04C.cbl | 373 | 1100-GET-ACCT-DATA | READ | — |
+| app/cbl/CBACT04C.cbl | 388 | 1100-GET-ACCT-DATA | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 389 | 1100-GET-ACCT-DATA | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 391 | 1100-GET-ACCT-DATA | EXIT | — |
 | app/cbl/CBACT04C.cbl | 394 | 1110-GET-XREF-DATA | READ | — |
+| app/cbl/CBACT04C.cbl | 410 | 1110-GET-XREF-DATA | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 411 | 1110-GET-XREF-DATA | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 413 | 1110-GET-XREF-DATA | EXIT | — |
 | app/cbl/CBACT04C.cbl | 416 | 1200-GET-INTEREST-RATE | READ | — |
+| app/cbl/CBACT04C.cbl | 433 | 1200-GET-INTEREST-RATE | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 434 | 1200-GET-INTEREST-RATE | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 438 | 1200-GET-INTEREST-RATE | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 440 | 1200-GET-INTEREST-RATE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 444 | 1200-A-GET-DEFAULT-INT-RATE | READ | — |
+| app/cbl/CBACT04C.cbl | 457 | 1200-A-GET-DEFAULT-INT-RATE | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 458 | 1200-A-GET-DEFAULT-INT-RATE | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 460 | 1200-A-GET-DEFAULT-INT-RATE | EXIT | — |
+| app/cbl/CBACT04C.cbl | 468 | 1300-COMPUTE-INTEREST | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 470 | 1300-COMPUTE-INTEREST | EXIT | — |
 | app/cbl/CBACT04C.cbl | 476 | 1300-B-WRITE-TX | STRING | — |
 | app/cbl/CBACT04C.cbl | 485 | 1300-B-WRITE-TX | STRING | — |
+| app/cbl/CBACT04C.cbl | 496 | 1300-B-WRITE-TX | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 500 | 1300-B-WRITE-TX | WRITE | — |
+| app/cbl/CBACT04C.cbl | 512 | 1300-B-WRITE-TX | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 513 | 1300-B-WRITE-TX | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 515 | 1300-B-WRITE-TX | EXIT | — |
 | app/cbl/CBACT04C.cbl | 520 | 1400-COMPUTE-FEES | EXIT | — |
 | app/cbl/CBACT04C.cbl | 524 | 9000-TCATBALF-CLOSE | CLOSE | — |
+| app/cbl/CBACT04C.cbl | 535 | 9000-TCATBALF-CLOSE | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 536 | 9000-TCATBALF-CLOSE | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 538 | 9000-TCATBALF-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 543 | 9100-XREFFILE-CLOSE | CLOSE | — |
+| app/cbl/CBACT04C.cbl | 554 | 9100-XREFFILE-CLOSE | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 555 | 9100-XREFFILE-CLOSE | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 557 | 9100-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 561 | 9200-DISCGRP-CLOSE | CLOSE | — |
+| app/cbl/CBACT04C.cbl | 572 | 9200-DISCGRP-CLOSE | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 573 | 9200-DISCGRP-CLOSE | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 575 | 9200-DISCGRP-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 579 | 9300-ACCTFILE-CLOSE | CLOSE | — |
+| app/cbl/CBACT04C.cbl | 590 | 9300-ACCTFILE-CLOSE | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 591 | 9300-ACCTFILE-CLOSE | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 593 | 9300-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 597 | 9400-TRANFILE-CLOSE | CLOSE | — |
+| app/cbl/CBACT04C.cbl | 608 | 9400-TRANFILE-CLOSE | PERFORM | — |
+| app/cbl/CBACT04C.cbl | 609 | 9400-TRANFILE-CLOSE | PERFORM | — |
 | app/cbl/CBACT04C.cbl | 611 | 9400-TRANFILE-CLOSE | EXIT | — |
 | app/cbl/CBACT04C.cbl | 626 | Z-GET-DB2-FORMAT-TIMESTAMP | EXIT | — |
 | app/cbl/CBACT04C.cbl | 632 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBACT04C.cbl | 648 | 9910-DISPLAY-IO-STATUS | EXIT | — |
+| app/cbl/CBCUS01C.cbl | 72 | — | PERFORM | — |
+| app/cbl/CBCUS01C.cbl | 74 | — | PERFORM | — |
+| app/cbl/CBCUS01C.cbl | 76 | — | PERFORM | — |
+| app/cbl/CBCUS01C.cbl | 83 | — | PERFORM | — |
 | app/cbl/CBCUS01C.cbl | 93 | 1000-CUSTFILE-GET-NEXT | READ | — |
+| app/cbl/CBCUS01C.cbl | 112 | 1000-CUSTFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBCUS01C.cbl | 113 | 1000-CUSTFILE-GET-NEXT | PERFORM | — |
 | app/cbl/CBCUS01C.cbl | 116 | 1000-CUSTFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBCUS01C.cbl | 120 | 0000-CUSTFILE-OPEN | OPEN | — |
+| app/cbl/CBCUS01C.cbl | 131 | 0000-CUSTFILE-OPEN | PERFORM | — |
+| app/cbl/CBCUS01C.cbl | 132 | 0000-CUSTFILE-OPEN | PERFORM | — |
 | app/cbl/CBCUS01C.cbl | 134 | 0000-CUSTFILE-OPEN | EXIT | — |
 | app/cbl/CBCUS01C.cbl | 138 | 9000-CUSTFILE-CLOSE | CLOSE | — |
 | app/cbl/CBCUS01C.cbl | 140 | 9000-CUSTFILE-CLOSE | SUBTRACT | — |
+| app/cbl/CBCUS01C.cbl | 149 | 9000-CUSTFILE-CLOSE | PERFORM | — |
+| app/cbl/CBCUS01C.cbl | 150 | 9000-CUSTFILE-CLOSE | PERFORM | — |
 | app/cbl/CBCUS01C.cbl | 152 | 9000-CUSTFILE-CLOSE | EXIT | — |
 | app/cbl/CBCUS01C.cbl | 158 | Z-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBCUS01C.cbl | 174 | Z-DISPLAY-IO-STATUS | EXIT | — |
+| app/cbl/CBEXPORT.cbl | 151 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 152 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 153 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 154 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 155 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 156 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 157 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 165 | 1000-INITIALIZE | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 166 | 1000-INITIALIZE | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 179 | 1050-GENERATE-TIMESTAMP | STRING | — |
 | app/cbl/CBEXPORT.cbl | 185 | 1050-GENERATE-TIMESTAMP | STRING | — |
 | app/cbl/CBEXPORT.cbl | 191 | 1050-GENERATE-TIMESTAMP | STRING | — |
 | app/cbl/CBEXPORT.cbl | 200 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBEXPORT.cbl | 204 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 207 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBEXPORT.cbl | 211 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 214 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBEXPORT.cbl | 218 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 221 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBEXPORT.cbl | 225 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 228 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBEXPORT.cbl | 232 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 235 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBEXPORT.cbl | 239 | 1100-OPEN-FILES | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 247 | 2000-EXPORT-CUSTOMERS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 249 | 2000-EXPORT-CUSTOMERS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 250 | 2000-EXPORT-CUSTOMERS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 251 | 2000-EXPORT-CUSTOMERS | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 260 | 2100-READ-CUSTOMER-RECORD | READ | — |
+| app/cbl/CBEXPORT.cbl | 265 | 2100-READ-CUSTOMER-RECORD | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 271 | 2200-CREATE-CUSTOMER-EXP-REC | INITIALIZE | — |
 | app/cbl/CBEXPORT.cbl | 301 | 2200-CREATE-CUSTOMER-EXP-REC | WRITE | — |
+| app/cbl/CBEXPORT.cbl | 306 | 2200-CREATE-CUSTOMER-EXP-REC | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 316 | 3000-EXPORT-ACCOUNTS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 318 | 3000-EXPORT-ACCOUNTS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 319 | 3000-EXPORT-ACCOUNTS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 320 | 3000-EXPORT-ACCOUNTS | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 329 | 3100-READ-ACCOUNT-RECORD | READ | — |
+| app/cbl/CBEXPORT.cbl | 334 | 3100-READ-ACCOUNT-RECORD | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 340 | 3200-CREATE-ACCOUNT-EXP-REC | INITIALIZE | — |
 | app/cbl/CBEXPORT.cbl | 364 | 3200-CREATE-ACCOUNT-EXP-REC | WRITE | — |
+| app/cbl/CBEXPORT.cbl | 369 | 3200-CREATE-ACCOUNT-EXP-REC | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 380 | 4000-EXPORT-XREFS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 382 | 4000-EXPORT-XREFS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 383 | 4000-EXPORT-XREFS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 384 | 4000-EXPORT-XREFS | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 393 | 4100-READ-XREF-RECORD | READ | — |
+| app/cbl/CBEXPORT.cbl | 398 | 4100-READ-XREF-RECORD | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 404 | 4200-CREATE-XREF-EXPORT-RECORD | INITIALIZE | — |
 | app/cbl/CBEXPORT.cbl | 419 | 4200-CREATE-XREF-EXPORT-RECORD | WRITE | — |
+| app/cbl/CBEXPORT.cbl | 424 | 4200-CREATE-XREF-EXPORT-RECORD | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 435 | 5000-EXPORT-TRANSACTIONS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 437 | 5000-EXPORT-TRANSACTIONS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 438 | 5000-EXPORT-TRANSACTIONS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 439 | 5000-EXPORT-TRANSACTIONS | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 448 | 5100-READ-TRANSACTION-RECORD | READ | — |
+| app/cbl/CBEXPORT.cbl | 453 | 5100-READ-TRANSACTION-RECORD | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 459 | 5200-CREATE-TRAN-EXP-REC | INITIALIZE | — |
 | app/cbl/CBEXPORT.cbl | 484 | 5200-CREATE-TRAN-EXP-REC | WRITE | — |
+| app/cbl/CBEXPORT.cbl | 489 | 5200-CREATE-TRAN-EXP-REC | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 500 | 5500-EXPORT-CARDS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 502 | 5500-EXPORT-CARDS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 503 | 5500-EXPORT-CARDS | PERFORM | — |
+| app/cbl/CBEXPORT.cbl | 504 | 5500-EXPORT-CARDS | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 513 | 5600-READ-CARD-RECORD | READ | — |
+| app/cbl/CBEXPORT.cbl | 518 | 5600-READ-CARD-RECORD | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 524 | 5700-CREATE-CARD-EXPORT-RECORD | INITIALIZE | — |
 | app/cbl/CBEXPORT.cbl | 542 | 5700-CREATE-CARD-EXPORT-RECORD | WRITE | — |
+| app/cbl/CBEXPORT.cbl | 547 | 5700-CREATE-CARD-EXPORT-RECORD | PERFORM | — |
 | app/cbl/CBEXPORT.cbl | 556 | 6000-FINALIZE | CLOSE | — |
 | app/cbl/CBEXPORT.cbl | 557 | 6000-FINALIZE | CLOSE | — |
 | app/cbl/CBEXPORT.cbl | 558 | 6000-FINALIZE | CLOSE | — |
@@ -1065,24 +1569,53 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBEXPORT.cbl | 560 | 6000-FINALIZE | CLOSE | — |
 | app/cbl/CBEXPORT.cbl | 561 | 6000-FINALIZE | CLOSE | — |
 | app/cbl/CBEXPORT.cbl | 579 | 9999-ABEND-PROGRAM | CALL | — |
+| app/cbl/CBIMPORT.cbl | 167 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 168 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 169 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 170 | 0000-MAIN-PROCESSING | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 190 | 1000-INITIALIZE | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 198 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBIMPORT.cbl | 202 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 205 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBIMPORT.cbl | 209 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 212 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBIMPORT.cbl | 216 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 219 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBIMPORT.cbl | 223 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 226 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBIMPORT.cbl | 230 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 233 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBIMPORT.cbl | 237 | 1100-OPEN-FILES | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 240 | 1100-OPEN-FILES | OPEN | — |
+| app/cbl/CBIMPORT.cbl | 244 | 1100-OPEN-FILES | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 250 | 2000-PROCESS-EXPORT-FILE | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 252 | 2000-PROCESS-EXPORT-FILE | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 254 | 2000-PROCESS-EXPORT-FILE | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 255 | 2000-PROCESS-EXPORT-FILE | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 261 | 2100-READ-EXPORT-RECORD | READ | — |
+| app/cbl/CBIMPORT.cbl | 266 | 2100-READ-EXPORT-RECORD | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 274 | 2200-PROCESS-RECORD-BY-TYPE | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 276 | 2200-PROCESS-RECORD-BY-TYPE | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 278 | 2200-PROCESS-RECORD-BY-TYPE | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 280 | 2200-PROCESS-RECORD-BY-TYPE | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 282 | 2200-PROCESS-RECORD-BY-TYPE | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 284 | 2200-PROCESS-RECORD-BY-TYPE | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 290 | 2300-PROCESS-CUSTOMER-RECORD | INITIALIZE | — |
 | app/cbl/CBIMPORT.cbl | 312 | 2300-PROCESS-CUSTOMER-RECORD | WRITE | — |
+| app/cbl/CBIMPORT.cbl | 317 | 2300-PROCESS-CUSTOMER-RECORD | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 325 | 2400-PROCESS-ACCOUNT-RECORD | INITIALIZE | — |
 | app/cbl/CBIMPORT.cbl | 341 | 2400-PROCESS-ACCOUNT-RECORD | WRITE | — |
+| app/cbl/CBIMPORT.cbl | 346 | 2400-PROCESS-ACCOUNT-RECORD | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 354 | 2500-PROCESS-XREF-RECORD | INITIALIZE | — |
 | app/cbl/CBIMPORT.cbl | 361 | 2500-PROCESS-XREF-RECORD | WRITE | — |
+| app/cbl/CBIMPORT.cbl | 366 | 2500-PROCESS-XREF-RECORD | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 374 | 2600-PROCESS-TRAN-RECORD | INITIALIZE | — |
 | app/cbl/CBIMPORT.cbl | 391 | 2600-PROCESS-TRAN-RECORD | WRITE | — |
+| app/cbl/CBIMPORT.cbl | 396 | 2600-PROCESS-TRAN-RECORD | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 404 | 2650-PROCESS-CARD-RECORD | INITIALIZE | — |
 | app/cbl/CBIMPORT.cbl | 414 | 2650-PROCESS-CARD-RECORD | WRITE | — |
+| app/cbl/CBIMPORT.cbl | 419 | 2650-PROCESS-CARD-RECORD | PERFORM | — |
+| app/cbl/CBIMPORT.cbl | 434 | 2700-PROCESS-UNKNOWN-RECORD | PERFORM | — |
 | app/cbl/CBIMPORT.cbl | 439 | 2750-WRITE-ERROR | WRITE | — |
 | app/cbl/CBIMPORT.cbl | 457 | 4000-FINALIZE | CLOSE | — |
 | app/cbl/CBIMPORT.cbl | 458 | 4000-FINALIZE | CLOSE | — |
@@ -1092,6 +1625,7 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBIMPORT.cbl | 462 | 4000-FINALIZE | CLOSE | — |
 | app/cbl/CBIMPORT.cbl | 463 | 4000-FINALIZE | CLOSE | — |
 | app/cbl/CBIMPORT.cbl | 484 | 9999-ABEND-PROGRAM | CALL | — |
+| app/cbl/CBSTM03A.CBL | 276 | — | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 293 | — | OPEN | — |
 | app/cbl/CBSTM03A.CBL | 294 | — | INITIALIZE | — |
 | app/cbl/CBSTM03A.CBL | 300 | 0000-START | ALTER | — |
@@ -1104,13 +1638,27 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBSTM03A.CBL | 310 | 0000-START | GO | — |
 | app/cbl/CBSTM03A.CBL | 312 | 0000-START | GO | — |
 | app/cbl/CBSTM03A.CBL | 314 | 0000-START | GO | — |
+| app/cbl/CBSTM03A.CBL | 317 | 1000-MAINLINE | PERFORM | — |
+| app/cbl/CBSTM03A.CBL | 319 | 1000-MAINLINE | PERFORM | — |
+| app/cbl/CBSTM03A.CBL | 321 | 1000-MAINLINE | PERFORM | — |
+| app/cbl/CBSTM03A.CBL | 322 | 1000-MAINLINE | PERFORM | — |
+| app/cbl/CBSTM03A.CBL | 323 | 1000-MAINLINE | PERFORM | — |
+| app/cbl/CBSTM03A.CBL | 326 | 1000-MAINLINE | PERFORM | — |
+| app/cbl/CBSTM03A.CBL | 331 | 1000-MAINLINE | PERFORM | — |
+| app/cbl/CBSTM03A.CBL | 333 | 1000-MAINLINE | PERFORM | — |
+| app/cbl/CBSTM03A.CBL | 335 | 1000-MAINLINE | PERFORM | — |
+| app/cbl/CBSTM03A.CBL | 337 | 1000-MAINLINE | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 339 | 1000-MAINLINE | CLOSE | — |
 | app/cbl/CBSTM03A.CBL | 351 | 1000-XREFFILE-GET-NEXT | CALL | — |
+| app/cbl/CBSTM03A.CBL | 361 | 1000-XREFFILE-GET-NEXT | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 366 | 1000-XREFFILE-GET-NEXT | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 377 | 2000-CUSTFILE-GET | CALL | — |
+| app/cbl/CBSTM03A.CBL | 385 | 2000-CUSTFILE-GET | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 390 | 2000-CUSTFILE-GET | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 401 | 3000-ACCTFILE-GET | CALL | — |
+| app/cbl/CBSTM03A.CBL | 409 | 3000-ACCTFILE-GET | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 414 | 3000-ACCTFILE-GET | EXIT | — |
+| app/cbl/CBSTM03A.CBL | 428 | 4000-TRNXFILE-GET | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 435 | 4000-TRNXFILE-GET | WRITE | — |
 | app/cbl/CBSTM03A.CBL | 436 | 4000-TRNXFILE-GET | WRITE | — |
 | app/cbl/CBSTM03A.CBL | 437 | 4000-TRNXFILE-GET | WRITE | — |
@@ -1125,8 +1673,10 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBSTM03A.CBL | 456 | 4000-TRNXFILE-GET | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 459 | 5000-CREATE-STATEMENT | INITIALIZE | — |
 | app/cbl/CBSTM03A.CBL | 460 | 5000-CREATE-STATEMENT | WRITE | — |
+| app/cbl/CBSTM03A.CBL | 461 | 5000-CREATE-STATEMENT | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 462 | 5000-CREATE-STATEMENT | STRING | — |
 | app/cbl/CBSTM03A.CBL | 472 | 5000-CREATE-STATEMENT | STRING | — |
+| app/cbl/CBSTM03A.CBL | 486 | 5000-CREATE-STATEMENT | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 488 | 5000-CREATE-STATEMENT | WRITE | — |
 | app/cbl/CBSTM03A.CBL | 489 | 5000-CREATE-STATEMENT | WRITE | — |
 | app/cbl/CBSTM03A.CBL | 490 | 5000-CREATE-STATEMENT | WRITE | — |
@@ -1226,32 +1776,46 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBSTM03A.CBL | 723 | 6000-WRITE-TRANS | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 727 | 8100-FILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 734 | 8100-TRNXFILE-OPEN | CALL | — |
+| app/cbl/CBSTM03A.CBL | 741 | 8100-TRNXFILE-OPEN | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 746 | 8100-TRNXFILE-OPEN | CALL | — |
+| app/cbl/CBSTM03A.CBL | 753 | 8100-TRNXFILE-OPEN | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 761 | 8100-TRNXFILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 762 | 8100-TRNXFILE-OPEN | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 769 | 8200-XREFFILE-OPEN | CALL | — |
+| app/cbl/CBSTM03A.CBL | 776 | 8200-XREFFILE-OPEN | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 780 | 8200-XREFFILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 781 | 8200-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 787 | 8300-CUSTFILE-OPEN | CALL | — |
+| app/cbl/CBSTM03A.CBL | 794 | 8300-CUSTFILE-OPEN | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 798 | 8300-CUSTFILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 799 | 8300-CUSTFILE-OPEN | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 805 | 8400-ACCTFILE-OPEN | CALL | — |
+| app/cbl/CBSTM03A.CBL | 812 | 8400-ACCTFILE-OPEN | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 815 | 8400-ACCTFILE-OPEN | GO | — |
 | app/cbl/CBSTM03A.CBL | 816 | 8400-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 835 | 8500-READTRNX-READ | CALL | — |
 | app/cbl/CBSTM03A.CBL | 840 | 8500-READTRNX-READ | GO | — |
 | app/cbl/CBSTM03A.CBL | 842 | 8500-READTRNX-READ | GO | — |
+| app/cbl/CBSTM03A.CBL | 846 | 8500-READTRNX-READ | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 852 | 8599-EXIT | GO | — |
 | app/cbl/CBSTM03A.CBL | 853 | 8599-EXIT | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 860 | 9100-TRNXFILE-CLOSE | CALL | — |
+| app/cbl/CBSTM03A.CBL | 867 | 9100-TRNXFILE-CLOSE | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 870 | 9100-TRNXFILE-CLOSE | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 877 | 9200-XREFFILE-CLOSE | CALL | — |
+| app/cbl/CBSTM03A.CBL | 884 | 9200-XREFFILE-CLOSE | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 887 | 9200-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 893 | 9300-CUSTFILE-CLOSE | CALL | — |
+| app/cbl/CBSTM03A.CBL | 900 | 9300-CUSTFILE-CLOSE | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 903 | 9300-CUSTFILE-CLOSE | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 909 | 9400-ACCTFILE-CLOSE | CALL | — |
+| app/cbl/CBSTM03A.CBL | 916 | 9400-ACCTFILE-CLOSE | PERFORM | — |
 | app/cbl/CBSTM03A.CBL | 919 | 9400-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBSTM03A.CBL | 923 | 9999-ABEND-PROGRAM | CALL | — |
+| app/cbl/CBSTM03B.CBL | 120 | 0000-START | PERFORM | — |
+| app/cbl/CBSTM03B.CBL | 122 | 0000-START | PERFORM | — |
+| app/cbl/CBSTM03B.CBL | 124 | 0000-START | PERFORM | — |
+| app/cbl/CBSTM03B.CBL | 126 | 0000-START | PERFORM | — |
 | app/cbl/CBSTM03B.CBL | 128 | 0000-START | GO | — |
 | app/cbl/CBSTM03B.CBL | 136 | 1000-TRNXFILE-PROC | OPEN | — |
 | app/cbl/CBSTM03B.CBL | 137 | 1000-TRNXFILE-PROC | GO | — |
@@ -1281,147 +1845,360 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/CBSTM03B.CBL | 221 | 4000-ACCTFILE-PROC | CLOSE | — |
 | app/cbl/CBSTM03B.CBL | 222 | 4000-ACCTFILE-PROC | GO | — |
 | app/cbl/CBSTM03B.CBL | 229 | 4999-EXIT | EXIT | — |
+| app/cbl/CBTRN01C.cbl | 157 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 158 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 159 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 160 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 161 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 162 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 164 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 166 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 172 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 176 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 188 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 189 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 190 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 191 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 192 | MAIN-PARA | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 193 | MAIN-PARA | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 203 | 1000-DALYTRAN-GET-NEXT | READ | — |
+| app/cbl/CBTRN01C.cbl | 221 | 1000-DALYTRAN-GET-NEXT | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 222 | 1000-DALYTRAN-GET-NEXT | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 225 | 1000-DALYTRAN-GET-NEXT | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 229 | 2000-LOOKUP-XREF | READ | — |
 | app/cbl/CBTRN01C.cbl | 243 | 3000-READ-ACCOUNT | READ | — |
 | app/cbl/CBTRN01C.cbl | 254 | 0000-DALYTRAN-OPEN | OPEN | — |
+| app/cbl/CBTRN01C.cbl | 265 | 0000-DALYTRAN-OPEN | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 266 | 0000-DALYTRAN-OPEN | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 268 | 0000-DALYTRAN-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 273 | 0100-CUSTFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN01C.cbl | 284 | 0100-CUSTFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 285 | 0100-CUSTFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 287 | 0100-CUSTFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 291 | 0200-XREFFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN01C.cbl | 302 | 0200-XREFFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 303 | 0200-XREFFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 305 | 0200-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 309 | 0300-CARDFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN01C.cbl | 320 | 0300-CARDFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 321 | 0300-CARDFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 323 | 0300-CARDFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 327 | 0400-ACCTFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN01C.cbl | 338 | 0400-ACCTFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 339 | 0400-ACCTFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 341 | 0400-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 345 | 0500-TRANFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN01C.cbl | 356 | 0500-TRANFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 357 | 0500-TRANFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 359 | 0500-TRANFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 363 | 9000-DALYTRAN-CLOSE | CLOSE | — |
+| app/cbl/CBTRN01C.cbl | 374 | 9000-DALYTRAN-CLOSE | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 375 | 9000-DALYTRAN-CLOSE | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 377 | 9000-DALYTRAN-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 381 | 9100-CUSTFILE-CLOSE | CLOSE | — |
+| app/cbl/CBTRN01C.cbl | 392 | 9100-CUSTFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 393 | 9100-CUSTFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 395 | 9100-CUSTFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 399 | 9200-XREFFILE-CLOSE | CLOSE | — |
+| app/cbl/CBTRN01C.cbl | 410 | 9200-XREFFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 411 | 9200-XREFFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 413 | 9200-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 417 | 9300-CARDFILE-CLOSE | CLOSE | — |
+| app/cbl/CBTRN01C.cbl | 428 | 9300-CARDFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 429 | 9300-CARDFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 431 | 9300-CARDFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 435 | 9400-ACCTFILE-CLOSE | CLOSE | — |
+| app/cbl/CBTRN01C.cbl | 446 | 9400-ACCTFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 447 | 9400-ACCTFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 449 | 9400-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 453 | 9500-TRANFILE-CLOSE | CLOSE | — |
+| app/cbl/CBTRN01C.cbl | 464 | 9500-TRANFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN01C.cbl | 465 | 9500-TRANFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN01C.cbl | 467 | 9500-TRANFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN01C.cbl | 473 | Z-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBTRN01C.cbl | 489 | Z-DISPLAY-IO-STATUS | EXIT | — |
+| app/cbl/CBTRN02C.cbl | 195 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 196 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 197 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 198 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 199 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 200 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 202 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 204 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 210 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 212 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 215 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 221 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 222 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 223 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 224 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 225 | — | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 226 | — | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 238 | 0000-DALYTRAN-OPEN | OPEN | — |
+| app/cbl/CBTRN02C.cbl | 249 | 0000-DALYTRAN-OPEN | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 250 | 0000-DALYTRAN-OPEN | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 252 | 0000-DALYTRAN-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 256 | 0100-TRANFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN02C.cbl | 267 | 0100-TRANFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 268 | 0100-TRANFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 270 | 0100-TRANFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 275 | 0200-XREFFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN02C.cbl | 286 | 0200-XREFFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 287 | 0200-XREFFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 289 | 0200-XREFFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 293 | 0300-DALYREJS-OPEN | OPEN | — |
+| app/cbl/CBTRN02C.cbl | 304 | 0300-DALYREJS-OPEN | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 305 | 0300-DALYREJS-OPEN | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 307 | 0300-DALYREJS-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 311 | 0400-ACCTFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN02C.cbl | 322 | 0400-ACCTFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 323 | 0400-ACCTFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 325 | 0400-ACCTFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 329 | 0500-TCATBALF-OPEN | OPEN | — |
+| app/cbl/CBTRN02C.cbl | 340 | 0500-TCATBALF-OPEN | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 341 | 0500-TCATBALF-OPEN | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 343 | 0500-TCATBALF-OPEN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 346 | 1000-DALYTRAN-GET-NEXT | READ | — |
+| app/cbl/CBTRN02C.cbl | 365 | 1000-DALYTRAN-GET-NEXT | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 366 | 1000-DALYTRAN-GET-NEXT | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 369 | 1000-DALYTRAN-GET-NEXT | EXIT | — |
+| app/cbl/CBTRN02C.cbl | 371 | 1500-VALIDATE-TRAN | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 373 | 1500-VALIDATE-TRAN | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 378 | 1500-VALIDATE-TRAN | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 383 | 1500-A-LOOKUP-XREF | READ | — |
 | app/cbl/CBTRN02C.cbl | 392 | 1500-A-LOOKUP-XREF | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 395 | 1500-B-LOOKUP-ACCT | READ | — |
 | app/cbl/CBTRN02C.cbl | 422 | 1500-B-LOOKUP-ACCT | EXIT | — |
+| app/cbl/CBTRN02C.cbl | 437 | 2000-POST-TRANSACTION | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 440 | 2000-POST-TRANSACTION | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 441 | 2000-POST-TRANSACTION | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 442 | 2000-POST-TRANSACTION | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 444 | 2000-POST-TRANSACTION | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 451 | 2500-WRITE-REJECT-REC | WRITE | — |
+| app/cbl/CBTRN02C.cbl | 462 | 2500-WRITE-REJECT-REC | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 463 | 2500-WRITE-REJECT-REC | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 465 | 2500-WRITE-REJECT-REC | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 474 | 2700-UPDATE-TCATBAL | READ | — |
+| app/cbl/CBTRN02C.cbl | 491 | 2700-UPDATE-TCATBAL | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 492 | 2700-UPDATE-TCATBAL | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 496 | 2700-UPDATE-TCATBAL | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 498 | 2700-UPDATE-TCATBAL | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 501 | 2700-UPDATE-TCATBAL | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 504 | 2700-A-CREATE-TCATBAL-REC | INITIALIZE | — |
 | app/cbl/CBTRN02C.cbl | 510 | 2700-A-CREATE-TCATBAL-REC | WRITE | — |
+| app/cbl/CBTRN02C.cbl | 522 | 2700-A-CREATE-TCATBAL-REC | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 523 | 2700-A-CREATE-TCATBAL-REC | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 528 | 2700-B-UPDATE-TCATBAL-REC | REWRITE | — |
+| app/cbl/CBTRN02C.cbl | 540 | 2700-B-UPDATE-TCATBAL-REC | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 541 | 2700-B-UPDATE-TCATBAL-REC | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 554 | 2800-UPDATE-ACCOUNT-REC | REWRITE | — |
 | app/cbl/CBTRN02C.cbl | 560 | 2800-UPDATE-ACCOUNT-REC | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 564 | 2900-WRITE-TRANSACTION-FILE | WRITE | — |
+| app/cbl/CBTRN02C.cbl | 576 | 2900-WRITE-TRANSACTION-FILE | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 577 | 2900-WRITE-TRANSACTION-FILE | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 579 | 2900-WRITE-TRANSACTION-FILE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 584 | 9000-DALYTRAN-CLOSE | CLOSE | — |
+| app/cbl/CBTRN02C.cbl | 595 | 9000-DALYTRAN-CLOSE | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 596 | 9000-DALYTRAN-CLOSE | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 598 | 9000-DALYTRAN-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 602 | 9100-TRANFILE-CLOSE | CLOSE | — |
+| app/cbl/CBTRN02C.cbl | 613 | 9100-TRANFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 614 | 9100-TRANFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 616 | 9100-TRANFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 621 | 9200-XREFFILE-CLOSE | CLOSE | — |
+| app/cbl/CBTRN02C.cbl | 632 | 9200-XREFFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 633 | 9200-XREFFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 635 | 9200-XREFFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 639 | 9300-DALYREJS-CLOSE | CLOSE | — |
+| app/cbl/CBTRN02C.cbl | 650 | 9300-DALYREJS-CLOSE | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 651 | 9300-DALYREJS-CLOSE | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 653 | 9300-DALYREJS-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 657 | 9400-ACCTFILE-CLOSE | CLOSE | — |
+| app/cbl/CBTRN02C.cbl | 668 | 9400-ACCTFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 669 | 9400-ACCTFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 671 | 9400-ACCTFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 676 | 9500-TCATBALF-CLOSE | CLOSE | — |
+| app/cbl/CBTRN02C.cbl | 687 | 9500-TCATBALF-CLOSE | PERFORM | — |
+| app/cbl/CBTRN02C.cbl | 688 | 9500-TCATBALF-CLOSE | PERFORM | — |
 | app/cbl/CBTRN02C.cbl | 690 | 9500-TCATBALF-CLOSE | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 705 | Z-GET-DB2-FORMAT-TIMESTAMP | EXIT | — |
 | app/cbl/CBTRN02C.cbl | 711 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBTRN02C.cbl | 727 | 9910-DISPLAY-IO-STATUS | EXIT | — |
+| app/cbl/CBTRN03C.cbl | 161 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 162 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 163 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 164 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 165 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 166 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 168 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 170 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 172 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 183 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 187 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 190 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 195 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 196 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 202 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 203 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 208 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 209 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 210 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 211 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 212 | — | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 213 | — | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 221 | 0550-DATEPARM-READ | READ | — |
+| app/cbl/CBTRN03C.cbl | 240 | 0550-DATEPARM-READ | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 241 | 0550-DATEPARM-READ | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 249 | 1000-TRANFILE-GET-NEXT | READ | — |
+| app/cbl/CBTRN03C.cbl | 268 | 1000-TRANFILE-GET-NEXT | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 269 | 1000-TRANFILE-GET-NEXT | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 272 | 1000-TRANFILE-GET-NEXT | EXIT | — |
+| app/cbl/CBTRN03C.cbl | 279 | 1100-WRITE-TRANSACTION-REPORT | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 283 | 1100-WRITE-TRANSACTION-REPORT | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 284 | 1100-WRITE-TRANSACTION-REPORT | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 289 | 1100-WRITE-TRANSACTION-REPORT | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 290 | 1100-WRITE-TRANSACTION-REPORT | EXIT | — |
+| app/cbl/CBTRN03C.cbl | 296 | 1110-WRITE-PAGE-TOTALS | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 301 | 1110-WRITE-PAGE-TOTALS | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 304 | 1110-WRITE-PAGE-TOTALS | EXIT | — |
+| app/cbl/CBTRN03C.cbl | 309 | 1120-WRITE-ACCOUNT-TOTALS | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 313 | 1120-WRITE-ACCOUNT-TOTALS | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 316 | 1120-WRITE-ACCOUNT-TOTALS | EXIT | — |
+| app/cbl/CBTRN03C.cbl | 321 | 1110-WRITE-GRAND-TOTALS | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 322 | 1110-WRITE-GRAND-TOTALS | EXIT | — |
+| app/cbl/CBTRN03C.cbl | 326 | 1120-WRITE-HEADERS | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 330 | 1120-WRITE-HEADERS | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 334 | 1120-WRITE-HEADERS | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 338 | 1120-WRITE-HEADERS | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 341 | 1120-WRITE-HEADERS | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 345 | 1111-WRITE-REPORT-REC | WRITE | — |
+| app/cbl/CBTRN03C.cbl | 356 | 1111-WRITE-REPORT-REC | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 357 | 1111-WRITE-REPORT-REC | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 359 | 1111-WRITE-REPORT-REC | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 362 | 1120-WRITE-DETAIL | INITIALIZE | — |
+| app/cbl/CBTRN03C.cbl | 372 | 1120-WRITE-DETAIL | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 374 | 1120-WRITE-DETAIL | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 378 | 0000-TRANFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN03C.cbl | 389 | 0000-TRANFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 390 | 0000-TRANFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 392 | 0000-TRANFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 396 | 0100-REPTFILE-OPEN | OPEN | — |
+| app/cbl/CBTRN03C.cbl | 407 | 0100-REPTFILE-OPEN | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 408 | 0100-REPTFILE-OPEN | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 410 | 0100-REPTFILE-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 414 | 0200-CARDXREF-OPEN | OPEN | — |
+| app/cbl/CBTRN03C.cbl | 425 | 0200-CARDXREF-OPEN | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 426 | 0200-CARDXREF-OPEN | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 428 | 0200-CARDXREF-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 432 | 0300-TRANTYPE-OPEN | OPEN | — |
+| app/cbl/CBTRN03C.cbl | 443 | 0300-TRANTYPE-OPEN | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 444 | 0300-TRANTYPE-OPEN | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 446 | 0300-TRANTYPE-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 450 | 0400-TRANCATG-OPEN | OPEN | — |
+| app/cbl/CBTRN03C.cbl | 461 | 0400-TRANCATG-OPEN | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 462 | 0400-TRANCATG-OPEN | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 464 | 0400-TRANCATG-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 468 | 0500-DATEPARM-OPEN | OPEN | — |
+| app/cbl/CBTRN03C.cbl | 479 | 0500-DATEPARM-OPEN | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 480 | 0500-DATEPARM-OPEN | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 482 | 0500-DATEPARM-OPEN | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 485 | 1500-A-LOOKUP-XREF | READ | — |
+| app/cbl/CBTRN03C.cbl | 489 | 1500-A-LOOKUP-XREF | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 490 | 1500-A-LOOKUP-XREF | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 492 | 1500-A-LOOKUP-XREF | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 495 | 1500-B-LOOKUP-TRANTYPE | READ | — |
+| app/cbl/CBTRN03C.cbl | 499 | 1500-B-LOOKUP-TRANTYPE | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 500 | 1500-B-LOOKUP-TRANTYPE | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 502 | 1500-B-LOOKUP-TRANTYPE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 505 | 1500-C-LOOKUP-TRANCATG | READ | — |
+| app/cbl/CBTRN03C.cbl | 509 | 1500-C-LOOKUP-TRANCATG | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 510 | 1500-C-LOOKUP-TRANCATG | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 512 | 1500-C-LOOKUP-TRANCATG | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 516 | 9000-TRANFILE-CLOSE | CLOSE | — |
 | app/cbl/CBTRN03C.cbl | 518 | 9000-TRANFILE-CLOSE | SUBTRACT | — |
+| app/cbl/CBTRN03C.cbl | 527 | 9000-TRANFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 528 | 9000-TRANFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 530 | 9000-TRANFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 534 | 9100-REPTFILE-CLOSE | CLOSE | — |
 | app/cbl/CBTRN03C.cbl | 536 | 9100-REPTFILE-CLOSE | SUBTRACT | — |
+| app/cbl/CBTRN03C.cbl | 545 | 9100-REPTFILE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 546 | 9100-REPTFILE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 548 | 9100-REPTFILE-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 553 | 9200-CARDXREF-CLOSE | CLOSE | — |
+| app/cbl/CBTRN03C.cbl | 564 | 9200-CARDXREF-CLOSE | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 565 | 9200-CARDXREF-CLOSE | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 567 | 9200-CARDXREF-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 571 | 9300-TRANTYPE-CLOSE | CLOSE | — |
+| app/cbl/CBTRN03C.cbl | 582 | 9300-TRANTYPE-CLOSE | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 583 | 9300-TRANTYPE-CLOSE | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 585 | 9300-TRANTYPE-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 589 | 9400-TRANCATG-CLOSE | CLOSE | — |
+| app/cbl/CBTRN03C.cbl | 600 | 9400-TRANCATG-CLOSE | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 601 | 9400-TRANCATG-CLOSE | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 603 | 9400-TRANCATG-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 607 | 9500-DATEPARM-CLOSE | CLOSE | — |
+| app/cbl/CBTRN03C.cbl | 618 | 9500-DATEPARM-CLOSE | PERFORM | — |
+| app/cbl/CBTRN03C.cbl | 619 | 9500-DATEPARM-CLOSE | PERFORM | — |
 | app/cbl/CBTRN03C.cbl | 621 | 9500-DATEPARM-CLOSE | EXIT | — |
 | app/cbl/CBTRN03C.cbl | 630 | 9999-ABEND-PROGRAM | CALL | — |
 | app/cbl/CBTRN03C.cbl | 646 | 9910-DISPLAY-IO-STATUS | EXIT | — |
 | app/cbl/COACTUPC.cbl | 862 | 0000-MAIN | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 866 | 0000-MAIN | INITIALIZE | — |
 | app/cbl/COACTUPC.cbl | 883 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COACTUPC.cbl | 898 | 0000-MAIN | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 952 | 0000-MAIN | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 956 | 0000-MAIN | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 968 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COACTUPC.cbl | 969 | 0000-MAIN | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 973 | 0000-MAIN | GO | — |
 | app/cbl/COACTUPC.cbl | 981 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COACTUPC.cbl | 985 | 0000-MAIN | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 989 | 0000-MAIN | GO | — |
+| app/cbl/COACTUPC.cbl | 997 | 0000-MAIN | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 999 | 0000-MAIN | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1001 | 0000-MAIN | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 1003 | 0000-MAIN | GO | — |
 | app/cbl/COACTUPC.cbl | 1015 | COMMON-RETURN | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 1022 | 0000-MAIN-EXIT | EXIT | — |
+| app/cbl/COACTUPC.cbl | 1026 | 1000-PROCESS-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1028 | 1000-PROCESS-INPUTS | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 1037 | 1000-PROCESS-INPUTS-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 1040 | 1100-RECEIVE-MAP | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 1047 | 1100-RECEIVE-MAP | INITIALIZE | — |
 | app/cbl/COACTUPC.cbl | 1061 | 1100-RECEIVE-MAP | GO | — |
 | app/cbl/COACTUPC.cbl | 1427 | 1100-RECEIVE-MAP-EXIT | EXIT | — |
+| app/cbl/COACTUPC.cbl | 1435 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 1446 | 1200-EDIT-MAP-INPUTS | GO | — |
+| app/cbl/COACTUPC.cbl | 1460 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 1467 | 1200-EDIT-MAP-INPUTS | GO | — |
+| app/cbl/COACTUPC.cbl | 1474 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1480 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1486 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1492 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1499 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1505 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1511 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1518 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1525 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1530 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1536 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1540 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1549 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1554 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1563 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1571 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1579 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1587 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1595 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1600 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1608 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1618 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1627 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1635 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1643 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1652 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1660 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 1667 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 1679 | 1200-EDIT-MAP-INPUTS-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 1704 | 1205-COMPARE-OLD-NEW | GO | — |
 | app/cbl/COACTUPC.cbl | 1772 | 1205-COMPARE-OLD-NEW | GO | — |
@@ -1491,7 +2268,10 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTUPC.cbl | 2415 | EDIT-US-PHONE-LINENUM | GO | — |
 | app/cbl/COACTUPC.cbl | 2425 | EDIT-US-PHONE-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2428 | 1260-EDIT-US-PHONE-NUM-EXIT | EXIT | — |
+| app/cbl/COACTUPC.cbl | 2442 | 1265-EDIT-US-SSN | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 2455 | 1265-EDIT-US-SSN | STRING | — |
+| app/cbl/COACTUPC.cbl | 2472 | 1265-EDIT-US-SSN | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2484 | 1265-EDIT-US-SSN | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 2490 | 1265-EDIT-US-SSN-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2501 | 1270-EDIT-US-STATE-CD | STRING | — |
 | app/cbl/COACTUPC.cbl | 2508 | 1270-EDIT-US-STATE-CD | GO | — |
@@ -1503,14 +2283,29 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTUPC.cbl | 2549 | 1280-EDIT-US-STATE-ZIP-CD | STRING | — |
 | app/cbl/COACTUPC.cbl | 2555 | 1280-EDIT-US-STATE-ZIP-CD | GO | — |
 | app/cbl/COACTUPC.cbl | 2559 | 1280-EDIT-US-STATE-ZIP-CD-EXIT | EXIT | — |
+| app/cbl/COACTUPC.cbl | 2575 | 2000-DECIDE-ACTION | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2604 | 2000-DECIDE-ACTION | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2639 | 2000-DECIDE-ACTION | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 2644 | 2000-DECIDE-ACTION-EXIT | EXIT | — |
+| app/cbl/COACTUPC.cbl | 2650 | 3000-SEND-MAP | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2652 | 3000-SEND-MAP | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2654 | 3000-SEND-MAP | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2656 | 3000-SEND-MAP | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2658 | 3000-SEND-MAP | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2660 | 3000-SEND-MAP | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 2665 | 3000-SEND-MAP-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2695 | 3100-SCREEN-INIT-EXIT | EXIT | — |
+| app/cbl/COACTUPC.cbl | 2713 | 3200-SETUP-SCREEN-VARS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2716 | 3200-SETUP-SCREEN-VARS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2719 | 3200-SETUP-SCREEN-VARS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2722 | 3200-SETUP-SCREEN-VARS | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 2728 | 3200-SETUP-SCREEN-VARS-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2784 | 3201-SHOW-INITIAL-VALUES-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2868 | 3202-SHOW-ORIGINAL-VALUES-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2952 | 3203-SHOW-UPDATED-VALUES-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 2984 | 3250-SETUP-INFOMSG-EXIT | EXIT | — |
+| app/cbl/COACTUPC.cbl | 2989 | 3300-SETUP-SCREEN-ATTRS | PERFORM | — |
+| app/cbl/COACTUPC.cbl | 2999 | 3300-SETUP-SCREEN-ATTRS | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 3189 | 3300-SETUP-SCREEN-ATTRS | GO | — |
 | app/cbl/COACTUPC.cbl | 3208 | 3300-SETUP-SCREEN-ATTRS | COPY | — |
 | app/cbl/COACTUPC.cbl | 3214 | 3300-SETUP-SCREEN-ATTRS | COPY | — |
@@ -1558,9 +2353,13 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTUPC.cbl | 3594 | 3400-SEND-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 3604 | 3400-SEND-SCREEN-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 3610 | 9000-READ-ACCT | INITIALIZE | — |
+| app/cbl/COACTUPC.cbl | 3617 | 9000-READ-ACCT | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 3621 | 9000-READ-ACCT | GO | — |
+| app/cbl/COACTUPC.cbl | 3624 | 9000-READ-ACCT | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 3628 | 9000-READ-ACCT | GO | — |
+| app/cbl/COACTUPC.cbl | 3633 | 9000-READ-ACCT | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 3637 | 9000-READ-ACCT | GO | — |
+| app/cbl/COACTUPC.cbl | 3642 | 9000-READ-ACCT | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 3648 | 9000-READ-ACCT-EXIT | EXIT | — |
 | app/cbl/COACTUPC.cbl | 3654 | 9200-GETCARDXREF-BYACCT | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 3674 | 9200-GETCARDXREF-BYACCT | STRING | — |
@@ -1577,6 +2376,7 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTUPC.cbl | 3914 | 9600-WRITE-PROCESSING | GO | — |
 | app/cbl/COACTUPC.cbl | 3921 | 9600-WRITE-PROCESSING | EXEC | EXEC CICS |
 | app/cbl/COACTUPC.cbl | 3941 | 9600-WRITE-PROCESSING | GO | — |
+| app/cbl/COACTUPC.cbl | 3947 | 9600-WRITE-PROCESSING | PERFORM | — |
 | app/cbl/COACTUPC.cbl | 3951 | 9600-WRITE-PROCESSING | GO | — |
 | app/cbl/COACTUPC.cbl | 3956 | 9600-WRITE-PROCESSING | INITIALIZE | — |
 | app/cbl/COACTUPC.cbl | 3976 | 9600-WRITE-PROCESSING | STRING | — |
@@ -1607,14 +2407,26 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTVWC.cbl | 264 | 0000-MAIN | EXEC | EXEC CICS |
 | app/cbl/COACTVWC.cbl | 268 | 0000-MAIN | INITIALIZE | — |
 | app/cbl/COACTVWC.cbl | 285 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COACTVWC.cbl | 299 | 0000-MAIN | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 349 | 0000-MAIN | EXEC | EXEC CICS |
+| app/cbl/COACTVWC.cbl | 358 | 0000-MAIN | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 360 | 0000-MAIN | GO | — |
+| app/cbl/COACTVWC.cbl | 362 | 0000-MAIN | PERFORM | — |
+| app/cbl/COACTVWC.cbl | 365 | 0000-MAIN | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 367 | 0000-MAIN | GO | — |
+| app/cbl/COACTVWC.cbl | 369 | 0000-MAIN | PERFORM | — |
+| app/cbl/COACTVWC.cbl | 371 | 0000-MAIN | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 373 | 0000-MAIN | GO | — |
+| app/cbl/COACTVWC.cbl | 381 | 0000-MAIN | PERFORM | — |
+| app/cbl/COACTVWC.cbl | 389 | 0000-MAIN | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 391 | 0000-MAIN | GO | — |
 | app/cbl/COACTVWC.cbl | 402 | COMMON-RETURN | EXEC | EXEC CICS |
 | app/cbl/COACTVWC.cbl | 409 | 0000-MAIN-EXIT | EXIT | — |
 | app/cbl/COACTVWC.cbl | 412 | 0000-MAIN-EXIT | EXIT | — |
+| app/cbl/COACTVWC.cbl | 417 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COACTVWC.cbl | 419 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COACTVWC.cbl | 421 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COACTVWC.cbl | 423 | 1000-SEND-MAP | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 428 | 1000-SEND-MAP-EXIT | EXIT | — |
 | app/cbl/COACTVWC.cbl | 458 | 1100-SCREEN-INIT-EXIT | EXIT | — |
 | app/cbl/COACTVWC.cbl | 496 | 1200-SETUP-SCREEN-VARS | STRING | — |
@@ -1622,15 +2434,21 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTVWC.cbl | 575 | 1300-SETUP-SCREEN-ATTRS-EXIT | EXIT | — |
 | app/cbl/COACTVWC.cbl | 583 | 1400-SEND-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COACTVWC.cbl | 593 | 1400-SEND-SCREEN-EXIT | EXIT | — |
+| app/cbl/COACTVWC.cbl | 597 | 2000-PROCESS-INPUTS | PERFORM | — |
+| app/cbl/COACTVWC.cbl | 599 | 2000-PROCESS-INPUTS | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 608 | 2000-PROCESS-INPUTS-EXIT | EXIT | — |
 | app/cbl/COACTVWC.cbl | 611 | 2100-RECEIVE-MAP | EXEC | EXEC CICS |
 | app/cbl/COACTVWC.cbl | 620 | 2100-RECEIVE-MAP-EXIT | EXIT | — |
+| app/cbl/COACTVWC.cbl | 636 | 2200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 646 | 2200-EDIT-MAP-INPUTS-EXIT | EXIT | — |
 | app/cbl/COACTVWC.cbl | 661 | 2210-EDIT-ACCOUNT | GO | — |
 | app/cbl/COACTVWC.cbl | 676 | 2210-EDIT-ACCOUNT | GO | — |
 | app/cbl/COACTVWC.cbl | 684 | 2210-EDIT-ACCOUNT-EXIT | EXIT | — |
+| app/cbl/COACTVWC.cbl | 693 | 9000-READ-ACCT | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 698 | 9000-READ-ACCT | GO | — |
+| app/cbl/COACTVWC.cbl | 701 | 9000-READ-ACCT | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 705 | 9000-READ-ACCT | GO | — |
+| app/cbl/COACTVWC.cbl | 710 | 9000-READ-ACCT | PERFORM | — |
 | app/cbl/COACTVWC.cbl | 714 | 9000-READ-ACCT | GO | — |
 | app/cbl/COACTVWC.cbl | 721 | 9000-READ-ACCT-EXIT | EXIT | — |
 | app/cbl/COACTVWC.cbl | 727 | 9200-GETCARDXREF-BYACCT | EXEC | EXEC CICS |
@@ -1654,50 +2472,119 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COACTVWC.cbl | 931 | ABEND-ROUTINE | CANCEL | — |
 | app/cbl/COACTVWC.cbl | 934 | ABEND-ROUTINE | EXEC | EXEC CICS |
 | app/cbl/COADM01C.cbl | 77 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/COADM01C.cbl | 88 | MAIN-PARA | PERFORM | — |
+| app/cbl/COADM01C.cbl | 94 | MAIN-PARA | PERFORM | — |
+| app/cbl/COADM01C.cbl | 96 | MAIN-PARA | PERFORM | — |
+| app/cbl/COADM01C.cbl | 99 | MAIN-PARA | PERFORM | — |
+| app/cbl/COADM01C.cbl | 102 | MAIN-PARA | PERFORM | — |
+| app/cbl/COADM01C.cbl | 106 | MAIN-PARA | PERFORM | — |
 | app/cbl/COADM01C.cbl | 111 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/COADM01C.cbl | 137 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/COADM01C.cbl | 145 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
 | app/cbl/COADM01C.cbl | 152 | PROCESS-ENTER-KEY | STRING | — |
+| app/cbl/COADM01C.cbl | 157 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/COADM01C.cbl | 168 | RETURN-TO-SIGNON-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COADM01C.cbl | 177 | SEND-MENU-SCREEN | PERFORM | — |
+| app/cbl/COADM01C.cbl | 178 | SEND-MENU-SCREEN | PERFORM | — |
 | app/cbl/COADM01C.cbl | 182 | SEND-MENU-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COADM01C.cbl | 194 | RECEIVE-MENU-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COADM01C.cbl | 236 | BUILD-MENU-OPTIONS | STRING | — |
 | app/cbl/COADM01C.cbl | 273 | PGMIDERR-ERR-PARA | STRING | — |
+| app/cbl/COADM01C.cbl | 279 | PGMIDERR-ERR-PARA | PERFORM | — |
 | app/cbl/COADM01C.cbl | 280 | PGMIDERR-ERR-PARA | EXEC | EXEC CICS |
+| app/cbl/COBIL00C.cbl | 109 | MAIN-PARA | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 120 | MAIN-PARA | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 122 | MAIN-PARA | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 124 | MAIN-PARA | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 127 | MAIN-PARA | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 135 | MAIN-PARA | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 137 | MAIN-PARA | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 141 | MAIN-PARA | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 146 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/COBIL00C.cbl | 164 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 177 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 180 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 184 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 190 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 204 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 211 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 213 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 214 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 215 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 218 | PROCESS-ENTER-KEY | INITIALIZE | — |
+| app/cbl/COBIL00C.cbl | 230 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 233 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 235 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 242 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 251 | GET-CURRENT-TIMESTAMP | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 255 | GET-CURRENT-TIMESTAMP | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 263 | GET-CURRENT-TIMESTAMP | INITIALIZE | — |
 | app/cbl/COBIL00C.cbl | 281 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COBIL00C.cbl | 291 | SEND-BILLPAY-SCREEN | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 295 | SEND-BILLPAY-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 308 | RECEIVE-BILLPAY-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 345 | READ-ACCTDAT-FILE | EXEC | EXEC CICS |
+| app/cbl/COBIL00C.cbl | 364 | READ-ACCTDAT-FILE | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 371 | READ-ACCTDAT-FILE | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 379 | UPDATE-ACCTDAT-FILE | EXEC | EXEC CICS |
+| app/cbl/COBIL00C.cbl | 395 | UPDATE-ACCTDAT-FILE | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 402 | UPDATE-ACCTDAT-FILE | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 410 | READ-CXACAIX-FILE | EXEC | EXEC CICS |
+| app/cbl/COBIL00C.cbl | 428 | READ-CXACAIX-FILE | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 435 | READ-CXACAIX-FILE | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 443 | STARTBR-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COBIL00C.cbl | 459 | STARTBR-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 466 | STARTBR-TRANSACT-FILE | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 474 | READPREV-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COBIL00C.cbl | 495 | READPREV-TRANSACT-FILE | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 503 | ENDBR-TRANSACT-FILE | EXEC | EXEC CICS |
 | app/cbl/COBIL00C.cbl | 512 | WRITE-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COBIL00C.cbl | 524 | WRITE-TRANSACT-FILE | PERFORM | — |
 | app/cbl/COBIL00C.cbl | 527 | WRITE-TRANSACT-FILE | STRING | — |
+| app/cbl/COBIL00C.cbl | 532 | WRITE-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 539 | WRITE-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 546 | WRITE-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 554 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COBIL00C.cbl | 555 | CLEAR-CURRENT-SCREEN | PERFORM | — |
 | app/cbl/COBSWAIT.cbl | 38 | — | CALL | — |
 | app/cbl/COCRDLIC.cbl | 300 | 0000-MAIN | INITIALIZE | — |
 | app/cbl/COCRDLIC.cbl | 316 | 0000-MAIN | INITIALIZE | — |
 | app/cbl/COCRDLIC.cbl | 338 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COCRDLIC.cbl | 349 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 359 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 402 | 0000-MAIN | EXEC | EXEC CICS |
+| app/cbl/COCRDLIC.cbl | 433 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 436 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 438 | 0000-MAIN | GO | — |
+| app/cbl/COCRDLIC.cbl | 450 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 452 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 454 | 0000-MAIN | GO | — |
 | app/cbl/COCRDLIC.cbl | 462 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COCRDLIC.cbl | 478 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 480 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 482 | 0000-MAIN | GO | — |
+| app/cbl/COCRDLIC.cbl | 493 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 495 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 497 | 0000-MAIN | GO | — |
 | app/cbl/COCRDLIC.cbl | 508 | 0000-MAIN | SUBTRACT | — |
+| app/cbl/COCRDLIC.cbl | 509 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 511 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 513 | 0000-MAIN | GO | — |
 | app/cbl/COCRDLIC.cbl | 538 | 0000-MAIN | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 566 | 0000-MAIN | EXEC | EXEC CICS |
+| app/cbl/COCRDLIC.cbl | 578 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 580 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 582 | 0000-MAIN | GO | — |
 | app/cbl/COCRDLIC.cbl | 597 | 0000-MAIN | GO | — |
 | app/cbl/COCRDLIC.cbl | 601 | 0000-MAIN | GO | — |
 | app/cbl/COCRDLIC.cbl | 615 | COMMON-RETURN | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 622 | 0000-MAIN-EXIT | EXIT | — |
+| app/cbl/COCRDLIC.cbl | 625 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 627 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 629 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 631 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 633 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 635 | 1000-SEND-MAP | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 640 | 1000-SEND-MAP-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 675 | 1100-SCREEN-INIT-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 746 | 1200-SCREEN-ARRAY-INIT-EXIT | EXIT | — |
@@ -1706,9 +2593,14 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDLIC.cbl | 934 | 1400-SETUP-MESSAGE-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 939 | 1500-SEND-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 949 | 1500-SEND-SCREEN-EXIT | EXIT | — |
+| app/cbl/COCRDLIC.cbl | 952 | 2000-RECEIVE-MAP | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 955 | 2000-RECEIVE-MAP | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 960 | 2000-RECEIVE-MAP-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 963 | 2100-RECEIVE-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 982 | 2100-RECEIVE-SCREEN-EXIT | EXIT | — |
+| app/cbl/COCRDLIC.cbl | 989 | 2200-EDIT-INPUTS | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 992 | 2200-EDIT-INPUTS | PERFORM | — |
+| app/cbl/COCRDLIC.cbl | 995 | 2200-EDIT-INPUTS | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 1000 | 2200-EDIT-INPUTS-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 1012 | 2210-EDIT-ACCOUNT | GO | — |
 | app/cbl/COCRDLIC.cbl | 1025 | 2210-EDIT-ACCOUNT | GO | — |
@@ -1719,7 +2611,9 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDLIC.cbl | 1076 | 2250-EDIT-ARRAY | GO | — |
 | app/cbl/COCRDLIC.cbl | 1120 | 2250-EDIT-ARRAY-EXIT | EXIT | — |
 | app/cbl/COCRDLIC.cbl | 1129 | 9000-READ-FORWARD | EXEC | EXEC CICS |
+| app/cbl/COCRDLIC.cbl | 1144 | 9000-READ-FORWARD | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 1146 | 9000-READ-FORWARD | EXEC | EXEC CICS |
+| app/cbl/COCRDLIC.cbl | 1159 | 9000-READ-FORWARD | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 1197 | 9000-READ-FORWARD | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 1258 | 9000-READ-FORWARD | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 1262 | 9000-READ-FORWARD-EXIT | EXIT | — |
@@ -1727,7 +2621,9 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDLIC.cbl | 1294 | 9100-READ-BACKWARDS | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 1307 | 9100-READ-BACKWARDS | SUBTRACT | — |
 | app/cbl/COCRDLIC.cbl | 1317 | 9100-READ-BACKWARDS | GO | — |
+| app/cbl/COCRDLIC.cbl | 1320 | 9100-READ-BACKWARDS | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 1322 | 9100-READ-BACKWARDS | EXEC | EXEC CICS |
+| app/cbl/COCRDLIC.cbl | 1335 | 9100-READ-BACKWARDS | PERFORM | — |
 | app/cbl/COCRDLIC.cbl | 1346 | 9100-READ-BACKWARDS | SUBTRACT | — |
 | app/cbl/COCRDLIC.cbl | 1375 | 9100-READ-BACKWARDS-EXIT | EXEC | EXEC CICS |
 | app/cbl/COCRDLIC.cbl | 1379 | 9100-READ-BACKWARDS-EXIT | EXIT | — |
@@ -1744,23 +2640,41 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDSLC.cbl | 250 | 0000-MAIN | EXEC | EXEC CICS |
 | app/cbl/COCRDSLC.cbl | 254 | 0000-MAIN | INITIALIZE | — |
 | app/cbl/COCRDSLC.cbl | 271 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COCRDSLC.cbl | 284 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 331 | 0000-MAIN | EXEC | EXEC CICS |
+| app/cbl/COCRDSLC.cbl | 344 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDSLC.cbl | 346 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 348 | 0000-MAIN | GO | — |
+| app/cbl/COCRDSLC.cbl | 354 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 356 | 0000-MAIN | GO | — |
+| app/cbl/COCRDSLC.cbl | 358 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDSLC.cbl | 361 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 363 | 0000-MAIN | GO | — |
+| app/cbl/COCRDSLC.cbl | 365 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDSLC.cbl | 367 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 369 | 0000-MAIN | GO | — |
+| app/cbl/COCRDSLC.cbl | 379 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDSLC.cbl | 388 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 390 | 0000-MAIN | GO | — |
 | app/cbl/COCRDSLC.cbl | 402 | COMMON-RETURN | EXEC | EXEC CICS |
 | app/cbl/COCRDSLC.cbl | 409 | 0000-MAIN-EXIT | EXIT | — |
+| app/cbl/COCRDSLC.cbl | 413 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDSLC.cbl | 415 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDSLC.cbl | 417 | 1000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDSLC.cbl | 419 | 1000-SEND-MAP | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 424 | 1000-SEND-MAP-EXIT | EXIT | — |
 | app/cbl/COCRDSLC.cbl | 454 | 1100-SCREEN-INIT-EXIT | EXIT | — |
 | app/cbl/COCRDSLC.cbl | 500 | 1200-SETUP-SCREEN-VARS-EXIT | EXIT | — |
 | app/cbl/COCRDSLC.cbl | 560 | 1300-SETUP-SCREEN-ATTRS-EXIT | EXIT | — |
 | app/cbl/COCRDSLC.cbl | 569 | 1400-SEND-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COCRDSLC.cbl | 579 | 1400-SEND-SCREEN-EXIT | EXIT | — |
+| app/cbl/COCRDSLC.cbl | 583 | 2000-PROCESS-INPUTS | PERFORM | — |
+| app/cbl/COCRDSLC.cbl | 585 | 2000-PROCESS-INPUTS | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 594 | 2000-PROCESS-INPUTS-EXIT | EXIT | — |
 | app/cbl/COCRDSLC.cbl | 597 | 2100-RECEIVE-MAP | EXEC | EXEC CICS |
 | app/cbl/COCRDSLC.cbl | 606 | 2100-RECEIVE-MAP-EXIT | EXIT | — |
+| app/cbl/COCRDSLC.cbl | 630 | 2200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COCRDSLC.cbl | 633 | 2200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 644 | 2200-EDIT-MAP-INPUTS-EXIT | EXIT | — |
 | app/cbl/COCRDSLC.cbl | 660 | 2210-EDIT-ACCOUNT | GO | — |
 | app/cbl/COCRDSLC.cbl | 674 | 2210-EDIT-ACCOUNT | GO | — |
@@ -1768,6 +2682,7 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDSLC.cbl | 701 | 2220-EDIT-CARD | GO | — |
 | app/cbl/COCRDSLC.cbl | 715 | 2220-EDIT-CARD | GO | — |
 | app/cbl/COCRDSLC.cbl | 723 | 2220-EDIT-CARD-EXIT | EXIT | — |
+| app/cbl/COCRDSLC.cbl | 728 | 9000-READ-DATA | PERFORM | — |
 | app/cbl/COCRDSLC.cbl | 733 | 9000-READ-DATA-EXIT | EXIT | — |
 | app/cbl/COCRDSLC.cbl | 742 | 9100-GETCARD-BYACCTCARD | EXEC | EXEC CICS |
 | app/cbl/COCRDSLC.cbl | 776 | 9100-GETCARD-BYACCTCARD-EXIT | EXIT | — |
@@ -1787,22 +2702,38 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDUPC.cbl | 370 | 0000-MAIN | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 374 | 0000-MAIN | INITIALIZE | — |
 | app/cbl/COCRDUPC.cbl | 391 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COCRDUPC.cbl | 406 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 469 | 0000-MAIN | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 473 | 0000-MAIN | EXEC | EXEC CICS |
+| app/cbl/COCRDUPC.cbl | 492 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 495 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 497 | 0000-MAIN | GO | — |
 | app/cbl/COCRDUPC.cbl | 506 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COCRDUPC.cbl | 507 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 511 | 0000-MAIN | GO | — |
 | app/cbl/COCRDUPC.cbl | 519 | 0000-MAIN | INITIALIZE | — |
+| app/cbl/COCRDUPC.cbl | 524 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 528 | 0000-MAIN | GO | — |
+| app/cbl/COCRDUPC.cbl | 536 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 538 | 0000-MAIN | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 540 | 0000-MAIN | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 542 | 0000-MAIN | GO | — |
 | app/cbl/COCRDUPC.cbl | 554 | COMMON-RETURN | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 561 | 0000-MAIN-EXIT | EXIT | — |
+| app/cbl/COCRDUPC.cbl | 565 | 1000-PROCESS-INPUTS | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 567 | 1000-PROCESS-INPUTS | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 576 | 1000-PROCESS-INPUTS-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 579 | 1100-RECEIVE-MAP | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 586 | 1100-RECEIVE-MAP | INITIALIZE | — |
 | app/cbl/COCRDUPC.cbl | 639 | 1100-RECEIVE-MAP-EXIT | EXIT | — |
+| app/cbl/COCRDUPC.cbl | 647 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 650 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 661 | 1200-EDIT-MAP-INPUTS | GO | — |
 | app/cbl/COCRDUPC.cbl | 692 | 1200-EDIT-MAP-INPUTS | GO | — |
+| app/cbl/COCRDUPC.cbl | 698 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 701 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 704 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 707 | 1200-EDIT-MAP-INPUTS | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 718 | 1200-EDIT-MAP-INPUTS-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 735 | 1210-EDIT-ACCOUNT | GO | — |
 | app/cbl/COCRDUPC.cbl | 750 | 1210-EDIT-ACCOUNT | GO | — |
@@ -1822,7 +2753,15 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDUPC.cbl | 924 | 1260-EDIT-EXPIRY-YEAR | GO | — |
 | app/cbl/COCRDUPC.cbl | 942 | 1260-EDIT-EXPIRY-YEAR | GO | — |
 | app/cbl/COCRDUPC.cbl | 946 | 1260-EDIT-EXPIRY-YEAR-EXIT | EXIT | — |
+| app/cbl/COCRDUPC.cbl | 961 | 2000-DECIDE-ACTION | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 990 | 2000-DECIDE-ACTION | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 1025 | 2000-DECIDE-ACTION | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 1030 | 2000-DECIDE-ACTION-EXIT | EXIT | — |
+| app/cbl/COCRDUPC.cbl | 1036 | 3000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 1038 | 3000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 1040 | 3000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 1042 | 3000-SEND-MAP | PERFORM | — |
+| app/cbl/COCRDUPC.cbl | 1044 | 3000-SEND-MAP | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 1049 | 3000-SEND-MAP-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1079 | 3100-SCREEN-INIT-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1136 | 3200-SETUP-SCREEN-VARS-EXIT | EXIT | — |
@@ -1831,11 +2770,13 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDUPC.cbl | 1329 | 3400-SEND-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 1339 | 3400-SEND-SCREEN-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1345 | 9000-READ-DATA | INITIALIZE | — |
+| app/cbl/COCRDUPC.cbl | 1349 | 9000-READ-DATA | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 1373 | 9000-READ-DATA-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1382 | 9100-GETCARD-BYACCTCARD | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 1416 | 9100-GETCARD-BYACCTCARD-EXIT | EXIT | — |
 | app/cbl/COCRDUPC.cbl | 1427 | 9200-WRITE-PROCESSING | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 1448 | 9200-WRITE-PROCESSING | GO | — |
+| app/cbl/COCRDUPC.cbl | 1453 | 9200-WRITE-PROCESSING | PERFORM | — |
 | app/cbl/COCRDUPC.cbl | 1456 | 9200-WRITE-PROCESSING | GO | — |
 | app/cbl/COCRDUPC.cbl | 1461 | 9200-WRITE-PROCESSING | INITIALIZE | — |
 | app/cbl/COCRDUPC.cbl | 1467 | 9200-WRITE-PROCESSING | STRING | — |
@@ -1851,32 +2792,84 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COCRDUPC.cbl | 1547 | ABEND-ROUTINE | CANCEL | — |
 | app/cbl/COCRDUPC.cbl | 1550 | ABEND-ROUTINE | EXEC | EXEC CICS |
 | app/cbl/COCRDUPC.cbl | 1555 | ABEND-ROUTINE-EXIT | EXIT | — |
+| app/cbl/COMEN01C.cbl | 84 | MAIN-PARA | PERFORM | — |
+| app/cbl/COMEN01C.cbl | 90 | MAIN-PARA | PERFORM | — |
+| app/cbl/COMEN01C.cbl | 92 | MAIN-PARA | PERFORM | — |
+| app/cbl/COMEN01C.cbl | 95 | MAIN-PARA | PERFORM | — |
+| app/cbl/COMEN01C.cbl | 98 | MAIN-PARA | PERFORM | — |
+| app/cbl/COMEN01C.cbl | 102 | MAIN-PARA | PERFORM | — |
 | app/cbl/COMEN01C.cbl | 107 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/COMEN01C.cbl | 133 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COMEN01C.cbl | 142 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/COMEN01C.cbl | 148 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
 | app/cbl/COMEN01C.cbl | 156 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
 | app/cbl/COMEN01C.cbl | 163 | PROCESS-ENTER-KEY | STRING | — |
 | app/cbl/COMEN01C.cbl | 172 | PROCESS-ENTER-KEY | STRING | — |
 | app/cbl/COMEN01C.cbl | 184 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
+| app/cbl/COMEN01C.cbl | 190 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/COMEN01C.cbl | 201 | RETURN-TO-SIGNON-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COMEN01C.cbl | 210 | SEND-MENU-SCREEN | PERFORM | — |
+| app/cbl/COMEN01C.cbl | 211 | SEND-MENU-SCREEN | PERFORM | — |
 | app/cbl/COMEN01C.cbl | 215 | SEND-MENU-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COMEN01C.cbl | 227 | RECEIVE-MENU-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COMEN01C.cbl | 269 | BUILD-MENU-OPTIONS | STRING | — |
+| app/cbl/CORPT00C.cbl | 174 | MAIN-PARA | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 181 | MAIN-PARA | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 183 | MAIN-PARA | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 186 | MAIN-PARA | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 189 | MAIN-PARA | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 194 | MAIN-PARA | PERFORM | — |
 | app/cbl/CORPT00C.cbl | 199 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/CORPT00C.cbl | 238 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 255 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 265 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 272 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 279 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 286 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 293 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 300 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 335 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 344 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 352 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 361 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 370 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 378 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/CORPT00C.cbl | 392 | PROCESS-ENTER-KEY | CALL | — |
+| app/cbl/CORPT00C.cbl | 404 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/CORPT00C.cbl | 412 | PROCESS-ENTER-KEY | CALL | — |
+| app/cbl/CORPT00C.cbl | 424 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 435 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 442 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 447 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/CORPT00C.cbl | 449 | PROCESS-ENTER-KEY | STRING | — |
+| app/cbl/CORPT00C.cbl | 454 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/CORPT00C.cbl | 465 | SUBMIT-JOB-TO-INTRDR | STRING | — |
+| app/cbl/CORPT00C.cbl | 473 | SUBMIT-JOB-TO-INTRDR | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 481 | SUBMIT-JOB-TO-INTRDR | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 483 | SUBMIT-JOB-TO-INTRDR | PERFORM | — |
 | app/cbl/CORPT00C.cbl | 485 | SUBMIT-JOB-TO-INTRDR | STRING | — |
+| app/cbl/CORPT00C.cbl | 493 | SUBMIT-JOB-TO-INTRDR | PERFORM | — |
+| app/cbl/CORPT00C.cbl | 507 | SUBMIT-JOB-TO-INTRDR | PERFORM | — |
 | app/cbl/CORPT00C.cbl | 517 | WIRTE-JOBSUB-TDQ | EXEC | EXEC CICS |
+| app/cbl/CORPT00C.cbl | 534 | WIRTE-JOBSUB-TDQ | PERFORM | — |
 | app/cbl/CORPT00C.cbl | 548 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/cbl/CORPT00C.cbl | 558 | SEND-TRNRPT-SCREEN | PERFORM | — |
 | app/cbl/CORPT00C.cbl | 563 | SEND-TRNRPT-SCREEN | EXEC | EXEC CICS |
 | app/cbl/CORPT00C.cbl | 571 | SEND-TRNRPT-SCREEN | EXEC | EXEC CICS |
 | app/cbl/CORPT00C.cbl | 580 | SEND-TRNRPT-SCREEN | GO | — |
 | app/cbl/CORPT00C.cbl | 587 | RETURN-TO-CICS | EXEC | EXEC CICS |
 | app/cbl/CORPT00C.cbl | 598 | RECEIVE-TRNRPT-SCREEN | EXEC | EXEC CICS |
 | app/cbl/CORPT00C.cbl | 636 | INITIALIZE-ALL-FIELDS | INITIALIZE | — |
+| app/cbl/COSGN00C.cbl | 83 | MAIN-PARA | PERFORM | — |
+| app/cbl/COSGN00C.cbl | 87 | MAIN-PARA | PERFORM | — |
+| app/cbl/COSGN00C.cbl | 90 | MAIN-PARA | PERFORM | — |
+| app/cbl/COSGN00C.cbl | 94 | MAIN-PARA | PERFORM | — |
 | app/cbl/COSGN00C.cbl | 98 | MAIN-PARA | EXEC | EXEC CICS |
 | app/cbl/COSGN00C.cbl | 110 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
+| app/cbl/COSGN00C.cbl | 122 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COSGN00C.cbl | 127 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COSGN00C.cbl | 139 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COSGN00C.cbl | 147 | SEND-SIGNON-SCREEN | PERFORM | — |
 | app/cbl/COSGN00C.cbl | 151 | SEND-SIGNON-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COSGN00C.cbl | 164 | SEND-PLAIN-TEXT | EXEC | EXEC CICS |
 | app/cbl/COSGN00C.cbl | 171 | SEND-PLAIN-TEXT | EXEC | EXEC CICS |
@@ -1885,70 +2878,308 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 | app/cbl/COSGN00C.cbl | 211 | READ-USER-SEC-FILE | EXEC | EXEC CICS |
 | app/cbl/COSGN00C.cbl | 231 | READ-USER-SEC-FILE | EXEC | EXEC CICS |
 | app/cbl/COSGN00C.cbl | 236 | READ-USER-SEC-FILE | EXEC | EXEC CICS |
+| app/cbl/COSGN00C.cbl | 245 | READ-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COSGN00C.cbl | 251 | READ-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COSGN00C.cbl | 256 | READ-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 109 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 115 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 116 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 118 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 121 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 124 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 126 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 128 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 133 | MAIN-PARA | PERFORM | — |
 | app/cbl/COTRN00C.cbl | 138 | MAIN-PARA | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 192 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
+| app/cbl/COTRN00C.cbl | 217 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 225 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 246 | PROCESS-PF7-KEY | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 251 | PROCESS-PF7-KEY | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 268 | PROCESS-PF8-KEY | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 273 | PROCESS-PF8-KEY | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 281 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 286 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 291 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 297 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 298 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 300 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 308 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 322 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 326 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 335 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 340 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 345 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 351 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 352 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 354 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 360 | PROCESS-PAGE-BACKWARD | PERFORM | — |
 | app/cbl/COTRN00C.cbl | 364 | PROCESS-PAGE-BACKWARD | SUBTRACT | — |
+| app/cbl/COTRN00C.cbl | 371 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 374 | PROCESS-PAGE-BACKWARD | PERFORM | — |
 | app/cbl/COTRN00C.cbl | 518 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COTRN00C.cbl | 529 | SEND-TRNLST-SCREEN | PERFORM | — |
 | app/cbl/COTRN00C.cbl | 534 | SEND-TRNLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 542 | SEND-TRNLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 556 | RECEIVE-TRNLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN00C.cbl | 593 | STARTBR-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN00C.cbl | 611 | STARTBR-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 618 | STARTBR-TRANSACT-FILE | PERFORM | — |
 | app/cbl/COTRN00C.cbl | 626 | READNEXT-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN00C.cbl | 645 | READNEXT-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 652 | READNEXT-TRANSACT-FILE | PERFORM | — |
 | app/cbl/COTRN00C.cbl | 660 | READPREV-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN00C.cbl | 679 | READPREV-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COTRN00C.cbl | 686 | READPREV-TRANSACT-FILE | PERFORM | — |
 | app/cbl/COTRN00C.cbl | 694 | ENDBR-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN01C.cbl | 96 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 107 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 109 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 111 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 114 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 122 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 124 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 127 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 131 | MAIN-PARA | PERFORM | — |
 | app/cbl/COTRN01C.cbl | 136 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/COTRN01C.cbl | 152 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 173 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 191 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/COTRN01C.cbl | 205 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COTRN01C.cbl | 215 | SEND-TRNVIEW-SCREEN | PERFORM | — |
 | app/cbl/COTRN01C.cbl | 219 | SEND-TRNVIEW-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN01C.cbl | 232 | RECEIVE-TRNVIEW-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN01C.cbl | 269 | READ-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN01C.cbl | 288 | READ-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 295 | READ-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 303 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COTRN01C.cbl | 304 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 117 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 128 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 130 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 132 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 135 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 143 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 145 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 147 | MAIN-PARA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 151 | MAIN-PARA | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 156 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/COTRN02C.cbl | 166 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 167 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 172 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 181 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 187 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 202 | VALIDATE-INPUT-KEY-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 208 | VALIDATE-INPUT-KEY-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 216 | VALIDATE-INPUT-KEY-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 222 | VALIDATE-INPUT-KEY-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 229 | VALIDATE-INPUT-KEY-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 257 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 263 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 269 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 275 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 281 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 287 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 293 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 299 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 305 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 311 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 317 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 328 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 334 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 348 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 363 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 378 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 393 | VALIDATE-INPUT-DATA-FIELDS | CALL | — |
+| app/cbl/COTRN02C.cbl | 405 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 413 | VALIDATE-INPUT-DATA-FIELDS | CALL | — |
+| app/cbl/COTRN02C.cbl | 425 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 435 | VALIDATE-INPUT-DATA-FIELDS | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 445 | ADD-TRANSACTION | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 446 | ADD-TRANSACTION | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 447 | ADD-TRANSACTION | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 450 | ADD-TRANSACTION | INITIALIZE | — |
+| app/cbl/COTRN02C.cbl | 466 | ADD-TRANSACTION | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 473 | COPY-LAST-TRAN-DATA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 476 | COPY-LAST-TRAN-DATA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 477 | COPY-LAST-TRAN-DATA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 478 | COPY-LAST-TRAN-DATA | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 495 | COPY-LAST-TRAN-DATA | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 508 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COTRN02C.cbl | 518 | SEND-TRNADD-SCREEN | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 522 | SEND-TRNADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 530 | SEND-TRNADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 541 | RECEIVE-TRNADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 578 | READ-CXACAIX-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN02C.cbl | 596 | READ-CXACAIX-FILE | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 603 | READ-CXACAIX-FILE | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 611 | READ-CCXREF-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN02C.cbl | 629 | READ-CCXREF-FILE | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 636 | READ-CCXREF-FILE | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 644 | STARTBR-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN02C.cbl | 660 | STARTBR-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 667 | STARTBR-TRANSACT-FILE | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 675 | READPREV-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN02C.cbl | 696 | READPREV-TRANSACT-FILE | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 704 | ENDBR-TRANSACT-FILE | EXEC | EXEC CICS |
 | app/cbl/COTRN02C.cbl | 713 | WRITE-TRANSACT-FILE | EXEC | EXEC CICS |
+| app/cbl/COTRN02C.cbl | 725 | WRITE-TRANSACT-FILE | PERFORM | — |
 | app/cbl/COTRN02C.cbl | 728 | WRITE-TRANSACT-FILE | STRING | — |
+| app/cbl/COTRN02C.cbl | 734 | WRITE-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 741 | WRITE-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 748 | WRITE-TRANSACT-FILE | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 756 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COTRN02C.cbl | 757 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 112 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 118 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 119 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 121 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 124 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 127 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 129 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 131 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 136 | MAIN-PARA | PERFORM | — |
 | app/cbl/COUSR00C.cbl | 141 | MAIN-PARA | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 196 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 206 | PROCESS-ENTER-KEY | EXEC | EXEC CICS |
+| app/cbl/COUSR00C.cbl | 228 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 249 | PROCESS-PF7-KEY | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 254 | PROCESS-PF7-KEY | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 271 | PROCESS-PF8-KEY | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 276 | PROCESS-PF8-KEY | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 284 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 289 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 294 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 300 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 301 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 303 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 311 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 325 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 329 | PROCESS-PAGE-FORWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 338 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 343 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 348 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 354 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 355 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 357 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 363 | PROCESS-PAGE-BACKWARD | PERFORM | — |
 | app/cbl/COUSR00C.cbl | 367 | PROCESS-PAGE-BACKWARD | SUBTRACT | — |
+| app/cbl/COUSR00C.cbl | 374 | PROCESS-PAGE-BACKWARD | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 377 | PROCESS-PAGE-BACKWARD | PERFORM | — |
 | app/cbl/COUSR00C.cbl | 514 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COUSR00C.cbl | 524 | SEND-USRLST-SCREEN | PERFORM | — |
 | app/cbl/COUSR00C.cbl | 529 | SEND-USRLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 537 | SEND-USRLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 551 | RECEIVE-USRLST-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR00C.cbl | 588 | STARTBR-USER-SEC-FILE | EXEC | EXEC CICS |
+| app/cbl/COUSR00C.cbl | 606 | STARTBR-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 613 | STARTBR-USER-SEC-FILE | PERFORM | — |
 | app/cbl/COUSR00C.cbl | 621 | READNEXT-USER-SEC-FILE | EXEC | EXEC CICS |
+| app/cbl/COUSR00C.cbl | 640 | READNEXT-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 647 | READNEXT-USER-SEC-FILE | PERFORM | — |
 | app/cbl/COUSR00C.cbl | 655 | READPREV-USER-SEC-FILE | EXEC | EXEC CICS |
+| app/cbl/COUSR00C.cbl | 674 | READPREV-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR00C.cbl | 681 | READPREV-USER-SEC-FILE | PERFORM | — |
 | app/cbl/COUSR00C.cbl | 689 | ENDBR-USER-SEC-FILE | EXEC | EXEC CICS |
+| app/cbl/COUSR01C.cbl | 80 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 87 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 89 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 92 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 95 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 97 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 102 | MAIN-PARA | PERFORM | — |
 | app/cbl/COUSR01C.cbl | 107 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/COUSR01C.cbl | 123 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 129 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 135 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 141 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 147 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 159 | PROCESS-ENTER-KEY | PERFORM | — |
 | app/cbl/COUSR01C.cbl | 175 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COUSR01C.cbl | 186 | SEND-USRADD-SCREEN | PERFORM | — |
 | app/cbl/COUSR01C.cbl | 190 | SEND-USRADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR01C.cbl | 203 | RECEIVE-USRADD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR01C.cbl | 240 | WRITE-USER-SEC-FILE | EXEC | EXEC CICS |
+| app/cbl/COUSR01C.cbl | 252 | WRITE-USER-SEC-FILE | PERFORM | — |
 | app/cbl/COUSR01C.cbl | 255 | WRITE-USER-SEC-FILE | STRING | — |
+| app/cbl/COUSR01C.cbl | 259 | WRITE-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 266 | WRITE-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 273 | WRITE-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 281 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COUSR01C.cbl | 282 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 92 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 103 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 105 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 107 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 110 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 112 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 119 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 121 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 123 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 126 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 130 | MAIN-PARA | PERFORM | — |
 | app/cbl/COUSR02C.cbl | 135 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/COUSR02C.cbl | 151 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 163 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 171 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 185 | UPDATE-USER-INFO | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 191 | UPDATE-USER-INFO | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 197 | UPDATE-USER-INFO | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 203 | UPDATE-USER-INFO | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 209 | UPDATE-USER-INFO | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 217 | UPDATE-USER-INFO | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 237 | UPDATE-USER-INFO | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 242 | UPDATE-USER-INFO | PERFORM | — |
 | app/cbl/COUSR02C.cbl | 258 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COUSR02C.cbl | 268 | SEND-USRUPD-SCREEN | PERFORM | — |
 | app/cbl/COUSR02C.cbl | 272 | SEND-USRUPD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR02C.cbl | 285 | RECEIVE-USRUPD-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR02C.cbl | 322 | READ-USER-SEC-FILE | EXEC | EXEC CICS |
+| app/cbl/COUSR02C.cbl | 339 | READ-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 345 | READ-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 352 | READ-USER-SEC-FILE | PERFORM | — |
 | app/cbl/COUSR02C.cbl | 360 | UPDATE-USER-SEC-FILE | EXEC | EXEC CICS |
 | app/cbl/COUSR02C.cbl | 372 | UPDATE-USER-SEC-FILE | STRING | — |
+| app/cbl/COUSR02C.cbl | 376 | UPDATE-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 382 | UPDATE-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 389 | UPDATE-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 397 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COUSR02C.cbl | 398 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 92 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 103 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 105 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 107 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 110 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 118 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 120 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 122 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 125 | MAIN-PARA | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 129 | MAIN-PARA | PERFORM | — |
 | app/cbl/COUSR03C.cbl | 134 | MAIN-PARA | EXEC | EXEC CICS |
+| app/cbl/COUSR03C.cbl | 150 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 161 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 168 | PROCESS-ENTER-KEY | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 182 | DELETE-USER-INFO | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 190 | DELETE-USER-INFO | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 191 | DELETE-USER-INFO | PERFORM | — |
 | app/cbl/COUSR03C.cbl | 205 | RETURN-TO-PREV-SCREEN | EXEC | EXEC CICS |
+| app/cbl/COUSR03C.cbl | 215 | SEND-USRDEL-SCREEN | PERFORM | — |
 | app/cbl/COUSR03C.cbl | 219 | SEND-USRDEL-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR03C.cbl | 232 | RECEIVE-USRDEL-SCREEN | EXEC | EXEC CICS |
 | app/cbl/COUSR03C.cbl | 269 | READ-USER-SEC-FILE | EXEC | EXEC CICS |
+| app/cbl/COUSR03C.cbl | 286 | READ-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 292 | READ-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 299 | READ-USER-SEC-FILE | PERFORM | — |
 | app/cbl/COUSR03C.cbl | 307 | DELETE-USER-SEC-FILE | EXEC | EXEC CICS |
+| app/cbl/COUSR03C.cbl | 315 | DELETE-USER-SEC-FILE | PERFORM | — |
 | app/cbl/COUSR03C.cbl | 318 | DELETE-USER-SEC-FILE | STRING | — |
+| app/cbl/COUSR03C.cbl | 322 | DELETE-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 328 | DELETE-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 335 | DELETE-USER-SEC-FILE | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 343 | CLEAR-CURRENT-SCREEN | PERFORM | — |
+| app/cbl/COUSR03C.cbl | 344 | CLEAR-CURRENT-SCREEN | PERFORM | — |
 | app/cbl/CSUTLDTC.cbl | 90 | — | INITIALIZE | — |
+| app/cbl/CSUTLDTC.cbl | 93 | — | PERFORM | — |
 | app/cbl/CSUTLDTC.cbl | 116 | A000-MAIN | CALL | — |
 | app/cbl/CSUTLDTC.cbl | 153 | A000-MAIN-EXIT | EXIT | — |
 
@@ -2102,31 +3333,31 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 
 | Program | Tier | Rule that fired |
 | --- | --- | --- |
-| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | MED | `MED: coverage<1.00` |
+| app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | HIGH | `HIGH: coverage<0.80` |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | HIGH | `HIGH: EXEC CICS present` |
-| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | HIGH | `HIGH: coverage<0.80` |
+| app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | BLOCKED | `BLOCKED: coverage<0.60` |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | HIGH | `HIGH: coverage<0.80` |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | HIGH | `HIGH: coverage<0.80` |
-| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | HIGH | `HIGH: EXEC SQL present` |
+| app/app-transaction-type-db2/cbl/COBTUPDT.cbl | BLOCKED | `BLOCKED: coverage<0.60` |
 | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/app-vsam-mq/cbl/COACCT01.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/app-vsam-mq/cbl/CODATE01.cbl | HIGH | `HIGH: EXEC CICS present` |
-| app/cbl/CBACT01C.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBACT02C.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBACT03C.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBACT04C.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBCUS01C.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBEXPORT.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBIMPORT.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBSTM03A.CBL | BLOCKED | `BLOCKED: ALTER present (static control flow is undecidable)` |
+| app/cbl/CBACT01C.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBACT02C.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBACT03C.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBACT04C.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBCUS01C.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBEXPORT.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBIMPORT.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBSTM03A.CBL | BLOCKED | `BLOCKED: coverage<0.60` |
 | app/cbl/CBSTM03B.CBL | BLOCKED | `BLOCKED: coverage<0.60` |
-| app/cbl/CBTRN01C.cbl | MED | `MED: coverage<1.00` |
-| app/cbl/CBTRN02C.cbl | HIGH | `HIGH: cyclomatic>50` |
-| app/cbl/CBTRN03C.cbl | HIGH | `HIGH: cyclomatic>50` |
+| app/cbl/CBTRN01C.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBTRN02C.cbl | HIGH | `HIGH: coverage<0.80` |
+| app/cbl/CBTRN03C.cbl | HIGH | `HIGH: coverage<0.80` |
 | app/cbl/COACTUPC.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/cbl/COACTVWC.cbl | HIGH | `HIGH: EXEC CICS present` |
 | app/cbl/COADM01C.cbl | HIGH | `HIGH: EXEC CICS present` |
@@ -2149,18 +3380,18 @@ Portfolio totals — physical 30175, code 22904, comment 3906, blank 3365, logic
 
 | Tier | Programs |
 | --- | --- |
-| BLOCKED | 2 |
-| HIGH | 32 |
+| BLOCKED | 4 |
+| HIGH | 39 |
 | LOW | 0 |
-| MED | 10 |
+| MED | 1 |
 
 
 ## 9. Migration-scope recommendation
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Quotable-today code lines | 21454 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (1450) across 44 program(s) |
-| Code lines requiring grammar expansion | 1450 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) across 44 program(s) |
+| Quotable-today code lines | 20224 | PLAUSIBLE | code lines (22904) minus lines carrying an unsupported construct (2680) across 44 program(s) |
+| Code lines requiring grammar expansion | 2680 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 44 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -2171,6 +3402,7 @@ Attribution is by source line: a code line requires grammar expansion if it carr
 
 | Construct | Occurrences |
 | --- | --- |
+| PERFORM | 1230 |
 | EXIT | 366 |
 | EXEC | 286 |
 | GO | 185 |
@@ -2413,11 +3645,11 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553)`
+Registry: `SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d)`
 
-Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
+Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM VARYING`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
-Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `SUBTRACT`
+Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-UNSTRING`, `EXIT`, `PERFORM`, `SUBTRACT`
 
 | DATA DIVISION feature | C1 status |
 | --- | --- |
@@ -2449,7 +3681,7 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | platform | Linux |
 | python | 3.11.15 |
 | python-docx | not installed |
-| relian_transpiler | SUPPORTED_STATEMENTS@09ad6ba (c1_rulebased.py sha256:161e0fe892fa7553) |
+| relian_transpiler | SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) |
 | schema | relian-assessment-1 |
 
 

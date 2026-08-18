@@ -59,8 +59,30 @@ result until a candidate clears it on held-out vectors.
 ```bash
 ./scripts/setup/dev-setup.sh
 python examples/migrate.py --source examples/cobol/banking-system.cbl --target java --output ./output/
-python bench/harness/runner.py <candidate>   # score against public vectors
+python scripts/bench_public.py --out /tmp/c1   # score against PUBLIC vectors
 ```
+
+## See it work
+
+```bash
+apt-get install -y gnucobol      # the legacy oracle
+python3 -m demo                  # ~15s
+python3 -m demo --html out/relian.html
+```
+
+`python3 -m demo` runs the shipped assessment engine and the shipped transpiler
+over real COBOL, then builds **both** the original (GnuCOBOL) and the migration
+(javac) and executes them against each other input by input. Equivalence
+requires byte-identical stdout *and* the same process exit code. Every figure it
+prints was produced by a process that ran during that invocation — nothing is
+replayed from a file, and where the legacy side cannot be executed it reports
+equivalence as *not measured* rather than assuming it.
+
+It also runs two programs it is expected to fail on, because what a migration
+tool does outside its depth is the only question that matters. Both get a
+diagnosed refusal naming the verb and the line, emit no Java, and issue no
+attestation — including one that is 93% transpilable, because 93% is not 100%.
+See [`demo/README.md`](demo/README.md).
 
 ## License
 
