@@ -1,13 +1,20 @@
 """Relian API - FastAPI backend for legacy migration platform."""
 
 import os
-from typing import Optional
+from pathlib import Path
+from typing import Any, Optional
 import hashlib
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+# Repository root (…/relian) resolved from this file's location, so the demo
+# assessment endpoint finds the bundled corpus regardless of the CWD uvicorn
+# is launched from.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DEMO_CORPUS = REPO_ROOT / "examples" / "demo"
 
 app = FastAPI(
     title="Relian API",
@@ -98,6 +105,23 @@ class AnalysisResponse(BaseModel):
     risk_score: Optional[float] = None
     risk_level: Optional[str] = None
     recommendations: list = []
+
+
+class AssessmentResponse(BaseModel):
+    """Legacy-code assessment result (read-only, offline).
+
+    `bundle` is the full, measured assessment produced by the assessment
+    engine (src.assessment) — the same object the CLI serialises to
+    assessment.json. Every number inside it already carries a Trutina grade
+    and a provenance string; this endpoint adds no figures of its own.
+    """
+
+    root_label: str
+    report_hash: str
+    schema_version: str
+    programs_assessed: int
+    manifest_files: int
+    bundle: dict
 
 
 class AttestationResponse(BaseModel):
@@ -256,6 +280,62 @@ async def get_attestation(migration_id: str):
         source_hash=job.get("source_hash", ""),
         target_hash=job.get("target_hash", ""),
         timestamp=job.get("attested_at", datetime.now(timezone.utc).isoformat()),
+    )
+
+
+@app.get(
+    "/api/v1/assess/demo",
+    response_model=AssessmentResponse,
+    tags=["Assessment"],
+)
+async def assess_demo():
+    """Assess the bundled Meridian MUD demonstration corpus.
+
+    Runs the read-only, offline assessment engine over ``examples/demo`` — the
+    synthetic COBOL-85 code set that ships with this repository — and returns
+    the measured portfolio result. This is the API equivalent of
+
+        python3 -m src.assessment.cli examples/demo --out <dir>
+
+    Nothing is written to disk and no network or model call is made (R6, R12):
+    customer source stays inside the customer perimeter, and the demo corpus is
+    synthetic so it never leaves it. Every figure in ``bundle`` is measured this
+    run and carries its own Trutina grade and provenance — the endpoint mints no
+    numbers of its own.
+    """
+    # Imported lazily so the rest of the API loads even if the assessment
+    # package (or its optional deps) is unavailable in a given environment.
+    from src.assessment.cli import assess_tree
+    from src.assessment.models import canonical_json
+
+    if not DEMO_CORPUS.is_dir():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Demo corpus not found at {DEMO_CORPUS.as_posix()}",
+        )
+    try:
+        bundle, _by_construct = assess_tree(DEMO_CORPUS)
+    except Exception as e:  # pragma: no cover - surfaced to the client
+        raise HTTPException(status_code=500, detail=f"Assessment failed: {e}")
+
+    payload: dict[str, Any] = bundle.to_dict()
+    # sha256 of this assessment's canonical JSON — the same construction the CLI
+    # uses for assessment.sha256. It reproduces for the same corpus within the
+    # same runtime, but the hashed bundle embeds ``tool_versions`` (invocation,
+    # Python, platform), so a run under uvicorn need NOT byte-match a
+    # ``python -m src.assessment.cli`` run. The corpus-derived measurements are
+    # identical across both; only the recorded invocation differs.
+    report_hash = hashlib.sha256(
+        canonical_json(payload).encode("utf-8")
+    ).hexdigest()
+
+    return AssessmentResponse(
+        root_label="examples/demo",
+        report_hash=report_hash,
+        schema_version=bundle.schema_version,
+        programs_assessed=len(bundle.programs),
+        manifest_files=len(bundle.inventory.records),
+        bundle=payload,
     )
 
 

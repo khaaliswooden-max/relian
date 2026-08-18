@@ -16,6 +16,11 @@ RUN pip install --no-cache-dir .
 # Copy source code
 COPY src ./src
 
+# Copy the Meridian MUD demo corpus so GET /api/v1/assess/demo can assess it.
+# DEMO_CORPUS resolves to /app/examples/demo relative to src/api/main.py; without
+# this the endpoint 404s in the container.
+COPY examples/demo ./examples/demo
+
 # Expose port
 EXPOSE 8000
 

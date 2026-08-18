@@ -5,6 +5,7 @@
 
 import type {
     AnalysisResult,
+    AssessmentResult,
     LanguageMatrix,
     MigrationResult,
     MigrationStart,
@@ -77,6 +78,12 @@ export const api = {
             method: 'POST',
             body: JSON.stringify({ source_code, language }),
         });
+    },
+
+    // Runs the read-only, offline assessment engine over the bundled Meridian
+    // MUD demo corpus (examples/demo) and returns the measured portfolio result.
+    assessDemo(): Promise<AssessmentResult> {
+        return request('/api/v1/assess/demo');
     },
 
     templates(): Promise<{ templates: Template[] }> {

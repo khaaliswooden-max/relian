@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { AnalyzeView } from './views/AnalyzeView';
+import { AssessView } from './views/AssessView';
 import { BenchmarkView } from './views/BenchmarkView';
 import { CapabilitiesView } from './views/CapabilitiesView';
 import { MigrateView } from './views/MigrateView';
 
-type View = 'migrate' | 'analyze' | 'benchmark' | 'capabilities';
+type View = 'migrate' | 'analyze' | 'assess' | 'benchmark' | 'capabilities';
 
 const NAV: { id: View; label: string }[] = [
     { id: 'migrate', label: 'Migrate' },
     { id: 'analyze', label: 'Analyze' },
+    { id: 'assess', label: 'Assess (demo)' },
     { id: 'benchmark', label: 'Benchmark' },
     { id: 'capabilities', label: 'Capabilities' },
 ];
@@ -63,6 +65,7 @@ export function App(): JSX.Element {
             <main className="main">
                 {view === 'migrate' && <MigrateView />}
                 {view === 'analyze' && <AnalyzeView />}
+                {view === 'assess' && <AssessView />}
                 {view === 'benchmark' && <BenchmarkView />}
                 {view === 'capabilities' && <CapabilitiesView />}
             </main>
