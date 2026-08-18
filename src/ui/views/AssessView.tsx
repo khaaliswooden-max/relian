@@ -108,12 +108,12 @@ export function AssessView(): JSX.Element {
                                 value={portfolioCovPct}
                                 unit="%"
                                 digits={1}
-                                grade="PLAUSIBLE"
+                                grade={b.portfolio_coverage.coverage_ratio.grade}
                                 foot={`${b.portfolio_coverage.supported_statements}/${b.portfolio_coverage.total_statements} statements supported`}
                             />
                             <div className="stat">
                                 <div className="stat-title">
-                                    Portfolio risk tier <GradeTag grade="PLAUSIBLE" />
+                                    Portfolio risk tier <GradeTag grade={b.portfolio_risk.grade} />
                                 </div>
                                 <div style={{ paddingTop: '0.5rem' }}>
                                     <TierBadge tier={b.portfolio_risk.tier} />
@@ -123,13 +123,13 @@ export function AssessView(): JSX.Element {
                             <StatTile
                                 title="Quotable-today LOC"
                                 value={b.quotable_loc.value}
-                                grade="PLAUSIBLE"
+                                grade={b.quotable_loc.grade}
                                 foot="Code lines free of any unsupported construct"
                             />
                             <StatTile
                                 title="LOC needing grammar work"
                                 value={b.grammar_expansion_loc.value}
-                                grade="PLAUSIBLE"
+                                grade={b.grammar_expansion_loc.grade}
                                 foot="Lines carrying ≥1 out-of-subset construct"
                             />
                         </div>
@@ -148,6 +148,7 @@ export function AssessView(): JSX.Element {
                                         <th>Program</th>
                                         <th>Risk tier</th>
                                         <th>Coverage</th>
+                                        <th>Grade</th>
                                         <th>Statements</th>
                                         <th>Cyclomatic</th>
                                         <th>Physical LOC</th>
@@ -172,6 +173,11 @@ export function AssessView(): JSX.Element {
                                                 </td>
                                                 <td className="num">
                                                     {cp === null ? '—' : `${cp.toFixed(1)}%`}
+                                                </td>
+                                                <td>
+                                                    <GradeTag
+                                                        grade={p.coverage.coverage_ratio.grade}
+                                                    />
                                                 </td>
                                                 <td className="num">
                                                     {p.coverage.supported_statements}/
@@ -223,9 +229,13 @@ export function AssessView(): JSX.Element {
                     <div className="card">
                         <h2>Provenance</h2>
                         <div className="card-sub">
-                            The report hash is <code>sha256</code> of the canonical assessment JSON —
-                            the same ledger hash the CLI writes. Two runs over the same tree reproduce
-                            it (R8).
+                            The report hash is <code>sha256</code> of this assessment's canonical
+                            JSON. It reproduces for the same corpus within the same runtime. It embeds{' '}
+                            <code>tool_versions</code> (invocation, Python, platform), so it is not
+                            guaranteed to byte-match a <code>python -m src.assessment.cli</code> run —
+                            the corpus measurements are identical either way; only the recorded
+                            invocation differs. The manifest hash below is over the source bytes and
+                            does match (R8).
                         </div>
                         <div className="table-wrap">
                             <table>

@@ -319,8 +319,12 @@ async def assess_demo():
         raise HTTPException(status_code=500, detail=f"Assessment failed: {e}")
 
     payload: dict[str, Any] = bundle.to_dict()
-    # sha256 of the canonical JSON bytes — the same ledger hash the CLI writes to
-    # assessment.sha256. Two runs over the same tree produce the same hash (R8).
+    # sha256 of this assessment's canonical JSON — the same construction the CLI
+    # uses for assessment.sha256. It reproduces for the same corpus within the
+    # same runtime, but the hashed bundle embeds ``tool_versions`` (invocation,
+    # Python, platform), so a run under uvicorn need NOT byte-match a
+    # ``python -m src.assessment.cli`` run. The corpus-derived measurements are
+    # identical across both; only the recorded invocation differs.
     report_hash = hashlib.sha256(
         canonical_json(payload).encode("utf-8")
     ).hexdigest()
