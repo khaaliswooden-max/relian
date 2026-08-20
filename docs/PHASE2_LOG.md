@@ -1982,3 +1982,60 @@ suite exercises. The ten skips are the same ten fixture-shape skips
 `EXPECTED_SKIPS` gates on, listed by `-rs` and unchanged from WP-2.0 §6
 Criterion 4. No demo test skipped, so `cobc` and `javac` were both present and
 the differential comparisons actually ran.
+
+### §5. CI — both workflows green on the runner
+
+Pushed as `8315822`. **This is the first `tests` run in the repository's history
+triggered by a push to a work-package branch** — every previous feature-branch
+`tests` run was `event: pull_request`, which is the defect §1 describes, and the
+run below is the fix demonstrating itself.
+
+| Workflow | Run | Event | Conclusion |
+|---|---|---|---|
+| `tests` (run #15) | https://github.com/khaaliswooden-max/relian/actions/runs/32413435224 | **push** | **success** |
+| `RELIAN-BENCH scoring` (run #139) | https://github.com/khaaliswooden-max/relian/actions/runs/32413435247 | push | **success** |
+
+`tests` — both jobs green. `parser is byte-identical to its grammar` passed
+(`tools/regen_parser.sh --check`, exit 0), and the `pytest` job's gate step
+printed, from the JUnit report rather than from pytest's own summary:
+
+```
+--- measured environment ---
+  python_version: 3.12.14
+  cobc_version: cobc (GnuCOBOL) 3.1.2.0
+  javac_version: javac 21.0.12
+  toolchain_complete: yes
+--- result ---
+  286 passed, 10 skipped, 0 failed, 0 errored
+GATE MET: 286 passed, 10 skipped (expected 10), 0 failed, 0 errored
+```
+
+**`286 passed, 10 skipped, 0 failed` on the runner, agreeing with §4's local
+figure**, and `toolchain_complete: yes` means the ten skips are the fixture-shape
+skips rather than demo tests guarding themselves off. The two environments are
+not byte-identical — CPython 3.12.14 / javac 21.0.12 on the runner against
+3.12.3 / 21.0.10 locally, the patch drift the `java-version: '21'` caveat in the
+WP-2.0.−1 entry §11 predicts — and the triple is the same on both.
+
+`RELIAN-BENCH scoring` — green, including `Score candidate on HELD-OUT split`
+(98s) and the ledger-signature verification that precedes it. The scored figures
+are in that run's `bench_summary.json` artifact and are **deliberately not
+copied into this log**: held-out scoring is CI-only under R3, and nothing this
+work package touches could have moved them — `transpiler/` and `bench/` are
+byte-identical to `main`.
+
+```
+git status --porcelain bench/ transpiler/
+→ (no output)
+git diff --stat origin/main HEAD -- bench/ transpiler/
+→ (no output)
+```
+
+### §6. What this entry did not resolve
+
+- **`bench.yml` still runs held-out scoring on every push to every branch**
+  (§1). Narrowing it is benchmark policy, not housekeeping. **UNRESOLVED —
+  operator's call.**
+- The three residuals inherited from WP-2.0 §11 — gnucobol intake
+  misclassification, the repository not being `black`-formatted, and preprocessor
+  integration — are untouched here and **remain UNRESOLVED**.
