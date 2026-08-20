@@ -402,3 +402,52 @@ pytest -q -rs
 ```
 
 **`288 passed, 10 skipped, 0 failed` — the baseline is preserved exactly.**
+
+---
+
+### 10. CI, measured on the runner
+
+`tests.yml` run 2 (PR #22, head `6578bfb`) — **green**:
+
+```
+--- measured environment ---
+  python_version: 3.12.14
+  platform: Linux-6.17.0-1022-azure-x86_64-with-glibc2.39
+  cobc_version: cobc (GnuCOBOL) 3.1.2.0
+  javac_version: javac 17.0.20
+  toolchain_complete: yes
+--- result ---
+  288 passed, 10 skipped, 0 failed, 0 errored
+GATE MET: 288 passed, 10 skipped (expected 10), 0 failed, 0 errored
+```
+
+`RELIAN-BENCH scoring` is also green on this head.
+
+**Finding — the JDK is NOT actually pinned, and the §3 fixture is what showed
+it.** Three different JDKs have now run this suite:
+
+| Where | `javac` |
+|---|---|
+| Operator's WSL baseline (reported) | 21.0.11 |
+| This container (measured, §2) | 21.0.10 |
+| **GitHub runner (measured, this run)** | **17.0.20** |
+
+`apt-get install default-jdk-headless` resolves to whatever the runner image
+calls default, and on `ubuntu-latest` today that is **Java 17**, not the 21 the
+baseline names. The suite passes on all three, so nothing is broken — but §2 is
+titled "pin the environment", and `requirements.lock` pins only the Python side.
+The JDK is a floating dependency of a differential-equivalence harness whose
+entire job is comparing compiled output.
+
+Not changed here, because the work package specifies the install line verbatim
+(`apt-get install gnucobol default-jdk-headless`). The one-line remedy, for the
+operator to accept or decline, is to name the version:
+
+```yaml
+- uses: actions/setup-java@v4
+  with: {distribution: temurin, java-version: '21'}
+```
+
+Recorded rather than acted on, and worth stating plainly: this is exactly the
+class of drift the session fixture was added to make visible, and it made it
+visible on the first green run.
