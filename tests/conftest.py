@@ -2,9 +2,10 @@
 
 Records the system toolchain the run actually measured into the test report,
 so a result is never separable from the environment that produced it. The
-Phase 2 baseline is quoted as a triple -- ``288 passed, 10 skipped, 0 failed``
--- but that triple only means something alongside the interpreter, GnuCOBOL and
-JDK versions it was measured on, which is what these hooks emit.
+Phase 2 baseline is quoted as a triple -- ``285 passed, 10 skipped, 0 failed``
+as of WP-2.0.-3, previously ``288`` -- but that triple only means something
+alongside the interpreter, GnuCOBOL and JDK versions it was measured on, which
+is what these hooks emit.
 """
 
 from __future__ import annotations

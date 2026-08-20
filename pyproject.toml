@@ -23,12 +23,23 @@ requires-python = ">=3.11"
 # install of the transform path has no business pulling a test runner and three
 # linters.
 #
-# `xgboost` and `numpy` STAY: both are genuinely imported (src/ml/risk_scorer.py,
-# src/intelligence/migration_intelligence.py). `xgboost` is pending a separate
-# disposition -- it is not in the Phase 1/2 transform path, but removing it is
-# not this work package's call.
+# WP-2.0.-3 (2026-08-20): `xgboost` left this list. It was the disposition the
+# note above deferred. Its only two import sites were `src/ml/risk_scorer.py`
+# and `src/intelligence/migration_intelligence.py`, both deleted under R1 --
+# the model was retrained every 20 migrations on feature rows containing
+# `int(p.cyclomatic_complexity * 1.2)` labelled "cognitive (approx)", three
+# hardcoded 0 placeholders, and `p.lines_of_code / max(1, 5)`. A 58 MB wheel
+# and a CUDA-adjacent transitive set, carried into every on-prem install, for a
+# model trained on fabricated inputs. tests/test_no_fabricated_metrics.py fails
+# if it is reintroduced here. See docs/R1_ML_DISPOSITION_2026-08.md.
+#
+# `numpy` NOW HAS ZERO IMPORT SITES for the same reason -- both of its
+# consumers were those same two deleted modules -- and is left declared only
+# because removing it was outside this work package's brief. It is flagged
+# here rather than quietly kept under a justification that no longer holds:
+# on the WP-2.0.-1 precedent (`langchain`, `transformers`, `torch`, `pandas`,
+# all removed for having no import site) it is a candidate for the next pass.
 dependencies = [
-    "xgboost>=2.0.0",
     "numpy>=1.24.0",
     "psycopg2-binary>=2.9.0",
     "fastapi>=0.104.0",
@@ -41,12 +52,26 @@ dependencies = [
 # The toolchain CI installs. `pip install -e ".[dev]"` after `pip install -r
 # requirements.lock` must be a no-op resolution-wise: every name here is pinned
 # in the lock file.
+#
+# WP-2.0.-3: `jupyter`, `ipython` and `pre-commit` moved out of here into the
+# `notebook` extra below. They are authoring tools, not test dependencies --
+# `jupyter` alone dragged ~60 transitive distributions (jupyterlab, notebook,
+# nbconvert, tornado, pyzmq, the whole stack) through the lock file and into
+# every CI run, none of which pytest touches. `dev` is now exactly what the
+# gate needs to run and lint the suite.
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "black>=23.11.0",
     "pylint>=3.0.0",
-    "mypy>=1.7.0",
+    "mypy>=1.7.0"
+]
+
+# Local authoring tools. Deliberately NOT installed by .github/workflows/
+# tests.yml, and deliberately NOT part of the `dev` closure that
+# requirements.lock pins, so neither CI nor a customer-perimeter install pays
+# for them. Install with `pip install -e ".[notebook]"`.
+notebook = [
     "ipython>=8.18.0",
     "jupyter>=1.0.0",
     "pre-commit>=3.5.0"
