@@ -218,26 +218,22 @@ class MigrationOrchestrator:
                 cyclomatic_complexity=_tmp_metrics.cyclomatic_complexity,
                 lines_of_code=_tmp_metrics.lines_of_code,
             )
-            few_shot_context = self._intelligence.build_few_shot_prompt_section(similar_patterns)
-            # Token budget grows as self-financing pool fills up
-            token_budget = self._intelligence.get_token_budget()
-            model_tier = self._intelligence.get_model_recommendation()
+            # NOTE (WP-2.0.-2): the few-shot prompt section and the token
+            # budget existed only to feed the Stage 2 LLM call. With that call
+            # deleted under R6, nothing consumes them, so they are no longer
+            # computed here. `similar_patterns` is retained: it is a local
+            # retrieval over past outcomes and is reported below as a count.
 
-            # Stage 2: Semantic analysis (augmented with few-shot examples)
-            self._update_status(MigrationStatus.ANALYZING, "Analyzing semantics...")
-            analysis = await self._analyze_semantics(
-                ast, source_code,
-                few_shot_context=few_shot_context,
-                token_budget=token_budget,
-            )
-            # NOTE: LLM self-reported confidence is NOT a measurement of
-            # semantic preservation and is no longer stored as one.
-            # semantic_score is set exclusively by Stage 6 differential
-            # validation (behavioral equivalence vs. the legacy oracle).
-            result.warnings.append(
-                f"[analysis] llm_confidence="
-                f"{analysis.get('confidence')} (informational only)"
-            )
+            # Stage 2: REMOVED (WP-2.0.-2, R6).
+            # The generative-AI semantic analysis stage sent customer source
+            # code to a hosted LLM. R6 forbids that in the transform path, so
+            # the stage is gone rather than gated: a flag can be flipped, a
+            # deleted call cannot. semantic_score is therefore None here by
+            # construction and is set exclusively by Stage 6 differential
+            # validation (behavioral equivalence vs. the legacy oracle) --
+            # which is the only measurement of semantic preservation this
+            # pipeline has ever had. LLM self-reported confidence was never
+            # one (R1).
 
             # Stage 3: Risk scoring (auto-retrain if enough new data)
             if self._intelligence.is_retrain_ready():
@@ -258,16 +254,19 @@ class MigrationOrchestrator:
                     f"({config.risk_threshold}). Manual review recommended."
                 )
 
-            # Stage 4: Generate tests
+            # Stage 4: REMOVED (WP-2.0.-2, R6).
+            # LLM test generation shared the same dependency as Stage 2 and
+            # sent customer source code off-perimeter. tests_generated stays 0
+            # and test_coverage stays None by construction. That was already
+            # the honest value: counting generated tests was never a coverage
+            # measurement, and test_coverage is set only when a real coverage
+            # tool (JaCoCo) has run. See RELIAN-BENCH SPEC 5.
             if config.generate_tests:
-                self._update_status(
-                    MigrationStatus.GENERATING_TESTS, "Generating tests..."
+                result.warnings.append(
+                    "[tests] generation stage removed under R6 (WP-2.0.-2); "
+                    "config.generate_tests=True has no effect and "
+                    "test_coverage remains None (not measured)"
                 )
-                tests = await self._generate_tests(ast, source_code)
-                result.tests_generated = len(tests)
-                # test_coverage intentionally left None: counting generated
-                # tests is not a coverage measurement. It is set only when a
-                # real coverage tool (JaCoCo) has run. See RELIAN-BENCH SPEC 5.
 
             # Stage 5: Transform code
             self._update_status(MigrationStatus.TRANSFORMING, "Transforming code...")
@@ -340,9 +339,15 @@ class MigrationOrchestrator:
                     lines_of_code=_tmp_metrics.lines_of_code,
                     cyclomatic_complexity=_tmp_metrics.cyclomatic_complexity,
                     num_goto_statements=_tmp_metrics.num_goto_statements,
-                    key_transformations=analysis.get("key_transformations", []),
-                    business_domain_hints=analysis.get("business_domain_hints", []),
-                    tokens_used=token_budget,
+                    # Both were LLM-derived (Stage 2, removed under R6). No
+                    # non-generative source for them exists yet, so they are
+                    # empty rather than inferred.
+                    key_transformations=[],
+                    business_domain_hints=[],
+                    # Zero, measured: no generative-AI call is made anywhere in
+                    # this pipeline (R6). Recording the old *budget* here would
+                    # have logged an allowance as if it were consumption (R1).
+                    tokens_used=0,
                 )
                 intel_report = self._intelligence.get_report()
                 result.warnings.append(
@@ -383,55 +388,11 @@ class MigrationOrchestrator:
 
         return ast, source_code
 
-    async def _analyze_semantics(
-        self,
-        ast: Any,
-        source_code: str,
-        few_shot_context: str = "",
-        token_budget: int = 4_000,
-    ) -> Dict[str, Any]:
-        """
-        Perform semantic analysis using LLM.
-
-        ``few_shot_context`` is injected at the front of the prompt so the
-        model learns from previous successful migrations (RSI mechanism).
-        ``token_budget`` scales with the self-financing reinvestment pool,
-        so richer analysis becomes available as revenue grows.
-        """
-        try:
-            from src.analysis.semantic import SemanticAnalyzer
-            from src.parsers.base import ASTNode
-
-            analyzer = SemanticAnalyzer()
-            # Build an ASTNode shell if we only have raw source
-            if ast is None:
-                ast = ASTNode(name="root", node_type=None, children=[], metadata={})
-
-            # Inject few-shot context by temporarily patching the prompt builder
-            original_build = analyzer._build_analysis_prompt
-            def patched_build(node, code):
-                base = original_build(node, code)
-                if few_shot_context:
-                    return few_shot_context + "\n\n" + base
-                return base
-            analyzer._build_analysis_prompt = patched_build
-
-            # Honour token budget (clamp to model default if smaller)
-            import inspect
-            if "max_tokens" in inspect.signature(analyzer._call_llm).parameters:
-                analysis = await analyzer.analyze_function(ast, source_code)
-            else:
-                analysis = await analyzer.analyze_function(ast, source_code)
-            return analysis
-        except Exception:
-            # Graceful fallback keeps the pipeline running even without LLM keys
-            return {
-                "purpose": "Legacy business logic module (LLM unavailable)",
-                "confidence": None,   # unmeasured -> None, never a constant
-                "business_rules": [],
-                "key_transformations": [],
-                "business_domain_hints": [],
-            }
+    # _analyze_semantics() was deleted in WP-2.0.-2 (R6). It constructed
+    # src.analysis.semantic.SemanticAnalyzer, which instantiated an OpenAI or
+    # Anthropic client and put customer source code in the prompt. The method
+    # is removed rather than stubbed so that reintroducing the behavior
+    # requires writing it again, in a diff, under review.
 
     async def _score_risk(self, ast: Any, source_code: str) -> Dict[str, Any]:
         """Calculate risk score using ML model."""
@@ -447,23 +408,21 @@ class MigrationOrchestrator:
             # is indistinguishable from a real one downstream.
             return {"overall_score": None, "risk_level": None}
 
-    async def _generate_tests(self, ast: Any, source_code: str) -> List[Any]:
-        """Generate test cases."""
-        try:
-            from src.analysis.test_generator import TestGenerator
-
-            generator = TestGenerator()
-            tests = await generator.generate_tests(ast, source_code, "")
-            return tests
-        except Exception:
-            return []
+    # _generate_tests() was deleted in WP-2.0.-2 (R6), for the same reason as
+    # _analyze_semantics(): src.analysis.test_generator.TestGenerator sent
+    # customer source code to a hosted model.
 
     async def _transform_code(
         self, ast: Any, source_code: str, target_language: str, template: Optional[str]
     ) -> str:
         """Transform source code to target language."""
-        # This is a simplified transformation
-        # In production, this would use sophisticated code generation
+        # Dead prelude, corrected in WP-2.0.-2: the comment that stood here
+        # ("this is a simplified transformation / in production this would use
+        # sophisticated code generation") described a stub that no longer
+        # exists. For Java this dispatches to _transform_to_java, which calls
+        # the real deterministic transpiler (transpiler.c1_rulebased) and
+        # raises rather than emitting a placeholder. The comment was removed
+        # because it understated what ships, which is its own honesty defect.
 
         header = f"""/**
  * Auto-generated by Relian Migration Platform

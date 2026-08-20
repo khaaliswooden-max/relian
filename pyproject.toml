@@ -4,16 +4,18 @@ version = "0.1.0"
 description = "Universal Legacy Refactoring Substrate"
 authors = [{name = "Aldrich Khaalis Wooden, Sr.", email = "akwooden@zuup.io"}]
 requires-python = ">=3.11"
+# R6 (WP-2.0.-2): `openai`, `anthropic` and `neo4j` were removed from this
+# list on 2026-08-20. The first two are generative-AI clients that must not be
+# installable inside a customer perimeter; the third was reachable only from
+# the deleted src/analysis package. tests/test_no_generative_ai_in_transform_path.py
+# fails if any of the three is reintroduced here. See docs/R6_AUDIT_2026-08.md.
 dependencies = [
-    "openai>=1.0.0",
-    "anthropic>=0.7.0",
     "langchain>=0.1.0",
     "transformers>=4.35.0",
     "torch>=2.1.0",
     "xgboost>=2.0.0",
     "pandas>=2.0.0",
     "numpy>=1.24.0",
-    "neo4j>=5.14.0",
     "psycopg2-binary>=2.9.0",
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",
