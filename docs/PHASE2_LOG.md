@@ -1464,11 +1464,27 @@ reproduced §0.2's `11/8/4/8/2/5/1` exactly before anything was changed.
 VERIFIED on all seven; ratio 1.0000 throughout.
 
 **Granularity change, recorded as required:** P04 moves 33 → 34 statements. The
-tree counts the `DISPLAY` in an `AT END DISPLAY`, which the token scan skips
+one extra statement is isolated by differencing the two methods' hit lists on
+that program rather than inferred:
+
+```
+ONLY in antlr_tree : [(54, 'MOVE')]
+ONLY in token_scan : []
+bench/corpus/P04_taxtable/program.cbl:54 →  AT END MOVE 5 TO WS-IDX
+```
+
+It is the `MOVE` in the `SEARCH`'s `AT END` phrase. The token scan skips it
 because `AT` is not a statement-start context — its documented under-count
-(rule 4). The same single-statement difference appears in `FULLSUP.cbl`
-(18 → 19). Everywhere else the two methods agree exactly, which is a real
-cross-validation: the scan and the tree were written independently.
+(rule 4) — and the tree is right: that is a real MOVE statement. The same
+class of difference, on a different verb, appears in `FULLSUP.cbl`
+(18 → 19, `AT END DISPLAY WS-A`). Everywhere else the two methods agree
+exactly, which is a real cross-validation: the scan and the tree were written
+independently.
+
+**Correction:** an earlier draft of this entry attributed P04's extra statement
+to `AT END DISPLAY`, carrying `FULLSUP.cbl`'s example across without measuring
+P04. The mechanism is the same; the verb is `MOVE`, at P04 line 54, as the
+difference above shows.
 
 Determinism (R8), and input identity:
 
@@ -1506,6 +1522,51 @@ diff <(awk '/^### Appendix E/,/^### Appendix F/' docs/dryruns/<run>/assessment.m
 The label moved `5fcbba7` → `4ecfcc7`; the **content hash `a440ac2751bb738d` did
 not**. `transpiler/c1_rulebased.py` is untouched, so the supported set could not
 have moved — and now it is measured, not argued.
+
+**And the same question asked of the counts, not only the set**, because
+"supported" has two readings and only one of them was covered above. The
+`supported_statements` numerator per dry run, read from each report's
+`portfolio_coverage` at `4ecfcc7` and at this commit:
+
+```
+git show <ref>:docs/dryruns/<run>/assessment.json | jq .portfolio_coverage
+```
+
+| dry run | supported before → after | Δ | total before → after | Δ | ratio |
+|---|---|---|---|---|---|
+| `bench_corpus` | 173 → **174** | **+1** | 173 → 174 | +1 | 1.0 → 1.0 |
+| `examples_cobol` | 64 → 64 | 0 | 110 → 110 | 0 | 0.5818 → 0.5818 |
+| `aws_carddemo` | 7058 → 7058 | 0 | 9738 → 9738 | 0 | 0.7248 → 0.7248 |
+| `omp_cobol_course` | 405 → 405 | 0 | 766 → 766 | 0 | 0.5287 → 0.5287 |
+| `gnucobol` | 239 → 239 | 0 | 439 → 439 | 0 | 0.5444 → 0.5444 |
+| **all five** | 7939 → **7940** | **+1** | | | |
+
+**The supported COUNT moved by exactly +1, in one program, and it is the same
+statement as the granularity change in §6** — the `MOVE` at
+`P04_taxtable/program.cbl:54`. Numerator and denominator both rose by one, so
+every ratio is unchanged to four decimal places. Stated plainly rather than
+buried:
+
+* The supported **set** did not move. `transpiler/c1_rulebased.py` is
+  byte-identical across the two commits
+  (`sha256 a440ac2751bb738d…`, `git diff 4ecfcc7 HEAD -- transpiler/ bench/`
+  → empty), and the registry is the same 21 keys.
+* The supported **count** is `|statements recovered ∩ registry|`. It is a
+  function of the registry *and* of how many statements the analyzer recovers.
+  The grammar swap changed recovery by one statement, and that statement's verb
+  (`MOVE`) is in the registry, so the count followed.
+
+So this is not the failure mode the criterion guards against — no capability
+claim widened, no verb became supported that was not supported before. It is
+one previously-missed real statement becoming visible, on the correct side of
+a registry that did not change. Downstream figures for `bench_corpus` confirm
+nothing else moved: `quotable_loc` 384 → 384, `grammar_expansion_loc` 0 → 0,
+`unsupported_inventory` 0 → 0, portfolio risk tier LOW → LOW (7 programs at
+LOW, both times).
+
+**This is an operator call, not one this entry makes.** The criterion says any
+movement in `supported` blocks merge; the movement here is +1 and fully
+accounted for.
 
 Portfolio figures, all five re-run on byte-identical inputs (all five manifest
 hashes match):

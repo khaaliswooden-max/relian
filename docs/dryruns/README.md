@@ -66,9 +66,10 @@ correctly reports zero programs on it.
 
 Only the grade column and the last column moved. Every coverage ratio outside
 `bench_corpus` is unchanged to four decimal places, and `bench_corpus` went from
-173/173 to 174/174 — the tree also counts the `DISPLAY` in an `AT END DISPLAY`,
-which the token scan skips because `AT` is not a statement-start context (its
-documented under-count, rule 4). Coverage is a statement about the transpiler,
+173/173 to 174/174 — the tree also counts the `MOVE` in
+`P04_taxtable/program.cbl:54`, `AT END MOVE 5 TO WS-IDX`, which the token scan
+skips because `AT` is not a statement-start context (its documented
+under-count, rule 4). Coverage is a statement about the transpiler,
 not the parser, so a grammar swap moving it would have been a bug.
 
 Two results are worth reading carefully.
