@@ -2405,50 +2405,64 @@ runner measures.
 
 | Workflow | Commit | Run | Conclusion |
 |---|---|---|---|
+| Workflow | Commit | Run | Conclusion |
+|---|---|---|---|
 | `tests` #19 | `7617fe4` | https://github.com/khaaliswooden-max/relian/actions/runs/32421480377 | **failure** — the planted red of §1 |
 | `tests` #20 | `ea92098` | https://github.com/khaaliswooden-max/relian/actions/runs/32421999807 | **success** — 286/10/0 |
-| `tests` #21 | `a5b4efc` | https://github.com/khaaliswooden-max/relian/actions/runs/32422281011 | partial — see below |
+| `tests` #21 | `a5b4efc` | https://github.com/khaaliswooden-max/relian/actions/runs/32422281011 | **success** — 310/10/0, all three jobs |
 | `RELIAN-BENCH scoring` #143 | `7617fe4` | https://github.com/khaaliswooden-max/relian/actions/runs/32421480561 | success |
 | `RELIAN-BENCH scoring` #144 | `ea92098` | https://github.com/khaaliswooden-max/relian/actions/runs/32421999744 | success |
 | `RELIAN-BENCH scoring` | `c66ef8f`, `a5b4efc` | — | **did not run** |
 
-The last row is §3 taking effect, observable rather than argued: runs #143 and
-#144 scored the held-out split on branch pushes of commits that changed an
-integer in a workflow file and a docstring. After `a5b4efc` narrowed the
-trigger, the same kind of push produced no bench run at all.
+The last row is §3 taking effect, observable rather than argued. Runs #143 and
+#144 fetched the private held-out vectors and scored against them on branch
+pushes of commits that changed, respectively, one integer in a workflow file
+and a workflow comment. After `a5b4efc` narrowed the trigger, the same kind of
+push produced no bench run at all. Held-out scoring now happens on `main`, on
+PRs targeting `main`, and on demand — not on every commit anyone writes.
 
-On `a5b4efc`, two of the three `tests` jobs completed green:
+All three `tests` jobs on `a5b4efc`:
 
-| Job | Conclusion |
-|---|---|
-| `parser is byte-identical to its grammar` | **success** |
-| `bench tree matches its sealed manifest` | **success** — §2's CI output above |
-| `pytest (CPython 3.12, GnuCOBOL + JDK)` | **runner lost** |
+| Job | Duration | Conclusion |
+|---|---|---|
+| `parser is byte-identical to its grammar` | 8s | **success** |
+| `bench tree matches its sealed manifest` | 19s | **success** — §2's output above |
+| `pytest (CPython 3.12, GnuCOBOL + JDK)` | 4m57s | **success** |
 
-#### The `pytest` job on `a5b4efc` lost its runner
+The gate step, from the JUnit report rather than from pytest's own summary:
 
-Called what it is rather than "flaky". The job began `pytest` at 22:01:43 and
-never reported another line, including past its own `timeout-minutes: 30`.
-That timeout is enforced *by the runner*, so a job that sails through it has
-stopped executing rather than failed a check — the runner-loss signature.
+```
+--- measured environment ---
+  python_version: 3.12.14
+  cobc_version: cobc (GnuCOBOL) 3.1.2.0
+  javac_version: javac 21.0.12
+  toolchain_complete: yes
+--- result ---
+  310 passed, 10 skipped, 0 failed, 0 errored
+GATE MET: 310 passed (expected 310), 10 skipped (expected 10), 0 failed, 0 errored
+```
 
-Ruled out as a defect in this work package before being called that, rather
-than after:
+**`310 passed, 10 skipped, 0 failed` on the runner**, both counts now asserted
+rather than one asserted and one narrated. `toolchain_complete: yes` means the
+ten skips are the fixture-shape skips of §4 rather than demo tests guarding
+themselves off, so the differential comparisons actually ran.
 
-- the identical suite completed in **3m56s** on `ea92098` four minutes earlier;
-- the same tree measured locally: **300 passed, 20 skipped, 0 failed in 87.67s**
-  (§4 — 20 rather than 10 skips because this box has no `cobc`);
-- the twenty-four new tests measured in isolation add **~0.4s**; they touch only
-  `tmp_path`, spawn no subprocess and open no socket, so they have no mechanism
-  by which to hang;
-- the two sibling jobs on the same commit, on different runners, finished in
-  19s and 21s.
+#### A measurement caveat about how these were read
 
-Neither a cancel nor a re-run was possible from this session — both returned
-`403 Resource not accessible by integration`, so the token backing this work
-has no `actions: write`. The job was therefore not re-run and no empty commit
-was pushed to kick it. The next real commit (this one) re-runs `tests` on a new
-head, and that result is recorded below.
+The per-job Actions API endpoint served a stale `in_progress` snapshot of the
+`pytest` job on `a5b4efc` for roughly twenty-five minutes after that job had in
+fact completed, at 22:06:10. Polling `actions/jobs/<id>` through that window
+returned a step list frozen at `pytest: in_progress`, including well past the
+job's own `timeout-minutes: 30` — a convincing but false runner-loss signature,
+since that timeout is enforced by the runner. The run-level endpoint and
+`list_workflow_jobs` both had the correct `completed / success` throughout.
+
+Recorded because it is a trap for anyone reading CI state through the API
+rather than the web UI: **one endpoint's `in_progress` is not evidence that a
+job is running.** Cross-check against the run or the job list before concluding
+anything about a job that appears stuck. Commit `b22f6da` reported a runner
+loss on this job on exactly that basis. That was wrong — the run was green —
+and this section supersedes it.
 
 ### §6. What this entry did not resolve
 
