@@ -84,9 +84,18 @@ class MigrationStatusResponse(BaseModel):
     status: str
     source_hash: Optional[str] = None
     target_hash: Optional[str] = None
-    semantic_score: float = 0.0
-    risk_score: float = 0.0
-    test_coverage: float = 0.0
+    # CARDINAL RULE (RELIAN-BENCH): a metric is MEASURED or it is None -- the
+    # same correction AnalysisResponse already carries below.
+    #
+    # These three were `float = 0.0`, which was both an R1 defect and a live
+    # bug: run_migration() writes None into the job dict for every unmeasured
+    # metric (and on the failure path writes None to all three), so building
+    # this model raised a pydantic ValidationError rather than reporting
+    # "not measured". WP-2.0.-3 made risk_score None unconditionally, which
+    # turned that latent 500 into one on every completed migration.
+    semantic_score: Optional[float] = None
+    risk_score: Optional[float] = None
+    test_coverage: Optional[float] = None
     attestation_tx: Optional[str] = None
     output_code: Optional[str] = None
     errors: list = []
@@ -223,9 +232,11 @@ async def get_migration_status(migration_id: str):
         status=job.get("status", "unknown"),
         source_hash=job.get("source_hash"),
         target_hash=job.get("target_hash"),
-        semantic_score=job.get("semantic_score", 0.0),
-        risk_score=job.get("risk_score", 0.0),
-        test_coverage=job.get("test_coverage", 0.0),
+        # No `, 0.0` default: an absent key means the stage never ran, which
+        # is "not measured", not "zero" (R1).
+        semantic_score=job.get("semantic_score"),
+        risk_score=job.get("risk_score"),
+        test_coverage=job.get("test_coverage"),
         attestation_tx=job.get("attestation_tx"),
         output_code=job.get("output_code"),
         errors=job.get("errors", []),
@@ -238,32 +249,39 @@ async def analyze_code(request: AnalysisRequest):
     """
     Analyze source code to extract business logic.
 
-    Returns semantic analysis including business rules, decision trees,
-    edge cases, and risk assessment.
+    Parses the submitted source and reports that the parse succeeded. It
+    returns NO risk figure: this endpoint scores nothing.
+
+    Until WP-2.0.-3 it built `src.ml.risk_scorer.RiskScorer` and returned its
+    `overall_score`, `risk_level` and `recommendations`. That scorer was
+    deleted under R1 -- its confidence was a hardcoded 0.70 on this path and
+    its "200+ metrics" were eighteen fields, several of them derived by
+    multiplying another field by a constant. Substituting a different heuristic
+    here would repeat the defect with new arithmetic, so the fields are None.
+
+    Measured risk lives at `/api/v1/assess/*`, served by the assessment engine
+    (`src.assessment`), where every number carries a Trutina grade and a
+    provenance string (R9). See docs/R1_ML_DISPOSITION_2026-08.md.
     """
     try:
         from src.parsers.cobol import COBOLParser
-        from src.ml.risk_scorer import RiskScorer
 
-        # Parse code
+        # Parse code. The parse is real; nothing downstream of it is scored.
         parser = COBOLParser()
-        ast = parser.parse_string(request.source_code)
-
-        # Calculate risk
-        scorer = RiskScorer()
-        metrics = scorer.extract_metrics(ast, request.source_code)
-        assessment = scorer.score(metrics)
+        parser.parse_string(request.source_code)
 
         return AnalysisResponse(
-            purpose="Static parse + heuristic risk assessment only "
-                    "(LLM semantic analysis not run by this endpoint)",
+            purpose="Static parse only. This endpoint measures nothing: "
+                    "risk scoring was removed under R1 (WP-2.0.-3) and LLM "
+                    "semantic analysis under R6 (WP-2.0.-2). For measured "
+                    "risk use /api/v1/assess/*.",
             business_rules=[],   # empty is honest; canned strings are not
             decision_trees=[],
             edge_cases=[],
             confidence=None,     # unmeasured -> None, never a constant
-            risk_score=assessment.overall_score,
-            risk_level=assessment.risk_level,
-            recommendations=assessment.recommendations,
+            risk_score=None,     # not scored here -- see /api/v1/assess/*
+            risk_level=None,
+            recommendations=[],  # were generated from the deleted heuristic
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")

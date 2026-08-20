@@ -238,10 +238,12 @@ def test_walk_covers_package_inits(entry: str) -> None:
     """The walk must scan package `__init__.py` files, not just leaf modules.
 
     Regression guard for a false negative found by review on PR #21. Importing
-    ``src.ml.risk_scorer`` executes ``src/ml/__init__.py`` first, so a forbidden
-    client placed there is imported at runtime -- but the walk enqueued only
+    ``src.ml.risk_scorer`` executed ``src/ml/__init__.py`` first, so a forbidden
+    client placed there was imported at runtime -- but the walk enqueued only
     leaf modules, so the guard reported clean. A planted `import openai` in
-    `src/ml/__init__.py` passed 5/5 before the fix.
+    `src/ml/__init__.py` passed 5/5 before the fix. (`src/ml` itself was
+    deleted under R1 in WP-2.0.-3; the property it exposed is what matters and
+    is asserted below over the package graph as it stands.)
 
     Asserting the closure is *closed under taking parents* pins the property
     rather than the one package that exposed it: every reachable dotted module
@@ -268,21 +270,44 @@ def test_relative_imports_in_package_inits_resolve() -> None:
     `from .risk_scorer import ...` in `src/ml/__init__.py` into the
     non-existent `src.risk_scorer`. Anything reachable only through a package
     init was silently dropped from the walk.
+
+    That specific file was the fixture until WP-2.0.-3 deleted `src/ml` under
+    R1, at which point the test guarded itself off with a `pytest.skip` and the
+    property stopped being checked at all -- a guard that skips is a guard that
+    is gone, and it would also have drifted tests.yml's pinned skip count. So
+    the assertion now runs over EVERY package init in `src/` that has a
+    relative import, which pins the resolver behaviour itself rather than the
+    one package that happened to expose the bug. It cannot decay into a skip:
+    if `src/` ever holds no such init at all, that is asserted as a failure.
     """
-    init = REPO_ROOT / "src" / "ml" / "__init__.py"
-    if not init.is_file():  # pragma: no cover - package may be removed later
-        pytest.skip("src/ml/__init__.py not present")
-    resolved = _imports_of(init)
-    assert "src.ml.risk_scorer" in resolved, (
-        "`from .risk_scorer import ...` in src/ml/__init__.py resolved to "
-        f"{sorted(resolved)!r}; expected it to include src.ml.risk_scorer"
-    )
-    for name in resolved:
-        if name.startswith("src.") and name.count(".") == 1:
-            assert _module_to_path(name) is not None, (
-                f"relative import resolved to {name!r}, which is not a file "
-                f"in the repo -- the package prefix was computed wrong"
+    checked: List[str] = []
+    for init in sorted(REPO_ROOT.glob("src/**/__init__.py")):
+        package = ".".join(init.relative_to(REPO_ROOT).parent.parts)
+        tree = ast.parse(init.read_text(encoding="utf-8"), filename=str(init))
+        resolved = _imports_of(init)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ImportFrom):
+                continue
+            if node.level != 1 or not node.module:
+                continue
+            expected = f"{package}.{node.module}"
+            assert expected in resolved, (
+                f"`from .{node.module} import ...` in "
+                f"{init.relative_to(REPO_ROOT)} resolved to {sorted(resolved)!r}; "
+                f"expected it to include {expected!r}"
             )
+            assert _module_to_path(expected) is not None, (
+                f"relative import resolved to {expected!r}, which is not a "
+                f"file in the repo -- the package prefix was computed wrong"
+            )
+            checked.append(expected)
+
+    assert checked, (
+        "no package `__init__.py` under src/ contains a relative import, so "
+        "the resolver property went unchecked. This assertion exists because "
+        "the test previously skipped itself when its single fixture "
+        "(src/ml/__init__.py) was deleted; silence is not a pass."
+    )
 
 
 # The probe runs out-of-process for the same reason (a) does: the parent

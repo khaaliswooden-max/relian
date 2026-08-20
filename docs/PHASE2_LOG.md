@@ -1093,3 +1093,123 @@ tree, none was added to `.gitignore`, and no probe code is committed:
 git status --porcelain --ignored | grep -iE "carddemo|grammars-v4|corpora"
 → (no output)
 ```
+
+---
+
+## 2026-08-20 · WP-2.0.−3 · Delete the fabricated-metric ML limb (R1)
+
+- **HEAD at start:** `a32931d` (`Merge pull request #23 from
+  khaaliswooden-max/claude/wp-2-0-0-preflight-1vql0s`), verified equal to
+  `origin/main` — `git rev-parse HEAD origin/main` → both
+  `a32931d02fe94b47f95a891bcd7065e9bdb9f1dd`.
+- **Branch:** `claude/remove-fabricated-metric-ml-hjeio7` · **PR:** #24
+- **Commit:** `2beb579`
+- **Scope guard:** nothing under `bench/`, `transpiler/`, `src/assessment/` or
+  `demo/` was modified. `git status --porcelain bench/ transpiler/
+  src/assessment/ demo/` → no output, at close-out.
+- **Disposition record:** `docs/R1_ML_DISPOSITION_2026-08.md`. This entry
+  records only what was executed and returned; the reasoning lives there.
+
+### §1. Both workflows, measured on the runner
+
+| Workflow | Run | Conclusion | Result line |
+|---|---|---|---|
+| `tests` | [32400032003](https://github.com/khaaliswooden-max/relian/actions/runs/32400032003) (run 9, `pull_request`) | **success** | `GATE MET: 285 passed, 10 skipped (expected 10), 0 failed, 0 errored` |
+| `RELIAN-BENCH scoring` | [32398932208](https://github.com/khaaliswooden-max/relian/actions/runs/32398932208) (run 129, `push`) | **success** | `THRESHOLD MET: n_vectors 425, BER 1.0 >= 0.95, build_rate 1.0 >= 1.0, branch_coverage 0.8854 >= 0.8 (jacoco-0.8.12)` |
+
+Toolchain recorded by the session fixture on the `tests` runner:
+
+```
+python_version: 3.12.14
+cobc_version:   cobc (GnuCOBOL) 3.1.2.0
+javac_version:  javac 21.0.12
+toolchain_complete: yes
+```
+
+`bench` measured the same `cobc (GnuCOBOL) 3.1.2.0` / `javac 21.0.12`, stamped
+into `bench_summary.json` (artifact 9417773004) against ledger
+`relian-bench-v1.2`, manifest `a47305c2…`.
+
+**`tests.yml` cannot run on a feature-branch push.** Its trigger is
+`push: branches: [main]` + `pull_request: branches: [main]`, so the branch push
+started `bench` only; `tests` first ran when PR #24 opened. The two runs are
+therefore against the same `head_sha` (`2beb579`) but different events, which is
+why their run numbers are not adjacent.
+
+### §2. Suite delta
+
+| | Before (`a32931d`) | After (`2beb579`) |
+|---|---|---|
+| passed | 288 | **285** |
+| skipped | 10 | **10** |
+| failed | 0 | **0** |
+
+Net −3 passed: −12 from the deleted `tests/test_ml.py`, +9 from the added
+`tests/test_no_fabricated_metrics.py`. `EXPECTED_SKIPS` is unchanged at 10 and
+still gates — the ten are the fixture-shape skips enumerated in §4 of the
+WP-2.0.−1 entry, not toolchain skips.
+
+The prose triple in `.github/workflows/tests.yml` and `tests/conftest.py` was
+updated from 288 to 285. **The historical entries above this one were not
+touched** — this log is append-only and each entry records what was measured at
+the time it was written.
+
+### §3. Dependency set
+
+`xgboost` removed from `[project.dependencies]`; `jupyter`, `ipython` and
+`pre-commit` moved from the `dev` extra to a new `notebook` extra that CI does
+not install. `requirements.lock` regenerated with the command in its own header.
+
+```
+git show a32931d:requirements.lock | grep -cE '^[a-zA-Z0-9][a-zA-Z0-9._-]*=='
+→ 140
+git show 2beb579:requirements.lock | grep -cE '^[a-zA-Z0-9][a-zA-Z0-9._-]*=='
+→ 38
+```
+
+The CI invariant that `pip install -e ".[dev]"` resolves nothing new after
+`pip install -r requirements.lock` was re-verified in a fresh 3.12 venv:
+`Successfully installed relian-0.1.0` alone, then `pip check` →
+`No broken requirements found.` On the runner the pinned-dependency install step
+took **12s** (17:52:58 → 17:53:10).
+
+### §4. Residual — `numpy` has no import site
+
+```
+grep -rEn "^\s*(import|from)\s+numpy\b" --include="*.py" .
+→ (no output)
+```
+
+Both of its consumers were the two deleted modules. It is **left declared**, as
+removing it was outside this WP's brief; the justification comment in
+`pyproject.toml` was corrected to state that rather than keep the void one. On
+the WP-2.0.−1 precedent (`langchain`, `transformers`, `torch`, `pandas`) it is a
+candidate for the next pass. **UNRESOLVED — operator's call.**
+
+### §5. Guard, planted-red verified
+
+`tests/test_no_fabricated_metrics.py`, 9 tests. Each assertion was broken,
+observed, and reverted before the commit:
+
+| Planted defect | Result |
+|---|---|
+| `src/ml/` recreated with a loadable `risk_scorer.py` | **2 failed** as designed |
+| `src/ml/__pycache__/risk_scorer.cpython-312.pyc` and nothing else | **9 passed** — as designed; the PEP 420 namespace-shell false positive is correctly classified clean |
+| `xgboost>=2.0.0` re-added to `pyproject.toml` | **1 failed** as designed |
+| `import xgboost as xgb` inside `_score_risk`'s body | **2 failed** as designed |
+| `_score_risk` returning `{"overall_score": 42.0, "risk_level": "medium"}` | **1 failed** as designed |
+| `intelligence=None` re-added to `MigrationOrchestrator.__init__` | **1 failed** as designed |
+
+All reverted; 9/9 green afterwards, and the full suite green as recorded in §1.
+
+### §6. A guard repaired rather than lost
+
+`test_no_generative_ai_in_transform_path.py::test_relative_imports_in_package_inits_resolve`
+used `src/ml/__init__.py` as its only fixture behind
+`if not init.is_file(): pytest.skip(...)`. Deleting `src/ml` would have turned
+an R6 regression guard into a permanent silent skip **and** drifted the skip
+count to 11, failing the gate — the gate would have caught it, but the honest
+fix is not to raise `EXPECTED_SKIPS`. The assertion now runs over every package
+`__init__.py` under `src/` carrying a relative import (`src/core`,
+`src/parsers`, `src/blockchain`, `src/generators`) and asserts non-empty, so it
+pins the resolver property itself and cannot decay into a skip again.

@@ -4,7 +4,13 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     288 passed, 10 skipped, 0 failed
+#     285 passed, 10 skipped, 0 failed
+#
+# (WP-2.0.-3, 2026-08-20: was 288. Net -3 -- tests/test_ml.py went with the
+# deleted fabricated-metric ML limb (-12) and tests/test_no_fabricated_metrics.py
+# arrived to guard it (+9). See docs/R1_ML_DISPOSITION_2026-08.md. Only the SKIP
+# count is asserted mechanically, below; the pass count is prose, kept accurate
+# so a reader can tell at a glance whether a run drifted.)
 #
 # The skip count is asserted, not merely reported, and that is the whole point.
 # The demo tests skip themselves when GnuCOBOL or the JDK is missing (see

@@ -10,8 +10,6 @@ from enum import Enum
 
 _logger = logging.getLogger(__name__)
 
-from src.intelligence.migration_intelligence import MigrationIntelligence
-
 
 class MigrationStatus(Enum):
     """Migration pipeline status."""
@@ -115,14 +113,18 @@ class MigrationOrchestrator:
     7. Blockchain attestation → Immutable proof
     """
 
-    def __init__(self, intelligence: Optional[MigrationIntelligence] = None):
-        """Initialize orchestrator with required components."""
+    def __init__(self) -> None:
+        """Initialize orchestrator with required components.
+
+        The `intelligence` parameter was removed in WP-2.0.-3 (R1) along with
+        `src/intelligence`. It injected a MigrationIntelligence instance whose
+        RSI loop retrained an XGBoost model on fabricated feature rows. See
+        docs/R1_ML_DISPOSITION_2026-08.md.
+        """
         self._parsers: Dict[str, Any] = {}
         self._templates: Dict[str, Any] = {}
         self._current_status = MigrationStatus.PENDING
         self._progress_callbacks: List[Any] = []
-        # RSI + self-financing engine — persists across migrations
-        self._intelligence = intelligence or MigrationIntelligence()
 
     def register_parser(self, language: str, parser: Any) -> None:
         """Register a language parser."""
@@ -207,22 +209,13 @@ class MigrationOrchestrator:
             ast, source_code = await self._parse_source(config)
             result.source_hash = hashlib.sha256(source_code.encode()).hexdigest()
 
-            # --- RSI: retrieve similar past patterns as few-shot context ---
-            from src.ml.risk_scorer import RiskScorer
-            _tmp_scorer = RiskScorer()
-            _tmp_metrics = _tmp_scorer.extract_metrics(ast, source_code)
-            similar_patterns = self._intelligence.retrieve_similar_patterns(
-                source_language=config.source_language,
-                target_language=config.target_language,
-                template=config.template,
-                cyclomatic_complexity=_tmp_metrics.cyclomatic_complexity,
-                lines_of_code=_tmp_metrics.lines_of_code,
-            )
-            # NOTE (WP-2.0.-2): the few-shot prompt section and the token
-            # budget existed only to feed the Stage 2 LLM call. With that call
-            # deleted under R6, nothing consumes them, so they are no longer
-            # computed here. `similar_patterns` is retained: it is a local
-            # retrieval over past outcomes and is reported below as a count.
+            # RSI pattern retrieval: REMOVED (WP-2.0.-3, R1).
+            # `MigrationIntelligence.retrieve_similar_patterns()` ranked past
+            # migrations for few-shot injection. Its last consumer -- the
+            # Stage 2 LLM call -- was already gone under R6, leaving only a
+            # count printed into the warnings. The metrics it ranked on came
+            # from RiskScorer.extract_metrics(), whose "cognitive complexity"
+            # was cyclomatic * 1.2. Both the scorer and the store are deleted.
 
             # Stage 2: REMOVED (WP-2.0.-2, R6).
             # The generative-AI semantic analysis stage sent customer source
@@ -235,15 +228,12 @@ class MigrationOrchestrator:
             # pipeline has ever had. LLM self-reported confidence was never
             # one (R1).
 
-            # Stage 3: Risk scoring (auto-retrain if enough new data)
-            if self._intelligence.is_retrain_ready():
-                try:
-                    from src.ml.risk_scorer import RiskScorer as _RS
-                    _scorer_for_retrain = _RS()
-                    if self._intelligence.retrain_risk_model(_scorer_for_retrain):
-                        self._risk_scorer_override = _scorer_for_retrain
-                except Exception:
-                    pass
+            # Stage 3: Risk scoring.
+            # The auto-retrain hook that stood here (is_retrain_ready() ->
+            # retrain_risk_model()) was removed in WP-2.0.-3 (R1): it retrained
+            # XGBoost every RETRAIN_INTERVAL=20 migrations on rows whose
+            # features were fabricated. `_score_risk` now returns None for both
+            # keys, permanently and by construction -- see its docstring.
             risk_assessment = await self._score_risk(ast, source_code)
             result.risk_score = risk_assessment.get("overall_score")
 
@@ -326,39 +316,15 @@ class MigrationOrchestrator:
                 datetime.now(timezone.utc) - start_time
             ).total_seconds()
 
-            # --- RSI + Self-Financing: record outcome so future migrations learn ---
-            try:
-                self._intelligence.record_outcome(
-                    migration_id=result.migration_id,
-                    source_language=config.source_language,
-                    target_language=config.target_language,
-                    template=config.template,
-                    semantic_score=result.semantic_score,
-                    risk_score=result.risk_score,
-                    test_coverage=result.test_coverage,
-                    lines_of_code=_tmp_metrics.lines_of_code,
-                    cyclomatic_complexity=_tmp_metrics.cyclomatic_complexity,
-                    num_goto_statements=_tmp_metrics.num_goto_statements,
-                    # Both were LLM-derived (Stage 2, removed under R6). No
-                    # non-generative source for them exists yet, so they are
-                    # empty rather than inferred.
-                    key_transformations=[],
-                    business_domain_hints=[],
-                    # Zero, measured: no generative-AI call is made anywhere in
-                    # this pipeline (R6). Recording the old *budget* here would
-                    # have logged an allowance as if it were consumption (R1).
-                    tokens_used=0,
-                )
-                intel_report = self._intelligence.get_report()
-                result.warnings.append(
-                    f"[Intelligence] model={intel_report.model_tier}, "
-                    f"few_shot_examples={len(similar_patterns)}, "
-                    f"patterns_in_memory={intel_report.migrations_in_memory}, "
-                    f"avg_quality_last_10={intel_report.avg_semantic_score_last_10:.1f}%, "
-                    f"reinvestment_pool=${intel_report.reinvestment_pool_usd:.2f}"
-                )
-            except Exception as _ie:
-                result.warnings.append(f"[Intelligence] record skipped: {_ie}")
+            # RSI outcome recording: REMOVED (WP-2.0.-3, R1).
+            # `record_outcome()` wrote each migration into a persistent pattern
+            # store that doubled as the XGBoost training set, and booked
+            # revenue as lines_of_code x a per-tier price. The honesty guard it
+            # carried (unmeasured -> no write) was correct as far as it went,
+            # but it guarded the entry to a loop whose feature rows were
+            # fabricated regardless. The store, the loop and the model are
+            # gone; nothing replaces them until RELIAN-BENCH covers migration
+            # outcomes and labelled data exists to train on (R7).
 
             self._update_status(
                 MigrationStatus.COMPLETED,
@@ -395,18 +361,34 @@ class MigrationOrchestrator:
     # requires writing it again, in a diff, under review.
 
     async def _score_risk(self, ast: Any, source_code: str) -> Dict[str, Any]:
-        """Calculate risk score using ML model."""
-        try:
-            from src.ml.risk_scorer import RiskScorer
+        """Risk is not scored in this pipeline. Both keys are None (R1).
 
-            scorer = RiskScorer()
-            metrics = scorer.extract_metrics(ast, source_code)
-            assessment = scorer.score(metrics)
-            return assessment.to_dict()
-        except Exception:
-            # Unmeasurable risk is None, not "medium". A made-up midpoint
-            # is indistinguishable from a real one downstream.
-            return {"overall_score": None, "risk_level": None}
+        This used to construct ``src.ml.risk_scorer.RiskScorer`` and return its
+        assessment. That path was deleted in WP-2.0.-3: the scorer attached a
+        hardcoded ``confidence`` (0.85 with a loaded model, 0.70 without) to a
+        weighted-sum heuristic, and advertised "200+ metrics" over eighteen
+        fields. None of it was measured, so none of it may be reported (R1).
+
+        ``{"overall_score": None, "risk_level": None}`` is not a new failure
+        mode -- it was already this method's exception path, taken whenever the
+        scorer raised. It is now the permanent, honest value, returned
+        unconditionally rather than as a fallback. A None that always means
+        "not measured" is worth more than a number that sometimes does.
+
+        The real, measured risk product is ``src/assessment/risk.py``: rule-
+        based tiering over the assessment engine's own inventory, with a
+        Trutina grade and a provenance string on every figure (R9). It is
+        reached through the assessment CLI and ``/api/v1/assess``, not here.
+
+        Args:
+            ast: Parsed AST; accepted so the pipeline's call shape is unchanged.
+            source_code: Raw source; likewise unused.
+
+        Returns:
+            ``{"overall_score": None, "risk_level": None}``, always.
+        """
+        del ast, source_code  # unused: nothing here is measured
+        return {"overall_score": None, "risk_level": None}
 
     # _generate_tests() was deleted in WP-2.0.-2 (R6), for the same reason as
     # _analyze_semantics(): src.analysis.test_generator.TestGenerator sent
