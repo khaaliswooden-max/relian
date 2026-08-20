@@ -10,8 +10,11 @@
 3. NEVER remove or weaken the `simulated` flag on attestations, the
    measured-only gate before attestation, or the honesty guard in
    `migration_intelligence.record_outcome`.
-4. NEVER edit files under `bench/` (corpus, harness, LEDGER). Benchmark
-   changes require a new signed version by the operator (ZCS-6 Phase 4).
+4. NEVER edit files under `bench/` (corpus, harness, LEDGER). NEVER edit files
+   under `discovery-bench/` once the tag `relian-discovery-bench-v0.1` exists —
+   before that tag it is authorable; after it, it is frozen identically to
+   `bench/`. Benchmark changes require a new signed version by the operator
+   (ZCS-6 Phase 4).
 5. NEVER restore case studies, metrics, or status claims to README that are
    not backed by a measured result recorded in `results/`.
 

@@ -1,5 +1,47 @@
 name: RELIAN-BENCH scoring
-on: [push, pull_request]
+
+# The trigger, and why it was narrowed (WP-2.0.2, 2026-08-20).
+#
+# This read `on: [push, pull_request]` -- every push to every branch fetched the
+# private held-out vectors and scored the transpiler against them.
+#
+# The reason for narrowing it is NOT runner minutes. Recording that reason
+# wrongly is how this gets reverted in six months by whoever wants faster
+# feedback, so it is recorded properly here:
+#
+#   Held-out scoring on every push turns the held-out set into a dev set. A
+#   score that comes back on every commit is a feedback channel, and a feedback
+#   channel is something you can iterate against one commit at a time WITHOUT
+#   EVER INTENDING TO. Nudge a rounding mode, push, read the BER; nudge it
+#   back, push, read it again. Nobody has to look at a single held-out vector
+#   for the held-out set to stop measuring generalisation -- the scalar leaks
+#   the information one bit at a time, and after enough commits the transpiler
+#   has been fitted to vectors it was never allowed to see.
+#
+#   That is Goodhart's law arriving through CI configuration rather than
+#   through anybody's intent, and it is the exact failure R3 and the
+#   pre-commit sealing ordering exist to prevent. Those controls govern who may
+#   READ the vectors; this one governs how often anyone may ASK them a
+#   question. Both are needed, because a sufficiently high query rate defeats
+#   the read restriction on its own.
+#
+# `workflow_dispatch` is kept deliberately: on-demand re-verification without a
+# push is what the WP-2.1 key session will need, and removing the push trigger
+# without it would have replaced one problem with an inability to re-verify at
+# all.
+#
+# THE COST, stated rather than glossed: a branch that breaks the bench harness
+# now surfaces at PR time instead of push time. That is a real loss of feedback
+# speed for harness work, and it is accepted -- an intact held-out set is worth
+# more than an earlier red tick, and `workflow_dispatch` buys the feedback back
+# for anyone who wants it on a specific commit.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
 jobs:
   bench:
     runs-on: ubuntu-latest
