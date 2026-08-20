@@ -59,19 +59,57 @@ sealer so the common invocation is short, but they are defaults, not
 attestations -- pass them explicitly if you want the walk to be your claim
 rather than this file's.
 
+This limitation is RECORDED, NOT RETROFITTED. v1.2 is signed; teaching this
+verifier to guess what v1.2 meant would be inventing an attestation the signer
+never made. The argument path below stays exactly as it was, and stays the only
+path available for v1.2.
+
+`--from-manifest`, AND WHY IT IS THE RIGHT WAY ROUND (WP-2.1, D12)
+------------------------------------------------------------------
+The RELIAN-DISCOVERY-BENCH v0.1 manifest records its own `include_rules` and
+`expected_absent` INSIDE the signed payload. `--from-manifest` reads them from
+there, so verification needs no argument beyond `--ledger`.
+
+The difference is not ergonomic. With rules on the command line, the person
+running the check decides what counts as included and what is allowed to be
+missing -- so a dropped `--include-dirs` silently narrows the claim, and an
+`--expect-absent` pattern invented at the prompt excuses whatever happens not
+to be there. With rules in the payload, both are declared by the SIGNER and
+covered by the signature: changing either changes `manifest_sha256` and breaks
+it. An absence should be something the signer admitted to, not something the
+verifier was told to overlook.
+
+Under `--from-manifest`, `--root` defaults to the directory holding the ledger,
+because that is where a self-describing manifest's paths are relative to.
+
 A SECOND LIMITATION, IN THE SIGNATURE ITSELF
 --------------------------------------------
 Layer 3 verifies with the public key EMBEDDED IN THE MANIFEST. That proves the
 manifest is internally consistent and self-signed; it does not prove who signed
 it. Anyone can re-sign an edited manifest with a key they generated and it will
-verify. Pass `--key-fingerprint` (or `--public-key-hex`) to pin the expected
-signer; without a pin, layer 3 says so in its output rather than overclaiming.
+verify -- and layers 1 and 2 pass too, because a forger who re-seals a tree
+they control has every hash internally consistent. Pinning the expected signer
+is the ONLY layer that catches it. Pass `--pin-fingerprint` (equivalently
+`--key-fingerprint`, kept for the existing v1.2 invocation) or
+`--public-key-hex`; without a pin, layer 3 says so in its output rather than
+overclaiming.
+
+`tests/test_seal.py::test_resigned_forgery_passes_three_layers_and_fails_the_pin`
+is the proof: it re-signs a valid manifest with an ephemeral attacker key and
+asserts all three layers pass while the pin fails.
 
 USAGE
 -----
+    # v1.2 -- rules on the command line, because the manifest does not carry them
     python3 tools/verify_manifest.py \
         --ledger bench/LEDGER_relian-bench-v1.2.json \
-        --root bench --include-dirs corpus,harness --include-files SPEC.md
+        --root bench --include-dirs corpus,harness --include-files SPEC.md \
+        --pin-fingerprint 233bb4406e2de606
+
+    # v0.1 discovery bench -- rules come out of the signed payload
+    python3 tools/verify_manifest.py \
+        --ledger discovery-bench/LEDGER_relian-discovery-bench-v0.1.json \
+        --from-manifest --pin-fingerprint 233bb4406e2de606
 
 Exit status is 0 only if all three layers pass. `--json` writes a
 machine-readable report to stdout instead of the human one.
@@ -173,6 +211,61 @@ def walk_include_set(root: Path, rules: WalkRules) -> List[str]:
 def matches_any(path: str, patterns: Iterable[str]) -> bool:
     """fnmatch semantics -- note `*` crosses `/`, unlike gitignore."""
     return any(fnmatch.fnmatch(path, pattern) for pattern in patterns)
+
+
+class SelfDescriptionError(ValueError):
+    """The manifest was asked for its own rules and does not carry them."""
+
+
+def rules_from_manifest(
+    manifest: Dict[str, Any]
+) -> "tuple[WalkRules, List[str]]":
+    """Read `include_rules` and `expected_absent` out of the signed payload.
+
+    Both keys live inside the region covered by `manifest_hash()`, so a
+    manifest cannot claim one include set while having been sealed under
+    another without breaking its own signature.
+
+    Raises `SelfDescriptionError` for a manifest that does not self-describe --
+    v1.2, in particular. That is a refusal, not a fallback: silently reverting
+    to the transcribed defaults would let `--from-manifest` report a walk the
+    signer never attested to, under a flag whose entire promise is that the
+    signer did.
+    """
+    rules = manifest.get("include_rules")
+    if not isinstance(rules, dict):
+        raise SelfDescriptionError(
+            "this manifest records no `include_rules`, so its include set "
+            "cannot be read from the signed payload. That is the v1.2 format "
+            "limitation, and it is recorded rather than worked around: pass "
+            "--include-dirs / --include-files / --expect-absent explicitly, "
+            "and understand that the walk is then YOUR claim, not the "
+            "signer's."
+        )
+    if "expected_absent" not in manifest:
+        raise SelfDescriptionError(
+            "this manifest records `include_rules` but no `expected_absent`. "
+            "An absence that the signer did not declare is not an absence this "
+            "verifier will excuse."
+        )
+    expect_absent = manifest.get("expected_absent") or []
+    if not isinstance(expect_absent, list):
+        raise SelfDescriptionError("`expected_absent` is not a list")
+
+    return (
+        WalkRules(
+            include_dirs=tuple(rules.get("dirs", ())),
+            include_files=tuple(rules.get("files", ())),
+            exclude_suffixes=tuple(rules.get("exclude_suffix", ())),
+            exclude_path_parts=tuple(rules.get("exclude_names", ())),
+            # The discovery sealer has no basename-exclusion rule; v1.2's
+            # EXCLUDE_BINARIES has no counterpart in the recorded format, and
+            # inventing one here would be exactly the retrofit this flag
+            # exists to avoid.
+            exclude_basenames=(),
+        ),
+        [str(pattern) for pattern in expect_absent],
+    )
 
 
 # --- Layer results ---------------------------------------------------------
@@ -421,7 +514,7 @@ def check_signature(manifest, key_fingerprint=None, public_key_hex=None) -> Laye
 
 def verify(
     ledger: Path,
-    root: Path,
+    root: Optional[Path] = None,
     include_dirs: Sequence[str] = ("corpus", "harness"),
     include_files: Sequence[str] = ("SPEC.md",),
     exclude_suffixes: Sequence[str] = DEFAULT_EXCLUDE_SUFFIXES,
@@ -430,26 +523,23 @@ def verify(
     expect_absent: Sequence[str] = (),
     key_fingerprint: Optional[str] = None,
     public_key_hex: Optional[str] = None,
+    from_manifest: bool = False,
 ) -> Report:
-    """Run all three layers. The returned Report is falsy unless all pass."""
+    """Run all three layers. The returned Report is falsy unless all pass.
+
+    With `from_manifest=True` the include rules and `expected_absent` are read
+    from the signed payload instead of from these arguments, and `root`
+    defaults to the ledger's own directory.
+    """
     report = Report()
-    ledger, root = Path(ledger), Path(root)
+    ledger = Path(ledger)
     report.context = {
         "ledger": str(ledger),
-        "root": str(root),
-        "include_dirs": list(include_dirs),
-        "include_files": list(include_files),
-        "exclude_suffixes": list(exclude_suffixes),
-        "exclude_path_parts": list(exclude_path_parts),
-        "exclude_basenames": list(exclude_basenames),
-        "expect_absent": list(expect_absent),
+        "rules_source": "manifest" if from_manifest else "arguments",
     }
 
     if not ledger.is_file():
         report.fatal = f"ledger not found: {ledger}"
-        return report
-    if not root.is_dir():
-        report.fatal = f"root is not a directory: {root}"
         return report
     try:
         manifest = json.loads(ledger.read_text(encoding="utf-8"))
@@ -460,12 +550,50 @@ def verify(
         report.fatal = "ledger JSON is not an object"
         return report
 
+    if from_manifest:
+        try:
+            manifest_rules, manifest_absent = rules_from_manifest(manifest)
+        except SelfDescriptionError as exc:
+            report.fatal = f"--from-manifest: {exc}"
+            return report
+        include_dirs = manifest_rules.include_dirs
+        include_files = manifest_rules.include_files
+        exclude_suffixes = manifest_rules.exclude_suffixes
+        exclude_path_parts = manifest_rules.exclude_path_parts
+        exclude_basenames = manifest_rules.exclude_basenames
+        expect_absent = manifest_absent
+        if root is None:
+            # A self-describing manifest's paths are relative to the tree it
+            # seals, and the ledger is written at that tree's root.
+            root = ledger.resolve().parent
+
+    if root is None:
+        report.fatal = (
+            "--root is required unless --from-manifest can supply it"
+        )
+        return report
+    root = Path(root)
+    report.context.update({
+        "root": str(root),
+        "include_dirs": list(include_dirs),
+        "include_files": list(include_files),
+        "exclude_suffixes": list(exclude_suffixes),
+        "exclude_path_parts": list(exclude_path_parts),
+        "exclude_basenames": list(exclude_basenames),
+        "expect_absent": list(expect_absent),
+    })
+    if not root.is_dir():
+        report.fatal = f"root is not a directory: {root}"
+        return report
+
     report.context.update({
         "benchmark": manifest.get("benchmark"),
         "version": manifest.get("version"),
         "tag": manifest.get("tag"),
         "committed_at": manifest.get("committed_at"),
         "file_count": manifest.get("file_count"),
+        "oracle_toolchain": manifest.get("oracle_toolchain"),
+        "corpus_counts": manifest.get("corpus_counts"),
     })
 
     rules = WalkRules(include_dirs, include_files, exclude_suffixes,
@@ -512,9 +640,20 @@ def render(report: Report) -> str:
                f"path parts {list(ctx['exclude_path_parts'])}, "
                f"basenames {list(ctx['exclude_basenames'])}")
     out.append(f"  expect absent : {', '.join(ctx['expect_absent']) or '(none)'}")
-    out.append("  NOTE: the v1.2 manifest does not record its own include/exclude")
-    out.append("        rules, so the four lines above are arguments to this run,")
-    out.append("        not attestations from the signed manifest.")
+    if ctx.get("rules_source") == "manifest":
+        out.append("  rules source  : THE SIGNED MANIFEST (--from-manifest)")
+        out.append("        The four lines above were declared by the signer and are")
+        out.append("        covered by the signature, not asserted by this run.")
+        if ctx.get("oracle_toolchain"):
+            out.append(f"  oracle cobc   : {ctx['oracle_toolchain']}")
+        if ctx.get("corpus_counts"):
+            out.append(f"  corpus counts : {ctx['corpus_counts']}")
+    else:
+        out.append("  rules source  : THIS COMMAND LINE")
+        out.append("        The v1.2 manifest does not record its own include/exclude")
+        out.append("        rules, so the four lines above are arguments to this run,")
+        out.append("        not attestations from the signed manifest. That is a")
+        out.append("        format limitation of v1.2, recorded rather than retrofitted.")
 
     for index, layer in enumerate(report.layers, start=1):
         out.append("")
@@ -592,8 +731,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     parser.add_argument("--ledger", required=True, type=Path,
                         help="path to the LEDGER_*.json manifest")
-    parser.add_argument("--root", required=True, type=Path,
-                        help="directory the manifest's paths are relative to")
+    parser.add_argument("--root", type=Path, default=None,
+                        help="directory the manifest's paths are relative to. "
+                             "Required unless --from-manifest, which defaults "
+                             "it to the ledger's own directory.")
+    parser.add_argument("--from-manifest", action="store_true",
+                        help="read include_rules and expected_absent out of "
+                             "the SIGNED payload instead of from arguments, so "
+                             "the include set and the declared absences are the "
+                             "signer's claim rather than the caller's. Refuses "
+                             "on a manifest that does not self-describe (v1.2) "
+                             "rather than silently falling back to defaults.")
     parser.add_argument("--include-dirs", default="corpus,harness",
                         help="comma-separated dirs under --root that the seal covers")
     parser.add_argument("--include-files", default="SPEC.md",
@@ -612,9 +760,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                              "that are expected NOT to exist in this perimeter. "
                              "They are reported as unverified, never as verified, "
                              "and are not read. Note `*` crosses `/`.")
-    parser.add_argument("--key-fingerprint", default=None,
+    # --pin-fingerprint is the name WP-2.1 specifies; --key-fingerprint is
+    # the spelling the existing v1.2 CI invocation already uses. Same dest, so
+    # either works and neither breaks the other.
+    parser.add_argument("--pin-fingerprint", "--key-fingerprint",
+                        dest="key_fingerprint", default=None,
                         help="pin the expected signer (first 16 hex chars of "
-                             "sha256 over the raw public key)")
+                             "sha256 over the raw public key). Without it, "
+                             "layer 3 proves the manifest is self-signed but "
+                             "not WHO signed it: a forgery re-signed under an "
+                             "attacker's own key passes all three layers.")
     parser.add_argument("--public-key-hex", default=None,
                         help="pin the expected signer's raw Ed25519 public key")
     parser.add_argument("--json", action="store_true",
@@ -624,6 +779,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     report = verify(
         ledger=args.ledger,
         root=args.root,
+        from_manifest=args.from_manifest,
         include_dirs=_split(args.include_dirs),
         include_files=_split(args.include_files),
         exclude_suffixes=_split(args.exclude_suffixes),

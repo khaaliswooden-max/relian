@@ -1,0 +1,4738 @@
+{
+  "agreement": {
+    "mismatches": 0,
+    "per_copybook": {
+      "D01_display.cpy": {
+        "checks": 12,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D02_binary.cpy": {
+        "checks": 13,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D03_packed.cpy": {
+        "checks": 13,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D04_sign.cpy": {
+        "checks": 8,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D05_occurs.cpy": {
+        "checks": 18,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D06_occurs_nested.cpy": {
+        "checks": 27,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D07_odo.cpy": {
+        "checks": 23,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D08_redefines.cpy": {
+        "checks": 14,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D09_conditions.cpy": {
+        "checks": 6,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D10_sync.cpy": {
+        "checks": 9,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D11_renames.cpy": {
+        "checks": 11,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "D12_edited.cpy": {
+        "checks": 10,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "MUBBREC.cpy": {
+        "checks": 7,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "MUBCONS.cpy": {
+        "checks": 7,
+        "mismatches": 0,
+        "source": "derived"
+      },
+      "MUBCUST.cpy": {
+        "checks": 8,
+        "mismatches": 0,
+        "source": "derived"
+      }
+    },
+    "route_a_vs_route_b_checks": 186,
+    "source": "derived",
+    "tolerance": 0
+  },
+  "benchmark": "RELIAN-DISCOVERY-BENCH",
+  "conventions": {
+    "note": "Offsets are 1-based, as measured (WS-CW-ACCOUNT = 1, WS-CW-NAME = 11). Lengths are byte counts. A level-88 has no storage and carries null, never zero.",
+    "offset_base": 1,
+    "source": "design-constant"
+  },
+  "copybooks": [
+    {
+      "file": "D01_display.cpy",
+      "group": "D01-DISPLAY",
+      "odo_field": null,
+      "sha256": "a3f08ad35becfc9b0aae3f1dfd0de0261565978b2490b3be1fdfbbb909b20288",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 11,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 10
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D01-DISPLAY",
+              "length": 73,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 73,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 73,
+                "source": "listing"
+              },
+              "marked_bytes": 73,
+              "name": "D01-DISPLAY",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-UNSIGNED-1",
+              "length": 1,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "D01-UNSIGNED-1",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-UNSIGNED-5",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(05)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D01-UNSIGNED-5",
+              "offset": 2,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-SIGNED-5",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(05)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D01-SIGNED-5",
+              "offset": 7,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-UNSIGNED-18",
+              "length": 18,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 18,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(18)",
+                "size": 18,
+                "source": "listing"
+              },
+              "marked_bytes": 18,
+              "name": "D01-UNSIGNED-18",
+              "offset": 12,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-SIGNED-18",
+              "length": 18,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 18,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(18)",
+                "size": 18,
+                "source": "listing"
+              },
+              "marked_bytes": 18,
+              "name": "D01-SIGNED-18",
+              "offset": 30,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-UNSIGNED-DEC",
+              "length": 7,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 7,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(05)V99",
+                "size": 7,
+                "source": "listing"
+              },
+              "marked_bytes": 7,
+              "name": "D01-UNSIGNED-DEC",
+              "offset": 48,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-SIGNED-DEC",
+              "length": 7,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 7,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(05)V99",
+                "size": 7,
+                "source": "listing"
+              },
+              "marked_bytes": 7,
+              "name": "D01-SIGNED-DEC",
+              "offset": 55,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-ALL-FRACTION",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "SV9(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D01-ALL-FRACTION",
+              "offset": 62,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-SCALE-TRAILING",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04)PPP",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D01-SCALE-TRAILING",
+              "offset": 66,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D01-SCALE-LEADING",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "SPPP9(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D01-SCALE-LEADING",
+              "offset": 70,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 73,
+          "listing": {
+            "group_size": 73,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D02_binary.cpy",
+      "group": "D02-BINARY",
+      "odo_field": null,
+      "sha256": "2ae4e3311c6ab755fb24243aa9fccc49e4b2a799cd699b427ba079e045a3b2f5",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 12,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 11
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D02-BINARY",
+              "length": 38,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 38,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 38,
+                "source": "listing"
+              },
+              "marked_bytes": 38,
+              "name": "D02-BINARY",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP-1",
+              "length": 1,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(01) COMP",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "D02-COMP-1",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP-2",
+              "length": 1,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(02) COMP",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "D02-COMP-2",
+              "offset": 2,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP-4",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04) COMP",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D02-COMP-4",
+              "offset": 3,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP-8",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(08) COMP",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D02-COMP-8",
+              "offset": 5,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP-9",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(09) COMP",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D02-COMP-9",
+              "offset": 9,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP-18",
+              "length": 8,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 8,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(18) COMP",
+                "size": 8,
+                "source": "listing"
+              },
+              "marked_bytes": 8,
+              "name": "D02-COMP-18",
+              "offset": 13,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP4-4",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04) COMP",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D02-COMP4-4",
+              "offset": 21,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-BINARY-9",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(09) COMP",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D02-BINARY-9",
+              "offset": 23,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP5-4",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04) COMP-5",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D02-COMP5-4",
+              "offset": 27,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP5-18",
+              "length": 8,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 8,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(18) COMP-5",
+                "size": 8,
+                "source": "listing"
+              },
+              "marked_bytes": 8,
+              "name": "D02-COMP5-18",
+              "offset": 29,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D02-COMP-UNSIGNED",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(04) COMP",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D02-COMP-UNSIGNED",
+              "offset": 37,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 38,
+          "listing": {
+            "group_size": 38,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D03_packed.cpy",
+      "group": "D03-PACKED",
+      "odo_field": null,
+      "sha256": "e4d114569ece11f61e8a058b961642bdacb4dbc54f8e11165b28453f6b66cf17",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 12,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 11
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D03-PACKED",
+              "length": 34,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 34,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 34,
+                "source": "listing"
+              },
+              "marked_bytes": 34,
+              "name": "D03-PACKED",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-P1",
+              "length": 1,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(01) COMP-3",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "D03-P1",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-P2",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(02) COMP-3",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D03-P2",
+              "offset": 2,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-P3",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(03) COMP-3",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D03-P3",
+              "offset": 4,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-P4",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D03-P4",
+              "offset": 6,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-P5",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(05) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D03-P5",
+              "offset": 9,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-P6",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(06) COMP-3",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D03-P6",
+              "offset": 12,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-P7",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(07) COMP-3",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D03-P7",
+              "offset": 16,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-P8",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(08) COMP-3",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D03-P8",
+              "offset": 20,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-UNSIGNED-3",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(03) COMP-3",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D03-UNSIGNED-3",
+              "offset": 25,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-UNSIGNED-4",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(04) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D03-UNSIGNED-4",
+              "offset": 27,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D03-SCALED",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(07)V99 COMP-3",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D03-SCALED",
+              "offset": 30,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 34,
+          "listing": {
+            "group_size": 34,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D04_sign.cpy",
+      "group": "D04-SIGN",
+      "odo_field": null,
+      "sha256": "968a60cfb8832b54af54cb303bda8a8768cc1b4a4f099fa4786d29273ab5e14d",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 7,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 6
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D04-SIGN",
+              "length": 30,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 30,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 30,
+                "source": "listing"
+              },
+              "marked_bytes": 30,
+              "name": "D04-SIGN",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D04-DEFAULT",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D04-DEFAULT",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D04-LEADING-EMB",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D04-LEADING-EMB",
+              "offset": 5,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D04-LEADING-SEP",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D04-LEADING-SEP",
+              "offset": 9,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D04-TRAILING-EMB",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D04-TRAILING-EMB",
+              "offset": 14,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D04-TRAILING-SEP",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D04-TRAILING-SEP",
+              "offset": 18,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D04-SEP-DEC",
+              "length": 8,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 8,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(05)V99",
+                "size": 8,
+                "source": "listing"
+              },
+              "marked_bytes": 8,
+              "name": "D04-SEP-DEC",
+              "offset": 23,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 30,
+          "listing": {
+            "group_size": 30,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D05_occurs.cpy",
+      "group": "D05-OCCURS",
+      "odo_field": null,
+      "sha256": "6a883208aa24b549736b3d448173166100a7d9c1fa046b28cc5aa82b76f17925",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 17,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 13
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D05-OCCURS",
+              "length": 44,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 44,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 44,
+                "source": "listing"
+              },
+              "marked_bytes": 44,
+              "name": "D05-OCCURS",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-HEADER",
+              "length": 4,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D05-HEADER",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-SLOT (1)",
+              "length": 5,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": 4,
+                "occurs_min": null,
+                "picture": "X(05)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D05-SLOT",
+              "offset": 5,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-SLOT (2)",
+              "length": 5,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": 4,
+                "occurs_min": null,
+                "picture": "X(05)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D05-SLOT",
+              "offset": 10,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-SLOT (3)",
+              "length": 5,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": 4,
+                "occurs_min": null,
+                "picture": "X(05)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D05-SLOT",
+              "offset": 15,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-SLOT (4)",
+              "length": 5,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": 4,
+                "occurs_min": null,
+                "picture": "X(05)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D05-SLOT",
+              "offset": 20,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                4
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-MIDDLE",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D05-MIDDLE",
+              "offset": 25,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D05-ROW (1)",
+              "length": 5,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 5,
+                "level": 5,
+                "occurs": 3,
+                "occurs_min": null,
+                "picture": null,
+                "size": 15,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D05-ROW",
+              "offset": 27,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D05-ROW (2)",
+              "length": 5,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 5,
+                "level": 5,
+                "occurs": 3,
+                "occurs_min": null,
+                "picture": null,
+                "size": 15,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D05-ROW",
+              "offset": 32,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D05-ROW (3)",
+              "length": 5,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 5,
+                "level": 5,
+                "occurs": 3,
+                "occurs_min": null,
+                "picture": null,
+                "size": 15,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D05-ROW",
+              "offset": 37,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-ROW-CODE (1)",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D05-ROW-CODE",
+              "offset": 27,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-ROW-CODE (2)",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D05-ROW-CODE",
+              "offset": 32,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-ROW-CODE (3)",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D05-ROW-CODE",
+              "offset": 37,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-ROW-AMOUNT (1)",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(05) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D05-ROW-AMOUNT",
+              "offset": 29,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-ROW-AMOUNT (2)",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(05) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D05-ROW-AMOUNT",
+              "offset": 34,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-ROW-AMOUNT (3)",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(05) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D05-ROW-AMOUNT",
+              "offset": 39,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D05-TRAILER",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D05-TRAILER",
+              "offset": 42,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 44,
+          "listing": {
+            "group_size": 44,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D06_occurs_nested.cpy",
+      "group": "D06-NESTED",
+      "odo_field": null,
+      "sha256": "19eab10111d3ecb7f59a724303b6f51a14d1474b65132e5fc74450cb952b00bc",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 26,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 16
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-NESTED",
+              "length": 38,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 38,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 38,
+                "source": "listing"
+              },
+              "marked_bytes": 38,
+              "name": "D06-NESTED",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-OUTER (1)",
+              "length": 12,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 12,
+                "level": 5,
+                "occurs": 3,
+                "occurs_min": null,
+                "picture": null,
+                "size": 36,
+                "source": "listing"
+              },
+              "marked_bytes": 12,
+              "name": "D06-OUTER",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-OUTER (2)",
+              "length": 12,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 12,
+                "level": 5,
+                "occurs": 3,
+                "occurs_min": null,
+                "picture": null,
+                "size": 36,
+                "source": "listing"
+              },
+              "marked_bytes": 12,
+              "name": "D06-OUTER",
+              "offset": 13,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-OUTER (3)",
+              "length": 12,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 12,
+                "level": 5,
+                "occurs": 3,
+                "occurs_min": null,
+                "picture": null,
+                "size": 36,
+                "source": "listing"
+              },
+              "marked_bytes": 12,
+              "name": "D06-OUTER",
+              "offset": 25,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-OUTER-KEY (1)",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-OUTER-KEY",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-OUTER-KEY (2)",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-OUTER-KEY",
+              "offset": 13,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-OUTER-KEY (3)",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-OUTER-KEY",
+              "offset": 25,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-INNER (1, 1)",
+              "length": 5,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 5,
+                "level": 10,
+                "occurs": 2,
+                "occurs_min": null,
+                "picture": null,
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D06-INNER",
+              "offset": 3,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1,
+                1
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-INNER (1, 2)",
+              "length": 5,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 5,
+                "level": 10,
+                "occurs": 2,
+                "occurs_min": null,
+                "picture": null,
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D06-INNER",
+              "offset": 8,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1,
+                2
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-INNER (2, 1)",
+              "length": 5,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 5,
+                "level": 10,
+                "occurs": 2,
+                "occurs_min": null,
+                "picture": null,
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D06-INNER",
+              "offset": 15,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2,
+                1
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-INNER (2, 2)",
+              "length": 5,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 5,
+                "level": 10,
+                "occurs": 2,
+                "occurs_min": null,
+                "picture": null,
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D06-INNER",
+              "offset": 20,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2,
+                2
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-INNER (3, 1)",
+              "length": 5,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 5,
+                "level": 10,
+                "occurs": 2,
+                "occurs_min": null,
+                "picture": null,
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D06-INNER",
+              "offset": 27,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3,
+                1
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D06-INNER (3, 2)",
+              "length": 5,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 5,
+                "level": 10,
+                "occurs": 2,
+                "occurs_min": null,
+                "picture": null,
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D06-INNER",
+              "offset": 32,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3,
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-CODE (1, 1)",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D06-INNER-CODE",
+              "offset": 3,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1,
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-CODE (1, 2)",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D06-INNER-CODE",
+              "offset": 8,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1,
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-CODE (2, 1)",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D06-INNER-CODE",
+              "offset": 15,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2,
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-CODE (2, 2)",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D06-INNER-CODE",
+              "offset": 20,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2,
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-CODE (3, 1)",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D06-INNER-CODE",
+              "offset": 27,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3,
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-CODE (3, 2)",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D06-INNER-CODE",
+              "offset": 32,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3,
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-QTY (1, 1)",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(03) COMP-3",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-INNER-QTY",
+              "offset": 6,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1,
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-QTY (1, 2)",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(03) COMP-3",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-INNER-QTY",
+              "offset": 11,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1,
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-QTY (2, 1)",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(03) COMP-3",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-INNER-QTY",
+              "offset": 18,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2,
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-QTY (2, 2)",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(03) COMP-3",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-INNER-QTY",
+              "offset": 23,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2,
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-QTY (3, 1)",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(03) COMP-3",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-INNER-QTY",
+              "offset": 30,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3,
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-INNER-QTY (3, 2)",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 15,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(03) COMP-3",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-INNER-QTY",
+              "offset": 35,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3,
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D06-TAIL",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D06-TAIL",
+              "offset": 37,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 38,
+          "listing": {
+            "group_size": 38,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D07_odo.cpy",
+      "group": "D07-ODO",
+      "odo_field": "D07-COUNT",
+      "sha256": "896d38a73433131442fae27e09f900a625b5892f138c41b5e0684487148255a6",
+      "variable_length": true,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 6,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 4
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D07-ODO",
+              "length": 17,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 50,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 50,
+                "source": "listing"
+              },
+              "marked_bytes": 17,
+              "name": "D07-ODO",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-COUNT",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D07-COUNT",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-HEADER",
+              "length": 4,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D07-HEADER",
+              "offset": 3,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D07-ENTRY (1)",
+              "length": 11,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 11,
+                "level": 5,
+                "occurs": 4,
+                "occurs_min": 1,
+                "picture": null,
+                "size": 44,
+                "source": "listing"
+              },
+              "marked_bytes": 11,
+              "name": "D07-ENTRY",
+              "offset": 7,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-PERIOD (1)",
+              "length": 6,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 6,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(06)",
+                "size": 6,
+                "source": "listing"
+              },
+              "marked_bytes": 6,
+              "name": "D07-ENTRY-PERIOD",
+              "offset": 7,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-AMOUNT (1)",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(07)V99 COMP-3",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D07-ENTRY-AMOUNT",
+              "offset": 13,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            }
+          ],
+          "gaps": [],
+          "group_length": 17,
+          "listing": {
+            "group_size": 50,
+            "source": "listing"
+          },
+          "odo_value": 1,
+          "source": "probe"
+        },
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 15,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 10
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D07-ODO",
+              "length": 50,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 50,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 50,
+                "source": "listing"
+              },
+              "marked_bytes": 50,
+              "name": "D07-ODO",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-COUNT",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D07-COUNT",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-HEADER",
+              "length": 4,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D07-HEADER",
+              "offset": 3,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D07-ENTRY (1)",
+              "length": 11,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 11,
+                "level": 5,
+                "occurs": 4,
+                "occurs_min": 1,
+                "picture": null,
+                "size": 44,
+                "source": "listing"
+              },
+              "marked_bytes": 11,
+              "name": "D07-ENTRY",
+              "offset": 7,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D07-ENTRY (2)",
+              "length": 11,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 11,
+                "level": 5,
+                "occurs": 4,
+                "occurs_min": 1,
+                "picture": null,
+                "size": 44,
+                "source": "listing"
+              },
+              "marked_bytes": 11,
+              "name": "D07-ENTRY",
+              "offset": 18,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D07-ENTRY (3)",
+              "length": 11,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 11,
+                "level": 5,
+                "occurs": 4,
+                "occurs_min": 1,
+                "picture": null,
+                "size": 44,
+                "source": "listing"
+              },
+              "marked_bytes": 11,
+              "name": "D07-ENTRY",
+              "offset": 29,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3
+              ]
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D07-ENTRY (4)",
+              "length": 11,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 11,
+                "level": 5,
+                "occurs": 4,
+                "occurs_min": 1,
+                "picture": null,
+                "size": 44,
+                "source": "listing"
+              },
+              "marked_bytes": 11,
+              "name": "D07-ENTRY",
+              "offset": 40,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                4
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-PERIOD (1)",
+              "length": 6,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 6,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(06)",
+                "size": 6,
+                "source": "listing"
+              },
+              "marked_bytes": 6,
+              "name": "D07-ENTRY-PERIOD",
+              "offset": 7,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-PERIOD (2)",
+              "length": 6,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 6,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(06)",
+                "size": 6,
+                "source": "listing"
+              },
+              "marked_bytes": 6,
+              "name": "D07-ENTRY-PERIOD",
+              "offset": 18,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-PERIOD (3)",
+              "length": 6,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 6,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(06)",
+                "size": 6,
+                "source": "listing"
+              },
+              "marked_bytes": 6,
+              "name": "D07-ENTRY-PERIOD",
+              "offset": 29,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-PERIOD (4)",
+              "length": 6,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 6,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(06)",
+                "size": 6,
+                "source": "listing"
+              },
+              "marked_bytes": 6,
+              "name": "D07-ENTRY-PERIOD",
+              "offset": 40,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                4
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-AMOUNT (1)",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(07)V99 COMP-3",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D07-ENTRY-AMOUNT",
+              "offset": 13,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                1
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-AMOUNT (2)",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(07)V99 COMP-3",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D07-ENTRY-AMOUNT",
+              "offset": 24,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                2
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-AMOUNT (3)",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(07)V99 COMP-3",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D07-ENTRY-AMOUNT",
+              "offset": 35,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                3
+              ]
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D07-ENTRY-AMOUNT (4)",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(07)V99 COMP-3",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D07-ENTRY-AMOUNT",
+              "offset": 46,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": [
+                4
+              ]
+            }
+          ],
+          "gaps": [],
+          "group_length": 50,
+          "listing": {
+            "group_size": 50,
+            "source": "listing"
+          },
+          "odo_value": 4,
+          "source": "probe"
+        }
+      ],
+      "window": "reference-modification"
+    },
+    {
+      "file": "D08_redefines.cpy",
+      "group": "D08-REDEFINES",
+      "odo_field": null,
+      "sha256": "bc1509f72f01cbaaacb94c0700fe40c6888962c0c54a994bae257fab64938962",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 13,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 5
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D08-REDEFINES",
+              "length": 28,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 28,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 28,
+                "source": "listing"
+              },
+              "marked_bytes": 28,
+              "name": "D08-REDEFINES",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D08-KEY",
+              "length": 10,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 10,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(10)",
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 10,
+              "name": "D08-KEY",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D08-KEY-R",
+              "length": 10,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 10,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 10,
+              "name": "D08-KEY-R",
+              "offset": 1,
+              "redefines": "D08-KEY",
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": false,
+              "key": "D08-KR-PREFIX",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D08-KR-PREFIX",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": false,
+              "key": "D08-KR-BODY",
+              "length": 7,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 7,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(07)",
+                "size": 7,
+                "source": "listing"
+              },
+              "marked_bytes": 7,
+              "name": "D08-KR-BODY",
+              "offset": 4,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D08-DATE",
+              "length": 8,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 8,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(08)",
+                "size": 8,
+                "source": "listing"
+              },
+              "marked_bytes": 8,
+              "name": "D08-DATE",
+              "offset": 11,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": false,
+              "key": "D08-DATE-SHORT",
+              "length": 4,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D08-DATE-SHORT",
+              "offset": 11,
+              "redefines": "D08-DATE",
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D08-GRP",
+              "length": 7,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 7,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 7,
+                "source": "listing"
+              },
+              "marked_bytes": 7,
+              "name": "D08-GRP",
+              "offset": 19,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D08-GRP-A",
+              "length": 4,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 4,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D08-GRP-A",
+              "offset": 19,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D08-GRP-B",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(05) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D08-GRP-B",
+              "offset": 23,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": false,
+              "key": "D08-GRP-FLAT",
+              "length": 7,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 7,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(07)",
+                "size": 7,
+                "source": "listing"
+              },
+              "marked_bytes": 7,
+              "name": "D08-GRP-FLAT",
+              "offset": 19,
+              "redefines": "D08-GRP",
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": false,
+              "key": "D08-GRP-HEAD",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D08-GRP-HEAD",
+              "offset": 19,
+              "redefines": "D08-GRP",
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D08-TRAILER",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D08-TRAILER",
+              "offset": 26,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 28,
+          "listing": {
+            "group_size": 28,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D09_conditions.cpy",
+      "group": "D09-CONDITIONS",
+      "odo_field": null,
+      "sha256": "21bc17cc5826a92d8e2869e6631edc41d33daaf10e32a03bc44a5dbf1382dc38",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [
+            {
+              "host": "D09-STATUS",
+              "length": null,
+              "level": 88,
+              "name": "D09-ACTIVE",
+              "offset": null,
+              "source": "listing"
+            },
+            {
+              "host": "D09-STATUS",
+              "length": null,
+              "level": 88,
+              "name": "D09-ANY-OPEN",
+              "offset": null,
+              "source": "listing"
+            },
+            {
+              "host": "D09-STATUS",
+              "length": null,
+              "level": 88,
+              "name": "D09-FIRST-HALF",
+              "offset": null,
+              "source": "listing"
+            },
+            {
+              "host": "D09-CODE",
+              "length": null,
+              "level": 88,
+              "name": "D09-CODE-LOW",
+              "offset": null,
+              "source": "listing"
+            },
+            {
+              "host": "D09-CODE",
+              "length": null,
+              "level": 88,
+              "name": "D09-CODE-KNOWN",
+              "offset": null,
+              "source": "listing"
+            },
+            {
+              "host": "D09-AMOUNT",
+              "length": null,
+              "level": 88,
+              "name": "D09-AMOUNT-ZERO",
+              "offset": null,
+              "source": "listing"
+            },
+            {
+              "host": "D09-AMOUNT",
+              "length": null,
+              "level": 88,
+              "name": "D09-AMOUNT-BAND",
+              "offset": null,
+              "source": "listing"
+            }
+          ],
+          "counts": {
+            "conditions": 7,
+            "fields": 5,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 4
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D09-CONDITIONS",
+              "length": 9,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 9,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 9,
+                "source": "listing"
+              },
+              "marked_bytes": 9,
+              "name": "D09-CONDITIONS",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D09-STATUS",
+              "length": 1,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(01)",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "D09-STATUS",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D09-CODE",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D09-CODE",
+              "offset": 2,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D09-AMOUNT",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(05) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D09-AMOUNT",
+              "offset": 5,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D09-TRAILER",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D09-TRAILER",
+              "offset": 8,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 9,
+          "listing": {
+            "group_size": 9,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D10_sync.cpy",
+      "group": "D10-SYNC",
+      "odo_field": null,
+      "sha256": "af3b09527f7292796b3c5bad8c06986796ac7cfd4adb50c8a47c8e4331b20fda",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 8,
+            "gap_bytes": 5,
+            "gaps": 3,
+            "source": "derived",
+            "tiling_fields": 7
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D10-SYNC",
+              "length": 25,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 25,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 25,
+                "source": "listing"
+              },
+              "marked_bytes": 25,
+              "name": "D10-SYNC",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D10-FLAG",
+              "length": 1,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(01)",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "D10-FLAG",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D10-BIN-A",
+              "length": 4,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(09) COMP",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D10-BIN-A",
+              "offset": 5,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D10-CHAR-1",
+              "length": 1,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(01)",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "D10-CHAR-1",
+              "offset": 9,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D10-BIN-B",
+              "length": 2,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 2,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(04) COMP",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D10-BIN-B",
+              "offset": 11,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D10-CHAR-3",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D10-CHAR-3",
+              "offset": 13,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D10-BIN-C",
+              "length": 8,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 8,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(18) COMP",
+                "size": 8,
+                "source": "listing"
+              },
+              "marked_bytes": 8,
+              "name": "D10-BIN-C",
+              "offset": 17,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D10-TRAILER",
+              "length": 1,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(01)",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "D10-TRAILER",
+              "offset": 25,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [
+            {
+              "length": 3,
+              "offset": 2,
+              "source": "gap"
+            },
+            {
+              "length": 1,
+              "offset": 10,
+              "source": "gap"
+            },
+            {
+              "length": 1,
+              "offset": 16,
+              "source": "gap"
+            }
+          ],
+          "group_length": 25,
+          "listing": {
+            "group_size": 25,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D11_renames.cpy",
+      "group": "D11-RENAMES",
+      "odo_field": null,
+      "sha256": "76517f73d5f2913da11b033e6c4c5d545ff3ec1071318fe8ee977797491dbd93",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 10,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 5
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D11-RENAMES",
+              "length": 16,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 16,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 16,
+                "source": "listing"
+              },
+              "marked_bytes": 16,
+              "name": "D11-RENAMES",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D11-ALPHA",
+              "length": 3,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "D11-ALPHA",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D11-BETA",
+              "length": 4,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D11-BETA",
+              "offset": 4,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D11-GAMMA",
+              "length": 4,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D11-GAMMA",
+              "offset": 8,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D11-GAMMA-1",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D11-GAMMA-1",
+              "offset": 8,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D11-GAMMA-2",
+              "length": 2,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 2,
+                "level": 10,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(02)",
+                "size": 2,
+                "source": "listing"
+              },
+              "marked_bytes": 2,
+              "name": "D11-GAMMA-2",
+              "offset": 10,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D11-DELTA",
+              "length": 5,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(05)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D11-DELTA",
+              "offset": 12,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": false,
+              "key": "D11-JUST-GAMMA",
+              "length": 4,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 4,
+                "level": 66,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "D11-JUST-GAMMA",
+              "offset": 8,
+              "redefines": "D11-GAMMA",
+              "renames": true,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": false,
+              "key": "D11-ALPHA-BETA",
+              "length": 7,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 7,
+                "level": 66,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 7,
+                "source": "listing"
+              },
+              "marked_bytes": 7,
+              "name": "D11-ALPHA-BETA",
+              "offset": 1,
+              "redefines": "D11-ALPHA",
+              "renames": true,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": false,
+              "key": "D11-BETA-GAMMA",
+              "length": 8,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 8,
+                "level": 66,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 8,
+                "source": "listing"
+              },
+              "marked_bytes": 8,
+              "name": "D11-BETA-GAMMA",
+              "offset": 4,
+              "redefines": "D11-BETA",
+              "renames": true,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 16,
+          "listing": {
+            "group_size": 16,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "D12_edited.cpy",
+      "group": "D12-EDITED",
+      "odo_field": null,
+      "sha256": "da655b3b3be2a51c97fbd32b2b13aedda363c29504e7f8409862a8a6497c14b4",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 9,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 8
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "D12-EDITED",
+              "length": 66,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 66,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 66,
+                "source": "listing"
+              },
+              "marked_bytes": 66,
+              "name": "D12-EDITED",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D12-AMOUNT-EDIT",
+              "length": 10,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 10,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "ZZZ,ZZ9.99",
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 10,
+              "name": "D12-AMOUNT-EDIT",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D12-BWZ-EDITED",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "ZZZZ9",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D12-BWZ-EDITED",
+              "offset": 11,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D12-BWZ-DISPLAY",
+              "length": 5,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 5,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(05)",
+                "size": 5,
+                "source": "listing"
+              },
+              "marked_bytes": 5,
+              "name": "D12-BWZ-DISPLAY",
+              "offset": 16,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D12-ALNUM-EDIT",
+              "length": 10,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 10,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "XXBXXBXXXX",
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 10,
+              "name": "D12-ALNUM-EDIT",
+              "offset": 21,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D12-SLASH-EDIT",
+              "length": 11,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 11,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "XXX/XX/XXXX",
+                "size": 11,
+                "source": "listing"
+              },
+              "marked_bytes": 11,
+              "name": "D12-SLASH-EDIT",
+              "offset": 31,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D12-CREDIT-EDIT",
+              "length": 11,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 11,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "$$,$$9.99CR",
+                "size": 11,
+                "source": "listing"
+              },
+              "marked_bytes": 11,
+              "name": "D12-CREDIT-EDIT",
+              "offset": 42,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D12-JUST-X",
+              "length": 8,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 8,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(08)",
+                "size": 8,
+                "source": "listing"
+              },
+              "marked_bytes": 8,
+              "name": "D12-JUST-X",
+              "offset": 53,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "D12-JUST-A",
+              "length": 6,
+              "listing": {
+                "category": "ALPHABETIC",
+                "element_size": 6,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "A(06)",
+                "size": 6,
+                "source": "listing"
+              },
+              "marked_bytes": 6,
+              "name": "D12-JUST-A",
+              "offset": 61,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 66,
+          "listing": {
+            "group_size": 66,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "MUBBREC.cpy",
+      "group": "BILL-PRINT-RECORD",
+      "odo_field": null,
+      "sha256": "38d2e9fd298daee77599a8d2edb77a56e994225065dcc59a10fa33a2efe6c7d0",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 6,
+            "gap_bytes": 6,
+            "gaps": 3,
+            "source": "derived",
+            "tiling_fields": 5
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "BILL-PRINT-RECORD",
+              "length": 67,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 67,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 67,
+                "source": "listing"
+              },
+              "marked_bytes": 67,
+              "name": "BILL-PRINT-RECORD",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "BPR-ACCOUNT",
+              "length": 10,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 10,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(10)",
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 10,
+              "name": "BPR-ACCOUNT",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "BPR-NAME",
+              "length": 30,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 30,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(30)",
+                "size": 30,
+                "source": "listing"
+              },
+              "marked_bytes": 30,
+              "name": "BPR-NAME",
+              "offset": 13,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "BPR-CLASS",
+              "length": 1,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(01)",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "BPR-CLASS",
+              "offset": 43,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "BPR-AMOUNT-DUE",
+              "length": 12,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 12,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "ZZZZZZZZ9.99",
+                "size": 12,
+                "source": "listing"
+              },
+              "marked_bytes": 12,
+              "name": "BPR-AMOUNT-DUE",
+              "offset": 46,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "BPR-DUE-DATE",
+              "length": 8,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 8,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(08)",
+                "size": 8,
+                "source": "listing"
+              },
+              "marked_bytes": 8,
+              "name": "BPR-DUE-DATE",
+              "offset": 60,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [
+            {
+              "length": 2,
+              "offset": 11,
+              "source": "gap"
+            },
+            {
+              "length": 2,
+              "offset": 44,
+              "source": "gap"
+            },
+            {
+              "length": 2,
+              "offset": 58,
+              "source": "gap"
+            }
+          ],
+          "group_length": 67,
+          "listing": {
+            "group_size": 67,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "MUBCONS.cpy",
+      "group": "MUB-CONSTANTS",
+      "odo_field": null,
+      "sha256": "c3332a221ab5985f89282014a528268cf6c32ea9c5532b7b7752a7b1ba6a3aba",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [],
+          "counts": {
+            "conditions": 0,
+            "fields": 6,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 5
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "MUB-CONSTANTS",
+              "length": 16,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 16,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 16,
+                "source": "listing"
+              },
+              "marked_bytes": 16,
+              "name": "MUB-CONSTANTS",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "MUB-FRANCHISE-RATE",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9V9(04) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "MUB-FRANCHISE-RATE",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "MUB-SVC-FACTOR",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9V9(04) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "MUB-SVC-FACTOR",
+              "offset": 4,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "MUB-STATE-TAX-RATE",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9V9(04) COMP-3",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "MUB-STATE-TAX-RATE",
+              "offset": 7,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "MUB-GRACE-DAYS",
+              "length": 3,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 3,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "9(03)",
+                "size": 3,
+                "source": "listing"
+              },
+              "marked_bytes": 3,
+              "name": "MUB-GRACE-DAYS",
+              "offset": 10,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "MUB-DISTRICT-CODE",
+              "length": 4,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 4,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(04)",
+                "size": 4,
+                "source": "listing"
+              },
+              "marked_bytes": 4,
+              "name": "MUB-DISTRICT-CODE",
+              "offset": 13,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 16,
+          "listing": {
+            "group_size": 16,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    },
+    {
+      "file": "MUBCUST.cpy",
+      "group": "WS-CUST-WORK",
+      "odo_field": null,
+      "sha256": "8f8e120e1ee66a304865b57ef316420d9906930b2c917799474875480f99a94b",
+      "variable_length": false,
+      "variants": [
+        {
+          "conditions": [
+            {
+              "host": "WS-CW-DELINQUENT-SW",
+              "length": null,
+              "level": 88,
+              "name": "WS-CW-DELINQUENT",
+              "offset": null,
+              "source": "listing"
+            },
+            {
+              "host": "WS-CW-DELINQUENT-SW",
+              "length": null,
+              "level": 88,
+              "name": "WS-CW-IN-GOOD-STAND",
+              "offset": null,
+              "source": "listing"
+            }
+          ],
+          "counts": {
+            "conditions": 2,
+            "fields": 7,
+            "gap_bytes": 0,
+            "gaps": 0,
+            "source": "derived",
+            "tiling_fields": 6
+          },
+          "fields": [
+            {
+              "elementary": false,
+              "in_tiling": false,
+              "key": "WS-CUST-WORK",
+              "length": 54,
+              "listing": {
+                "category": "GROUP",
+                "element_size": 54,
+                "level": 1,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": null,
+                "size": 54,
+                "source": "listing"
+              },
+              "marked_bytes": 54,
+              "name": "WS-CUST-WORK",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "WS-CW-ACCOUNT",
+              "length": 10,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 10,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(10)",
+                "size": 10,
+                "source": "listing"
+              },
+              "marked_bytes": 10,
+              "name": "WS-CW-ACCOUNT",
+              "offset": 1,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "WS-CW-NAME",
+              "length": 30,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 30,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(30)",
+                "size": 30,
+                "source": "listing"
+              },
+              "marked_bytes": 30,
+              "name": "WS-CW-NAME",
+              "offset": 11,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "WS-CW-CLASS",
+              "length": 1,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(01)",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "WS-CW-CLASS",
+              "offset": 41,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "WS-CW-PRIOR-BALANCE",
+              "length": 6,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 6,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(09)V99 COMP-3",
+                "size": 6,
+                "source": "listing"
+              },
+              "marked_bytes": 6,
+              "name": "WS-CW-PRIOR-BALANCE",
+              "offset": 42,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "WS-CW-NEW-BALANCE",
+              "length": 6,
+              "listing": {
+                "category": "NUMERIC",
+                "element_size": 6,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "S9(09)V99 COMP-3",
+                "size": 6,
+                "source": "listing"
+              },
+              "marked_bytes": 6,
+              "name": "WS-CW-NEW-BALANCE",
+              "offset": 48,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            },
+            {
+              "elementary": true,
+              "in_tiling": true,
+              "key": "WS-CW-DELINQUENT-SW",
+              "length": 1,
+              "listing": {
+                "category": "ALPHANUMERIC",
+                "element_size": 1,
+                "level": 5,
+                "occurs": null,
+                "occurs_min": null,
+                "picture": "X(01)",
+                "size": 1,
+                "source": "listing"
+              },
+              "marked_bytes": 1,
+              "name": "WS-CW-DELINQUENT-SW",
+              "offset": 54,
+              "redefines": null,
+              "renames": false,
+              "source": "probe",
+              "subscripts": []
+            }
+          ],
+          "gaps": [],
+          "group_length": 54,
+          "listing": {
+            "group_size": 54,
+            "source": "listing"
+          },
+          "odo_value": null,
+          "source": "probe"
+        }
+      ],
+      "window": "redefines-table"
+    }
+  ],
+  "counts": {
+    "conditions": 9,
+    "copybooks": 15,
+    "elementary_fields": 124,
+    "gap_rows": 6,
+    "probe_rows": 170,
+    "source": "derived",
+    "variants": 16
+  },
+  "schema": "relian-discovery-bench/oracle/v0.1",
+  "source_vocabulary": {
+    "derived": "computed from other rows in this document",
+    "design-constant": "a fixed convention of the format, not a measurement",
+    "gap": "DERIVED by subtraction, not measured. FILLER and SYNC slack cannot receive a MOVE and are recoverable only as the bytes no named field claims.",
+    "listing": "read from cobc's -ftsymbols symbol table (Route A)",
+    "probe": "measured directly by the Route B runtime probe"
+  },
+  "toolchain": {
+    "cobc": "cobc (GnuCOBOL) 3.1.2.0"
+  },
+  "version": "0.1.0"
+}
