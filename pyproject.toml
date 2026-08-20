@@ -62,12 +62,20 @@ dependencies = [
 # nbconvert, tornado, pyzmq, the whole stack) through the lock file and into
 # every CI run, none of which pytest touches. `dev` is now exactly what the
 # gate needs to run and lint the suite.
+#
+# WP-2.0.2 (2026-08-20): `cryptography` joins this extra. It is the sole
+# third-party dependency of tools/verify_manifest.py, which .github/workflows/
+# tests.yml runs against the sealed v1.2 ledger and which
+# tests/test_verify_manifest.py exercises. It is deliberately NOT in
+# [project.dependencies]: verifying a benchmark seal is a CI and third-party-
+# audit activity, not part of the transform path a customer perimeter installs.
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "black>=23.11.0",
     "pylint>=3.0.0",
-    "mypy>=1.7.0"
+    "mypy>=1.7.0",
+    "cryptography>=42.0.0"
 ]
 
 # Local authoring tools. Deliberately NOT installed by .github/workflows/

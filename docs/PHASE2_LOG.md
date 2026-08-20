@@ -2039,3 +2039,346 @@ git diff --stat origin/main HEAD -- bench/ transpiler/
 - The three residuals inherited from WP-2.0 §11 — gnucobol intake
   misclassification, the repository not being `black`-formatted, and preprocessor
   integration — are untouched here and **remain UNRESOLVED**.
+
+---
+
+## 2026-08-20 · WP-2.0.2 · Assert the whole triple, prove the seal, narrow the bench trigger
+
+Three things, all of them about the difference between a check that runs and a
+check that *bites*: the unit-test gate asserted two of its three numbers; the
+bench gate proved the manifest was intact but never that the tree still matched
+it; and `bench.yml` scored the held-out split on every push to every branch.
+
+### §1. The pass count was prose — planted red, then corrected
+
+`tests.yml` asserted `EXPECTED_SKIPS` mechanically. The pass count it only
+checked for `passed > 0`, and the file said so outright: *"the pass count is
+prose, kept accurate so a reader can tell at a glance whether a run drifted."*
+
+That leaves the largest of the three numbers unguarded, and unguarded in the
+direction that matters. A test that stops being **collected** — a file renamed
+out of `python_files`, an ImportError absorbed at collection time, a
+parametrisation that stops expanding, a module dropped from `testpaths` — lowers
+the pass count while leaving skips at 10 and failures at 0. Every assertion in
+the gate is satisfied. The tick is green. Part of the suite has stopped running
+and nothing says so.
+
+`EXPECTED_PASSES` now sits beside `EXPECTED_SKIPS`, is asserted in the same
+script block, and carries the same comment discipline: change it only alongside
+this file, with the delta attributed test by test. Its failure message states
+that FEWER passes usually means a test stopped being collected.
+
+#### Proven on the runner, not by argument
+
+Commit `7617fe4` set `EXPECTED_PASSES: "285"` — one below the measured 286 —
+and changed nothing else. **No test was deleted or deselected to produce the
+red**: a deliberately wrong expectation is the same proof without touching the
+suite, and touching the suite to prove a suite gate works is exactly the kind of
+circularity this repository is supposed to avoid.
+
+| Commit | `EXPECTED_PASSES` | Run | `tests` conclusion |
+|---|---|---|---|
+| `7617fe4` | `285` (deliberately wrong) | https://github.com/khaaliswooden-max/relian/actions/runs/32421480377 | **failure** — planted red |
+| `ea92098` | `286` (measured) | https://github.com/khaaliswooden-max/relian/actions/runs/32421999807 | recorded in §5 |
+
+The planted-red run, from the gate step's own output:
+
+```
+--- measured environment ---
+  python_version: 3.12.14
+  cobc_version: cobc (GnuCOBOL) 3.1.2.0
+  javac_version: javac 21.0.12
+  toolchain_complete: yes
+--- result ---
+  286 passed, 10 skipped, 0 failed, 0 errored
+GATE FAILED: pass count drifted: 286, expected 285. FEWER passes usually means
+a test STOPPED BEING COLLECTED -- a renamed file that no longer matches
+`python_files`, an ImportError absorbed at collection, a parametrisation that
+stopped expanding -- which lowers this number while leaving skips and failures
+untouched, and is exactly the drift this assertion exists to catch. [...]
+##[error]Process completed with exit code 1.
+```
+
+Read the step statuses rather than only the job conclusion: **`pytest` step
+`success`, `Assert the suite result` step `failure`.** Skips at 10, failures at
+0, errors at 0 throughout. The job went red on the pass count and on nothing
+else, which is precisely the drift that used to pass this gate in silence.
+
+### §2. `tools/verify_manifest.py` — the tree, not just the manifest
+
+`bench.yml` verifies the Ed25519 signature over the v1.2 ledger. That proves
+**the manifest was not edited**. It does not prove **the tree still matches the
+manifest**. Those are different claims, and only the second catches a silent
+edit under `bench/`: change one byte in `corpus/P03_eligibility/program.cbl` and
+the signature still verifies perfectly, because it covers the manifest's bytes
+rather than the corpus's.
+
+`tools/verify_manifest.py` checks three layers independently and reports which
+one failed:
+
+| Layer | Claim | What only it catches |
+|---|---|---|
+| `TREE` | every `files[]` path exists at `root/<path>` and hashes to its recorded `sha256`; and the include set is re-walked so nothing on disk is missing from `files[]` | a corpus byte changed; a file **added** since sealing |
+| `PAYLOAD` | `payload_sha256` recomputed from `files[]` equals the recorded value | a **consistently** edited `files[]` — attacker changes the file *and* updates its recorded hash, satisfying `TREE` |
+| `SIGNATURE` | Ed25519 verifies over `manifest_hash()` — the manifest minus its `signature` key | any edit to the manifest body |
+
+The reverse walk is not decoration. Hash-checking only the recorded entries
+would happily pass a tree with an extra file in it, and "every recorded file is
+correct" is a weaker claim than "the tree is the tree that was sealed".
+
+#### Measured against v1.2, in CI
+
+```
+--include-dirs corpus,harness --include-files SPEC.md
+--expect-absent '**/vectors/heldout.jsonl,harness/gen_vectors.py'
+--key-fingerprint 233bb4406e2de606
+
+LAYER 1/3  TREE       recorded 29 · verified 21 · declared absent 8
+                      hash mismatches 0 · missing 0 · unrecorded on disk 0   PASS
+LAYER 2/3  PAYLOAD    a8695c2c… recomputed == recorded                       PASS
+LAYER 3/3  SIGNATURE  a47305c2… recomputed == recorded, key 233bb4406e2de606 PASS
+VERDICT: PASS (3/3 layers)
+```
+
+**Correcting the brief's expected figure, which said "29 files, zero
+mismatches".** Zero mismatches is right, and so is zero unrecorded files. But
+the manifest records 29 files and **only 21 of them can be hash-verified inside
+this repository**. The other eight are absent *by binding rule*, not by drift:
+
+- the seven `corpus/P*/vectors/heldout.jsonl` — scoring-only and CI-only
+  (rule 1 / R3);
+- `harness/gen_vectors.py` — generator plus seed regenerate the held-out set
+  (rule 6).
+
+Both are in `.gitignore` for exactly those reasons. **This is not the escalation
+condition and was not escalated**: no layer failed, no path mismatched, nothing
+under `bench/` changed. But it is not verification either, so the tool will not
+call it that. Declared-absent paths must be named on the command line via
+`--expect-absent`, are reported as `declared absent (NOT verified)`, are never
+folded into the `verified` count, and are not read (R1: an unavailable file is
+not a checked one). If one of them ever *does* appear on disk, that is itself a
+reported finding rather than a green tick.
+
+#### The v1.2 manifest format does not record its own include/exclude rules
+
+The manifest records `files[]`, `payload_sha256` and a signature. It does not
+record `INCLUDE_DIRS`, `INCLUDE_FILES`, `EXCLUDE_SUFFIX`, `EXCLUDE_NAMES` or
+`EXCLUDE_BINARIES`. Those live only in `bench/harness/commit.py`, which is
+**outside the signature's protection of its own semantics** — the file is
+hashed as content, but the rules it encodes are not attested as the rules that
+produced `files[]`.
+
+A verifier therefore cannot re-walk the tree without being told them, which is
+why they are CLI arguments here. This is a real weakness of the format and is
+worth stating rather than working around silently: an attacker who can also edit
+`commit.py` changes what the *next* seal covers. The tool's defaults are
+transcribed from v1.2's sealer so the common invocation stays short, but the
+module docstring says plainly that they are defaults, not attestations.
+
+`test_dropping_the_binary_exclusion_surfaces_them_as_unrecorded` pins the
+consequence: drop `--exclude-basenames` and the five committed COBOL binaries
+(`payroll01` and four `run` files) surface as unrecorded, because the sealer
+excluded them and the manifest never said so.
+
+#### A second limitation, in the signature itself
+
+`bench/harness/commit.py`'s `verify()` — and layer 3 without a pin — verifies
+using the public key **embedded in the manifest being checked**. That proves
+self-consistency, not authorship: an attacker who edits the manifest and
+re-signs it with a key they generated passes. `--key-fingerprint` pins the
+expected signer, and CI passes `233bb4406e2de606`, so forging the ledger now
+also requires editing `tests.yml` — visible in the diff.
+`test_key_fingerprint_pin_rejects_an_otherwise_valid_resigned_manifest` proves
+both halves: unpinned, the re-signed forgery verifies; pinned, it does not.
+
+#### Deliberately not sealed, and importing nothing from the repo
+
+The verifier lives in `tools/` and is **not** part of the sealed set. A verifier
+sealed inside the artifact it verifies is circular — it would attest to its own
+integrity with the key it is checking. A third party must be able to read it,
+run it, or discard it and write their own from the docstring.
+
+It imports nothing from this repository, in particular not
+`bench/harness/commit.py`, whose hashing it reimplements from the format
+description. A verifier that calls the sealer's own code cannot detect a bug in
+the sealer's own code. Two tests enforce this against the **parsed imports**,
+not a grep, so the docstring may discuss `commit.py` while the code stays clear
+of it: `test_verifier_imports_nothing_from_the_repository` (imports ⊆ stdlib +
+`cryptography`) and `test_verifier_does_not_manipulate_sys_path`.
+
+#### Planted red without touching `bench/` — all three layers, independently
+
+`tests/test_verify_manifest.py` copies `bench/` into `tmp_path`, mutates one
+byte **there**, and asserts the verifier returns False. Nothing under `bench/`
+is written at any point.
+
+| Test | Mutation | `TREE` | `PAYLOAD` | `SIGNATURE` |
+|---|---|---|---|---|
+| `test_corpus_mutation_fails_the_tree_layer_and_only_that_layer` | one byte in `corpus/P03_eligibility/program.cbl` | **FAIL** | pass | pass |
+| `test_consistently_edited_files_entry_fails_only_the_payload_layer` | same byte, `files[]` hash updated to match, manifest re-signed | pass | **FAIL** | pass |
+| `test_signature_mutation_fails_only_the_signature_layer` | one hex nibble in `signature_hex` | pass | pass | **FAIL** |
+
+Each layer is shown to have teeth **on its own**: in every row the other two
+layers pass, so no layer's red can be attributed to another's. The middle row is
+the sharp one — the attacker does the job properly, updates the recorded hash so
+`TREE` is satisfied and re-signs so `SIGNATURE` is satisfied, and
+`payload_sha256` is the only thing left standing. That is the reason the field
+exists.
+
+The re-signing helper generates an **ephemeral** `Ed25519PrivateKey` in memory
+inside the test. It is never written anywhere and is not the benchmark signing
+key, whose custody is the operator's and which never enters this repository
+(R4). It exists to simulate the attacker, which is what makes the pin above
+meaningful.
+
+Twenty-four tests in total (§4 attributes them):
+
+```
+git status --short -- bench/
+→ (no output)
+git status --porcelain -- bench/
+→ (no output)
+```
+
+The `bench-seal` CI job re-runs `git status --short -- bench/` after the
+verification and fails if it is non-empty — rule 4 asserted by the runner, not
+by assurance.
+
+#### Why a job rather than a step inside `pytest`
+
+`bench-seal` is a separate job for the reason `parser-regen` is one, and the
+file already argues it: *"a stale parser is a provenance failure, and it should
+be legible as that rather than as a test failure."* A benchmark tree that has
+drifted from its seal is the same kind of failure. Keeping it separate also
+means a red suite never suppresses this result and a drifted tree never
+suppresses the suite's.
+
+#### `cryptography` entered the pinned closure
+
+The verifier's only third-party import, and it was not in `requirements.lock`.
+It joins the `dev` extra — verifying a benchmark seal is a CI and third-party
+audit activity, not part of the transform path a customer perimeter installs, so
+it is deliberately **not** in `[project.dependencies]`.
+
+Regenerated with the documented command, then diffed line by line rather than
+assumed. **37 pinned distributions before, 40 after.** The three additions are
+`cryptography==50.0.0` and its two transitive dependencies `cffi` and
+`pycparser`, both carrying the non-PyPy environment markers `--universal`
+preserves. **No other pin changed version.**
+
+### §3. `bench.yml` narrowed — and the reason on the record
+
+`bench.yml` read `on: [push, pull_request]`. Every push to every branch fetched
+the private held-out vectors and scored against them. It is now:
+
+```yaml
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+```
+
+**The reason is not runner minutes.** Recording it wrongly is how this gets
+reverted in six months by whoever wants faster feedback, so the reason is in the
+workflow file itself as well as here:
+
+> Held-out scoring on every push turns the held-out set into a dev set. A score
+> that comes back on every commit is a feedback channel, and a feedback channel
+> is something you can iterate against one commit at a time **without ever
+> intending to**. Nudge a rounding mode, push, read the BER; nudge it back,
+> push, read it again. Nobody has to look at a single held-out vector for the
+> held-out set to stop measuring generalisation — the scalar leaks the
+> information one bit at a time, and after enough commits the transpiler has
+> been fitted to vectors it was never allowed to see.
+>
+> That is Goodhart's law arriving through CI configuration rather than through
+> anybody's intent, and it is the exact failure R3 and the pre-commit sealing
+> ordering exist to prevent. Those controls govern who may **read** the vectors;
+> this one governs how often anyone may **ask** them a question. Both are
+> needed, because a sufficiently high query rate defeats the read restriction on
+> its own.
+
+This was live, not hypothetical: `RELIAN-BENCH scoring` run #143 scored the
+held-out split on the branch push of `7617fe4` — a commit that changed one
+integer in a workflow file and could not possibly have moved a BER.
+
+`workflow_dispatch` is kept deliberately. On-demand re-verification without a
+push is what the WP-2.1 key session will need, and removing the push trigger
+without it would have replaced one problem with an inability to re-verify at
+all.
+
+**The cost, stated rather than glossed:** a branch that breaks the bench harness
+now surfaces at PR time instead of push time. That is a real loss of feedback
+speed for harness work, and it is accepted — an intact held-out set is worth more
+than an earlier red tick, and `workflow_dispatch` buys the feedback back for
+anyone who wants it on a specific commit.
+
+This closes the item WP-2.0.1 §6 left as **UNRESOLVED — operator's call**.
+
+### §4. The suite triple: 286 → 310, attributed test by test
+
+`EXPECTED_PASSES` moves to **310** in the same commit that adds the tests.
+Collection went 296 → 320; the skip count is untouched at 10. All twenty-four
+additions are in `tests/test_verify_manifest.py`; **no existing test changed,
+was renamed, or stopped being collected.**
+
+| # | Test | What it pins |
+|---|---|---|
+| 1 | `test_sealed_v12_ledger_verifies_on_all_three_layers` | the green path: 3/3 layers on the real v1.2 ledger |
+| 2 | `test_v12_census_is_21_verified_8_declared_absent_0_mismatched` | the census, and that verified + declared-absent = recorded |
+| 3 | `test_pinning_the_real_signer_fingerprint_still_passes` | the pin does not break the green path |
+| 4 | `test_corpus_mutation_fails_the_tree_layer_and_only_that_layer` | `TREE` teeth, isolated |
+| 5 | `test_file_added_to_the_tree_is_caught_even_though_every_hash_matches` | the reverse walk |
+| 6 | `test_deleted_recorded_file_is_caught` | an undeclared absence is a failure |
+| 7 | `test_declared_absent_path_that_is_present_is_reported_not_hashed` | a held-out file appearing here is a finding, and is not read |
+| 8 | `test_file_count_disagreeing_with_files_length_fails_the_tree_layer` | the manifest's claim about itself |
+| 9 | `test_consistently_edited_files_entry_fails_only_the_payload_layer` | `PAYLOAD` teeth, isolated, against a re-signed forgery |
+| 10 | `test_payload_recomputation_agrees_with_the_sealed_value` | the independent reimplementation matches the sealer |
+| 11 | `test_signature_mutation_fails_only_the_signature_layer` | `SIGNATURE` teeth, isolated |
+| 12 | `test_manifest_body_edit_is_caught_by_the_signature_layer` | a lowered threshold is caught |
+| 13 | `test_key_fingerprint_pin_rejects_an_otherwise_valid_resigned_manifest` | unpinned a forgery verifies; pinned it does not |
+| 14 | `test_manifest_hash_recomputation_agrees_with_the_sealed_value` | `manifest_hash()` reimplementation matches |
+| 15 | `test_excluded_build_artifacts_are_not_reported_as_unrecorded` | the sealer's binary exclusions |
+| 16 | `test_dropping_the_binary_exclusion_surfaces_them_as_unrecorded` | the exclusion is load-bearing; the walk really walks |
+| 17 | `test_absent_ledger_is_fatal_and_never_a_pass` | R2 — unmeasured is not a pass |
+| 18 | `test_unparseable_ledger_is_fatal_and_never_a_pass` | R2 |
+| 19 | `test_absent_root_is_fatal_and_never_a_pass` | R2 |
+| 20 | `test_cli_exits_zero_on_the_sealed_ledger` | the exact invocation CI runs |
+| 21 | `test_cli_exits_one_and_names_the_failed_layer` | exit status and the failing path in the output |
+| 22 | `test_cli_json_output_is_machine_readable` | `--json` |
+| 23 | `test_verifier_imports_nothing_from_the_repository` | imports ⊆ stdlib + `cryptography`, checked by AST |
+| 24 | `test_verifier_does_not_manipulate_sys_path` | no `sys.path` mutation, checked by AST |
+
+Local, without `cobc` (which is why the local skip count is 20 rather than 10 —
+ten `cobc`-gated demo tests guard themselves off):
+
+```
+pytest -q -rs
+→ 300 passed, 20 skipped in 87.67s
+```
+
+300 + the ten demo tests that run only where `cobc` exists = the **310** the
+runner measures.
+
+### §5. CI — both workflows green on the branch
+
+Recorded in the follow-up commit, after the runs on the final branch head
+complete. Measuring them before pushing would be a prediction, not a
+measurement (R1).
+
+### §6. What this entry did not resolve
+
+- **The v1.2 manifest format still does not record its own include/exclude
+  rules** (§2). `verify_manifest.py` works around it with CLI arguments and says
+  so; fixing it properly means a v1.3 manifest that records the walk rules
+  inside the signature. **UNRESOLVED — needs a re-seal, operator's call.**
+- **`bench/harness/commit.py`'s `verify()` still trusts the embedded public
+  key** (§2). `verify_manifest.py` offers `--key-fingerprint` and CI uses it,
+  but the sealer's own `verify()` — the one `bench.yml` calls — does not pin.
+  Changing it means editing `bench/`, which rule 4 forbids without a new signed
+  version. **UNRESOLVED — operator's call.**
+- The three residuals inherited from WP-2.0 §11 — gnucobol intake
+  misclassification, the repository not being `black`-formatted, and
+  preprocessor integration — are untouched here and **remain UNRESOLVED**.

@@ -4,9 +4,13 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     286 passed, 10 skipped, 0 failed
+#     310 passed, 10 skipped, 0 failed
 #
-# (WP-2.0, 2026-08-20: was 285. Net +1 -- the COBOL-85 grammar swap made
+# WP-2.0.2, 2026-08-20: was 286. Net +24, all of them tests/test_verify_manifest.py,
+# which proves each of the three layers of tools/verify_manifest.py fails on its
+# own. See docs/PHASE2_LOG.md, WP-2.0.2 §2.
+#
+# WP-2.0, 2026-08-20: was 285. Net +1 -- the COBOL-85 grammar swap made
 # PARTIAL.cbl parse, so the test that pinned it to the token-scan fallback was
 # repointed at COPYUSER.cbl, which still cannot parse because COPY needs the
 # preprocessor, and a new test pins PARTIAL.cbl's promotion to the tree path.
@@ -18,7 +22,7 @@
 #
 # WP-2.0.2, 2026-08-20: the pass count is no longer prose. Both it and the skip
 # count are now asserted mechanically against EXPECTED_PASSES / EXPECTED_SKIPS
-# below.)
+# below.
 #
 # The skip count is asserted, not merely reported, and that is the whole point.
 # The demo tests skip themselves when GnuCOBOL or the JDK is missing (see
@@ -91,7 +95,13 @@ env:
   # touching the suite.
   #   planted red: https://github.com/khaaliswooden-max/relian/actions/runs/32421480377
   # See docs/PHASE2_LOG.md, WP-2.0.2 §1.
-  EXPECTED_PASSES: "286"
+  #
+  # WP-2.0.2 §2 (2026-08-20): 286 -> 310. Net +24, every one of them a new test
+  # in tests/test_verify_manifest.py, which gives tools/verify_manifest.py its
+  # teeth. Attributed test by test in docs/PHASE2_LOG.md, WP-2.0.2 §2. No
+  # existing test changed, was renamed, or stopped being collected: collection
+  # went 296 -> 320 and the skip count is untouched at 10.
+  EXPECTED_PASSES: "310"
 
 jobs:
   parser-regen:
@@ -119,6 +129,92 @@ jobs:
         # tools/regen_parser.sh verifies the jar's SHA-256 before running it,
         # so a cached or substituted jar cannot silently change the output.
         run: tools/regen_parser.sh --check
+
+  bench-seal:
+    # WP-2.0.2 -- the benchmark tree still matches the manifest that seals it.
+    #
+    # bench.yml already verifies the Ed25519 signature over the v1.2 ledger.
+    # That proves the MANIFEST was not edited. It does not prove the TREE still
+    # matches the manifest, and only the second claim catches a silent edit
+    # under bench/: change one byte in corpus/P03_eligibility/program.cbl and
+    # the signature still verifies perfectly, because it covers the manifest's
+    # bytes rather than the corpus's.
+    #
+    # A separate job for the same reason parser-regen is one: a benchmark whose
+    # tree has drifted from its seal is a PROVENANCE failure, and it should be
+    # legible as that in the checks list rather than as a test failure. It also
+    # means a red suite never suppresses this result, and a drifted tree never
+    # suppresses the suite's.
+    #
+    # tests/test_verify_manifest.py is what proves the verifier has teeth: it
+    # copies bench/ into tmp_path, mutates one byte there, and asserts each of
+    # the three layers fails on its own. Nothing under bench/ is ever written.
+    name: bench tree matches its sealed manifest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pin the interpreter
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned dependencies
+        # The same fully-hashed closure the suite installs. `cryptography` is
+        # the verifier's only third-party import and is pinned there; a bare
+        # `pip install cryptography` here would be an unpinned artifact in a
+        # job whose entire purpose is provenance.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+
+      - name: Verify bench/ against LEDGER_relian-bench-v1.2.json
+        # Three layers, each reported independently:
+        #   TREE       every recorded file exists and hashes to its recorded
+        #              sha256, AND the include set is re-walked so a file
+        #              ADDED since sealing is caught too
+        #   PAYLOAD    payload_sha256 recomputed from files[], which catches a
+        #              CONSISTENTLY edited files[] that layer 1 would accept
+        #   SIGNATURE  Ed25519 over manifest_hash()
+        #
+        # --expect-absent names the two categories of recorded file this
+        # repository deliberately does not contain: the seven held-out vector
+        # files (rule 1 / R3, scoring-only and CI-only) and the vector
+        # generator (rule 6, generator + seed regenerate the held-out set).
+        # Both are in .gitignore for those reasons. They are reported as
+        # DECLARED ABSENT and are never counted as verified -- an unavailable
+        # file is not a checked one (R1) -- and their contents are not read.
+        # Measured on this ledger: 29 recorded, 21 verified here, 8 declared
+        # absent, 0 hash mismatches, 0 unrecorded files on disk.
+        #
+        # --key-fingerprint pins the signer. Without it the signature layer
+        # verifies with the public key EMBEDDED IN THE MANIFEST, which proves
+        # self-consistency but not authorship: a forged manifest re-signed with
+        # an attacker's own key passes. The pin makes editing this workflow a
+        # visible precondition of that attack.
+        run: |
+          python3 tools/verify_manifest.py \
+            --ledger bench/LEDGER_relian-bench-v1.2.json \
+            --root bench \
+            --include-dirs corpus,harness \
+            --include-files SPEC.md \
+            --expect-absent '**/vectors/heldout.jsonl,harness/gen_vectors.py' \
+            --key-fingerprint 233bb4406e2de606
+
+      - name: Confirm nothing under bench/ was modified
+        # Rule 4: bench/ is not editable by an agent or by CI. The suite's
+        # mutation tests all run against a tmp_path copy, so the working tree
+        # must be byte-clean here. If it is not, something wrote to the sealed
+        # corpus during this job and the verification above described a tree
+        # that no longer exists.
+        if: always()
+        run: |
+          echo "--- git status --short -- bench/ ---"
+          git status --short -- bench/
+          test -z "$(git status --porcelain -- bench/)" \
+            || { echo "FAIL: bench/ was modified during this run"; exit 1; }
 
   pytest:
     name: pytest (CPython 3.12, GnuCOBOL + JDK)
