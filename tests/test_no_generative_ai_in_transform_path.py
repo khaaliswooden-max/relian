@@ -29,6 +29,7 @@ weakening the assertion.
 from __future__ import annotations
 
 import ast
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -284,10 +285,97 @@ def test_relative_imports_in_package_inits_resolve() -> None:
             )
 
 
-def test_deleted_analysis_package_is_gone() -> None:
-    """The src/analysis package stays deleted; git history preserves it."""
-    assert not (REPO_ROOT / "src" / "analysis").exists(), (
-        "src/analysis was deleted under R6 (WP-2.0.-2) and has reappeared"
+# The probe runs out-of-process for the same reason (a) does: the parent
+# interpreter has already imported half of `src`, and a stale entry in
+# `sys.modules` or in the import caches would make the answer depend on
+# collection order rather than on what is actually on disk.
+_ANALYSIS_PROBE = """
+import importlib, json, pathlib
+
+report = {"outcome": None, "sources": [], "detail": ""}
+try:
+    module = importlib.import_module("src.analysis")
+except ModuleNotFoundError as exc:
+    report["outcome"] = "absent"
+    report["detail"] = str(exc)
+else:
+    sources = sorted(
+        str(path)
+        for root in getattr(module, "__path__", [])
+        for path in pathlib.Path(root).rglob("*.py")
+    )
+    report["sources"] = sources
+    report["detail"] = repr(module)
+    if getattr(module, "__file__", None) is None and not sources:
+        report["outcome"] = "namespace-shell"
+    else:
+        report["outcome"] = "importable"
+print(json.dumps(report))
+"""
+
+
+def test_deleted_analysis_package_is_not_importable() -> None:
+    """The src/analysis package stays unimportable; git history preserves it.
+
+    This used to assert ``not (REPO_ROOT / "src" / "analysis").exists()``, and
+    that assertion is wrong: it tests the filesystem when what R6 constrains is
+    the import graph. On 2026-08-20 it failed on a developer box where the only
+    thing left under ``src/analysis`` was a ``__pycache__`` directory that
+    ``git clean`` had not reached -- no source, nothing importable, no R6
+    exposure whatsoever, and a red suite. A false positive on a guard this
+    load-bearing is not harmless; it trains the reader to dismiss it.
+
+    Importability is the property that matters, so importability is what is
+    asserted. Note the ``namespace-shell`` branch: PEP 420 means a directory
+    holding nothing but build artifacts still imports, as a namespace package
+    with ``__file__`` of None and no loadable submodule. Verified directly --
+    creating ``src/analysis/__pycache__/semantic.cpython-311.pyc`` and nothing
+    else is enough for ``import src.analysis`` to succeed. So a bare
+    ``pytest.raises(ModuleNotFoundError)`` would have reproduced the very false
+    positive it was written to remove. An empty shell is classified as clean;
+    anything with a loadable module in it is not.
+    """
+    proc = subprocess.run(
+        [sys.executable, "-c", _ANALYSIS_PROBE],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert proc.returncode == 0, (
+        f"analysis-package probe failed to run.\n"
+        f"--- stdout ---\n{proc.stdout}\n--- stderr ---\n{proc.stderr}"
+    )
+    report = json.loads(proc.stdout.strip().splitlines()[-1])
+
+    assert report["outcome"] != "importable", (
+        "R6 violation: src.analysis is importable again. It was deleted in "
+        "WP-2.0.-2 because it handed customer source to a generative-AI model; "
+        f"{report['detail']} exposes "
+        f"{report['sources']}. See docs/R6_AUDIT_2026-08.md and escalate per "
+        "Phase 2 §5 before restoring any of it."
+    )
+
+    # Belt and braces: the module that actually made the call must stay gone
+    # even if the package directory lingers as an empty namespace shell.
+    submodule = subprocess.run(
+        [sys.executable, "-c",
+         "import importlib\n"
+         "try:\n"
+         "    importlib.import_module('src.analysis.semantic')\n"
+         "except ModuleNotFoundError as exc:\n"
+         "    print('absent:', exc)\n"
+         "else:\n"
+         "    raise SystemExit('IMPORTED')\n"],
+        cwd=str(REPO_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert submodule.returncode == 0 and submodule.stdout.startswith("absent:"), (
+        "R6 violation: src.analysis.semantic imported. SemanticAnalyzer is the "
+        "class that put customer source in an OpenAI prompt.\n"
+        f"--- stdout ---\n{submodule.stdout}\n--- stderr ---\n{submodule.stderr}"
     )
 
 

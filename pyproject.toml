@@ -9,27 +9,44 @@ requires-python = ">=3.11"
 # installable inside a customer perimeter; the third was reachable only from
 # the deleted src/analysis package. tests/test_no_generative_ai_in_transform_path.py
 # fails if any of the three is reintroduced here. See docs/R6_AUDIT_2026-08.md.
+#
+# WP-2.0.-1 (2026-08-20): four further distributions left this list. `langchain`,
+# `transformers` and `torch` were the residual flagged in docs/R6_AUDIT_2026-08.md
+# §8 -- an LLM-orchestration framework and two deep-learning runtimes declared as
+# hard runtime requirements with ZERO import sites anywhere in src/, transpiler/,
+# demo/ or bench/. `pandas` went the same way for the same reason: it had no
+# import site either. They cost every on-prem installation several gigabytes and
+# a security-review surface, for nothing.
+#
+# The five developer tools that used to sit here (`pytest`, `pytest-cov`,
+# `black`, `pylint`, `mypy`) moved to the `dev` extra below. A customer-perimeter
+# install of the transform path has no business pulling a test runner and three
+# linters.
+#
+# `xgboost` and `numpy` STAY: both are genuinely imported (src/ml/risk_scorer.py,
+# src/intelligence/migration_intelligence.py). `xgboost` is pending a separate
+# disposition -- it is not in the Phase 1/2 transform path, but removing it is
+# not this work package's call.
 dependencies = [
-    "langchain>=0.1.0",
-    "transformers>=4.35.0",
-    "torch>=2.1.0",
     "xgboost>=2.0.0",
-    "pandas>=2.0.0",
     "numpy>=1.24.0",
     "psycopg2-binary>=2.9.0",
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",
     "pydantic>=2.5.0",
+    "antlr4-python3-runtime>=4.13.0"
+]
+
+[project.optional-dependencies]
+# The toolchain CI installs. `pip install -e ".[dev]"` after `pip install -r
+# requirements.lock` must be a no-op resolution-wise: every name here is pinned
+# in the lock file.
+dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "black>=23.11.0",
     "pylint>=3.0.0",
     "mypy>=1.7.0",
-    "antlr4-python3-runtime>=4.13.0"
-]
-
-[project.optional-dependencies]
-dev = [
     "ipython>=8.18.0",
     "jupyter>=1.0.0",
     "pre-commit>=3.5.0"
@@ -54,3 +71,18 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "--cov=src --cov-report=html --cov-report=term"
+# The suite imports first-party code as `src.assessment.…`, which requires the
+# REPO ROOT on sys.path. Nothing was putting it there reliably:
+#
+#   * `pip install -e .` does not. setuptools auto-detects this project as
+#     src-layout and points the editable path at `<repo>/src`, so `assessment`
+#     and `core` become importable as TOP-LEVEL names while `src.assessment`
+#     does not resolve at all.
+#   * `python -m pytest` does, but only as a side effect of `-m` prepending the
+#     working directory. Bare `pytest` does not, so the same tree passed one
+#     way and died at collection the other -- 9 ImportErrors, zero tests
+#     collected, before .github/workflows/tests.yml caught it.
+#
+# `pythonpath` is rootdir-relative, so it holds for either invocation and from
+# any working directory.
+pythonpath = ["."]

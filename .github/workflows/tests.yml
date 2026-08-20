@@ -1,0 +1,191 @@
+# WP-2.0.-1 §5 -- the unit-test gate.
+#
+# Distinct from bench.yml, which scores the transpiler against the sealed
+# held-out corpus. This job runs the ordinary suite against a PINNED
+# environment and asserts the result is exactly the sealed triple:
+#
+#     288 passed, 10 skipped, 0 failed
+#
+# The skip count is asserted, not merely reported, and that is the whole point.
+# The demo tests skip themselves when GnuCOBOL or the JDK is missing (see
+# tests/toolchain.py), which is the honest thing for them to do locally but
+# would be green-by-skip here: a runner that quietly lost `cobc` would report
+# thirteen more skips, zero failures, and a green tick. Pinning the count turns
+# that into a failed build.
+#
+# There is deliberately no `continue-on-error` in this file. A step that is
+# allowed to fail without failing the job is a gate that does not gate.
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  # tests/assessment/test_cross_check.py, all ten conditional on fixture shape.
+  # Enumerated and classified in docs/PHASE2_LOG.md §4. Change this number only
+  # alongside that section.
+  EXPECTED_SKIPS: "10"
+
+jobs:
+  pytest:
+    name: pytest (CPython 3.12, GnuCOBOL + JDK)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pin the interpreter
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the system toolchain
+        # The suite is not pure Python: the demo tests compile COBOL with
+        # `cobc` and Java with `javac`, run both, and diff the results. Without
+        # both, thirteen demo tests skip and the assertion below fails, which is
+        # the intended behaviour -- an unmeasured comparison is not a passed one.
+        #
+        # Only GnuCOBOL comes from apt. The JDK used to come from
+        # `default-jdk-headless`, which is not a version at all: it resolves to
+        # whatever the runner image currently calls default, and on
+        # ubuntu-latest that was Java 17 while the operator baseline and the dev
+        # container were both on 21. The session fixture caught the drift
+        # (`javac_version: javac 17.0.20`, recorded in docs/PHASE2_LOG.md §10).
+        # A differential-equivalence harness must not take its compiler from a
+        # moving image label, so the JDK is pinned by the next step instead.
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends gnucobol
+
+      - name: Pin the JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Record the measured toolchain
+        # R1/R9: the versions that produced the result, printed into the run log
+        # so a green tick is never separable from the conditions that earned it.
+        # `java-version: '21'` pins the MAJOR version only -- see the caveat in
+        # docs/PHASE2_LOG.md §11 -- so the exact patch release is captured here.
+        run: |
+          python -VV
+          cobc --version | head -1
+          javac -version
+          java -version
+
+      - name: Install pinned dependencies
+        # requirements.lock is fully hashed, so pip refuses any artifact whose
+        # SHA-256 is not listed. The editable install that follows adds the
+        # project itself; every name in [project.dependencies] and the `dev`
+        # extra is already pinned above, so it resolves nothing new.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+          pip install -e ".[dev]"
+
+      - name: Record the resolved environment
+        run: |
+          pip check
+          pip freeze | sort > pip-freeze.txt
+          echo "pip freeze sha256: $(sha256sum pip-freeze.txt | cut -d' ' -f1)"
+          cat pip-freeze.txt
+
+      - name: pytest
+        run: pytest -q -rs --junitxml=junit.xml
+
+      - name: Assert the suite result is exactly the sealed triple
+        # `if: always()` so a red suite still gets the count breakdown printed
+        # rather than only pytest's own summary. It never converts a failure
+        # into a pass -- the script exits nonzero on any failure, error, or
+        # skip-count drift, and the pytest step above has already failed the
+        # job in that case.
+        if: always()
+        run: |
+          python3 - "$EXPECTED_SKIPS" <<'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          expected_skips = int(sys.argv[1])
+          report = Path("junit.xml")
+          if not report.is_file():
+              raise SystemExit(
+                  "FAIL: junit.xml was not written -- pytest did not run to "
+                  "completion, so there is no result to assert on. An absent "
+                  "measurement is not a pass."
+              )
+
+          root = ET.parse(report).getroot()
+          suites = [root] if root.tag == "testsuite" else list(root.iter("testsuite"))
+          if not suites:
+              raise SystemExit("FAIL: junit.xml contains no <testsuite> element")
+
+          def total(attr):
+              return sum(int(s.get(attr, 0)) for s in suites)
+
+          tests, failures = total("tests"), total("failures")
+          errors, skipped = total("errors"), total("skipped")
+          passed = tests - failures - errors - skipped
+
+          # The toolchain the run actually measured, recorded by the
+          # session-scoped fixture in tests/conftest.py.
+          print("--- measured environment ---")
+          for suite in suites:
+              for prop in suite.iterfind("properties/property"):
+                  print(f"  {prop.get('name')}: {prop.get('value')}")
+
+          print("--- result ---")
+          print(f"  {passed} passed, {skipped} skipped, "
+                f"{failures} failed, {errors} errored")
+
+          problems = []
+          if failures or errors:
+              problems.append(f"{failures} failure(s) and {errors} error(s); "
+                              f"the gate requires 0 of each")
+          if skipped != expected_skips:
+              print("--- skips in this run ---")
+              for suite in suites:
+                  for case in suite.iter("testcase"):
+                      for skip in case.iterfind("skipped"):
+                          print(f"  {case.get('classname')}::{case.get('name')}"
+                                f" -- {skip.get('message')}")
+              problems.append(
+                  f"skip count drifted: {skipped}, expected {expected_skips}. "
+                  f"MORE skips usually means the runner lost `cobc` or `javac` "
+                  f"and the demo tests guarded themselves off -- that is an "
+                  f"unmeasured comparison, not a passing one. FEWER means a "
+                  f"conditional skip became unconditional. Either way, "
+                  f"reconcile against docs/PHASE2_LOG.md and update "
+                  f"EXPECTED_SKIPS in this workflow deliberately."
+              )
+          if passed <= 0:
+              problems.append("no test passed; refusing to certify an empty run")
+
+          if problems:
+              for problem in problems:
+                  print(f"GATE FAILED: {problem}")
+              raise SystemExit(1)
+
+          print(f"GATE MET: {passed} passed, {skipped} skipped "
+                f"(expected {expected_skips}), 0 failed, 0 errored")
+          PY
+
+      - name: Upload the JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-report
+          path: |
+            junit.xml
+            pip-freeze.txt
+          # An earlier step can fail before pytest writes anything; warn rather
+          # than masking that failure with a second one here.
+          if-no-files-found: warn

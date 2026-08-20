@@ -6,7 +6,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Toolchain
-        run: sudo apt-get update -qq && sudo apt-get install -y gnucobol default-jdk-headless
+        # GnuCOBOL only. The JDK used to ride along as `default-jdk-headless`,
+        # which is an image label rather than a version: it resolved to Java 17
+        # on ubuntu-latest while the operator baseline was 21.
+        #
+        # That matters more here than in tests.yml. This job COMPILES the Java
+        # candidates whose behaviour produces the scored BER, so an unpinned
+        # compiler means the scored number's conditions were partly unrecorded --
+        # a Trutina provenance hole in the one place the benchmark cannot afford
+        # one. The sealed v1.2 ledger says so outright: its `toolchain` block
+        # records `"javac": "UNAVAILABLE"`.
+        run: sudo apt-get update -qq && sudo apt-get install -y gnucobol
+      - name: Pin the JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Record the measured toolchain
+        # Exported to $GITHUB_ENV so the scoring step can stamp the exact
+        # versions into bench_summary.json. `java-version: '21'` pins the MAJOR
+        # version only; the patch release drifts, so it is captured per run
+        # rather than assumed.
+        run: |
+          cobc --version | head -1
+          javac -version
+          java -version
+          echo "RELIAN_COBC_VERSION=$(cobc --version | head -1)" >> "$GITHUB_ENV"
+          echo "RELIAN_JAVAC_VERSION=$(javac -version 2>&1 | head -1)" >> "$GITHUB_ENV"
       - name: Verify committed ledger signature
         run: |
           pip install cryptography -q
@@ -114,6 +140,16 @@ jobs:
               'ledger_ref': {
                   'tag': ledger.get('tag'),
                   'manifest_sha256': ledger['signature']['manifest_sha256'],
+              },
+              # The toolchain that actually produced this score. The COBOL side
+              # was always pinned by apt; the Java side was not pinned at all
+              # until the JDK was fixed to Temurin 21, and `java-version` pins
+              # only the major version, so the exact compiler is recorded here
+              # per run. R1: whatever the step measured, or 'unknown' -- never a
+              # default that looks like a measurement.
+              'toolchain': {
+                  'cobc': os.environ.get('RELIAN_COBC_VERSION', 'unknown'),
+                  'javac': os.environ.get('RELIAN_JAVAC_VERSION', 'unknown'),
               },
               'failures': [],
           }
