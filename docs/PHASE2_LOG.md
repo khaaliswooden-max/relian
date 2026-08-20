@@ -1568,6 +1568,19 @@ LOW, both times).
 movement in `supported` blocks merge; the movement here is +1 and fully
 accounted for.
 
+> **AMENDED, WP-2.0.1 (2026-08-20).** The criterion quoted in the paragraph
+> above — *"any movement in supported counts is a bug and blocks merge"* — was
+> wrong, and it is what produced the false merge-block on PR #25 that the
+> paragraph is arguing against. It is superseded by the wording in the WP-2.0.1
+> entry, §3 of this log. In short: **the gate is the supported SET** — the
+> `transpiler/c1_rulebased.py` sha256 and the registry key list must be
+> identical — and count movement is permitted when it is attributable to
+> statements already in that set, with a program, line number and verb given.
+> The measurements in this section are unchanged and were already sufficient to
+> clear the amended gate: sha256 `a440ac2751bb738d…` identical, registry the
+> same 21 keys, and the +1 attributed to the `MOVE` at
+> `P04_taxtable/program.cbl:54`.
+
 Portfolio figures, all five re-run on byte-identical inputs (all five manifest
 hashes match):
 
@@ -1749,3 +1762,223 @@ Nothing under `bench/corpus/`, `bench/harness/` or `transpiler/` was modified.
   here. **UNRESOLVED.**
 - **The repository is not `black`-formatted** (49 files, unchanged by this WP).
   No linter runs in CI. **UNRESOLVED — operator's call.**
+
+---
+
+## 2026-08-20 · WP-2.0.1 · Housekeeping — CI trigger, `numpy`, criterion wording
+
+- **HEAD at start:** `3f5b885` (`Merge pull request #25 from
+  khaaliswooden-max/claude/wp-2-0-cobol-grammar-n2sre1`), verified equal to
+  `origin/main` — `git rev-list --left-right --count origin/main...HEAD` →
+  `0	0`.
+- **Branch:** `claude/focused-pasteur-2lrp50`
+- **Scope guard:** nothing under `bench/` or `transpiler/` was modified.
+  `git status --porcelain bench/ transpiler/` → no output, at close-out (§5).
+- **Nature of the work package:** three items carried as residuals by earlier
+  entries. No transform-path behaviour changes; the supported set is untouched.
+
+### §1. The unit-test gate could not run on a feature branch
+
+`.github/workflows/tests.yml` read:
+
+```yaml
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+```
+
+while `.github/workflows/bench.yml` reads, on its first line, `on: [push,
+pull_request]`. That is the wrong way round in both directions at once. The
+cheap gate — a pytest run — was restricted to `main`, so a push to a work-package
+branch produced **no suite result at all**; the only way to see one was to open a
+pull request. The expensive gate — held-out scoring, which compiles seven Java
+candidates and runs them against the sealed corpus — was unrestricted and ran on
+every push to every branch.
+
+The cost is recorded rather than asserted: WP-2.0.−3 (PR #24), WP-2.0 (PR #25)
+and this work package all had to open a pull request before any CI-measured
+suite result existed for the branch. Three consecutive work packages is the
+measurement.
+
+`push:` is now unrestricted; `pull_request:` stays scoped to `main`, which is
+what the merge gate is about. Parsed rather than eyeballed:
+
+```
+python3 -c "import yaml; print(yaml.safe_load(open('.github/workflows/tests.yml'))[True])"
+→ {'push': None, 'pull_request': {'branches': ['main']}}
+```
+
+(`True` because YAML 1.1 resolves the bare key `on` to a boolean — the reason
+this is read back through a parser rather than by eye.)
+
+`bench.yml` was **not** changed. Narrowing the held-out job is a benchmark-policy
+decision, not housekeeping, and it is out of this work package's brief.
+**UNRESOLVED — operator's call:** the expensive job still runs on every push.
+
+### §2. `numpy` removed — direct and transitive, both measured
+
+WP-2.0.−3 §4 left `numpy` declared and marked the disposition **UNRESOLVED**.
+Its two consumers, `src/ml/risk_scorer.py` and
+`src/intelligence/migration_intelligence.py`, were deleted under R1 in that same
+work package. Re-measured here rather than taken from that note.
+
+Direct import sites, repository-wide:
+
+```
+grep -rEn "^\s*(import|from)\s+numpy\b" --include="*.py" .
+→ (no output)
+grep -rEn "\bnumpy\b|\bnp\.[a-z]" --include="*.py" .
+→ (no output)
+```
+
+The second pattern is there because the first would miss a function-body
+`import numpy as np` written with leading whitespace inside a `try:` — the exact
+shape `migration_intelligence.py:363` used before it was deleted.
+
+**The transitive question, which is the one that actually decides this.** A
+distribution with no import site can still be load-bearing if something else in
+the closure requires it, so the check is the resolver's, not a grep's: regenerate
+the lock and see whether `numpy` survives.
+
+```
+uv pip compile pyproject.toml --extra dev --generate-hashes \
+    --python-version 3.12 --universal --no-annotate \
+    --output-file requirements.lock
+```
+
+| | Before | After |
+|---|---|---|
+| pinned distributions | 38 | **37** |
+| `numpy` pinned | `numpy==2.5.2` | **absent** |
+
+```
+diff <(grep -oE '^[a-z0-9][a-z0-9._-]*==[^ ]*' <old lock> | sort) \
+     <(grep -oE '^[a-z0-9][a-z0-9._-]*==[^ ]*' requirements.lock | sort)
+→ 21d20
+  < numpy==2.5.2
+```
+
+**One line differs, and it is the removal.** No other pin changed version. Had
+anything in `demo/`, `bench/harness/`, `transpiler/` or `src/` been reaching
+`numpy` through another distribution, the resolver would have kept it in the
+closure; it did not, so nothing does.
+
+Install verified in a fresh CPython 3.12 venv, including the CI invariant that
+`pip install -e ".[dev]"` resolves nothing new after the lock:
+
+```
+pip install -r requirements.lock   → Successfully installed <35 distributions>
+pip install -e ".[dev]"            → Successfully installed relian-0.1.0   (alone)
+pip check                          → No broken requirements found.
+pip freeze --exclude-editable | sort | sha256sum
+→ d5dc6dd01f5f003fb82e4797813912c9dbb2ec934a1fa840f8aaf13ea3ae3a3b
+pip freeze --exclude-editable | wc -l → 36
+```
+
+**37 pinned, 36 installed, and the difference is not drift.** `colorama==0.4.6`
+carries the marker `sys_platform == 'win32'` and does not install on Linux;
+`--universal` keeps markers rather than resolving them away, which is what the
+lock's own header says it is for.
+
+### §3. The WP-2.0 supported-count criterion, amended
+
+The criterion, as written for WP-2.0, was:
+
+> any movement in supported counts is a bug and blocks merge
+
+**It is replaced, in full, by:**
+
+> **The gate is the supported SET.** Two things must be identical across the
+> commits being compared: the sha256 of `transpiler/c1_rulebased.py`, and the
+> registry key list (`SUPPORTED_STATEMENTS`). Either one moving is a capability
+> claim and blocks merge.
+>
+> **Movement in the supported COUNT is permitted** when it is attributable to
+> statements already in that set — that is, statements whose verb was supported
+> both before and after. Such movement must be reported with a **program, a line
+> number, and a verb** for each attributed statement. Count movement that cannot
+> be attributed that way is unexplained and blocks merge exactly as a set change
+> would.
+
+Measured at this commit, as the values the gate reads:
+
+```
+sha256sum transpiler/c1_rulebased.py
+→ a440ac2751bb738da259c641ac8a5771c2f94a179852c97225fd9427c5a3e703
+python -c "from src.assessment.supported import SUPPORTED_STATEMENTS, registry_provenance; …"
+→ SUPPORTED_STATEMENTS@3f5b885 (c1_rulebased.py sha256:a440ac2751bb738d)
+   21 keys: ACCEPT ADD COMPUTE CONTINUE DISPLAY ELSE END-EVALUATE END-IF
+            END-PERFORM EVALUATE EXIT PROGRAM GOBACK IF INSPECT MOVE
+            PERFORM VARYING SEARCH SET STOP UNSTRING WHEN
+```
+
+#### Why the original wording was wrong
+
+It gated on the wrong quantity. The supported **count** is not a property of the
+transpiler at all — it is
+`|statements the analyzer recovers ∩ registry|`, a function of **two** inputs.
+The registry is the capability claim; statement recovery is the parser's reach
+over a given corpus. The criterion was written to stop the first from widening
+silently, but it was expressed in terms of a number that also moves whenever the
+second changes, with the capability claim untouched.
+
+The failure this produced is on the record. WP-2.0 replaced the reduced COBOL
+grammar with ProLeap COBOL-85. `transpiler/c1_rulebased.py` was byte-identical
+across the swap (`a440ac2751bb738d…` both sides) and the registry was the same
+21 keys, so no capability widened by so much as one verb. But the new grammar
+recovered **one statement the old one had missed** — the `MOVE` at
+`P04_taxtable/program.cbl:54` — and `MOVE` is in the registry, so the count went
+`173 → 174` on `bench_corpus` and `7939 → 7940` across all five dry runs.
+Numerator and denominator both rose by one; every coverage ratio was unchanged
+to four decimal places.
+
+Under the original wording that was a merge-block. It should not have been: it
+is the grammar swap doing precisely what it was commissioned to do, observed
+through a registry that did not move. The WP-2.0 entry had to escalate it as an
+operator call (§6, Criterion 5) and PR #25 stalled on it. **The criterion, not
+the change, was the defect** — a gate that fires on correct behaviour trains its
+readers to wave it through, which is the more expensive failure of the two.
+
+The amended wording keeps the whole of the original's protective intent. A verb
+becoming supported that was not supported before still requires a registry key
+or a change to `c1_rulebased.py`, and both are gated identically and by content
+hash rather than by eye. What it no longer does is confuse *seeing more of the
+customer's code* with *claiming to handle more of it*. The attribution
+requirement — program, line, verb — is what keeps that from becoming a loophole:
+an unattributed count movement blocks merge, so "the parser must have found
+something" is not an answer.
+
+**Amendment recorded in place**, as a marked block under WP-2.0 §6 Criterion 5.
+The measurements in that entry are untouched; this log is append-only and the
+figures it recorded were correct. It is the criterion they were judged against
+that changed, and by the amended wording WP-2.0 clears it on evidence that entry
+had already measured.
+
+**Stated elsewhere:** nowhere. The criterion is not encoded in any test or
+workflow — `grep -rn "supported count" .` returns one line, in this log, and
+`tests/assessment/test_supported.py` gates the registry-to-transpiler
+correspondence, not counts. Nothing else needed amending.
+
+### §4. Suite result
+
+Run in a reconstructed pin (this container starts on 3.11 with no `cobc`):
+
+| Item | Measured value |
+|---|---|
+| Interpreter | `Python 3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]` |
+| GnuCOBOL | `cobc (GnuCOBOL) 3.1.2.0` |
+| Java compiler | `javac 21.0.10` |
+
+```
+pytest -q -rs --junitxml=junit.xml
+→ 286 passed, 10 skipped in 306.89s (0:05:06)
+```
+
+**`286 passed, 10 skipped, 0 failed`** — the sealed triple, unchanged by this
+work package, which is the expected result: nothing here touches a code path the
+suite exercises. The ten skips are the same ten fixture-shape skips
+`EXPECTED_SKIPS` gates on, listed by `-rs` and unchanged from WP-2.0 §6
+Criterion 4. No demo test skipped, so `cobc` and `javac` were both present and
+the differential comparisons actually ran.
