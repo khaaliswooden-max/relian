@@ -2079,7 +2079,7 @@ circularity this repository is supposed to avoid.
 | Commit | `EXPECTED_PASSES` | Run | `tests` conclusion |
 |---|---|---|---|
 | `7617fe4` | `285` (deliberately wrong) | https://github.com/khaaliswooden-max/relian/actions/runs/32421480377 | **failure** — planted red |
-| `ea92098` | `286` (measured) | https://github.com/khaaliswooden-max/relian/actions/runs/32421999807 | recorded in §5 |
+| `ea92098` | `286` (measured) | https://github.com/khaaliswooden-max/relian/actions/runs/32421999807 | **success** |
 
 The planted-red run, from the gate step's own output:
 
@@ -2139,6 +2139,45 @@ LAYER 2/3  PAYLOAD    a8695c2c… recomputed == recorded                       P
 LAYER 3/3  SIGNATURE  a47305c2… recomputed == recorded, key 233bb4406e2de606 PASS
 VERDICT: PASS (3/3 layers)
 ```
+
+Verbatim from the `bench tree matches its sealed manifest` job on `a5b4efc`
+(run 32422281011), including the step that follows it:
+
+```
+LAYER 1/3  TREE -- recorded files exist and hash to their recorded sha256
+    recorded                    : 29
+    verified                    : 21
+    hash_mismatches             : 0
+    missing                     : 0
+    declared_absent             : 8
+    declared_absent_but_present : 0
+    unreadable                  : 0
+    walked_on_disk              : 21
+    unrecorded_on_disk          : 0
+    declared absent (NOT verified): corpus/P01_payroll/vectors/heldout.jsonl
+    [... six more heldout.jsonl, then harness/gen_vectors.py ...]
+    RESULT: PASS
+
+LAYER 2/3  PAYLOAD -- payload_sha256 recomputed from files[]
+    recorded                    : a8695c2cbb39c15204f1dd2a7c98751c4290cff5be29f3574e89c48d4dcb48be
+    recomputed                  : a8695c2cbb39c15204f1dd2a7c98751c4290cff5be29f3574e89c48d4dcb48be
+    RESULT: PASS
+
+LAYER 3/3  SIGNATURE -- Ed25519 signature over manifest_hash()
+    alg                         : Ed25519
+    recorded manifest_sha256    : a47305c29bfeb004f4fb4812a7f94097038e4cc0d06cbb4e5859b920662ce156
+    recomputed manifest_sha256  : a47305c29bfeb004f4fb4812a7f94097038e4cc0d06cbb4e5859b920662ce156
+    key fingerprint             : 233bb4406e2de606
+    signature verifies          : True
+    RESULT: PASS
+
+VERDICT: PASS (3/3 layers)
+
+--- git status --short -- bench/ ---
+```
+
+The last line is the rule-4 check, and it printed nothing: **nothing under
+`bench/` was modified on the runner.**
 
 **Correcting the brief's expected figure, which said "29 files, zero
 mismatches".** Zero mismatches is right, and so is zero unrecorded files. But
@@ -2364,9 +2403,52 @@ runner measures.
 
 ### §5. CI — both workflows green on the branch
 
-Recorded in the follow-up commit, after the runs on the final branch head
-complete. Measuring them before pushing would be a prediction, not a
-measurement (R1).
+| Workflow | Commit | Run | Conclusion |
+|---|---|---|---|
+| `tests` #19 | `7617fe4` | https://github.com/khaaliswooden-max/relian/actions/runs/32421480377 | **failure** — the planted red of §1 |
+| `tests` #20 | `ea92098` | https://github.com/khaaliswooden-max/relian/actions/runs/32421999807 | **success** — 286/10/0 |
+| `tests` #21 | `a5b4efc` | https://github.com/khaaliswooden-max/relian/actions/runs/32422281011 | partial — see below |
+| `RELIAN-BENCH scoring` #143 | `7617fe4` | https://github.com/khaaliswooden-max/relian/actions/runs/32421480561 | success |
+| `RELIAN-BENCH scoring` #144 | `ea92098` | https://github.com/khaaliswooden-max/relian/actions/runs/32421999744 | success |
+| `RELIAN-BENCH scoring` | `c66ef8f`, `a5b4efc` | — | **did not run** |
+
+The last row is §3 taking effect, observable rather than argued: runs #143 and
+#144 scored the held-out split on branch pushes of commits that changed an
+integer in a workflow file and a docstring. After `a5b4efc` narrowed the
+trigger, the same kind of push produced no bench run at all.
+
+On `a5b4efc`, two of the three `tests` jobs completed green:
+
+| Job | Conclusion |
+|---|---|
+| `parser is byte-identical to its grammar` | **success** |
+| `bench tree matches its sealed manifest` | **success** — §2's CI output above |
+| `pytest (CPython 3.12, GnuCOBOL + JDK)` | **runner lost** |
+
+#### The `pytest` job on `a5b4efc` lost its runner
+
+Called what it is rather than "flaky". The job began `pytest` at 22:01:43 and
+never reported another line, including past its own `timeout-minutes: 30`.
+That timeout is enforced *by the runner*, so a job that sails through it has
+stopped executing rather than failed a check — the runner-loss signature.
+
+Ruled out as a defect in this work package before being called that, rather
+than after:
+
+- the identical suite completed in **3m56s** on `ea92098` four minutes earlier;
+- the same tree measured locally: **300 passed, 20 skipped, 0 failed in 87.67s**
+  (§4 — 20 rather than 10 skips because this box has no `cobc`);
+- the twenty-four new tests measured in isolation add **~0.4s**; they touch only
+  `tmp_path`, spawn no subprocess and open no socket, so they have no mechanism
+  by which to hang;
+- the two sibling jobs on the same commit, on different runners, finished in
+  19s and 21s.
+
+Neither a cancel nor a re-run was possible from this session — both returned
+`403 Resource not accessible by integration`, so the token backing this work
+has no `actions: write`. The job was therefore not re-run and no empty commit
+was pushed to kick it. The next real commit (this one) re-runs `tests` on a new
+head, and that result is recorded below.
 
 ### §6. What this entry did not resolve
 
