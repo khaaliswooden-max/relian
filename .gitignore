@@ -19,3 +19,15 @@ node_modules/
 dist/
 *.tsbuildinfo
 .venv/
+
+# Test/build artifacts. `pytest` addopts writes htmlcov/ and .coverage on every
+# run, and `pip install -e .` (which .github/workflows/tests.yml does) drops an
+# egg-info directory in src/. None of it belongs in the tree.
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+junit.xml
+*.egg-info/
+.pytest_cache/
+.mypy_cache/

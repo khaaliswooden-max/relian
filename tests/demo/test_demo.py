@@ -9,21 +9,34 @@ worse than useless as evidence.
 
 from __future__ import annotations
 
-import shutil
 import sys
 from pathlib import Path
-
-import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+TESTS_DIR = Path(__file__).resolve().parents[1]
+if str(TESTS_DIR) not in sys.path:
+    sys.path.insert(0, str(TESTS_DIR))
+
 from demo import cases as cases_mod  # noqa: E402
 from demo import oracle, pipeline, report  # noqa: E402
+from toolchain import needs_javac, needs_toolchain  # noqa: E402
 
-HAVE_COBC = shutil.which("cobc") is not None
-needs_cobc = pytest.mark.skipif(not HAVE_COBC, reason="GnuCOBOL (cobc) not installed")
+# WP-2.0.-1 §3: `needs_cobc` used to guard these tests on the presence of
+# GnuCOBOL alone. That was wrong in both directions. Every test below builds
+# BOTH sides of the differential comparison -- `cobc` on the COBOL and `javac`
+# on the generated Java -- so on a box with GnuCOBOL and no JDK the guard did
+# not fire, twelve tests ran, and all twelve failed inside `javac`: an absent
+# tool reported as twelve product defects. On a box missing both tools the
+# guard *did* fire and the same twelve skipped, so the more incomplete
+# environment produced the greener suite.
+#
+# `needs_toolchain` fires when either tool is absent and names the missing one.
+# The skip is only honest because .github/workflows/tests.yml pins the skip
+# COUNT: a CI runner that loses `cobc` or `javac` fails the build instead of
+# quietly reporting twelve more skips. See tests/toolchain.py.
 
 
 def _case(case_id: str, limit: int = 2):
@@ -125,6 +138,7 @@ def test_assessment_no_longer_overreports_perform(tmp_path):
     assert ("PERFORM", 1) in result.assess.unsupported_ranked
 
 
+@needs_javac
 def test_no_metric_is_invented_without_the_oracle(tmp_path, monkeypatch):
     """With no COBOL toolchain, equivalence is None — never 0.0, never assumed."""
     monkeypatch.setattr(oracle, "detect",
@@ -144,7 +158,7 @@ def test_no_metric_is_invented_without_the_oracle(tmp_path, monkeypatch):
 # --------------------------------------------------------------------------
 
 
-@needs_cobc
+@needs_toolchain
 def test_supported_program_is_differentially_equivalent(tmp_path):
     result = pipeline.run_case(_case("P01_payroll", limit=3), tmp_path)
     assert result.verdict == pipeline.EQUIVALENCE_MEASURED
@@ -157,7 +171,7 @@ def test_supported_program_is_differentially_equivalent(tmp_path):
     assert result.attestation_gate == "PASSED"
 
 
-@needs_cobc
+@needs_toolchain
 def test_both_sides_actually_ran(tmp_path):
     """Guard against an equivalence rate computed from two absent executions."""
     result = pipeline.run_case(_case("P01_payroll", limit=2), tmp_path)
@@ -179,7 +193,7 @@ def test_both_sides_actually_ran(tmp_path):
 # --------------------------------------------------------------------------
 
 
-@needs_cobc
+@needs_toolchain
 def test_unrunnable_input_is_absent_not_divergent(tmp_path, monkeypatch):
     """A COBOL side that will not run must not score as a divergence."""
     real_run = oracle.run
@@ -209,7 +223,7 @@ def test_unrunnable_input_is_absent_not_divergent(tmp_path, monkeypatch):
     assert len(absent) == 1 and absent[0].equivalent is False
 
 
-@needs_cobc
+@needs_toolchain
 def test_all_inputs_unrunnable_is_not_measured(tmp_path, monkeypatch):
     monkeypatch.setattr(oracle, "run", lambda *_a, **_k: (None, None))
     result = pipeline.run_case(_case("P01_payroll", limit=2), tmp_path)
@@ -222,6 +236,7 @@ def test_all_inputs_unrunnable_is_not_measured(tmp_path, monkeypatch):
     assert result.execution_outage is True
 
 
+@needs_javac
 def test_offline_run_is_not_an_execution_outage(tmp_path, monkeypatch):
     """No GnuCOBOL at all is a supported mode, not a fault."""
     monkeypatch.setattr(oracle, "detect",
@@ -231,7 +246,7 @@ def test_offline_run_is_not_an_execution_outage(tmp_path, monkeypatch):
     assert result.execution_outage is False
 
 
-@needs_cobc
+@needs_toolchain
 def test_execution_outage_exits_nonzero(tmp_path, monkeypatch):
     """The CLI must not report a total execution outage as success."""
     from demo import __main__ as cli
@@ -242,6 +257,7 @@ def test_execution_outage_exits_nonzero(tmp_path, monkeypatch):
     assert rc == 1
 
 
+@needs_javac
 def test_offline_run_exits_zero(tmp_path, monkeypatch):
     from demo import __main__ as cli
 
@@ -252,7 +268,7 @@ def test_offline_run_exits_zero(tmp_path, monkeypatch):
     assert rc == 0
 
 
-@needs_cobc
+@needs_toolchain
 def test_portfolio_rate_excludes_absent_inputs(tmp_path, monkeypatch):
     real_run = oracle.run
     calls = {"n": 0}
@@ -269,7 +285,7 @@ def test_portfolio_rate_excludes_absent_inputs(tmp_path, monkeypatch):
     assert "excluded" in pb.provenance
 
 
-@needs_cobc
+@needs_toolchain
 def test_local_oracle_reproduces_the_sealed_public_vectors(tmp_path):
     """The live oracle is only trustworthy if it agrees with the sealed record."""
     result = pipeline.run_case(_case("P01_payroll", limit=3), tmp_path)
@@ -277,7 +293,7 @@ def test_local_oracle_reproduces_the_sealed_public_vectors(tmp_path):
     assert result.oracle_agreement.value == 1.0
 
 
-@needs_cobc
+@needs_toolchain
 def test_exit_codes_are_compared_not_discarded(tmp_path):
     """P07 exercises nonzero RETURN-CODE; equivalence must include it."""
     result = pipeline.run_case(_case("P07_exitflow"), tmp_path)
@@ -318,7 +334,7 @@ def test_report_does_not_double_escape(tmp_path, monkeypatch):
     assert "Programs migrated &amp; verified" in html
 
 
-@needs_cobc
+@needs_toolchain
 def test_report_includes_the_provenance_of_every_rate(tmp_path):
     run = pipeline.run([_case("P01_payroll", limit=2)], tmp_path)
     html = report.render_html(run)
@@ -328,7 +344,7 @@ def test_report_includes_the_provenance_of_every_rate(tmp_path):
     assert pb is not None and pb.provenance
 
 
-@needs_cobc
+@needs_toolchain
 def test_run_serialises_to_json_safe_types(tmp_path):
     import json
 
