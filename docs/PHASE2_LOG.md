@@ -478,6 +478,46 @@ to `$GITHUB_ENV` and stamps them into `bench_summary.json` under a new
 than requiring the reader to go find the log. Absent values record `unknown`,
 never a plausible-looking default (R1).
 
+### 11a. Measured on the runner after the pin
+
+Both workflows, PR #22, head `2a0a0d7` — both **green**, and both resolved the
+same Temurin build (`Java_Temurin-Hotspot_jdk/21.0.12-8/x64`):
+
+| Workflow | Run | `javac -version` | Result |
+|---|---|---|---|
+| `tests` | 4 | **`javac 21.0.12`** | `GATE MET: 288 passed, 10 skipped (expected 10), 0 failed, 0 errored` |
+| `RELIAN-BENCH scoring` | 122 | **`javac 21.0.12`** | `THRESHOLD MET: n_vectors 425, BER 1.0 >= 0.95, build_rate 1.0 >= 1.0, branch_coverage 0.8854 >= 0.8 (jacoco-0.8.12)` |
+
+`tests.yml`, from the session fixture via the JUnit properties:
+
+```
+--- measured environment ---
+  python_version: 3.12.14
+  cobc_version: cobc (GnuCOBOL) 3.1.2.0
+  javac_version: javac 21.0.12
+  javac_path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-8/x64/bin/javac
+  toolchain_complete: yes
+```
+
+`bench_summary.json` now carries its own compiler provenance:
+
+```json
+"toolchain": {
+  "cobc":  "cobc (GnuCOBOL) 3.1.2.0",
+  "javac": "javac 21.0.12"
+}
+```
+
+The held-out BER is unchanged at **1.0 over 425 vectors** and branch coverage at
+**0.8854**, against 17.0.20 previously — so the compiler move cost nothing and
+the scored number now travels with the compiler that produced it.
+
+**§12's caveat was demonstrated on the first run.** The pin says `'21'`; the
+runner resolved **21.0.12**, while the local validation in §13 ran on
+**21.0.10**. Two different patch releases under one pin, on the same day. The
+major-version jump is closed; patch drift is real, visible, and recorded rather
+than assumed — which is exactly the arrangement §12 describes.
+
 ### 12. `java-version: '21'` pins the MAJOR version only
 
 This is a real, remaining limitation and is not papered over. `setup-java` with
