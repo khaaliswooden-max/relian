@@ -33,14 +33,17 @@ requires-python = ">=3.11"
 # model trained on fabricated inputs. tests/test_no_fabricated_metrics.py fails
 # if it is reintroduced here. See docs/R1_ML_DISPOSITION_2026-08.md.
 #
-# `numpy` NOW HAS ZERO IMPORT SITES for the same reason -- both of its
-# consumers were those same two deleted modules -- and is left declared only
-# because removing it was outside this work package's brief. It is flagged
-# here rather than quietly kept under a justification that no longer holds:
-# on the WP-2.0.-1 precedent (`langchain`, `transformers`, `torch`, `pandas`,
-# all removed for having no import site) it is a candidate for the next pass.
+# WP-2.0.1 (2026-08-20): `numpy` left this list -- the residual WP-2.0.-3
+# logged UNRESOLVED and deferred to the operator. Its two consumers were
+# `src/ml/risk_scorer.py` and `src/intelligence/migration_intelligence.py`,
+# both deleted under R1, and it was carried afterwards only because removing it
+# was outside that work package's brief. Re-measured before removal rather than
+# taken from the earlier note: zero direct import sites repository-wide, and
+# zero transitive ones -- regenerating this closure without it drops `numpy`
+# from requirements.lock entirely, so nothing in `demo/`, `bench/harness/`,
+# `transpiler/` or `src/` was reaching it through another distribution.
+# Commands and both pin counts are in docs/PHASE2_LOG.md, WP-2.0.1 §2.
 dependencies = [
-    "numpy>=1.24.0",
     "psycopg2-binary>=2.9.0",
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",

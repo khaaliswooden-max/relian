@@ -29,9 +29,23 @@
 # allowed to fail without failing the job is a gate that does not gate.
 name: tests
 
+# The trigger, and why it is asymmetric.
+#
+# This read `push: branches: [main]` until 2026-08-20. That is the wrong way
+# round for a gate: it meant the unit-test job could not run on a feature-branch
+# push at all, so the only way to see a suite result was to open a pull request
+# first -- while bench.yml, on bare `on: [push, pull_request]`, ran the
+# expensive held-out scoring on every push to every branch. The cheap gate was
+# the restricted one and the costly one was unrestricted. Three consecutive work
+# packages (WP-2.0.-3 / PR #24, WP-2.0 / PR #25, and this one) had no suite
+# result on the branch until a PR existed.
+#
+# `push:` is now unrestricted, so the suite runs on every branch as it is pushed.
+# `pull_request:` stays scoped to PRs targeting main, which is what the merge
+# gate is about; a PR from a branch already covered by the push trigger costs one
+# duplicate run, and that is the intended trade.
 on:
   push:
-    branches: [main]
   pull_request:
     branches: [main]
 
