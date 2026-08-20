@@ -451,3 +451,124 @@ operator to accept or decline, is to name the version:
 Recorded rather than acted on, and worth stating plainly: this is exactly the
 class of drift the session fixture was added to make visible, and it made it
 visible on the first green run.
+
+---
+
+## 2026-08-20 · WP-2.0.-1a · JDK pinned across both workflows
+
+Operator decision on the §10 finding: accept the remedy, in both workflows,
+before PR #22 merges.
+
+### 11. What changed
+
+| Workflow | Before | After |
+|---|---|---|
+| `.github/workflows/tests.yml` | `apt-get install … gnucobol default-jdk-headless` | `apt-get install … gnucobol` + `actions/setup-java@v4` (`temurin`, `21`) |
+| `.github/workflows/bench.yml` | `apt-get install -y gnucobol default-jdk-headless` | `apt-get install -y gnucobol` + `actions/setup-java@v4` (`temurin`, `21`) |
+
+`bench.yml` is the one that matters most. It compiles the Java candidates whose
+behaviour produces the scored BER, so an unpinned compiler meant the scored
+number's conditions were partly unrecorded — a provenance hole in the one place
+the benchmark cannot afford one.
+
+Both workflows now print `cobc --version`, `javac -version` and `java -version`
+into the run log before any measurement. `bench.yml` additionally exports them
+to `$GITHUB_ENV` and stamps them into `bench_summary.json` under a new
+`toolchain` key, so a scored result carries its own compiler provenance rather
+than requiring the reader to go find the log. Absent values record `unknown`,
+never a plausible-looking default (R1).
+
+### 12. `java-version: '21'` pins the MAJOR version only
+
+This is a real, remaining limitation and is not papered over. `setup-java` with
+`java-version: '21'` resolves to the newest Temurin 21.x.y available to the
+runner at the time of the run. **Patch releases will drift** — 21.0.10 today,
+21.0.13 in some later month — without any change to this repository, and
+`requirements.lock` has no equivalent for the JDK.
+
+What this does and does not buy:
+
+- **Fixed:** the major-version jump. A silent 17-vs-21 difference between the
+  baseline and CI, which is where language- and library-level behaviour changes
+  actually live, can no longer happen unnoticed.
+- **Not fixed:** patch drift within 21.x.
+
+The mitigation is recording rather than pinning: every run log and every
+`bench_summary.json` now carries the exact `javac -version` string that produced
+the result, so a scored number can always be re-derived against the compiler
+that produced it. A reader who needs bit-exact reproduction reads the recorded
+string; they are never asked to assume it.
+
+Pinning the patch release exactly (`java-version: '21.0.10+7'`) is possible and
+was deliberately not done: it pins the repo to a release that Temurin
+eventually stops publishing, converting a provenance question into a build
+failure. That trade is the operator's to revisit if bit-exact JDK reproduction
+becomes a requirement.
+
+### 13. Verified before pushing
+
+The compiler change was validated against the **public** split before it went
+anywhere near CI — a scratch copy of `bench/` and `transpiler/` outside the
+repository, so nothing under `bench/` was written to:
+
+```
+javac 21.0.10
+run_candidate('jdk21check', …, split='public')
+→ ber 1.0, build_rate 1.0, branch_coverage 0.8333,
+  coverage_tool jacoco-0.8.12, valid true
+  P01_payroll … P07_exitflow: build_ok=True ber=1.0 (all seven)
+```
+
+Against the v1.2 ledger thresholds (`ber_heldout_min 0.95`,
+`build_rate_min 1.00`, `branch_coverage_min 0.80`) the JDK switch moves no
+scored number on the public split. The held-out split is CI-only (R3) and was
+neither read nor run here.
+
+### 14. STOPPED — `bench/SPEC.md` is inside the seal
+
+The work package asked for a line in `bench/SPEC.md` naming the Java compiler
+alongside `cobc 3.1.2.0`, with the instruction to stop and escalate if SPEC.md
+is covered by the v1.2 manifest hash.
+
+**It is covered. Nothing under `bench/` was edited.** Measured:
+
+```
+bench/harness/commit.py:  INCLUDE_FILES = ["SPEC.md"]
+
+LEDGER_relian-bench-v1.2.json → files[] entry:
+  {"path": "SPEC.md",
+   "sha256": "409f6df7141b15fdee65ba24224cdb8daa762429df57f5948bf22231f3c87463"}
+
+sha256(bench/SPEC.md) on disk:
+   409f6df7141b15fdee65ba24224cdb8daa762429df57f5948bf22231f3c87463   ← matches; seal intact
+```
+
+A one-line append was simulated in a scratch copy: the hash moves to
+`117f2929f107c60aa9e54fee818206c2a973df42ae841d4b4a12490c359ca104`, which
+breaks `payload_sha256`, which breaks `manifest_sha256`, which breaks the
+Ed25519 signature — and `bench.yml`'s own first gate (`assert verify(m),
+'LEDGER signature invalid — benchmark tampered'`) would then fail the build.
+There is no such thing as a documentation-only edit to a sealed file.
+
+**Related finding, and the reason the request was well-aimed.** The sealed
+ledger's own `toolchain` block already has the field and it is empty:
+
+```json
+"toolchain": {
+  "cobc":   "cobc (GnuCOBOL) 3.1.2.0",
+  "javac":  "UNAVAILABLE",
+  "java":   "UNAVAILABLE",
+  "jacoco": "0.8.12 (agent sha256:115e8e6e…, cli sha256:594c0112…)"
+}
+```
+
+The sealing machine had no JDK. So the Java compiler is not merely missing from
+SPEC's prose — it was never captured as a sealing condition at all, and the
+signed record says so honestly. That gap cannot be closed by editing SPEC.md;
+it closes only on a re-seal, which is an operator action under ZCS-6 Phase 4 and
+CLAUDE.md rule 4.
+
+Recorded here so the requirement is not lost: **a v1.3 re-seal should populate
+`toolchain.javac` / `toolchain.java` and add the Java compiler to SPEC's
+toolchain section.** Until then, per-run recording (§11, §12) is what carries
+the Java-side provenance.

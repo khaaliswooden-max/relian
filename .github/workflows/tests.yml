@@ -49,14 +49,32 @@ jobs:
       - name: Install the system toolchain
         # The suite is not pure Python: the demo tests compile COBOL with
         # `cobc` and Java with `javac`, run both, and diff the results. Without
-        # these two packages thirteen demo tests skip and the assertion below
-        # fails, which is the intended behaviour -- an unmeasured comparison is
-        # not a passed one.
+        # both, thirteen demo tests skip and the assertion below fails, which is
+        # the intended behaviour -- an unmeasured comparison is not a passed one.
+        #
+        # Only GnuCOBOL comes from apt. The JDK used to come from
+        # `default-jdk-headless`, which is not a version at all: it resolves to
+        # whatever the runner image currently calls default, and on
+        # ubuntu-latest that was Java 17 while the operator baseline and the dev
+        # container were both on 21. The session fixture caught the drift
+        # (`javac_version: javac 17.0.20`, recorded in docs/PHASE2_LOG.md §10).
+        # A differential-equivalence harness must not take its compiler from a
+        # moving image label, so the JDK is pinned by the next step instead.
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends gnucobol default-jdk-headless
+          sudo apt-get install -y --no-install-recommends gnucobol
+
+      - name: Pin the JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
 
       - name: Record the measured toolchain
+        # R1/R9: the versions that produced the result, printed into the run log
+        # so a green tick is never separable from the conditions that earned it.
+        # `java-version: '21'` pins the MAJOR version only -- see the caveat in
+        # docs/PHASE2_LOG.md §11 -- so the exact patch release is captured here.
         run: |
           python -VV
           cobc --version | head -1
