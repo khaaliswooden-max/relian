@@ -149,10 +149,19 @@ def _imports_of(path: Path) -> Set[str]:
             if node.level:
                 # Relative import: rebuild the absolute name from the file's
                 # own package so `from . import coverage` resolves correctly.
-                pkg_parts = path.relative_to(REPO_ROOT).with_suffix("").parts
-                if path.name == "__init__.py":
-                    pkg_parts = pkg_parts[:-1]
-                base = list(pkg_parts[: len(pkg_parts) - (node.level - 1) - 1])
+                #
+                # The containing package is the parent directory in both
+                # cases -- for `a/b/c.py` it is `a.b`, and for `a/b/__init__.py`
+                # it is also `a.b` -- so dropping the final path component is
+                # right for a module file and a package init alike. Special-
+                # casing `__init__` here dropped a second component and
+                # resolved `from .risk_scorer import X` in `src/ml/__init__.py`
+                # to `src.risk_scorer`, a module that does not exist, so
+                # anything reachable only through a package init was skipped.
+                # level 1 is that package, level 2 its parent, and so on.
+                rel_parts = path.relative_to(REPO_ROOT).with_suffix("").parts
+                pkg_parts = list(rel_parts[:-1])
+                base = pkg_parts[: len(pkg_parts) - (node.level - 1)]
                 prefix = ".".join(base + ([node.module] if node.module else []))
             else:
                 prefix = node.module or ""
@@ -161,6 +170,19 @@ def _imports_of(path: Path) -> Set[str]:
                 for alias in node.names:
                     found.add(f"{prefix}.{alias.name}")
     return found
+
+
+def _ancestors(module: str) -> List[str]:
+    """Every parent package of ``module``, outermost first.
+
+    Importing ``a.b.c`` executes ``a/__init__.py`` and then ``a/b/__init__.py``
+    before ``c`` itself, so those files are on the runtime import path just as
+    surely as the leaf module is. A walk that enqueues only the leaf leaves
+    them unscanned -- and a forbidden client sitting in a package init is then
+    invisible to this guard while still being imported at runtime.
+    """
+    parts = module.split(".")
+    return [".".join(parts[:i]) for i in range(1, len(parts))]
 
 
 def _reachable_closure(entry: str) -> Dict[str, List[str]]:
@@ -174,16 +196,23 @@ def _reachable_closure(entry: str) -> Dict[str, List[str]]:
 
     chains: Dict[str, List[str]] = {entry: [entry]}
     queue: List[str] = [entry]
+    # The entry point's own parent packages are on its runtime path too.
+    for ancestor in _ancestors(entry):
+        if ancestor not in chains:
+            chains[ancestor] = [entry, ancestor]
+            queue.append(ancestor)
     while queue:
         module = queue.pop()
         path = _module_to_path(module)
         if path is None:
             continue  # third-party or stdlib: recorded, not traversed
         for imported in sorted(_imports_of(path)):
-            if imported in chains:
-                continue
-            chains[imported] = chains[module] + [imported]
-            queue.append(imported)
+            # Every parent package of an imported module is imported with it.
+            for name in _ancestors(imported) + [imported]:
+                if name in chains:
+                    continue
+                chains[name] = chains[module] + [name]
+                queue.append(name)
     return chains
 
 
@@ -201,6 +230,58 @@ def test_no_generative_ai_module_reachable(entry: str) -> None:
         f"R6 violation: a generative-AI or graph-DB client is reachable from "
         f"{entry}. Import chains:\n  " + "\n  ".join(violations)
     )
+
+
+@pytest.mark.parametrize("entry", ENTRY_POINTS)
+def test_walk_covers_package_inits(entry: str) -> None:
+    """The walk must scan package `__init__.py` files, not just leaf modules.
+
+    Regression guard for a false negative found by review on PR #21. Importing
+    ``src.ml.risk_scorer`` executes ``src/ml/__init__.py`` first, so a forbidden
+    client placed there is imported at runtime -- but the walk enqueued only
+    leaf modules, so the guard reported clean. A planted `import openai` in
+    `src/ml/__init__.py` passed 5/5 before the fix.
+
+    Asserting the closure is *closed under taking parents* pins the property
+    rather than the one package that exposed it: every reachable dotted module
+    must have each of its ancestor packages in the closure too.
+    """
+    chains = _reachable_closure(entry)
+    missing = sorted(
+        f"{ancestor} (parent of {module})"
+        for module in chains
+        for ancestor in _ancestors(module)
+        if ancestor not in chains
+    )
+    assert not missing, (
+        "reachability walk skipped parent packages, so a forbidden import in "
+        "their __init__.py would be invisible:\n  " + "\n  ".join(missing)
+    )
+
+
+def test_relative_imports_in_package_inits_resolve() -> None:
+    """Relative imports inside a package `__init__.py` resolve to real modules.
+
+    Regression guard for an off-by-one found by review on PR #21: the resolver
+    stripped `__init__` and then dropped a second component, turning
+    `from .risk_scorer import ...` in `src/ml/__init__.py` into the
+    non-existent `src.risk_scorer`. Anything reachable only through a package
+    init was silently dropped from the walk.
+    """
+    init = REPO_ROOT / "src" / "ml" / "__init__.py"
+    if not init.is_file():  # pragma: no cover - package may be removed later
+        pytest.skip("src/ml/__init__.py not present")
+    resolved = _imports_of(init)
+    assert "src.ml.risk_scorer" in resolved, (
+        "`from .risk_scorer import ...` in src/ml/__init__.py resolved to "
+        f"{sorted(resolved)!r}; expected it to include src.ml.risk_scorer"
+    )
+    for name in resolved:
+        if name.startswith("src.") and name.count(".") == 1:
+            assert _module_to_path(name) is not None, (
+                f"relative import resolved to {name!r}, which is not a file "
+                f"in the repo -- the package prefix was computed wrong"
+            )
 
 
 def test_deleted_analysis_package_is_gone() -> None:
