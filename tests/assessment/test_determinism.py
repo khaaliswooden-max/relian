@@ -178,8 +178,11 @@ def test_parse_errors_do_not_drift_between_parses_in_one_process():
     from src.assessment.coverage import analyze
     from src.assessment.intake import ingest, read_source
 
-    record = {r.rel_path_posix: r for r in ingest(FIXTURES)}["PARTIAL.cbl"]
-    source = read_source(FIXTURES / "PARTIAL.cbl")
+    # BROKEN.cbl is the fixture whose errors carry an `expecting {...}` set;
+    # PARTIAL.cbl parses cleanly under the vendored grammar and so reports no
+    # errors to normalise.
+    record = {r.rel_path_posix: r for r in ingest(FIXTURES)}["BROKEN.cbl"]
+    source = read_source(FIXTURES / "BROKEN.cbl")
     first = analyze(record, source).parser_errors
     second = analyze(record, source).parser_errors
     assert first == second

@@ -7,9 +7,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 1.0 | PLAUSIBLE | 173/173 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
-| Quotable-today code lines | 384 | PLAUSIBLE | code lines (384) minus lines carrying an unsupported construct (0) across 7 program(s) |
-| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 7 program(s) |
+| Portfolio construct coverage | 1.0 | VERIFIED | 174/174 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d); method=antlr_tree |
+| Quotable-today code lines | 384 | VERIFIED | code lines (384) minus lines carrying an unsupported construct (0) across 7 program(s) |
+| Code lines requiring grammar expansion | 0 | VERIFIED | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) across 7 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
@@ -52,35 +52,35 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Program | Physical | Comment | Blank | Code | Logical | Method | Dead paragraphs |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| P01_payroll/program.cbl | 74 | 6 | 5 | 63 | 25 | token_scan | — |
-| P02_interest/program.cbl | 49 | 4 | 0 | 45 | 19 | token_scan | — |
-| P03_eligibility/program.cbl | 58 | 4 | 0 | 54 | 24 | token_scan | — |
-| P04_taxtable/program.cbl | 71 | 4 | 0 | 67 | 33 | token_scan | — |
-| P05_validate/program.cbl | 56 | 4 | 0 | 52 | 25 | token_scan | — |
-| P06_valinit/program.cbl | 56 | 14 | 0 | 42 | 14 | token_scan | — |
-| P07_exitflow/program.cbl | 100 | 39 | 0 | 61 | 33 | token_scan | — |
+| P01_payroll/program.cbl | 74 | 6 | 5 | 63 | 25 | antlr_tree | — |
+| P02_interest/program.cbl | 49 | 4 | 0 | 45 | 19 | antlr_tree | — |
+| P03_eligibility/program.cbl | 58 | 4 | 0 | 54 | 24 | antlr_tree | — |
+| P04_taxtable/program.cbl | 71 | 4 | 0 | 67 | 34 | antlr_tree | — |
+| P05_validate/program.cbl | 56 | 4 | 0 | 52 | 25 | antlr_tree | — |
+| P06_valinit/program.cbl | 56 | 14 | 0 | 42 | 14 | antlr_tree | — |
+| P07_exitflow/program.cbl | 100 | 39 | 0 | 61 | 33 | antlr_tree | — |
 
-Portfolio totals — physical 464, code 384, comment 75, blank 5, logical 173 (7 program(s) measured, 0 not measured).
+Portfolio totals — physical 464, code 384, comment 75, blank 5, logical 174 (7 program(s) measured, 0 not measured).
 
 
 ## 4. Coverage map
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| P01_payroll/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P01_payroll/program.cbl (sha256:a4b0d32852a107ab); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
-| P02_interest/program.cbl | 1.0 | PLAUSIBLE | 19/19 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P02_interest/program.cbl (sha256:eca429658d4d4882); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
-| P03_eligibility/program.cbl | 1.0 | PLAUSIBLE | 24/24 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P03_eligibility/program.cbl (sha256:4d4fcb294665e67b); method=token_scan, source_format=fixed; antlr_syntax_errors=4 |
-| P04_taxtable/program.cbl | 1.0 | PLAUSIBLE | 33/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P04_taxtable/program.cbl (sha256:6dfa8a0461a45bd5); method=token_scan, source_format=fixed; antlr_syntax_errors=8 |
-| P05_validate/program.cbl | 1.0 | PLAUSIBLE | 25/25 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P05_validate/program.cbl (sha256:65f5d5c5402effa0); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| P06_valinit/program.cbl | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P06_valinit/program.cbl (sha256:950113b8470290d5); method=token_scan, source_format=fixed; antlr_syntax_errors=5 |
-| P07_exitflow/program.cbl | 1.0 | PLAUSIBLE | 33/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on P07_exitflow/program.cbl (sha256:80a9eb6456c65634); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| P01_payroll/program.cbl | 1.0 | VERIFIED | 25/25 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on P01_payroll/program.cbl (sha256:a4b0d32852a107ab); method=antlr_tree, source_format=fixed |
+| P02_interest/program.cbl | 1.0 | VERIFIED | 19/19 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on P02_interest/program.cbl (sha256:eca429658d4d4882); method=antlr_tree, source_format=fixed |
+| P03_eligibility/program.cbl | 1.0 | VERIFIED | 24/24 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on P03_eligibility/program.cbl (sha256:4d4fcb294665e67b); method=antlr_tree, source_format=fixed |
+| P04_taxtable/program.cbl | 1.0 | VERIFIED | 34/34 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on P04_taxtable/program.cbl (sha256:6dfa8a0461a45bd5); method=antlr_tree, source_format=fixed |
+| P05_validate/program.cbl | 1.0 | VERIFIED | 25/25 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on P05_validate/program.cbl (sha256:65f5d5c5402effa0); method=antlr_tree, source_format=fixed |
+| P06_valinit/program.cbl | 1.0 | VERIFIED | 14/14 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on P06_valinit/program.cbl (sha256:950113b8470290d5); method=antlr_tree, source_format=fixed |
+| P07_exitflow/program.cbl | 1.0 | VERIFIED | 33/33 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on P07_exitflow/program.cbl (sha256:80a9eb6456c65634); method=antlr_tree, source_format=fixed |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 1.0 | PLAUSIBLE | 173/173 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
+| Coverage ratio | 1.0 | VERIFIED | 174/174 statements supported across 7 program(s) via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d); method=antlr_tree |
 
 
 ## 5. Unsupported-construct inventory
@@ -109,7 +109,7 @@ No construct outside the supported set was found.
 | P01_payroll/program.cbl | 6 | 25 | 0 | 0.0 | no | 0 | 0 | 1 |
 | P02_interest/program.cbl | 3 | 19 | 0 | 0.0 | no | 0 | 0 | 1 |
 | P03_eligibility/program.cbl | 9 | 24 | 0 | 0.0 | no | 0 | 0 | 1 |
-| P04_taxtable/program.cbl | 5 | 33 | 0 | 0.0 | no | 0 | 0 | 1 |
+| P04_taxtable/program.cbl | 5 | 34 | 0 | 0.0 | no | 0 | 0 | 1 |
 | P05_validate/program.cbl | 7 | 25 | 0 | 0.0 | no | 0 | 0 | 1 |
 | P06_valinit/program.cbl | 3 | 14 | 0 | 0.0 | no | 0 | 0 | 2 |
 | P07_exitflow/program.cbl | 9 | 33 | 0 | 0.0 | no | 0 | 0 | 2 |
@@ -141,8 +141,8 @@ No construct outside the supported set was found.
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Quotable-today code lines | 384 | PLAUSIBLE | code lines (384) minus lines carrying an unsupported construct (0) across 7 program(s) |
-| Code lines requiring grammar expansion | 0 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 7 program(s) |
+| Quotable-today code lines | 384 | VERIFIED | code lines (384) minus lines carrying an unsupported construct (0) across 7 program(s) |
+| Code lines requiring grammar expansion | 0 | VERIFIED | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) across 7 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -324,17 +324,29 @@ Two analysis methods, and the result always says which one produced it.
 ``token_scan`` (graded PLAUSIBLE)
     A documented lexical scan, used when the ANTLR parse reports errors.
 
-The fallback is not a nicety. The grammar bundled in this repo
-(``src/parsers/grammars/Cobol85.g4``) is a **reduced** COBOL-85 subset, not the
-full standard grammar: it requires the ``USAGE`` keyword before ``COMP-3``,
-requires ``TIMES`` after ``OCCURS``, has no ``ALTER``/``EXEC``/``ACCEPT`` rules,
-and its ``computeStatement`` cannot parse ``COMPUTE X = A + B``. Measured
-against this repo's own bench corpus, it reports syntax errors on 5 of 5
-programs and recovers **zero** statements from every one of them, because a
-DATA DIVISION error resynchronises past the entire PROCEDURE DIVISION. An
-analyzer that only used the tree would therefore return "no data" for every
-real program. So both methods exist, every result is labelled with the one that
-ran, and only the tree path is graded VERIFIED (R1/R9).
+The grammar bundled in this repo (``src/parsers/grammars/Cobol85.g4``) is the
+ProLeap COBOL-85 grammar vendored from ``antlr/grammars-v4``; its provenance,
+licence and pinned upstream commit are recorded in
+``docs/GRAMMAR_PROVENANCE.md``. It covers the COBOL-85 standard rather than a
+subset, and the bench corpus parses cleanly under it — but the fallback is not
+therefore obsolete, because real COBOL routinely is not COBOL-85:
+
+* **Dialect extensions.** ``EXIT PERFORM`` (COBOL-2002), GnuCOBOL's
+  ``BINARY-LONG``, and compiler directives before the IDENTIFICATION DIVISION
+  are all outside the standard and are syntax errors under a COBOL-85 grammar,
+  correctly.
+* **Comment entries.** The free text after ``AUTHOR.`` or ``INSTALLATION.`` is
+  reachable only through a ``*>CE`` marker that upstream's preprocessor
+  inserts; this repo does not run that preprocessor.
+* **COPY and REPLACE.** ``COPY`` is a lexer token in this grammar that no
+  parser rule references — upstream consumes it in the separate
+  ``Cobol85Preprocessor.g4``, vendored here but not yet run. A COPY-bearing
+  program cannot parse cleanly, by construction.
+
+So both methods exist, every result is labelled with the one that ran, and only
+the tree path is graded VERIFIED (R1/R9). A program that reports syntax errors
+falls to ``token_scan`` and is graded PLAUSIBLE rather than being reported as
+having no constructs.
 
 Token-scan counting rules (reproduced verbatim in the report appendix):
 
@@ -362,6 +374,27 @@ Token-scan counting rules (reproduced verbatim in the report appendix):
 6. A paragraph label is a line whose code area is a single name followed by a
    period; a section header additionally has ``SECTION`` before the period.
 
+ANTLR-tree counting rules:
+
+7. A statement is counted at each ``statement`` context in the parse tree.
+   Nested statements count in their own right — the statements inside an
+   ``IF``'s THEN branch are counted as well as the ``IF`` — so the tree and the
+   scan measure comparable things.
+8. The verb reported for a statement is read from an explicit table,
+   ``_STATEMENT_VERBS``, with one row per alternative of the grammar's
+   ``statement`` rule. The table is checked against the generated parser on
+   every walk, and a mismatch raises rather than silently dropping statements
+   from the count (R2).
+9. Scope terminators (``END-IF``, ``END-PERFORM``, …), ``ELSE`` and ``WHEN``
+   are counted by the token scan, which is line-oriented, but not by the tree,
+   where they are part of their enclosing statement rather than statements
+   themselves. The two methods therefore report different *totals* for the same
+   program; each ratio is internally consistent and is labelled with the method
+   that produced it.
+10. As with rule 4, a two-word verb is resolved where the tree makes it visible:
+    ``PERFORM VARYING`` and ``EXIT PROGRAM`` are distinguished from out-of-line
+    ``PERFORM`` and paragraph ``EXIT`` by the statement's second token.
+
 A statement is SUPPORTED iff its verb is in
 :func:`src.assessment.supported.supported_verbs`, which reads the transpiler's
 dispatch table. Nothing here maintains its own opinion of what C1 supports.
@@ -370,7 +403,7 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d)`
+Registry: `SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d)`
 
 Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM VARYING`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
@@ -404,13 +437,8 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | antlr4-python3-runtime | unknown |
 | cli | cli.py |
 | platform | Linux |
-| python | 3.11.15 |
-| python-docx | 1.2.0 |
-| relian_transpiler | SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) |
+| python | 3.12.3 |
+| python-docx | not installed |
+| relian_transpiler | SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) |
 | schema | relian-assessment-1 |
-
-
-### Appendix G — notes on this run
-
-- coverage was derived by the documented token scan for at least one program because the bundled ANTLR grammar could not parse it without syntax errors; those figures are graded PLAUSIBLE, not VERIFIED
 

@@ -10,17 +10,29 @@ Two analysis methods, and the result always says which one produced it.
 ``token_scan`` (graded PLAUSIBLE)
     A documented lexical scan, used when the ANTLR parse reports errors.
 
-The fallback is not a nicety. The grammar bundled in this repo
-(``src/parsers/grammars/Cobol85.g4``) is a **reduced** COBOL-85 subset, not the
-full standard grammar: it requires the ``USAGE`` keyword before ``COMP-3``,
-requires ``TIMES`` after ``OCCURS``, has no ``ALTER``/``EXEC``/``ACCEPT`` rules,
-and its ``computeStatement`` cannot parse ``COMPUTE X = A + B``. Measured
-against this repo's own bench corpus, it reports syntax errors on 5 of 5
-programs and recovers **zero** statements from every one of them, because a
-DATA DIVISION error resynchronises past the entire PROCEDURE DIVISION. An
-analyzer that only used the tree would therefore return "no data" for every
-real program. So both methods exist, every result is labelled with the one that
-ran, and only the tree path is graded VERIFIED (R1/R9).
+The grammar bundled in this repo (``src/parsers/grammars/Cobol85.g4``) is the
+ProLeap COBOL-85 grammar vendored from ``antlr/grammars-v4``; its provenance,
+licence and pinned upstream commit are recorded in
+``docs/GRAMMAR_PROVENANCE.md``. It covers the COBOL-85 standard rather than a
+subset, and the bench corpus parses cleanly under it — but the fallback is not
+therefore obsolete, because real COBOL routinely is not COBOL-85:
+
+* **Dialect extensions.** ``EXIT PERFORM`` (COBOL-2002), GnuCOBOL's
+  ``BINARY-LONG``, and compiler directives before the IDENTIFICATION DIVISION
+  are all outside the standard and are syntax errors under a COBOL-85 grammar,
+  correctly.
+* **Comment entries.** The free text after ``AUTHOR.`` or ``INSTALLATION.`` is
+  reachable only through a ``*>CE`` marker that upstream's preprocessor
+  inserts; this repo does not run that preprocessor.
+* **COPY and REPLACE.** ``COPY`` is a lexer token in this grammar that no
+  parser rule references — upstream consumes it in the separate
+  ``Cobol85Preprocessor.g4``, vendored here but not yet run. A COPY-bearing
+  program cannot parse cleanly, by construction.
+
+So both methods exist, every result is labelled with the one that ran, and only
+the tree path is graded VERIFIED (R1/R9). A program that reports syntax errors
+falls to ``token_scan`` and is graded PLAUSIBLE rather than being reported as
+having no constructs.
 
 Token-scan counting rules (reproduced verbatim in the report appendix):
 
@@ -48,6 +60,27 @@ Token-scan counting rules (reproduced verbatim in the report appendix):
 6. A paragraph label is a line whose code area is a single name followed by a
    period; a section header additionally has ``SECTION`` before the period.
 
+ANTLR-tree counting rules:
+
+7. A statement is counted at each ``statement`` context in the parse tree.
+   Nested statements count in their own right — the statements inside an
+   ``IF``'s THEN branch are counted as well as the ``IF`` — so the tree and the
+   scan measure comparable things.
+8. The verb reported for a statement is read from an explicit table,
+   ``_STATEMENT_VERBS``, with one row per alternative of the grammar's
+   ``statement`` rule. The table is checked against the generated parser on
+   every walk, and a mismatch raises rather than silently dropping statements
+   from the count (R2).
+9. Scope terminators (``END-IF``, ``END-PERFORM``, …), ``ELSE`` and ``WHEN``
+   are counted by the token scan, which is line-oriented, but not by the tree,
+   where they are part of their enclosing statement rather than statements
+   themselves. The two methods therefore report different *totals* for the same
+   program; each ratio is internally consistent and is labelled with the method
+   that produced it.
+10. As with rule 4, a two-word verb is resolved where the tree makes it visible:
+    ``PERFORM VARYING`` and ``EXIT PROGRAM`` are distinguished from out-of-line
+    ``PERFORM`` and paragraph ``EXIT`` by the statement's second token.
+
 A statement is SUPPORTED iff its verb is in
 :func:`src.assessment.supported.supported_verbs`, which reads the transpiler's
 dispatch table. Nothing here maintains its own opinion of what C1 supports.
@@ -57,7 +90,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, FrozenSet, List, Optional, Sequence, Tuple
 
 from .models import (
     ConstructHit,
@@ -158,6 +191,10 @@ class CodeLine:
     division: Optional[str]
     paragraph: Optional[str]
     section: Optional[str]
+    # Column 7 in fixed format, " " in free format. Kept rather than recomputed
+    # so that the ANTLR pre-pass (`ScannedSource.antlr_source`) and the token
+    # scan read the same classification of the same character.
+    indicator: str = " "
 
 
 @dataclass(frozen=True)
@@ -182,13 +219,88 @@ class ScannedSource:
         return tuple(seen)
 
     def antlr_source(self) -> str:
-        """Code area only, comments blanked, line numbers preserved.
+        """Code area only, with the indicator column applied. The pre-pass.
 
-        Feeding raw fixed-format text to ANTLR guarantees syntax errors from
-        the sequence-number area and comment lines, which would then be
-        reported as if the *program* were malformed.
+        ``Cobol85.g4`` is a grammar for the *code area*. It has no rule for a
+        sequence number, a comment line, a debugging line or a continuation —
+        upstream those are removed by ``Cobol85Preprocessor.g4`` before the
+        parser ever runs. Feeding raw fixed-format text to it therefore
+        guarantees syntax errors that are artifacts of the card layout rather
+        than facts about the program. This method is that missing pre-pass, and
+        it is deliberately the *only* transformation applied: what ANTLR sees
+        is the customer's code area and nothing invented.
+
+        In **fixed** format, for each line:
+
+        * columns 1–6 (the sequence-number area) are dropped;
+        * column 7 is the indicator and is dropped after being acted on;
+        * columns 8–72 are the code area and are kept **unstripped**, because
+          trailing spaces inside a continued literal are part of that literal;
+        * columns 73+ (the identification area) are dropped.
+
+        Indicator semantics, all four of them:
+
+        ``*`` / ``/``
+            Comment (``/`` also form-feeds). Emitted as an empty line, never
+            deleted — the line must keep its number so an ANTLR diagnostic
+            points at the right line of the customer's file.
+        ``D`` / ``d``
+            Debugging line. Compiled only under ``WITH DEBUGGING MODE``, which
+            this pre-pass does not assume, so it is treated as a comment — the
+            same reading a compiler gives it by default. Blanked, not deleted.
+        ``-``
+            Continuation. The code area is appended to the last emitted code
+            line and an empty line is left in its place, so the continued
+            statement keeps the line number of where it *starts*, which is what
+            ``StatementHit.line`` and the parse diagnostics report. When the
+            line being continued has an unterminated literal and the
+            continuation opens with the matching quote, that quote is the
+            resumption marker rather than literal content and is dropped;
+            otherwise the two code areas are joined with no separator, which is
+            how a word split across a card boundary rejoins.
+        anything else (normally a space)
+            Ordinary code area.
+
+        In **free** format the whole line is code and there is no indicator
+        column, so only the comment rule applies.
         """
-        return "\n".join("" if l.is_comment else l.code for l in self.lines)
+        out: List[str] = []
+        last_code: Optional[int] = None      # index in `out` of the last code line
+        for line in self.lines:
+            if line.is_comment or line.indicator in "Dd":
+                out.append("")
+                continue
+            code = self._code_area(line)
+            if line.indicator == "-" and last_code is not None:
+                out[last_code] = _join_continuation(out[last_code], code)
+                out.append("")
+                continue
+            out.append(code)
+            last_code = len(out) - 1
+        return "\n".join(out)
+
+    def _code_area(self, line: "CodeLine") -> str:
+        """Columns 8–72 with trailing spaces intact (see `antlr_source`)."""
+        if self.source_format != "fixed":
+            return line.code
+        return line.raw[7:72] if len(line.raw) > 7 else ""
+
+
+def _join_continuation(head: str, tail: str) -> str:
+    """Append a continuation line's code area to the line it continues.
+
+    Leading spaces on the continuation are card padding, not content, so they
+    are dropped. If ``head`` has an unterminated literal and ``tail`` opens
+    with that literal's quote character, the quote marks where the literal
+    resumes and is not itself part of the literal — it goes. Otherwise the two
+    areas are concatenated with nothing between them, which is what rejoins a
+    COBOL word split across a card boundary.
+    """
+    stripped = tail.lstrip()
+    for quote in ('"', "'"):
+        if head.count(quote) % 2 == 1 and stripped.startswith(quote):
+            return head + stripped[1:]
+    return head + stripped
 
 
 def detect_format(raw_lines: Sequence[str]) -> str:
@@ -224,6 +336,7 @@ def scan_source(source: str) -> ScannedSource:
             code = raw[7:72] if len(raw) > 7 else ""
             is_comment = indicator in "*/"
         else:
+            indicator = " "
             code = raw
             is_comment = raw.lstrip().startswith("*>") or raw.lstrip().startswith("*")
         code = code.rstrip()
@@ -254,6 +367,7 @@ def scan_source(source: str) -> ScannedSource:
                 division=division,
                 paragraph=paragraph,
                 section=section,
+                indicator=indicator,
             )
         )
     return ScannedSource(source_format=fmt, lines=tuple(out))
@@ -346,26 +460,208 @@ def _antlr_parse(source: str):
     parser = Cobol85Parser(antlr4.CommonTokenStream(lexer))
     parser.removeErrorListeners()
     parser.addErrorListener(collector)
-    tree = parser.compilationUnit()
+    # `startRule: compilationUnit EOF` is the grammar's declared entry point.
+    # Entering at `compilationUnit` instead would let a file whose tail the
+    # grammar cannot parse report zero errors over its prefix and be graded
+    # VERIFIED on a tree covering only part of the program.
+    tree = parser.startRule()
     return tree, tuple(collector.errors), Cobol85Parser
 
 
-def statements_by_antlr(tree, Cobol85Parser) -> Tuple[StatementHit, ...]:
+# --------------------------------------------------------------------------
+# The verb -> context map
+# --------------------------------------------------------------------------
+
+# One row per alternative of the vendored grammar's `statement` rule, keyed by
+# the generated context class name. This is a table on purpose: it is the whole
+# interface between `Cobol85.g4` and this analyzer, and it has to be auditable
+# by reading it rather than by tracing conditionals. `_verify_statement_map`
+# below asserts, at import time, that it covers the grammar exactly — so a
+# grammar upgrade that adds or renames a statement fails loudly here instead of
+# silently dropping those statements out of every coverage figure (R2).
+#
+# The value is the verb the transpiler's dispatch table is keyed by, which is
+# not always the context's first token:
+#
+#   * `EXEC CICS` / `EXEC SQL` / `EXEC SQL IMS` collapse to the verb `EXEC`
+#     with the product carried separately as the hit's context, matching rule 5
+#     of the token scan so the two methods count the same thing.
+#   * `GO TO` is two words and is reported as `GO TO`, because a bare `GO` is
+#     not what a reader (or the dispatch table) means.
+#   * Every other row is the single leading keyword.
+#
+# Qualified two-word forms that are *optional* in the grammar — `EXIT PROGRAM`
+# vs a bare paragraph `EXIT`, `PERFORM VARYING` vs an out-of-line `PERFORM` —
+# are NOT resolved here, because which one it is depends on the parse, not on
+# the rule. They are resolved per hit by `_qualifier`, below.
+_STATEMENT_VERBS: Dict[str, str] = {
+    "AcceptStatementContext": "ACCEPT",
+    "AddStatementContext": "ADD",
+    "AlterStatementContext": "ALTER",
+    "CallStatementContext": "CALL",
+    "CancelStatementContext": "CANCEL",
+    "CloseStatementContext": "CLOSE",
+    "ComputeStatementContext": "COMPUTE",
+    "ContinueStatementContext": "CONTINUE",
+    "DeleteStatementContext": "DELETE",
+    "DisableStatementContext": "DISABLE",
+    "DisplayStatementContext": "DISPLAY",
+    "DivideStatementContext": "DIVIDE",
+    "EnableStatementContext": "ENABLE",
+    "EntryStatementContext": "ENTRY",
+    "EvaluateStatementContext": "EVALUATE",
+    "ExhibitStatementContext": "EXHIBIT",
+    "ExecCicsStatementContext": "EXEC",
+    "ExecSqlStatementContext": "EXEC",
+    "ExecSqlImsStatementContext": "EXEC",
+    "ExitStatementContext": "EXIT",
+    "GenerateStatementContext": "GENERATE",
+    "GobackStatementContext": "GOBACK",
+    "GoToStatementContext": "GO TO",
+    "IfStatementContext": "IF",
+    "InitializeStatementContext": "INITIALIZE",
+    "InitiateStatementContext": "INITIATE",
+    "InspectStatementContext": "INSPECT",
+    "MergeStatementContext": "MERGE",
+    "MoveStatementContext": "MOVE",
+    "MultiplyStatementContext": "MULTIPLY",
+    "OpenStatementContext": "OPEN",
+    "PerformStatementContext": "PERFORM",
+    "PurgeStatementContext": "PURGE",
+    "ReadStatementContext": "READ",
+    "ReceiveStatementContext": "RECEIVE",
+    "ReleaseStatementContext": "RELEASE",
+    "ReturnStatementContext": "RETURN",
+    "RewriteStatementContext": "REWRITE",
+    "SearchStatementContext": "SEARCH",
+    "SendStatementContext": "SEND",
+    "SetStatementContext": "SET",
+    "SortStatementContext": "SORT",
+    "StartStatementContext": "START",
+    "StopStatementContext": "STOP",
+    "StringStatementContext": "STRING",
+    "SubtractStatementContext": "SUBTRACT",
+    "TerminateStatementContext": "TERMINATE",
+    "UnstringStatementContext": "UNSTRING",
+    "WriteStatementContext": "WRITE",
+}
+
+# The `EXEC` rows above lose which middleware it was, and that is the single
+# most load-bearing distinction in the unsupported inventory (CICS and SQL are
+# different migration problems). It is carried in the hit's `context` instead.
+_EXEC_PRODUCTS: Dict[str, str] = {
+    "ExecCicsStatementContext": "CICS",
+    "ExecSqlStatementContext": "SQL",
+    "ExecSqlImsStatementContext": "SQL IMS",
+}
+
+
+def statement_alternatives(parser_mod) -> FrozenSet[str]:
+    """The context classes `statement` can be, read off the generated parser.
+
+    ANTLR gives ``StatementContext`` exactly one accessor method per
+    alternative of the ``statement`` rule, and defines them on that class
+    rather than inheriting them, so the alternatives can be read back from the
+    generated code instead of being re-listed by hand. That matters: the whole
+    point of `_STATEMENT_VERBS` is to be checked against the grammar, and a
+    check against a second hand-written list would only prove the two lists
+    agree with each other.
+
+    Rules elsewhere in the grammar whose names also end in "Statement" —
+    ``performProcedureStatement``, ``goToStatementSimple``,
+    ``endProgramStatement`` — are sub-clauses reached *inside* an alternative,
+    never alternatives themselves, and are correctly absent here.
+    """
+    return frozenset(
+        name[0].upper() + name[1:] + "Context"
+        for name in vars(parser_mod.StatementContext)
+        if name.endswith("Statement")
+    )
+
+
+def _verify_statement_map(parser_mod) -> Tuple[str, ...]:
+    """Check the table against the grammar. Returns any mismatches, in order."""
+    alternatives = statement_alternatives(parser_mod)
+    problems = [
+        f"{ctx} is a grammar alternative of `statement` with no row in the verb table"
+        for ctx in sorted(alternatives - set(_STATEMENT_VERBS))
+    ]
+    problems += [
+        f"{ctx} is in the verb table but is not an alternative of `statement`"
+        for ctx in sorted(set(_STATEMENT_VERBS) - alternatives)
+    ]
+    return tuple(problems)
+
+
+def _qualifier(ctx) -> Optional[str]:
+    """The second word of a statement, when the dispatch table keys on it.
+
+    `EXIT` and `EXIT PROGRAM` are different constructs with different support
+    status, and so are `PERFORM VARYING` (inline, supported) and out-of-line
+    `PERFORM <paragraph>` (not). The grammar makes both a single rule with an
+    optional tail, so the distinction is only visible in the parsed tree. This
+    returns that second word so `analyze` can look up the qualified key —
+    which is what the token scan already does with its `next_tok`, by the same
+    rule and for the same reason.
+
+    Returns None when the statement has no second word, in which case only the
+    bare verb is looked up and a qualified-only verb counts unsupported. That
+    is the same under-counting direction the token scan takes (rule 4).
+    """
+    if ctx.getChildCount() < 2:
+        return None
+    second = ctx.getChild(1)
+    # A token carries `symbol`; a nested rule context does not, and its own
+    # first token is the word in question — `performStatement`'s second child
+    # is `performInlineStatement`, which *starts* with VARYING/UNTIL/TIMES.
+    # `getText()` is not usable here: it concatenates the subtree with no
+    # separators, so "VARYING I FROM 1" comes back as "VARYINGIFROM1".
+    symbol = getattr(second, "symbol", None)
+    if symbol is not None:
+        return symbol.text.upper()
+    start = getattr(second, "start", None)
+    return start.text.upper() if start is not None else None
+
+
+def statements_by_antlr(tree, parser_mod) -> Tuple[StatementHit, ...]:
+    """Every statement in the tree, classified through `_STATEMENT_VERBS`.
+
+    Walks `statement` contexts. Nested statements count: the `statement*` inside
+    an `ifStatement`'s THEN branch are statements in their own right, which is
+    what the token scan counts too, so the two methods stay comparable.
+    """
+    problems = _verify_statement_map(parser_mod)
+    if problems:
+        raise RuntimeError(
+            "statement verb table does not match the grammar: " + "; ".join(problems)
+        )
+
     hits: List[StatementHit] = []
+    statement_ctx = parser_mod.StatementContext
+    paragraph_ctx = parser_mod.ParagraphContext
+    section_ctx = parser_mod.ProcedureSectionContext
 
     def walk(node, paragraph: Optional[str]) -> None:
-        if isinstance(node, Cobol85Parser.ParagraphContext):
+        if isinstance(node, section_ctx):
+            # A section header renames the enclosing scope; paragraphs inside
+            # it overwrite this again as they are met.
+            paragraph = node.procedureSectionHeader().sectionName().getText().upper()
+        elif isinstance(node, paragraph_ctx):
             paragraph = node.paragraphName().getText().upper()
-        if isinstance(node, Cobol85Parser.StatementContext):
-            child = node.getChild(0)
-            hits.append(
-                StatementHit(
-                    verb=node.start.text.upper(),
-                    line=node.start.line,
-                    paragraph=paragraph,
-                    context=type(child).__name__,
+        if isinstance(node, statement_ctx) and node.getChildCount():
+            inner = node.getChild(0)
+            key = type(inner).__name__
+            verb = _STATEMENT_VERBS.get(key)
+            if verb is not None:
+                hits.append(
+                    StatementHit(
+                        verb=verb,
+                        line=inner.start.line,
+                        paragraph=paragraph,
+                        context=_EXEC_PRODUCTS.get(key, key),
+                        next_tok=_qualifier(inner),
+                    )
                 )
-            )
         for i in range(node.getChildCount()):
             child = node.getChild(i)
             if hasattr(child, "getChildCount"):
