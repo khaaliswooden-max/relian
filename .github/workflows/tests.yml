@@ -75,11 +75,23 @@ env:
   # Same discipline as EXPECTED_SKIPS: change this number only alongside
   # docs/PHASE2_LOG.md, and only with the delta attributed test by test.
   #
-  # WP-2.0.2 (2026-08-20): deliberately set ONE BELOW the measured 286 for a
-  # single commit, to prove on the runner that this assertion actually fires on
-  # pass-count drift rather than to argue that it would. Corrected in the
-  # commit that follows. See docs/PHASE2_LOG.md, WP-2.0.2 SS1.
-  EXPECTED_PASSES: "285"
+  # Proven on the runner, not by argument. The previous commit (7617fe4) set
+  # this to 285 -- one below the measured 286 -- and nothing else. The `pytest`
+  # step passed and the gate step failed, on the pass count alone:
+  #
+  #     --- result ---
+  #       286 passed, 10 skipped, 0 failed, 0 errored
+  #     GATE FAILED: pass count drifted: 286, expected 285. FEWER passes
+  #     usually means a test STOPPED BEING COLLECTED [...]
+  #     ##[error]Process completed with exit code 1.
+  #
+  # Skips at 10 and failures at 0 throughout, so the red came from this
+  # assertion and from nothing else. No test was deleted or deselected to
+  # produce it: a deliberately wrong expectation is the same proof without
+  # touching the suite.
+  #   planted red: https://github.com/khaaliswooden-max/relian/actions/runs/32421480377
+  # See docs/PHASE2_LOG.md, WP-2.0.2 §1.
+  EXPECTED_PASSES: "286"
 
 jobs:
   parser-regen:
