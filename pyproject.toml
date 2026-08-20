@@ -71,3 +71,18 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "--cov=src --cov-report=html --cov-report=term"
+# The suite imports first-party code as `src.assessment.…`, which requires the
+# REPO ROOT on sys.path. Nothing was putting it there reliably:
+#
+#   * `pip install -e .` does not. setuptools auto-detects this project as
+#     src-layout and points the editable path at `<repo>/src`, so `assessment`
+#     and `core` become importable as TOP-LEVEL names while `src.assessment`
+#     does not resolve at all.
+#   * `python -m pytest` does, but only as a side effect of `-m` prepending the
+#     working directory. Bare `pytest` does not, so the same tree passed one
+#     way and died at collection the other -- 9 ImportErrors, zero tests
+#     collected, before .github/workflows/tests.yml caught it.
+#
+# `pythonpath` is rootdir-relative, so it holds for either invocation and from
+# any working directory.
+pythonpath = ["."]

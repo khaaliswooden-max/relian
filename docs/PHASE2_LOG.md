@@ -338,14 +338,67 @@ The guard keeps its teeth and loses the false positive.
 
 ---
 
-### 8. Result
+### 8. The gate's first run caught a real defect — in this work package
 
-Measured in the CI-equivalent virtualenv (CPython 3.12.3, GnuCOBOL 3.1.2.0,
-`javac` 21.0.10), after every change in this work package:
+Run 1 of `tests.yml` (PR #22) went **red**: `9 errors in 2.35s`, zero tests
+collected, nine `ModuleNotFoundError: No module named 'src'` at import time
+across `tests/assessment/`.
+
+The cause was a flaw in how §1–§7 were verified, not in the runner. Local
+verification used `python -m pytest`; the workflow runs bare `pytest`, as the
+work package specifies. Those are not equivalent:
+
+- **`python -m pytest`** prepends the working directory to `sys.path` — a
+  documented side effect of `-m`. From the repo root that puts the repo root on
+  the path, so `from src.assessment.coverage import analyze` resolves.
+- **`pytest`** does not. Nothing else supplied the repo root either.
+  `pip install -e .` does **not**: setuptools auto-detects this project as
+  src-layout and points the editable path entry at `<repo>/src`, so
+  `assessment` and `core` become importable as TOP-LEVEL names while
+  `src.assessment` does not resolve at all. Measured:
 
 ```
-/tmp/ci-venv/bin/python -m pytest -q -rs
-→ 288 passed, 10 skipped in 30.27s
+cat .venv/lib/python3.12/site-packages/__editable__.relian-0.1.0.pth
+→ /home/user/relian/src
+```
+
+So bare `pytest` has never worked in this repository from a clean checkout.
+The latent breakage predates this work package; the new gate is what surfaced
+it, on its first run, which is the gate doing its job.
+
+Fixed at the root rather than by changing the command: `pythonpath = ["."]` in
+`[tool.pytest.ini_options]`. It is rootdir-relative, so it holds for either
+invocation and for a contributor running bare `pytest` locally.
+
+Reproduced and verified, in the CI-equivalent virtualenv:
+
+| Invocation | Before the fix | After |
+|---|---|---|
+| `pytest -q -rs` (what CI runs) | **9 errors, 0 collected** | **288 passed, 10 skipped** |
+| `python -m pytest -q -rs` | 288 passed, 10 skipped | 288 passed, 10 skipped |
+
+The gate script was then re-run against the resulting `junit.xml` under bash:
+`GATE MET: 288 passed, 10 skipped (expected 10), 0 failed, 0 errored`.
+
+**Observed, not fixed (pre-existing, out of scope).**
+`tests/assessment/test_complexity.py::test_module_declares_no_thresholds` opens
+`'src/assessment/complexity.py'` by relative path, so it fails with
+`FileNotFoundError` when pytest is invoked from any directory other than the
+repository root. CI always runs from the root, so it does not affect the gate.
+Recorded here rather than repaired, on the same basis as the three
+capability-guarding skips in §4.
+
+---
+
+### 9. Result
+
+Measured in the CI-equivalent virtualenv (CPython 3.12.3, GnuCOBOL 3.1.2.0,
+`javac` 21.0.10), after every change in this work package, using the exact
+command the workflow runs:
+
+```
+pytest -q -rs
+→ 288 passed, 10 skipped in 29.10s
 ```
 
 **`288 passed, 10 skipped, 0 failed` — the baseline is preserved exactly.**
