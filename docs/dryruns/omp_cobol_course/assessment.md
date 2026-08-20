@@ -1,4 +1,4 @@
-# Legacy Code Assessment — /tmp/claude-0/-home-user/f2df2865-c5ad-56fb-9929-a95ffe40b35f/scratchpad/dryrun/omp
+# Legacy Code Assessment — /root/corpora/ompcourse
 Schema `relian-assessment-1` · manifest `eb61e3d54c42e2fc89ad1cb1aacb2b7e60f27775c47c20da1e1329f966047a57`
 
 Every number in this report is a measurement with a stated origin and a Trutina grade, or it is absent. Nothing here is a default, an estimate, or a target reported as a result.
@@ -7,9 +7,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.5287 | PLAUSIBLE | 405/766 statements supported across 30 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
+| Portfolio construct coverage | 0.5287 | PLAUSIBLE | 405/766 statements supported across 30 program(s) via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d); method=mixed(antlr_tree+token_scan) |
 | Quotable-today code lines | 2378 | PLAUSIBLE | code lines (2739) minus lines carrying an unsupported construct (361) across 30 program(s) |
-| Code lines requiring grammar expansion | 361 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 30 program(s) |
+| Code lines requiring grammar expansion | 361 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) across 30 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
@@ -393,7 +393,7 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Program | Physical | Comment | Blank | Code | Logical | Method | Dead paragraphs |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | 41 | 7 | 0 | 34 | 16 | token_scan | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | 41 | 7 | 0 | 34 | 16 | antlr_tree | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 98 | 37 | 0 | 61 | 17 | token_scan | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 79 | 18 | 0 | 61 | 17 | token_scan | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 163 | 48 | 0 | 115 | 26 | token_scan | — |
@@ -411,9 +411,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 173 | 46 | 2 | 125 | 30 | token_scan | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 171 | 46 | 0 | 125 | 30 | token_scan | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 67 | 13 | 8 | 46 | 15 | token_scan | — |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol | 9 | 4 | 0 | 5 | 2 | token_scan | — |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol | 60 | 34 | 1 | 25 | 14 | token_scan | — |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol | 34 | 8 | 1 | 25 | 14 | token_scan | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol | 9 | 4 | 0 | 5 | 2 | antlr_tree | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol | 60 | 34 | 1 | 25 | 14 | antlr_tree | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol | 34 | 8 | 1 | 25 | 14 | antlr_tree | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 73 | 19 | 0 | 54 | 11 | token_scan | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 72 | 19 | 0 | 53 | 11 | token_scan | — |
 | COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 195 | 28 | 6 | 161 | 47 | token_scan | — |
@@ -421,7 +421,7 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 144 | 30 | 7 | 107 | 33 | token_scan | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 201 | 39 | 5 | 157 | 54 | token_scan | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 188 | 27 | 5 | 156 | 52 | token_scan | — |
-| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 36 | 1 | 2 | 33 | 16 | token_scan | — |
+| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 36 | 1 | 2 | 33 | 16 | antlr_tree | — |
 | COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 55 | 0 | 4 | 51 | 26 | token_scan | — |
 
 Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 766 (30 program(s) measured, 0 not measured).
@@ -431,48 +431,48 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | 0.9375 | PLAUSIBLE | 15/16 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol (sha256:4780cd35bb05fb30); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 0.4118 | PLAUSIBLE | 7/17 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol (sha256:99bb990cd6d5a6b2); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 0.4118 | PLAUSIBLE | 7/17 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol (sha256:a7f1aa0a9dd5048b); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 0.4231 | PLAUSIBLE | 11/26 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol (sha256:c1b33960dae402a7); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 0.4231 | PLAUSIBLE | 11/26 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol (sha256:4cf168b2a6dee21e); method=token_scan, source_format=fixed; antlr_syntax_errors=2 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 0.4333 | PLAUSIBLE | 13/30 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol (sha256:8460c449a9c6220e); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 0.4138 | PLAUSIBLE | 12/29 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol (sha256:ce42c43112947cd1); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 0.4545 | PLAUSIBLE | 15/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol (sha256:92d1800fa4142b55); method=token_scan, source_format=fixed; antlr_syntax_errors=32 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 0.4545 | PLAUSIBLE | 15/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol (sha256:876b92b9b7aa0690); method=token_scan, source_format=fixed; antlr_syntax_errors=32 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 0.4545 | PLAUSIBLE | 15/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol (sha256:f688f84bc5fc8216); method=token_scan, source_format=fixed; antlr_syntax_errors=32 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 0.4706 | PLAUSIBLE | 16/34 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol (sha256:e404f5c79ef349c7); method=token_scan, source_format=fixed; antlr_syntax_errors=36 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 0.4706 | PLAUSIBLE | 16/34 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol (sha256:abde21d8572de0c9); method=token_scan, source_format=fixed; antlr_syntax_errors=36 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol (sha256:9306ee1c9fb936cc); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0014.cobol | 1.0 | PLAUSIBLE | 4/4 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0014.cobol (sha256:9d691aefd942b39a); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 0.375 | PLAUSIBLE | 9/24 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol (sha256:9c9f224e00b88f2e); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 0.4333 | PLAUSIBLE | 13/30 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol (sha256:e3c28e03e7676ee3); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 0.4333 | PLAUSIBLE | 13/30 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol (sha256:de3d3f99d8e05bb6); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 0.4667 | PLAUSIBLE | 7/15 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol (sha256:c62148f383b60087); method=token_scan, source_format=fixed; antlr_syntax_errors=3 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol | 1.0 | PLAUSIBLE | 2/2 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol (sha256:cacd03611329857d); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol (sha256:7d5b5d0b797fba8a); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol | 1.0 | PLAUSIBLE | 14/14 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol (sha256:feaaa22973031aa0); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 0.5455 | PLAUSIBLE | 6/11 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol (sha256:a7cacd97cf5d52c7); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 0.5455 | PLAUSIBLE | 6/11 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol (sha256:85ffe54793ea02d3); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 0.5532 | PLAUSIBLE | 26/47 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl (sha256:3cde3ac691111fcb); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 0.5882 | PLAUSIBLE | 30/51 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl (sha256:9a4d0689f9cae7d3); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
-| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 0.5758 | PLAUSIBLE | 19/33 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl (sha256:6b451aabffa72343); method=token_scan, source_format=fixed; antlr_syntax_errors=23 |
-| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 0.4815 | PLAUSIBLE | 26/54 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl (sha256:0fc6be67b763e6a8); method=token_scan, source_format=fixed; antlr_syntax_errors=34 |
-| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 0.4615 | PLAUSIBLE | 24/52 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl (sha256:78a180507e31ce2a); method=token_scan, source_format=fixed; antlr_syntax_errors=17 |
-| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 0.875 | PLAUSIBLE | 14/16 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL (sha256:cdac72e76397e771); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
-| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 0.8462 | PLAUSIBLE | 22/26 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL (sha256:2471ecfbad466ea5); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | 0.9375 | VERIFIED | 15/16 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol (sha256:4780cd35bb05fb30); method=antlr_tree, source_format=fixed |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 0.4118 | PLAUSIBLE | 7/17 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol (sha256:99bb990cd6d5a6b2); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol | 0.4118 | PLAUSIBLE | 7/17 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0002.cobol (sha256:a7f1aa0a9dd5048b); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol | 0.4231 | PLAUSIBLE | 11/26 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0004.cobol (sha256:c1b33960dae402a7); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol | 0.4231 | PLAUSIBLE | 11/26 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0005.cobol (sha256:4cf168b2a6dee21e); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol | 0.4333 | PLAUSIBLE | 13/30 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0006.cobol (sha256:8460c449a9c6220e); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol | 0.4138 | PLAUSIBLE | 12/29 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0007.cobol (sha256:ce42c43112947cd1); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol | 0.4545 | PLAUSIBLE | 15/33 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0008.cobol (sha256:92d1800fa4142b55); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol | 0.4545 | PLAUSIBLE | 15/33 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0009.cobol (sha256:876b92b9b7aa0690); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol | 0.4545 | PLAUSIBLE | 15/33 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0010.cobol (sha256:f688f84bc5fc8216); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol | 0.4706 | PLAUSIBLE | 16/34 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0011.cobol (sha256:e404f5c79ef349c7); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol | 0.4706 | PLAUSIBLE | 16/34 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0012.cobol (sha256:abde21d8572de0c9); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol | 0.75 | PLAUSIBLE | 3/4 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0013.cobol (sha256:9306ee1c9fb936cc); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0014.cobol | 1.0 | PLAUSIBLE | 4/4 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0014.cobol (sha256:9d691aefd942b39a); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol | 0.375 | PLAUSIBLE | 9/24 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0033.cobol (sha256:9c9f224e00b88f2e); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol | 0.4333 | PLAUSIBLE | 13/30 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL006A.cobol (sha256:e3c28e03e7676ee3); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol | 0.4333 | PLAUSIBLE | 13/30 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBLC1.cobol (sha256:de3d3f99d8e05bb6); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol | 0.4667 | PLAUSIBLE | 7/15 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/COBOL.cobol (sha256:c62148f383b60087); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol | 1.0 | VERIFIED | 2/2 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/HELLO.cobol (sha256:cacd03611329857d); method=antlr_tree, source_format=fixed |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol | 1.0 | VERIFIED | 14/14 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL00.cobol (sha256:7d5b5d0b797fba8a); method=antlr_tree, source_format=fixed |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol | 1.0 | VERIFIED | 14/14 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/PAYROL0X.cobol (sha256:feaaa22973031aa0); method=antlr_tree, source_format=fixed |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol | 0.5455 | PLAUSIBLE | 6/11 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHBIN.cobol (sha256:a7cacd97cf5d52c7); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol | 0.5455 | PLAUSIBLE | 6/11 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #2 - Learning COBOL/Labs/cbl/SRCHSER.cobol (sha256:85ffe54793ea02d3); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl | 0.5532 | PLAUSIBLE | 26/47 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106.cbl (sha256:3cde3ac691111fcb); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl | 0.5882 | PLAUSIBLE | 30/51 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Challenges/Debugging/cbl/CBL0106C.cbl (sha256:9a4d0689f9cae7d3); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl | 0.5758 | PLAUSIBLE | 19/33 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB21.cbl (sha256:6b451aabffa72343); method=token_scan, source_format=fixed; antlr_syntax_errors=11 |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl | 0.4815 | PLAUSIBLE | 26/54 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB22.cbl (sha256:0fc6be67b763e6a8); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 0.4615 | PLAUSIBLE | 24/52 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl (sha256:78a180507e31ce2a); method=token_scan, source_format=fixed; antlr_syntax_errors=16 |
+| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 0.875 | VERIFIED | 14/16 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL (sha256:cdac72e76397e771); method=antlr_tree, source_format=fixed |
+| COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 0.8462 | PLAUSIBLE | 22/26 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL (sha256:2471ecfbad466ea5); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.5287 | PLAUSIBLE | 405/766 statements supported across 30 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
+| Coverage ratio | 0.5287 | PLAUSIBLE | 405/766 statements supported across 30 program(s) via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d); method=mixed(antlr_tree+token_scan) |
 
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
@@ -491,7 +491,7 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 
 | File | Line | Paragraph | Construct | Context |
 | --- | --- | --- | --- | --- |
-| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | 24 | 100-MAIN | PERFORM | — |
+| COBOL Programming Course #2 - Learning COBOL/Labs/cbl/ADDAMT.cobol | 24 | 100-MAIN | PERFORM | PerformStatementContext |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 64 | OPEN-FILES | OPEN | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 65 | OPEN-FILES | OPEN | — |
 | COBOL Programming Course #2 - Learning COBOL/Labs/cbl/CBL0001.cobol | 68 | READ-NEXT-RECORD | PERFORM | — |
@@ -846,8 +846,8 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 168 | PRINT-SPECIFIC | EXEC | EXEC SQL |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 174 | PRINT-A-LINE | WRITE | — |
 | COBOL Programming Course #3 - Advanced Topics/Labs/cbl/CBLDB23.cbl | 178 | SQL-ERROR-HANDLING | CALL | — |
-| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 15 | — | PERFORM | — |
-| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 16 | — | PERFORM | — |
+| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 15 | — | PERFORM | PerformStatementContext |
+| COBOL Programming Course #4 - Testing/Labs/cbl/DEPTPAY.CBL | 16 | — | PERFORM | PerformStatementContext |
 | COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 20 | — | PERFORM | — |
 | COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 21 | — | PERFORM | — |
 | COBOL Programming Course #4 - Testing/Labs/cbl/EMPPAY.CBL | 22 | — | PERFORM | — |
@@ -957,7 +957,7 @@ Portfolio totals — physical 3621, code 2739, comment 832, blank 50, logical 76
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
 | Quotable-today code lines | 2378 | PLAUSIBLE | code lines (2739) minus lines carrying an unsupported construct (361) across 30 program(s) |
-| Code lines requiring grammar expansion | 361 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 30 program(s) |
+| Code lines requiring grammar expansion | 361 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) across 30 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -1156,17 +1156,29 @@ Two analysis methods, and the result always says which one produced it.
 ``token_scan`` (graded PLAUSIBLE)
     A documented lexical scan, used when the ANTLR parse reports errors.
 
-The fallback is not a nicety. The grammar bundled in this repo
-(``src/parsers/grammars/Cobol85.g4``) is a **reduced** COBOL-85 subset, not the
-full standard grammar: it requires the ``USAGE`` keyword before ``COMP-3``,
-requires ``TIMES`` after ``OCCURS``, has no ``ALTER``/``EXEC``/``ACCEPT`` rules,
-and its ``computeStatement`` cannot parse ``COMPUTE X = A + B``. Measured
-against this repo's own bench corpus, it reports syntax errors on 5 of 5
-programs and recovers **zero** statements from every one of them, because a
-DATA DIVISION error resynchronises past the entire PROCEDURE DIVISION. An
-analyzer that only used the tree would therefore return "no data" for every
-real program. So both methods exist, every result is labelled with the one that
-ran, and only the tree path is graded VERIFIED (R1/R9).
+The grammar bundled in this repo (``src/parsers/grammars/Cobol85.g4``) is the
+ProLeap COBOL-85 grammar vendored from ``antlr/grammars-v4``; its provenance,
+licence and pinned upstream commit are recorded in
+``docs/GRAMMAR_PROVENANCE.md``. It covers the COBOL-85 standard rather than a
+subset, and the bench corpus parses cleanly under it — but the fallback is not
+therefore obsolete, because real COBOL routinely is not COBOL-85:
+
+* **Dialect extensions.** ``EXIT PERFORM`` (COBOL-2002), GnuCOBOL's
+  ``BINARY-LONG``, and compiler directives before the IDENTIFICATION DIVISION
+  are all outside the standard and are syntax errors under a COBOL-85 grammar,
+  correctly.
+* **Comment entries.** The free text after ``AUTHOR.`` or ``INSTALLATION.`` is
+  reachable only through a ``*>CE`` marker that upstream's preprocessor
+  inserts; this repo does not run that preprocessor.
+* **COPY and REPLACE.** ``COPY`` is a lexer token in this grammar that no
+  parser rule references — upstream consumes it in the separate
+  ``Cobol85Preprocessor.g4``, vendored here but not yet run. A COPY-bearing
+  program cannot parse cleanly, by construction.
+
+So both methods exist, every result is labelled with the one that ran, and only
+the tree path is graded VERIFIED (R1/R9). A program that reports syntax errors
+falls to ``token_scan`` and is graded PLAUSIBLE rather than being reported as
+having no constructs.
 
 Token-scan counting rules (reproduced verbatim in the report appendix):
 
@@ -1194,6 +1206,27 @@ Token-scan counting rules (reproduced verbatim in the report appendix):
 6. A paragraph label is a line whose code area is a single name followed by a
    period; a section header additionally has ``SECTION`` before the period.
 
+ANTLR-tree counting rules:
+
+7. A statement is counted at each ``statement`` context in the parse tree.
+   Nested statements count in their own right — the statements inside an
+   ``IF``'s THEN branch are counted as well as the ``IF`` — so the tree and the
+   scan measure comparable things.
+8. The verb reported for a statement is read from an explicit table,
+   ``_STATEMENT_VERBS``, with one row per alternative of the grammar's
+   ``statement`` rule. The table is checked against the generated parser on
+   every walk, and a mismatch raises rather than silently dropping statements
+   from the count (R2).
+9. Scope terminators (``END-IF``, ``END-PERFORM``, …), ``ELSE`` and ``WHEN``
+   are counted by the token scan, which is line-oriented, but not by the tree,
+   where they are part of their enclosing statement rather than statements
+   themselves. The two methods therefore report different *totals* for the same
+   program; each ratio is internally consistent and is labelled with the method
+   that produced it.
+10. As with rule 4, a two-word verb is resolved where the tree makes it visible:
+    ``PERFORM VARYING`` and ``EXIT PROGRAM`` are distinguished from out-of-line
+    ``PERFORM`` and paragraph ``EXIT`` by the statement's second token.
+
 A statement is SUPPORTED iff its verb is in
 :func:`src.assessment.supported.supported_verbs`, which reads the transpiler's
 dispatch table. Nothing here maintains its own opinion of what C1 supports.
@@ -1202,7 +1235,7 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d)`
+Registry: `SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d)`
 
 Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM VARYING`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
@@ -1236,9 +1269,9 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | antlr4-python3-runtime | unknown |
 | cli | cli.py |
 | platform | Linux |
-| python | 3.11.15 |
+| python | 3.12.3 |
 | python-docx | not installed |
-| relian_transpiler | SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) |
+| relian_transpiler | SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) |
 | schema | relian-assessment-1 |
 
 

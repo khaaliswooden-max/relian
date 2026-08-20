@@ -4,9 +4,15 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     285 passed, 10 skipped, 0 failed
+#     286 passed, 10 skipped, 0 failed
 #
-# (WP-2.0.-3, 2026-08-20: was 288. Net -3 -- tests/test_ml.py went with the
+# (WP-2.0, 2026-08-20: was 285. Net +1 -- the COBOL-85 grammar swap made
+# PARTIAL.cbl parse, so the test that pinned it to the token-scan fallback was
+# repointed at COPYUSER.cbl, which still cannot parse because COPY needs the
+# preprocessor, and a new test pins PARTIAL.cbl's promotion to the tree path.
+# See docs/PHASE2_LOG.md, WP-2.0.
+#
+# WP-2.0.-3, 2026-08-20: was 288. Net -3 -- tests/test_ml.py went with the
 # deleted fabricated-metric ML limb (-12) and tests/test_no_fabricated_metrics.py
 # arrived to guard it (+9). See docs/R1_ML_DISPOSITION_2026-08.md. Only the SKIP
 # count is asserted mechanically, below; the pass count is prose, kept accurate
@@ -39,6 +45,32 @@ env:
   EXPECTED_SKIPS: "10"
 
 jobs:
+  parser-regen:
+    # WP-2.0 -- the committed ANTLR parser under src/parsers/antlr/cobol/ is
+    # generated code. Generated code that is committed is only trustworthy if
+    # it can be shown to still match the grammar it claims to come from, so
+    # this job regenerates it from src/parsers/grammars/Cobol85.g4 with the
+    # pinned ANTLR jar and fails the build on any byte difference. It is a
+    # separate job from `pytest` on purpose: a stale parser is a provenance
+    # failure, and it should be legible as that rather than as a test failure.
+    name: parser is byte-identical to its grammar
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pin the JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Regenerate and diff
+        # tools/regen_parser.sh verifies the jar's SHA-256 before running it,
+        # so a cached or substituted jar cannot silently change the output.
+        run: tools/regen_parser.sh --check
+
   pytest:
     name: pytest (CPython 3.12, GnuCOBOL + JDK)
     runs-on: ubuntu-latest

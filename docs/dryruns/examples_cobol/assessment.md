@@ -7,9 +7,9 @@ Every number in this report is a measurement with a stated origin and a Trutina 
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Portfolio construct coverage | 0.5818 | PLAUSIBLE | 64/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
+| Portfolio construct coverage | 0.5818 | PLAUSIBLE | 64/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
 | Quotable-today code lines | 222 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (46) across 1 program(s) |
-| Code lines requiring grammar expansion | 46 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 1 program(s) |
+| Code lines requiring grammar expansion | 46 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) across 1 program(s) |
 
 **Grade:** PLAUSIBLE · **Provenance:** portfolio risk tier is a policy decision from the RISK_RULES table reproduced in the appendix; its inputs are VERIFIED measurements
 
@@ -43,19 +43,19 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 
 | Program | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| banking-system.cbl | 0.5818 | PLAUSIBLE | 64/110 statements supported via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) on banking-system.cbl (sha256:24ba36227dc35845); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
+| banking-system.cbl | 0.5818 | PLAUSIBLE | 64/110 statements supported via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) on banking-system.cbl (sha256:24ba36227dc35845); method=token_scan, source_format=fixed; antlr_syntax_errors=1 |
 
 
 ### Portfolio
 
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
-| Coverage ratio | 0.5818 | PLAUSIBLE | 64/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
+| Coverage ratio | 0.5818 | PLAUSIBLE | 64/110 statements supported across 1 program(s) via SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d); method=token_scan |
 
 
 ## 5. Unsupported-construct inventory
 
-**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d), counted over the statements listed in the coverage map
+**Grade:** VERIFIED · **Provenance:** occurrence counts of constructs absent from SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d), counted over the statements listed in the coverage map
 
 | Construct | Occurrences |
 | --- | --- |
@@ -164,7 +164,7 @@ Portfolio totals — physical 361, code 268, comment 56, blank 37, logical 110 (
 | Measure | Value | Grade | Provenance |
 | --- | --- | --- | --- |
 | Quotable-today code lines | 222 | PLAUSIBLE | code lines (268) minus lines carrying an unsupported construct (46) across 1 program(s) |
-| Code lines requiring grammar expansion | 46 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) across 1 program(s) |
+| Code lines requiring grammar expansion | 46 | PLAUSIBLE | distinct code lines carrying >=1 construct outside SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) across 1 program(s) |
 
 Attribution is by source line: a code line requires grammar expansion if it carries at least one construct the deterministic transpiler cannot handle. This report does not price the work and does not state a schedule.
 
@@ -363,17 +363,29 @@ Two analysis methods, and the result always says which one produced it.
 ``token_scan`` (graded PLAUSIBLE)
     A documented lexical scan, used when the ANTLR parse reports errors.
 
-The fallback is not a nicety. The grammar bundled in this repo
-(``src/parsers/grammars/Cobol85.g4``) is a **reduced** COBOL-85 subset, not the
-full standard grammar: it requires the ``USAGE`` keyword before ``COMP-3``,
-requires ``TIMES`` after ``OCCURS``, has no ``ALTER``/``EXEC``/``ACCEPT`` rules,
-and its ``computeStatement`` cannot parse ``COMPUTE X = A + B``. Measured
-against this repo's own bench corpus, it reports syntax errors on 5 of 5
-programs and recovers **zero** statements from every one of them, because a
-DATA DIVISION error resynchronises past the entire PROCEDURE DIVISION. An
-analyzer that only used the tree would therefore return "no data" for every
-real program. So both methods exist, every result is labelled with the one that
-ran, and only the tree path is graded VERIFIED (R1/R9).
+The grammar bundled in this repo (``src/parsers/grammars/Cobol85.g4``) is the
+ProLeap COBOL-85 grammar vendored from ``antlr/grammars-v4``; its provenance,
+licence and pinned upstream commit are recorded in
+``docs/GRAMMAR_PROVENANCE.md``. It covers the COBOL-85 standard rather than a
+subset, and the bench corpus parses cleanly under it — but the fallback is not
+therefore obsolete, because real COBOL routinely is not COBOL-85:
+
+* **Dialect extensions.** ``EXIT PERFORM`` (COBOL-2002), GnuCOBOL's
+  ``BINARY-LONG``, and compiler directives before the IDENTIFICATION DIVISION
+  are all outside the standard and are syntax errors under a COBOL-85 grammar,
+  correctly.
+* **Comment entries.** The free text after ``AUTHOR.`` or ``INSTALLATION.`` is
+  reachable only through a ``*>CE`` marker that upstream's preprocessor
+  inserts; this repo does not run that preprocessor.
+* **COPY and REPLACE.** ``COPY`` is a lexer token in this grammar that no
+  parser rule references — upstream consumes it in the separate
+  ``Cobol85Preprocessor.g4``, vendored here but not yet run. A COPY-bearing
+  program cannot parse cleanly, by construction.
+
+So both methods exist, every result is labelled with the one that ran, and only
+the tree path is graded VERIFIED (R1/R9). A program that reports syntax errors
+falls to ``token_scan`` and is graded PLAUSIBLE rather than being reported as
+having no constructs.
 
 Token-scan counting rules (reproduced verbatim in the report appendix):
 
@@ -401,6 +413,27 @@ Token-scan counting rules (reproduced verbatim in the report appendix):
 6. A paragraph label is a line whose code area is a single name followed by a
    period; a section header additionally has ``SECTION`` before the period.
 
+ANTLR-tree counting rules:
+
+7. A statement is counted at each ``statement`` context in the parse tree.
+   Nested statements count in their own right — the statements inside an
+   ``IF``'s THEN branch are counted as well as the ``IF`` — so the tree and the
+   scan measure comparable things.
+8. The verb reported for a statement is read from an explicit table,
+   ``_STATEMENT_VERBS``, with one row per alternative of the grammar's
+   ``statement`` rule. The table is checked against the generated parser on
+   every walk, and a mismatch raises rather than silently dropping statements
+   from the count (R2).
+9. Scope terminators (``END-IF``, ``END-PERFORM``, …), ``ELSE`` and ``WHEN``
+   are counted by the token scan, which is line-oriented, but not by the tree,
+   where they are part of their enclosing statement rather than statements
+   themselves. The two methods therefore report different *totals* for the same
+   program; each ratio is internally consistent and is labelled with the method
+   that produced it.
+10. As with rule 4, a two-word verb is resolved where the tree makes it visible:
+    ``PERFORM VARYING`` and ``EXIT PROGRAM`` are distinguished from out-of-line
+    ``PERFORM`` and paragraph ``EXIT`` by the statement's second token.
+
 A statement is SUPPORTED iff its verb is in
 :func:`src.assessment.supported.supported_verbs`, which reads the transpiler's
 dispatch table. Nothing here maintains its own opinion of what C1 supports.
@@ -409,7 +442,7 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 ### Appendix E — supported set, read from the transpiler
 
-Registry: `SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d)`
+Registry: `SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d)`
 
 Supported statement keywords: `ACCEPT`, `ADD`, `COMPUTE`, `CONTINUE`, `DISPLAY`, `ELSE`, `END-EVALUATE`, `END-IF`, `END-PERFORM`, `EVALUATE`, `EXIT PROGRAM`, `GOBACK`, `IF`, `INSPECT`, `MOVE`, `PERFORM VARYING`, `SEARCH`, `SET`, `STOP`, `UNSTRING`, `WHEN`
 
@@ -443,9 +476,9 @@ Statement-boundary tokens that are **not** supported: `AT`, `END-SEARCH`, `END-U
 | antlr4-python3-runtime | unknown |
 | cli | cli.py |
 | platform | Linux |
-| python | 3.11.15 |
+| python | 3.12.3 |
 | python-docx | not installed |
-| relian_transpiler | SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d) |
+| relian_transpiler | SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d) |
 | schema | relian-assessment-1 |
 
 

@@ -36,13 +36,28 @@ def test_antlr_path_is_used_when_the_parse_is_clean(records):
 
 
 def test_token_scan_path_is_used_when_the_parse_has_errors(records):
-    r = result_for(records, "PARTIAL.cbl")
+    # COPYUSER.cbl carries a COPY, which the vendored grammar cannot parse:
+    # COPY is a lexer token there that no parser rule references, because
+    # upstream consumes it in the separate preprocessor grammar this repo does
+    # not run. It is therefore the fixture that still exercises the fallback.
+    r = result_for(records, "COPYUSER.cbl")
     assert r.method == "token_scan"
     assert r.parse_ok is False
     assert r.parser_errors, "a token_scan result must say why the tree was rejected"
     assert r.coverage_ratio.grade == "PLAUSIBLE", (
         "a lexically-derived count must never be graded VERIFIED"
     )
+
+
+def test_previously_unparseable_fixture_now_reaches_the_tree(records):
+    """PARTIAL.cbl fell to token_scan under the reduced grammar this repo used
+    before the ProLeap grammar was vendored (WP-2.0). It now parses, and the
+    grade rises with it — that is the swap's whole point, so it is pinned."""
+    r = result_for(records, "PARTIAL.cbl")
+    assert r.method == "antlr_tree"
+    assert r.parse_ok is True
+    assert r.parser_errors == ()
+    assert r.coverage_ratio.grade == "VERIFIED"
 
 
 def test_both_methods_agree_on_the_fixture_they_can_both_read(records):
@@ -89,7 +104,9 @@ def test_exec_products_are_distinguished(records):
 
 def test_hits_carry_file_line_and_paragraph(records):
     r = result_for(records, "PARTIAL.cbl")
-    go = next(h for h in r.unsupported_inventory if h.verb == "GO")
+    # The tree reports the two-word verb: a bare "GO" is not what the source
+    # says, nor what the dispatch table is keyed by.
+    go = next(h for h in r.unsupported_inventory if h.verb == "GO TO")
     assert go.file == "PARTIAL.cbl"
     assert go.paragraph == "OTHER-PARA"
     src_line = read_source(FIXTURES / "PARTIAL.cbl").splitlines()[go.line - 1]
@@ -124,7 +141,7 @@ def test_provenance_names_the_registry_and_the_file(records):
     prov = r.coverage_ratio.provenance
     assert "SUPPORTED_STATEMENTS@" in prov
     assert "PARTIAL.cbl" in prov
-    assert "method=token_scan" in prov
+    assert "method=antlr_tree" in prov
     assert f"{r.supported_statements}/{r.total_statements}" in prov
 
 

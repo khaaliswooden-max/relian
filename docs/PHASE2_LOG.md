@@ -1213,3 +1213,539 @@ fix is not to raise `EXPECTED_SKIPS`. The assertion now runs over every package
 `__init__.py` under `src/` carrying a relative import (`src/core`,
 `src/parsers`, `src/blockchain`, `src/generators`) and asserts non-empty, so it
 pins the resolver property itself and cannot decay into a skip again.
+
+---
+
+## 2026-08-20 · WP-2.0 · Replace the COBOL grammar
+
+- **HEAD at start:** `4ecfcc7` (`Merge pull request #24 from
+  khaaliswooden-max/claude/remove-fabricated-metric-ml-hjeio7`), verified equal
+  to `origin/main` — `git rev-list --left-right --count origin/main...HEAD` →
+  `0	0`.
+- **Branch:** `claude/wp-2-0-cobol-grammar-n2sre1`
+- **Scope guard:** nothing under `bench/corpus/`, `bench/harness/` or
+  `transpiler/` was modified. `git status --porcelain bench/ transpiler/` → no
+  output, at close-out (§9).
+- **Baseline scored against:** the WP-2.0.0 pre-flight table in §0.2 above.
+
+### §1. Environment — reconstructed to the pin before anything was measured
+
+The container this session started in was not the pinned environment:
+`python3 -VV` → `3.11.15`, `command -v cobc` → empty, no ANTLR jar. Corrected
+and verified before any figure below was taken.
+
+| Item | Measured value | Command |
+|---|---|---|
+| Interpreter | `Python 3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]` | `python3.12 -m venv /tmp/pin-venv && /tmp/pin-venv/bin/python -VV` |
+| GnuCOBOL | `cobc (GnuCOBOL) 3.1.2.0` | `apt-get install -y gnucobol3; cobc --version` |
+| Java compiler | `javac 21.0.10` | `javac -version` |
+| ANTLR runtime | `antlr4-python3-runtime 4.13.2` | `/tmp/pin-venv/bin/pip show antlr4-python3-runtime` |
+| `pip freeze` hash | `ad41a502b4e2f700fd2a7c95e873d19cdbb75827b186c062ca10d80536aa4946` | `pip install -r requirements.lock && pip freeze --exclude-editable \| sort \| sha256sum` |
+
+**The freeze hash is NOT the `c8c37f12…` recorded in §0.0, and that is
+expected, not drift.** §0.0 hashed the 140-pin lock; WP-2.0.−3 regenerated
+`requirements.lock` down to 38 pins (§3 of that entry). Confirmed rather than
+assumed:
+
+```
+grep -cE '^[a-zA-Z0-9][a-zA-Z0-9._-]*==' requirements.lock
+→ 38
+```
+
+The `ad41a502…` value is the hash of the current lock, measured in this run.
+
+### §2. Licence gate — both conditions checked BEFORE anything was copied
+
+The work package made vendoring the preprocessor conditional on its header
+carrying the same `Copyright (C) 2017, Ulrich Wolffgang` / MIT block as the
+main grammar. It is not merely equivalent — it is **byte-identical**:
+
+```
+sha256sum <(sed -n '1,7p' cobol85/Cobol85.g4) <(sed -n '1,7p' cobol85/Cobol85Preprocessor.g4)
+→ 614ee811d5e6ce31a3f2bc511901aed2828ca3e5d27f591cf0ac2b61291fd2e3   (both)
+diff <(sed -n '1,7p' cobol85/Cobol85.g4) <(sed -n '1,7p' cobol85/Cobol85Preprocessor.g4)
+→ (no output)
+```
+
+**Gate satisfied; the preprocessor was vendored.** Both header blocks are
+intact in the vendored files.
+
+**§0.7's UNRESOLVED licence question is closed.** The objection was correct:
+`antlr/grammars-v4` carries no `LICENSE` file, so the MIT claim rested on a
+header pointing at a file absent from that repository. It is closed by looking
+where the header actually points — the ProLeap COBOL parser — which does carry
+the text. Fetched and archived verbatim, not retyped:
+
+```
+curl -fsSL https://raw.githubusercontent.com/uwol/proleap-cobol-parser/main/LICENSE \
+     -o docs/licenses/proleap-cobol85-MIT.txt
+→ HTTP 200, 21 lines, "MIT License / Copyright (c) 2017 Ulrich Wolffgang"
+sha256sum docs/licenses/proleap-cobol85-MIT.txt
+→ 5de028e49764aa5f3212085092085b3c26350cb68d73535264667f96b05a98ac
+```
+
+Full provenance per file — author, year, licence, upstream project, vendored-from
+repo and commit, sha256 — is in `docs/GRAMMAR_PROVENANCE.md`.
+
+### §3. The swap
+
+Upstream pinned at `aca577d9e30e591eacbc414f1280f22645412af4`; both file
+hashes reproduce §0.3's exactly, so the bytes vendored are the bytes that entry
+inspected.
+
+| | Before | After |
+|---|---|---|
+| `Cobol85.g4` lines | 376 | **5654** |
+| `Cobol85.g4` parser rules | 119 | **595** |
+| `Cobol85.g4` lexer rules | 201 | **565** |
+| `Cobol85.g4` sha256 | `eb88e8c1a8d570c5…` | `c338bff84b5a7d89…` |
+| `Cobol85Preprocessor.g4` | absent | 1902 lines, 30 parser + 292 lexer rules, `8d88a679ae574a26…` |
+
+```
+sha256sum src/parsers/grammars/*.g4
+→ c338bff84b5a7d89113dacdff69764593688fd0915f24fba2f07a5fec2063e35  Cobol85.g4
+  8d88a679ae574a2645c827c21f467031669e2713d149c8fec46bc0dab86b4841  Cobol85Preprocessor.g4
+```
+
+### §4. Regeneration
+
+`tools/regen_parser.sh`, pinning ANTLR **4.13.2** by SHA-256. The jar was taken
+from `antlr.org` and **verified byte-identical to Maven Central's copy** before
+being trusted — two independent sources, not one download:
+
+```
+curl -sSL https://www.antlr.org/download/antlr-4.13.2-complete.jar -o antlr.jar
+curl -sSL https://repo1.maven.org/maven2/org/antlr/antlr4/4.13.2/antlr4-4.13.2-complete.jar -o antlr-maven.jar
+cmp antlr.jar antlr-maven.jar   → identical
+sha256sum antlr.jar             → eae2dfa119a64327444672aff63e9ec35a20180dc5b8090b7a6ab85125df4d76
+```
+
+Committed output (`tools/regen_parser.sh`, 2.9 s wall):
+
+| File | Bytes | sha256 |
+|---|---|---|
+| `Cobol85Lexer.py` | 213,682 | `593d56f63fd90009…` |
+| `Cobol85Parser.py` | 1,986,745 | `5d5f085a5d2467df…` |
+| `Cobol85Listener.py` | 202,945 | `65032301226a23fc…` |
+| `Cobol85Visitor.py` | 118,015 | `4624bdadac4099be…` |
+| `Cobol85.tokens` / `Cobol85Lexer.tokens` | 7,262 | `c9161b91f1093d78…` |
+| `Cobol85.interp` | 262,922 | `9ad130afde1b0108…` |
+| `Cobol85Lexer.interp` | 224,750 | `f3fe3d78a44cc81e…` |
+
+The jar is **not** committed; the script fetches it to `.antlr/` (added to
+`.gitignore`) and verifies its hash on every run, not only after fetching.
+
+#### The byte-identity gate, with teeth proven
+
+`.github/workflows/tests.yml` gains a job **`parser-regen`** running
+`tools/regen_parser.sh --check`. Each failure mode was planted, observed, and
+reverted:
+
+| Planted defect | Result |
+|---|---|
+| two lines appended to `Cobol85Parser.py` | **exit 1**, `DIFFERS from a fresh generation` |
+| an extra `Stray.py` in the output directory | **exit 1**, `UNEXPECTED file in src/parsers/antlr/cobol` |
+| one byte appended to the pinned jar | **exit 1**, `ANTLR jar sha256 mismatch` |
+| (reverted) | **exit 0**, `OK — committed parser is byte-identical to a fresh generation` |
+
+One real bug was found and fixed while proving this: the diff printer piped
+through `head -40`, and under `set -o pipefail` a long diff makes `head` close
+the pipe, turning a reportable difference into a SIGPIPE exit that hides the
+remaining files. Replaced with `sed -n '1,40p'`, which drains its input.
+
+### §5. Re-mapping the tree walker
+
+**`_STATEMENT_VERBS`** — an explicit table, one row per alternative of the
+grammar's `statement` rule, mapping generated context class → the verb the
+transpiler's dispatch table is keyed by. Auditable by reading it.
+
+It is **checked against the grammar on every walk**, and the check does not
+compare against a second hand-written list — that would only prove the two
+lists agree with each other. `statement_alternatives()` reads the alternatives
+off the generated parser (ANTLR gives `StatementContext` exactly one accessor
+per alternative, defined on the class rather than inherited):
+
+```
+table rows: 49 | grammar alternatives: 49 | mismatches: ()
+distinct verbs: 47
+```
+
+49 rows collapse to 47 verbs because `execCicsStatement`, `execSqlStatement`
+and `execSqlImsStatement` all report verb `EXEC`, with the product carried in
+the hit's `context` — matching token-scan rule 5 so the two methods count the
+same thing.
+
+**The guard fired during development, which is the evidence it works.** A first
+version enumerated the *non*-statement rules by hand to exclude them; the check
+immediately reported 29 rules ending in `Statement` with no row
+(`ModeStatementContext`, `AddToStatementContext`, `GoToDependingOnStatementContext`, …).
+Those are sub-clauses, not statements. Rather than lengthen the exclusion list,
+the check was rewritten to read the alternatives off `StatementContext`, where
+no such list is possible.
+
+**Two-word verbs.** `PERFORM VARYING` (supported) and out-of-line `PERFORM`
+(not) are one grammar rule with an optional tail, so the distinction exists only
+in the tree. `_qualifier()` returns the statement's second token so `analyze()`
+can look up the qualified key — the same rule the token scan applies to
+`next_tok`. This was measured wrong first: an initial version used
+`getText()`, which concatenates a subtree with no separators, so
+`PERFORM VARYING I FROM 1` came back as `VARYINGIFROM1` and failed the
+`isalpha()` test. Two genuinely-supported `PERFORM VARYING`s were being counted
+unsupported (P02 18/19, P07 32/33) until it was fixed to read the sub-rule's
+first *token*.
+
+#### `ScannedSource.antlr_source()` — verified, and two indicators were wrong
+
+The work package asked for this to be verified rather than assumed. Verified,
+and it was **not** correct as it stood:
+
+| Indicator | Before | After |
+|---|---|---|
+| columns 1–6 | dropped ✓ | dropped |
+| column 73+ | dropped ✓ | dropped |
+| `*` / `/` | blanked, line number preserved ✓ | unchanged |
+| **`D` / `d`** | **treated as ordinary code** ✗ | blanked as a comment — a debugging line compiles only under `WITH DEBUGGING MODE`, which this pre-pass does not assume |
+| **`-`** | **not handled** ✗ — the continuation's code area was emitted as its own line, splitting the word or literal it continues | appended to the line it continues, with an empty line left in its place so line numbers still point at where the statement starts |
+
+The code area is now taken **unstripped** for the ANTLR feed, because trailing
+spaces inside a continued literal are part of that literal; the previously
+`rstrip`ped `code` field is unchanged for every other consumer.
+
+Census across all five corpora, so the fix is sized rather than guessed:
+
+```
+find <corpus> \( -iname '*.cbl' -o -iname '*.cob' -o -iname '*.cpy' \) | xargs awk '...'
+→ bench/corpus      cont(-)=0   debug(D)=0  comment(*,/)=75
+  examples/cobol    cont(-)=0   debug(D)=0  comment(*,/)=56
+  gnucobol          cont(-)=0   debug(D)=0  comment(*,/)=205
+  carddemo          cont(-)=11  debug(D)=0  comment(*,/)=4895
+```
+
+Continuation appears 11 times, in CardDemo only; no `D` line appears anywhere.
+Both are fixed regardless — the pre-pass is a correctness surface, not a
+best-effort one.
+
+#### Entry rule
+
+`_antlr_parse` now enters at `startRule` (`compilationUnit EOF`), the grammar's
+declared entry point, not at `compilationUnit`. Entering at `compilationUnit`
+lets a file whose tail the grammar cannot parse report **zero errors** over its
+prefix and be graded VERIFIED on a partial tree. `src/parsers/cobol.py` was
+changed the same way.
+
+### §6. Acceptance gate
+
+#### Criterion 1–3 — the seven bench programs
+
+```
+PYTHONPATH=. /tmp/pin-venv/bin/python /tmp/wp20/measure.py bench/corpus
+```
+
+(The script mirrors `src/assessment/cli.py`'s loop, because
+`antlr_syntax_errors` reaches the provenance string only when
+`method == "token_scan"` and the table must record it either way — the same
+method §0.2 used.)
+
+| program | errs before | **errs after** | method before | **after** | grade before | **after** | ratio before | **after** | sup/tot before | **after** |
+|---|---|---|---|---|---|---|---|---|---|---|
+| P01_payroll | 11 | **0** | token_scan | **antlr_tree** | PLAUSIBLE | **VERIFIED** | 1.0 | **1.0** | 25/25 | **25/25** |
+| P02_interest | 8 | **0** | token_scan | **antlr_tree** | PLAUSIBLE | **VERIFIED** | 1.0 | **1.0** | 19/19 | **19/19** |
+| P03_eligibility | 4 | **0** | token_scan | **antlr_tree** | PLAUSIBLE | **VERIFIED** | 1.0 | **1.0** | 24/24 | **24/24** |
+| P04_taxtable | 8 | **0** | token_scan | **antlr_tree** | PLAUSIBLE | **VERIFIED** | 1.0 | **1.0** | 33/33 | **34/34** |
+| P05_validate | 2 | **0** | token_scan | **antlr_tree** | PLAUSIBLE | **VERIFIED** | 1.0 | **1.0** | 25/25 | **25/25** |
+| P06_valinit | 5 | **0** | token_scan | **antlr_tree** | PLAUSIBLE | **VERIFIED** | 1.0 | **1.0** | 14/14 | **14/14** |
+| P07_exitflow | 1 | **0** | token_scan | **antlr_tree** | PLAUSIBLE | **VERIFIED** | 1.0 | **1.0** | 33/33 | **33/33** |
+| **total** | **39** | **0** | | | | | | | 173 | **174** |
+
+The "before" column was re-measured in this run at `4ecfcc7`, not cited: it
+reproduced §0.2's `11/8/4/8/2/5/1` exactly before anything was changed.
+
+**All three criteria met.** Zero syntax errors on all seven; `antlr_tree` and
+VERIFIED on all seven; ratio 1.0000 throughout.
+
+**Granularity change, recorded as required:** P04 moves 33 → 34 statements. The
+one extra statement is isolated by differencing the two methods' hit lists on
+that program rather than inferred:
+
+```
+ONLY in antlr_tree : [(54, 'MOVE')]
+ONLY in token_scan : []
+bench/corpus/P04_taxtable/program.cbl:54 →  AT END MOVE 5 TO WS-IDX
+```
+
+It is the `MOVE` in the `SEARCH`'s `AT END` phrase. The token scan skips it
+because `AT` is not a statement-start context — its documented under-count
+(rule 4) — and the tree is right: that is a real MOVE statement. The same
+class of difference, on a different verb, appears in `FULLSUP.cbl`
+(18 → 19, `AT END DISPLAY WS-A`). Everywhere else the two methods agree
+exactly, which is a real cross-validation: the scan and the tree were written
+independently.
+
+**Correction:** an earlier draft of this entry attributed P04's extra statement
+to `AT END DISPLAY`, carrying `FULLSUP.cbl`'s example across without measuring
+P04. The mechanism is the same; the verb is `MOVE`, at P04 line 54, as the
+difference above shows.
+
+Determinism (R8), and input identity:
+
+```
+python -m src.assessment.cli bench/corpus --out /tmp/wp20/det{1,2} --json-only
+sha256sum /tmp/wp20/det{1,2}/assessment.json
+→ 4229b450332b9c871eda43c90a179b5bd500d7cc474992f677a1ebc0c8527866  (both)
+manifest_hash before → cc4513ba7feda336a554556ed8e638e99ec7144b064294cfc92681564d54bb90
+manifest_hash after  → cc4513ba7feda336a554556ed8e638e99ec7144b064294cfc92681564d54bb90
+```
+
+Identical manifest hash means the input tree is byte-identical, so every delta
+above is attributable to the grammar swap alone.
+
+#### Criterion 4 — `test_cross_check.py`
+
+**Green and unchanged.** `git status --porcelain tests/assessment/test_cross_check.py`
+→ no output. Its ten skips are the same ten `EXPECTED_SKIPS` gates on; the skip
+*reasons* moved (fixtures that now parse report "coverage is not 1.0" rather
+than a parse failure) but the count did not.
+
+#### Criterion 5 — `supported` counts across all five dry runs
+
+**Unchanged on all five, verified by content hash rather than by eye.**
+Appendix E of each report is the SUPPORTED set read from the transpiler; the
+only difference in any of the five is the git-ref *label*:
+
+```
+diff <(awk '/^### Appendix E/,/^### Appendix F/' docs/dryruns/<run>/assessment.md) …
+→ Registry: `SUPPORTED_STATEMENTS@5fcbba7 (c1_rulebased.py sha256:a440ac2751bb738d)`
+  Registry: `SUPPORTED_STATEMENTS@4ecfcc7 (c1_rulebased.py sha256:a440ac2751bb738d)`
+  (no other line differs, in any of the five)
+```
+
+The label moved `5fcbba7` → `4ecfcc7`; the **content hash `a440ac2751bb738d` did
+not**. `transpiler/c1_rulebased.py` is untouched, so the supported set could not
+have moved — and now it is measured, not argued.
+
+**And the same question asked of the counts, not only the set**, because
+"supported" has two readings and only one of them was covered above. The
+`supported_statements` numerator per dry run, read from each report's
+`portfolio_coverage` at `4ecfcc7` and at this commit:
+
+```
+git show <ref>:docs/dryruns/<run>/assessment.json | jq .portfolio_coverage
+```
+
+| dry run | supported before → after | Δ | total before → after | Δ | ratio |
+|---|---|---|---|---|---|
+| `bench_corpus` | 173 → **174** | **+1** | 173 → 174 | +1 | 1.0 → 1.0 |
+| `examples_cobol` | 64 → 64 | 0 | 110 → 110 | 0 | 0.5818 → 0.5818 |
+| `aws_carddemo` | 7058 → 7058 | 0 | 9738 → 9738 | 0 | 0.7248 → 0.7248 |
+| `omp_cobol_course` | 405 → 405 | 0 | 766 → 766 | 0 | 0.5287 → 0.5287 |
+| `gnucobol` | 239 → 239 | 0 | 439 → 439 | 0 | 0.5444 → 0.5444 |
+| **all five** | 7939 → **7940** | **+1** | | | |
+
+**The supported COUNT moved by exactly +1, in one program, and it is the same
+statement as the granularity change in §6** — the `MOVE` at
+`P04_taxtable/program.cbl:54`. Numerator and denominator both rose by one, so
+every ratio is unchanged to four decimal places. Stated plainly rather than
+buried:
+
+* The supported **set** did not move. `transpiler/c1_rulebased.py` is
+  byte-identical across the two commits
+  (`sha256 a440ac2751bb738d…`, `git diff 4ecfcc7 HEAD -- transpiler/ bench/`
+  → empty), and the registry is the same 21 keys.
+* The supported **count** is `|statements recovered ∩ registry|`. It is a
+  function of the registry *and* of how many statements the analyzer recovers.
+  The grammar swap changed recovery by one statement, and that statement's verb
+  (`MOVE`) is in the registry, so the count followed.
+
+So this is not the failure mode the criterion guards against — no capability
+claim widened, no verb became supported that was not supported before. It is
+one previously-missed real statement becoming visible, on the correct side of
+a registry that did not change. Downstream figures for `bench_corpus` confirm
+nothing else moved: `quotable_loc` 384 → 384, `grammar_expansion_loc` 0 → 0,
+`unsupported_inventory` 0 → 0, portfolio risk tier LOW → LOW (7 programs at
+LOW, both times).
+
+**This is an operator call, not one this entry makes.** The criterion says any
+movement in `supported` blocks merge; the movement here is +1 and fully
+accounted for.
+
+Portfolio figures, all five re-run on byte-identical inputs (all five manifest
+hashes match):
+
+| Run | Coverage before → after | Grade before → after | Risk | Programs on the tree path | Unsupported inventory before → after |
+|---|---|---|---|---|---|
+| `bench_corpus` | 1.0000 → **1.0000** (173/173 → 174/174) | PLAUSIBLE → **VERIFIED** | LOW → LOW | 0 → **7 of 7** | 0 → 0 |
+| `examples_cobol` | 0.5818 → 0.5818 (64/110) | PLAUSIBLE → PLAUSIBLE | BLOCKED | 0 of 1 | 46 → 46 |
+| `aws_carddemo` | 0.7248 → 0.7248 (7058/9738) | PLAUSIBLE → PLAUSIBLE | BLOCKED | 0 → **2 of 44** | 2680 → 2680 |
+| `omp_cobol_course` | 0.5287 → 0.5287 (405/766) | PLAUSIBLE → PLAUSIBLE | BLOCKED | 0 → **5 of 30** | 361 → 361 |
+| `gnucobol` | 0.5444 → 0.5444 (239/439) | PLAUSIBLE → PLAUSIBLE | BLOCKED | 0 of 6 | 200 → 200 |
+
+Seven third-party programs are promoted to VERIFIED, and **their statement
+counts are identical under both methods** — where the scan and the tree can both
+read a program, they agree. The committed artifacts under `docs/dryruns/` were
+refreshed from these runs, and `docs/dryruns/README.md` was corrected: it
+asserted "not one real-world program parsed cleanly", which the swap has made
+false.
+
+#### Criterion 6 — regeneration byte-identical, lint
+
+`tools/regen_parser.sh --check` → exit 0, with teeth proven in §4.
+
+**Lint, stated precisely rather than as "green".** Neither workflow runs a
+linter, and the repository is **not** `black`-formatted: at `4ecfcc7`,
+`black --check --line-length 100 src/ tests/` reports **49 files would be
+reformatted, 9 left unchanged**. After this work package the figure is
+**identical — 49 and 9**. This WP therefore adds no lint debt, but "lint green"
+would be a false claim about this repository and is not made. Reformatting 49
+files was out of scope and would have buried the diff.
+
+### §7. Real-world scope — the criterion as written could NOT be met
+
+The work package required at least one of `examples_cobol` / `gnucobol` to reach
+zero syntax errors. **Neither does, and neither can**, for reasons measured
+here and outside this WP's reach. Per-file counts, as required:
+
+```
+PYTHONPATH=. /tmp/pin-venv/bin/python /tmp/wp20/perfile.py <root>
+```
+
+**`examples_cobol`** — 1 file, 1 → 1 errors:
+
+| file | errs before | errs after | first error |
+|---|---|---|---|
+| `banking-system.cbl` | 1 | 1 | `line 3:8 mismatched input 'RELIAN-DEMO' expecting <EOF>` |
+
+**`gnucobol`** — 7 files, 301 errors (50 is the collector's cap):
+
+| file | errs after | first error |
+|---|---|---|
+| `NEWS` | 50 | `line 1:0 mismatched input 'NEWS'` |
+| `cobc/ChangeLog` | 50 | `line 2:0 mismatched input '2026-06-08'` |
+| `tests/ChangeLog` | 50 | `line 2:0 mismatched input '2025-12-04'` |
+| `extras/CBL_OC_DUMP.cob` | 50 | `line 36:32 mismatched input 'binary-long'` |
+| `tests/testsuite.src/numeric-display.cob` | 50 | `line 22:17 token recognition error at: '@'` |
+| `tests/testsuite.src/numeric-dump.cob` | 50 | `line 23:17 token recognition error at: '@'` |
+| `tests/testsuite.src/tutorial.cob` | 1 | `line 10:0 mismatched input 'SET' expecting {ID, IDENTIFICATION}` |
+
+Why, per corpus:
+
+* **`gnucobol` is not COBOL-85 source.** It is a compiler's own test suite:
+  `BINARY-LONG` is a GnuCOBOL usage, `@` is its test-macro syntax, and
+  `tutorial.cob` opens with a compiler directive before the IDENTIFICATION
+  DIVISION. A COBOL-85 grammar rejecting these is correct behaviour. Four of
+  the seven "programs" are `NEWS` and `ChangeLog` text files that intake
+  classifies as programs — a pre-existing intake issue, not a grammar one.
+* **`examples_cobol` needs two things, and only one of them is the
+  preprocessor.** The single error is the comment entry after `AUTHOR.`, which
+  is reachable only through a `*>CE` marker that upstream's preprocessor
+  inserts.
+
+**The work package asked to be told if preprocessor integration was small
+enough to include. It was measured instead of estimated, and the answer is that
+it would not be sufficient — so there is nothing to ask for.** A throwaway
+pre-pass tagging comment entries with `*>CE` was applied to
+`banking-system.cbl` (in `/tmp`, not committed):
+
+```
+PYTHONPATH=. /tmp/pin-venv/bin/python /tmp/wp20/ce.py examples/cobol/banking-system.cbl
+→ errors=3
+    line 288:12 no viable alternative at input 'EXIT PERFORM\n            NOT'
+```
+
+Errors go **1 → 3**, not 1 → 0: tagging lets the parser reach further into the
+file, where it meets `EXIT PERFORM` at line 288. That is COBOL-2002; the
+vendored grammar's rule is `exitStatement: EXIT PROGRAM?`. No preprocessor work
+fixes it — only a post-85 dialect would.
+
+**What did reach zero**, recorded because the criterion's intent was
+real-world evidence: **7 third-party programs** across `aws_carddemo` (2) and
+`omp_cobol_course` (5) now parse cleanly and grade VERIFIED, against **zero**
+before this WP. `omp_cobol_course` was not in the named pair but is the corpus
+that best demonstrates the criterion's intent, at 5 of 30 clean.
+
+**This criterion is recorded as NOT MET rather than reinterpreted.** It is the
+one acceptance item in this entry that fails.
+
+### §8. Suite
+
+```
+PYTHONPATH=. /tmp/pin-venv/bin/python -m pytest -q -rs --no-cov
+→ 286 passed, 10 skipped in 86.70s
+```
+
+**286 passed, 10 skipped, 0 failed.** Net **+1** against the sealed 285. Five
+tests changed, and every one of them was pinning the *old grammar's failure*
+rather than behaviour worth preserving:
+
+| Test | Was | Now | Why |
+|---|---|---|---|
+| `test_coverage.py::test_token_scan_path_is_used_when_the_parse_has_errors` | asserted `PARTIAL.cbl` → `token_scan` | repointed at `COPYUSER.cbl` | PARTIAL.cbl now parses. COPYUSER.cbl still cannot: `COPY` is a lexer token no parser rule references. |
+| `test_coverage.py::test_previously_unparseable_fixture_now_reaches_the_tree` | — | **new** | pins PARTIAL.cbl's promotion to `antlr_tree`/VERIFIED, so the swap's effect cannot silently regress |
+| `test_coverage.py::test_hits_carry_file_line_and_paragraph` | verb `"GO"` | verb `"GO TO"` | the tree reports the two-word verb the dispatch table is keyed by |
+| `test_coverage.py::test_provenance_names_the_registry_and_the_file` | `method=token_scan` | `method=antlr_tree` | same fixture, now parsed |
+| `test_determinism.py::test_parse_errors_do_not_drift…` | used `PARTIAL.cbl` | uses `BROKEN.cbl` | needs a fixture that still *produces* an `expecting {…}` set to normalise |
+| `test_loc.py::test_logical_is_statements_not_periods` | `logical == 18` | `logical == 19` | the tree counts `AT END DISPLAY`'s DISPLAY; 18 was the scan's under-count |
+
+`tests/parsers/test_cobol.py` keeps its four tests. Its fixture was split: the
+COPY was moved into a dedicated fixture, because a `COPY` in the PROCEDURE
+DIVISION aborts the parse there and everything after it — including `CALC-PARA`
+— is never seen. The COPY test now also asserts the edge is stamped
+`recovered_by="token_scan"`.
+
+`.github/workflows/tests.yml` and `tests/conftest.py` were updated 285 → 286.
+`EXPECTED_SKIPS` is unchanged at 10 and still gates.
+
+**Public bench split, as a regression check** (the transpiler was not touched,
+so this should not have moved, and did not):
+
+```
+run_candidate('current', …, split='public')
+→ build 7/7, vectors 89/89, BER 1.0
+   P01 12/12  P02 12/12  P03 12/12  P04 17/17  P05 12/12  P06 12/12  P07 12/12
+```
+
+### §9. Second consumer, re-mapped: `src/parsers/cobol.py`
+
+`COBOLParser` bound to the old grammar's contexts and failed at import
+(`Cobol85Parser has no attribute 'SectionContext'`). Re-mapped: `dataDivision`
+reaches sections through `dataDivisionSection`, `procedureDivision` through
+`procedureDivisionBody`, a data item's name and clauses live on
+`dataDescriptionEntryFormat1`, and `visitSection` became
+`visitProcedureSection`.
+
+`visitCopyStatement` was **deleted, not ported** — there is no `copyStatement`
+rule to visit. Dropping the dependency edge silently would have been the wrong
+answer, so `COPY <name>` targets are recovered from the **token stream** and
+every node produced that way carries `recovered_by="token_scan"`, so a consumer
+can tell a scanned edge from a parsed one. It does not resolve `REPLACING` and
+does not know whether the copybook exists; both are preprocessor work.
+
+`src/assessment/coverage.py`'s module docstring is reproduced **verbatim** as
+Appendix D of every shipped report (`report.py:438`). It described the old
+reduced grammar and, after the swap, asserted things that are false ("reports
+syntax errors on 5 of 5 programs"). Rewritten, and four ANTLR-tree counting
+rules (7–10) added alongside the existing token-scan rules.
+
+### §10. Verified before pushing
+
+```
+git status --porcelain bench/ transpiler/
+→ (no output)
+```
+
+Nothing under `bench/corpus/`, `bench/harness/` or `transpiler/` was modified.
+
+### §11. What this entry did not resolve
+
+- **Acceptance criterion 5 is NOT MET** (§7). Neither named corpus can reach
+  zero under a COBOL-85 grammar; the blockers are dialect constructs, not
+  grammar defects. Operator's call whether to accept the 7-clean-programs
+  evidence, retarget the criterion at `omp_cobol_course`, or defer.
+- **Preprocessor integration remains out of scope**, and §7 shows it would not
+  have satisfied criterion 5 anyway. `Cobol85Preprocessor.g4` is vendored with
+  full provenance but not generated; `COPY`, `REPLACE` and comment entries all
+  wait on it.
+- **gnucobol intake misclassification.** `NEWS` and two `ChangeLog` files are
+  classified as COBOL programs. Pre-existing, unrelated to this WP, not fixed
+  here. **UNRESOLVED.**
+- **The repository is not `black`-formatted** (49 files, unchanged by this WP).
+  No linter runs in CI. **UNRESOLVED — operator's call.**

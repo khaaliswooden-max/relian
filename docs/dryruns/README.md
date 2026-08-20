@@ -50,13 +50,27 @@ correctly reports zero programs on it.
 > third-party corpora. Nothing about the transpiler's actual capability
 > changed; the claim came down to meet it.
 
-| Run | Coverage | Grade | Portfolio risk | Quotable-today LOC | LOC needing grammar work |
-|---|---|---|---|---|---|
-| `bench_corpus` (7 programs, v1.2) | 1.0000 | PLAUSIBLE | LOW | 384 | 0 |
-| `examples_cobol` | 0.5818 | PLAUSIBLE | BLOCKED | 222 | 46 |
-| `aws_carddemo` | 0.7248 | PLAUSIBLE | BLOCKED | 20,224 | 2,680 |
-| `omp_cobol_course` | 0.5287 | PLAUSIBLE | BLOCKED | 2,378 | 361 |
-| `gnucobol` | 0.5444 | PLAUSIBLE | BLOCKED | 5,561 | 200 |
+> **Re-run after WP-2.0** (the COBOL-85 grammar swap). The committed artifacts
+> and the table below are that re-run. Every input tree is byte-identical to the
+> previous run — all five manifest hashes match — so every delta is attributable
+> to the grammar alone. The transpiler was not touched, and the SUPPORTED set in
+> each report's Appendix E is unchanged.
+
+| Run | Coverage | Grade | Portfolio risk | Quotable-today LOC | LOC needing grammar work | Programs on the tree path |
+|---|---|---|---|---|---|---|
+| `bench_corpus` (7 programs, v1.2) | 1.0000 | **VERIFIED** | LOW | 384 | 0 | **7 of 7** |
+| `examples_cobol` | 0.5818 | PLAUSIBLE | BLOCKED | 222 | 46 | 0 of 1 |
+| `aws_carddemo` | 0.7248 | PLAUSIBLE | BLOCKED | 20,224 | 2,680 | 2 of 44 |
+| `omp_cobol_course` | 0.5287 | PLAUSIBLE | BLOCKED | 2,378 | 361 | 5 of 30 |
+| `gnucobol` | 0.5444 | PLAUSIBLE | BLOCKED | 5,561 | 200 | 0 of 6 |
+
+Only the grade column and the last column moved. Every coverage ratio outside
+`bench_corpus` is unchanged to four decimal places, and `bench_corpus` went from
+173/173 to 174/174 — the tree also counts the `MOVE` in
+`P04_taxtable/program.cbl:54`, `AT END MOVE 5 TO WS-IDX`, which the token scan
+skips because `AT` is not a statement-start context (its documented
+under-count, rule 4). Coverage is a statement about the transpiler,
+not the parser, so a grammar swap moving it would have been a bug.
 
 Two results are worth reading carefully.
 
@@ -66,10 +80,29 @@ walks source, the other emits Java — and they agree that the corpus is fully
 inside the supported set. That is a genuine cross-validation, not a tautology,
 and it is the only place in this table where "quotable today" means all of it.
 
-**Every third-party run is graded PLAUSIBLE, and every program in every one of
-them was analysed by `token_scan`.** Not one real-world program parsed cleanly
-under the ANTLR grammar bundled in this repo. That is the Phase 1 finding that
-most affects Phase 2 planning; see "Escalation" in `docs/PHASE1_LOG.md`.
+**Seven real-world programs now parse cleanly, and none did before WP-2.0.**
+The Phase 1 finding this section used to record — that not one real-world
+program parsed under the reduced grammar this repo shipped, so every result was
+`token_scan`/PLAUSIBLE — was the reason for the grammar swap, and it no longer
+holds: 2 CardDemo programs and 5 from the COBOL course reach `antlr_tree` and
+grade VERIFIED.
+
+What still falls back is worth reading, because it is not grammar weakness:
+
+* **`COPY`.** 40 of CardDemo's 44 programs carry one. `COPY` is a lexer token
+  in the vendored grammar that no parser rule references — upstream consumes it
+  in a separate preprocessor grammar this repo vendors but does not yet run —
+  so those programs cannot parse cleanly by construction.
+* **Dialect, not COBOL-85.** `examples_cobol` uses `EXIT PERFORM`
+  (COBOL-2002); `gnucobol` is a compiler test suite using `BINARY-LONG`, `@`
+  test macros and compiler directives. A COBOL-85 grammar rejecting these is
+  correct behaviour, not a defect.
+* **Comment entries.** The free text after `AUTHOR.` needs a `*>CE` marker that
+  upstream's preprocessor inserts.
+
+The fallback therefore stays, and every result still says which method produced
+it. See `docs/GRAMMAR_PROVENANCE.md` and the WP-2.0 entry in
+`docs/PHASE2_LOG.md`.
 
 ## The demand signal — unsupported constructs across the three real-world corpora
 

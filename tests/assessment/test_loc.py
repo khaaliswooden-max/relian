@@ -62,7 +62,10 @@ def test_sequence_number_only_line_is_blank_not_code():
 def test_logical_is_statements_not_periods():
     r = count(src("FULLSUP.cbl"), "program", "FULLSUP.cbl")
     # FULLSUP has one period in the whole PROCEDURE DIVISION but many statements.
-    assert r.logical == 18
+    # 19, not the 18 the token scan reports: the tree also counts the DISPLAY in
+    # `AT END DISPLAY WS-A`, which the scan skips because `AT` is not a
+    # statement-start context (its documented under-count, rule 4).
+    assert r.logical == 19
     assert r.logical_method in ("antlr_tree", "token_scan")
 
 
