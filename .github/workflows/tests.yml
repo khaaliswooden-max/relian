@@ -14,9 +14,11 @@
 #
 # WP-2.0.-3, 2026-08-20: was 288. Net -3 -- tests/test_ml.py went with the
 # deleted fabricated-metric ML limb (-12) and tests/test_no_fabricated_metrics.py
-# arrived to guard it (+9). See docs/R1_ML_DISPOSITION_2026-08.md. Only the SKIP
-# count is asserted mechanically, below; the pass count is prose, kept accurate
-# so a reader can tell at a glance whether a run drifted.)
+# arrived to guard it (+9). See docs/R1_ML_DISPOSITION_2026-08.md.
+#
+# WP-2.0.2, 2026-08-20: the pass count is no longer prose. Both it and the skip
+# count are now asserted mechanically against EXPECTED_PASSES / EXPECTED_SKIPS
+# below.)
 #
 # The skip count is asserted, not merely reported, and that is the whole point.
 # The demo tests skip themselves when GnuCOBOL or the JDK is missing (see
@@ -57,6 +59,27 @@ env:
   # Enumerated and classified in docs/PHASE2_LOG.md §4. Change this number only
   # alongside that section.
   EXPECTED_SKIPS: "10"
+
+  # WP-2.0.2 -- the pass count, which was prose until now.
+  #
+  # The script below asserted EXPECTED_SKIPS mechanically but only checked that
+  # `passed > 0`. That leaves the largest of the three numbers unguarded, and
+  # unguarded in the direction that matters: a test which stops being COLLECTED
+  # -- a file renamed out of the `python_files` pattern, an ImportError absorbed
+  # at collection time, a parametrisation that silently stopped expanding, a
+  # module dropped from `testpaths` -- lowers the pass count while the skips
+  # stay at 10 and the failures stay at 0. Every assertion in this gate would
+  # have been satisfied and the tick would have been green, for a suite that
+  # quietly stopped running part of itself.
+  #
+  # Same discipline as EXPECTED_SKIPS: change this number only alongside
+  # docs/PHASE2_LOG.md, and only with the delta attributed test by test.
+  #
+  # WP-2.0.2 (2026-08-20): deliberately set ONE BELOW the measured 286 for a
+  # single commit, to prove on the runner that this assertion actually fires on
+  # pass-count drift rather than to argue that it would. Corrected in the
+  # commit that follows. See docs/PHASE2_LOG.md, WP-2.0.2 SS1.
+  EXPECTED_PASSES: "285"
 
 jobs:
   parser-regen:
@@ -161,12 +184,13 @@ jobs:
         # job in that case.
         if: always()
         run: |
-          python3 - "$EXPECTED_SKIPS" <<'PY'
+          python3 - "$EXPECTED_SKIPS" "$EXPECTED_PASSES" <<'PY'
           import sys
           import xml.etree.ElementTree as ET
           from pathlib import Path
 
           expected_skips = int(sys.argv[1])
+          expected_passes = int(sys.argv[2])
           report = Path("junit.xml")
           if not report.is_file():
               raise SystemExit(
@@ -218,6 +242,19 @@ jobs:
                   f"reconcile against docs/PHASE2_LOG.md and update "
                   f"EXPECTED_SKIPS in this workflow deliberately."
               )
+          if passed != expected_passes:
+              problems.append(
+                  f"pass count drifted: {passed}, expected {expected_passes}. "
+                  f"FEWER passes usually means a test STOPPED BEING COLLECTED "
+                  f"-- a renamed file that no longer matches `python_files`, an "
+                  f"ImportError absorbed at collection, a parametrisation that "
+                  f"stopped expanding -- which lowers this number while leaving "
+                  f"skips and failures untouched, and is exactly the drift this "
+                  f"assertion exists to catch. MORE passes means tests were "
+                  f"added. Either way, reconcile against docs/PHASE2_LOG.md and "
+                  f"update EXPECTED_PASSES in this workflow deliberately, "
+                  f"attributing the delta test by test."
+              )
           if passed <= 0:
               problems.append("no test passed; refusing to certify an empty run")
 
@@ -226,8 +263,9 @@ jobs:
                   print(f"GATE FAILED: {problem}")
               raise SystemExit(1)
 
-          print(f"GATE MET: {passed} passed, {skipped} skipped "
-                f"(expected {expected_skips}), 0 failed, 0 errored")
+          print(f"GATE MET: {passed} passed (expected {expected_passes}), "
+                f"{skipped} skipped (expected {expected_skips}), "
+                f"0 failed, 0 errored")
           PY
 
       - name: Upload the JUnit report
