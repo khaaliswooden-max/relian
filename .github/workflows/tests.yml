@@ -4,7 +4,7 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     370 passed, 10 skipped, 0 failed
+#     702 passed, 10 skipped, 0 failed
 #
 # WP-2.1, 2026-08-20: was 310. Net +60, in two new files: tests/test_seal.py
 # (+28) and tests/test_bench_oracle.py (+32), which land RELIAN-DISCOVERY-BENCH
@@ -130,7 +130,86 @@ env:
   # pytest job disarms that guard, so on the runner those tests must RUN. If
   # the runner ever loses cobc they fail rather than skip, and the skip count
   # stays pinned to the ten fixture-shape skips it exists to pin.
-  EXPECTED_PASSES: "370"
+  #
+  # WP-2.2 (2026-08-21): 370 -> 702. Net +332, in four new files and nothing
+  # else. `src/discovery/` -- the copybook resolver and the static layout
+  # engine -- did not exist before this work package, so every one of the 332
+  # is new coverage rather than a renamed or re-parametrised existing test.
+  # Attributed file by file, and within each file by what the cases actually
+  # cover:
+  #
+  #   tests/test_discovery_is_compiler_free.py   +20
+  #       D15, the load-bearing guard. 1 non-empty-package check; 4 per-module
+  #       AST scans (one parametrised case per file in src/discovery/); 1
+  #       transitive first-party closure scan; 1 scan of the round-trip harness
+  #       itself; 1 runtime probe that computes a real layout with subprocess,
+  #       ctypes and pty unimportable; 11 negative controls (one per forbidden
+  #       shape) plus 1 converse control proving the detector does not flag a
+  #       plain static calculator. If the engine could shell out to cobc the
+  #       layout round-trip would be 100% by construction, so this file is
+  #       what makes the 186 below mean anything.
+  #
+  #   tests/test_discovery_copybook.py           +37
+  #       §3.1, the resolver. 4 fixed-format margin cases (columns 7-72 only,
+  #       with BOTH margins proven to be excluded -- CardDemo carries a
+  #       sequence number in 1-6 and a change-id in 73-80 on the same lines);
+  #       7 on the measured REPLACING false positive, carrying
+  #       CODATE01.cbl:294 as a fixture together with its converse, because a
+  #       guard that suppressed both a phantom and a real COPY would also be
+  #       "green"; 4 on COPY syntax CardDemo actually uses (quoted names, OF
+  #       library, a directive spanning four lines, an unparseable phrase);
+  #       8 on REPLACING substitution and the two limitations it REPORTS
+  #       rather than silently absorbing; 4 on unresolvable COPY as a reported
+  #       outcome (D20); 5 on cycles, detected and never followed; 3 on the
+  #       fan-in graph; 1 on the single FileNotFoundError the resolver does
+  #       raise; 1 pinning D17 -- no antlr4 import, which is what decouples
+  #       WP-2.2 from WP-2.5. 4+7+4+8+4+5+3+1+1 = 37.
+  #
+  #   tests/test_discovery_layout.py            +130
+  #       §3.2, the engine, axis by axis, on inputs the sealed corpus does NOT
+  #       contain -- so a failure names one construct rather than one
+  #       copybook. Counted by collection, not by hand:
+  #         31 PICTURE      1 DISPLAY numeric   7 binary    15 COMP-3
+  #          2 SIGN         4 OCCURS            2 ODO        5 REDEFINES
+  #          4 level-88     4 SYNC              4 RENAMES    2 edited
+  #         24 acceptance (7) -- the D19 lint over all 15 corpus copybooks,
+  #            the R7 refusals for the five usages v0.1 does not measure, and
+  #            three negative controls proving the lint rejects a fabricated
+  #            zero, a silent null, and a level-88 that grew an extent
+  #         22 Measured reuse and the STATED BASIS of the grade (R9/R11)
+  #          3 structural
+  #       The 7 binary cases include the refusal at 19 digits, and the 4 SYNC
+  #       cases include the two that narrow the claim to PARTIAL rather than
+  #       approximating -- an honest eleven-of-twelve is shippable, a fudged
+  #       twelve is not.
+  #
+  #       The 22 R9/R11 cases are load-bearing rather than decorative. 15 of
+  #       them (one per corpus copybook) assert that every number the engine
+  #       PUBLISHES carries the basis of its grade inside its own provenance
+  #       string -- "PLAUSIBLE" with no stated basis is a grade with the units
+  #       filed off, and a caveat that lives only in the commit log is a caveat
+  #       the customer never sees. Two more pin the prose to the measurements
+  #       it quotes: the "186 of 186" in the published limitation is read back
+  #       out of the round-trip harness, and COMPILER_BASIS is checked against
+  #       the toolchain the SEALED oracle records, so neither can go stale in
+  #       silence.
+  #
+  #   tests/test_layout_roundtrip.py            +145
+  #       §3.3, the gate. 5 seal checks that run BEFORE any row is trusted; 3
+  #       on the comparison count and its composition; 128 parametrised over
+  #       the 16 sealed variants -- 8 groups x 16: rows agree, no invented
+  #       rows, gap projection, conditions, REDEFINES containment, RENAMES
+  #       spans, the tiling invariant, the D19 lint; 1 ODO both-extents; 3 on
+  #       the RENAMES row shape and the finer gap labelling; 4 proving the D16
+  #       accusation path in BOTH directions plus the seal-unverified case and
+  #       the absent-row case; and 1 headline assertion that all 186
+  #       comparisons pass at tolerance zero. 5+3+128+1+3+4+1 = 145.
+  #
+  # No existing test was changed, renamed, deleted or deselected. THE SKIP
+  # COUNT IS UNCHANGED AT 10: none of the 332 carries a skipif, and none of
+  # them needs cobc -- src/discovery/ never invokes one, which is the point.
+  # Measured triple for this change is in docs/PHASE2_LOG.md, WP-2.2 §6.
+  EXPECTED_PASSES: "702"
 
 jobs:
   parser-regen:
