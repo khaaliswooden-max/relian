@@ -4,7 +4,26 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     702 passed, 10 skipped, 0 failed
+#     852 passed, 10 skipped, 0 failed
+#
+# WP-2.3.2, 2026-08-21: was 848. Net +4 -- review on PR #31 found that
+# verify_report.py named a check it did not perform (countersign.py records
+# two advisory fields and the verifier compared only one). Never a soundness
+# hole: the signature covers the manifest hash, which already commits to the
+# instance key. But a verifier that claims a check it skips is the defect this
+# package exists to prevent. +2 for the planted-red and the guard that
+# generalises it (every advisory field one tool writes, the other must read),
+# +2 pinning the dry-run note's published digests the way the delivery sheet's
+# already were -- parametrised over both shipped tools, one case each. See
+# docs/PHASE2_LOG.md, WP-2.3.2.
+#
+# WP-2.3.1, 2026-08-21: was 829. Net +19 -- the release key turned out to be
+# passphrase-encrypted and its fingerprint was derived from the public key, so
+# countersign.py grew a getpass path and a public-only derivation, and both
+# grew tests. See docs/PHASE2_LOG.md, WP-2.3.1 §5.
+#
+# WP-2.3, 2026-08-21: was 702. Net +127, attributed file by file below. See
+# docs/PHASE2_LOG.md, WP-2.3 §6.
 #
 # WP-2.1, 2026-08-20: was 310. Net +60, in two new files: tests/test_seal.py
 # (+28) and tests/test_bench_oracle.py (+32), which land RELIAN-DISCOVERY-BENCH
@@ -209,7 +228,130 @@ env:
   # COUNT IS UNCHANGED AT 10: none of the 332 carries a skipif, and none of
   # them needs cobc -- src/discovery/ never invokes one, which is the point.
   # Measured triple for this change is in docs/PHASE2_LOG.md, WP-2.2 §6.
-  EXPECTED_PASSES: "702"
+  #
+  # WP-2.3, 2026-08-21: 702 -> 829. Net +127, attributed test by test:
+  #
+  #   tests/test_discovery_report.py            +51
+  #       §3.1. 5 on determinism and the canonical form -- byte-identity
+  #       across two builds, the separator/sort assertion taken on the EMITTED
+  #       BYTES with the default serialisation as its converse control, the
+  #       UTF-8 round trip, the absence of any timestamp in report.json, and
+  #       the content-derived report id. 4 on the R11 vocabulary plus 12
+  #       parametrised negative controls (6 forbidden terms x planted-in-prose
+  #       and upper-case) plus 1 converse control plus 1 that no risk score of
+  #       any kind reaches the artifact. 6 on R1/R9 grades, including the gate
+  #       biting on a planted bare number, a Measured with no provenance, an
+  #       invented grade, and max_fan_out being absent rather than 0 on a tree
+  #       with no edge. 9 on the R12 leak: 1 proving the fixture actually
+  #       carries the six seed strings (without it the leak test would be
+  #       vacuous), 6 parametrised one-per-seed, and 2 on the shape of the
+  #       line and its refusal of a non-hex field. 9 on section order, D26,
+  #       the top-matter limitation, the derived-and-unsigned banner, the
+  #       instance-layer wording, and R2's refusal of a silently empty
+  #       section. 4 over the SEALED 12-axis corpus rather than the three
+  #       flat copybooks in examples/demo -- 1 proving that fixture really
+  #       does carry OCCURS subscripts, an ODO object and a REDEFINES (a
+  #       control, so the three below cannot pass vacuously), 1 that the R1
+  #       gate is clean over it, 1 that the R11 lint is, and 1 that a full
+  #       build writes nothing into discovery-bench/ (rule 4). That group is
+  #       a REGRESSION: the first run of the R1 gate over that corpus refused
+  #       to write a report at all, naming every OCCURS index vector as an
+  #       ungraded number. A subscript is a structural coordinate, not a
+  #       measurement -- and examples/demo has no OCCURS, so a fixture drawn
+  #       only from there would have shipped that refusal to the first
+  #       customer with a table in a copybook. 5+18+6+9+9+4 = 51.
+  #
+  #   tests/test_report_signing.py              +31
+  #       §3.2/§3.3. 9 on the instance key: generated at the documented path,
+  #       mode 0600, reloaded on the second run with the same recorded
+  #       creation time, the generation event disclosed in the manifest block,
+  #       and four refusals -- world-readable, corrupt, non-Ed25519, and a key
+  #       whose creation time this installation cannot know reporting unknown
+  #       rather than a fabricated one -- plus the hard stop when generation
+  #       fails. 3 on the CLI writing NOTHING when no key can be obtained,
+  #       emitting all three artifacts when it can, and saying VALID AND
+  #       UNATTESTED before any countersignature. 6 on the manifest: digests
+  #       and never content, the one timestamp, the hash excluding the
+  #       signature block, an edit changing the hash, the signature verifying,
+  #       and the signed/derived artifact names. 13 on tools/countersign.py:
+  #       the happy path, the absent-key refusal with no generation fallback
+  #       (⑨, planted-red), 5 parametrised bad hashes plus the converse
+  #       control that surrounding whitespace IS stripped, the non-hex
+  #       report-id refusal, the wrong-fingerprint refusal, and 3 on D23
+  #       including a planted-red proof that the bench fingerprint is refused.
+  #       9+3+6+13 = 31.
+  #
+  #   tests/test_verify_report.py               +27
+  #       §3.4. 6 green-path and wording tests -- all four layers passing, the
+  #       VALID AND UNATTESTED verdict in those words, its exit code distinct
+  #       from both pass and fail, the countersignature layer reported ABSENT
+  #       rather than PASS or FAIL, no output readable as "Visionblox signed
+  #       this", and the verifier printing its own SHA-256. 6 planted-red per
+  #       layer, each reverted and re-verified green in the same test (③). 4
+  #       on the pin: it is required with no default, a re-signed forgery
+  #       passes three layers and fails only the pin (⑤), and the optional
+  #       instance pin is checked when given and disclosed when not. 4 on
+  #       refusals and on the verifier importing nothing from the source tree
+  #       and reaching no network. 7 over the two committed dry runs in
+  #       docs/dryruns/, which re-verify on every suite run so an edit to a
+  #       committed report.json turns the build red. 6+6+4+4+7 = 27.
+  #
+  #   tests/test_delivery_sheet.py              +16
+  #       D13/D23. 3 parametrised, pinning each shipped tool's SHA-256 as
+  #       PUBLISHED in docs/TECHNICAL_DELIVERY_SHEET.md against the file on
+  #       disk -- the same discipline WP-2.2 applied to "186 of 186". 7 on
+  #       both fingerprints being published with what each signs, the release
+  #       fingerprint being graded PLAUSIBLE rather than VERIFIED because no
+  #       key ever enters this repository, the exit codes, the required pin,
+  #       and exit 3 not reading as a pass. 6 on R11 -- the sheet linted like
+  #       the customer surface it is, with one negative control per forbidden
+  #       term. 3+7+6 = 16.
+  #
+  #   tests/test_discovery_is_compiler_free.py   +2
+  #       Not a new test: test_module_never_invokes_a_compiler is parametrised
+  #       over every module in src/discovery/, and report.py and signing.py
+  #       are two more modules. Both are walked by the same AST detector, so
+  #       the guard covers the new surface without being told to.
+  #
+  #   51 + 31 + 27 + 16 + 2 = 127.
+  #
+  # THE SKIP COUNT IS UNCHANGED AT 10. None of the 127 carries a skipif and
+  # none needs cobc or javac: the report surface is a serialiser and a
+  # signature, and src/discovery/ still never invokes a compiler.
+  #
+  # WP-2.3.1, 2026-08-21: 829 -> 848. Net +19, attributed test by test:
+  #
+  #   tests/test_report_signing.py              +15
+  #       The release key is passphrase-encrypted, which WP-2.3 did not know.
+  #       6 on the passphrase itself: the fixture control asserting the key
+  #       really IS encrypted (without which every case below passes vacuously
+  #       against a plaintext PEM), the prompted happy path, the wrong-
+  #       passphrase planted-red that writes nothing, the refusal not echoing
+  #       what was typed, the empty-passphrase refusal, and the converse
+  #       control that a PLAINTEXT key must not start prompting. 4 custody
+  #       guards: no argv option carries a secret (AST walk, with an assertion
+  #       that it found options to walk), the environment is never read,
+  #       getpass is the only reader, and the tool does not claim it can scrub
+  #       a str from memory -- CPython cannot, and an overclaim in a security
+  #       note is the R1 failure with a different costume. 5 on the public-only
+  #       derivation: it agrees with the enforced derivation over 5 generated
+  #       keypairs, it is the documented SPKI->raw-32->sha256->16 method spelled
+  #       out independently of the tool, it cannot be handed a private key, it
+  #       refuses a non-Ed25519 public key, and it never prompts.
+  #
+  #   tests/test_delivery_sheet.py               +4
+  #       Net +4: one test removed, five added. The release row moved
+  #       PLAUSIBLE -> VERIFIED, so the assertion that it says PLAUSIBLE had to
+  #       go; what replaced it is stricter. The row must now carry its METHOD
+  #       and its DATE; R4 must still be stated (VERIFIED means derived from
+  #       the PUBLIC key, not that this repository holds the private one); the
+  #       re-derivation recipe must be present; the recipe is EXECUTED against
+  #       generated keypairs rather than read, because a published recipe
+  #       nobody has run is one the customer discovers is wrong; and the key
+  #       path with its passphrase custody is pinned.
+  #
+  #   15 + 4 = 19. Skip count still 10; nothing added carries a skipif.
+  EXPECTED_PASSES: "852"
 
 jobs:
   parser-regen:

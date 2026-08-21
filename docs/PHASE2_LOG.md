@@ -3264,3 +3264,460 @@ red rather than produce a green comparison between two different corpora.
 - **D13 publication remains open.** `233bb4406e2de606` still needs to reach the
   Technical Delivery Sheet and every attestation deliverable alongside the
   verification command. Operator, R11.
+
+---
+
+## 2026-08-21 · WP-2.3 · The signed Data Discovery report
+
+- **HEAD at start:** `3ac6ee5` (merge of PR #30, WP-2.2)
+- **Branch:** `claude/signed-data-discovery-report-oxb7w6`
+- **Baseline triple, re-measured in this session:** `702 passed, 10 skipped,
+  0 failed`. Re-measured rather than transcribed, and the first measurement
+  disagreed: the container had no `cobc` and no `javac`, which produced
+  `683 passed, 28 skipped, 1 failed`. The 19-test gap is exactly the 18 extra
+  skips plus the one seal test that needs a complete toolchain probe. GnuCOBOL
+  3.1.2-5.1ubuntu1 and OpenJDK were installed and the run reproduced the sealed
+  triple before any code was written. A baseline taken on a degraded runner
+  would have made every later delta wrong by 19.
+- **Scope guard:** nothing under `bench/` or `discovery-bench/` was created,
+  modified or deleted (§9). No transform code was touched, so BER cannot have
+  moved; §9 records the check rather than the assumption.
+
+---
+
+### 1. The constraint, and what it forced
+
+R12 keeps customer source in the customer perimeter. R4 keeps the release key
+in the operator's custody. Different machines, neither may travel. So the CLI
+signs a **manifest of digests** and the only thing that crosses is a
+64-character hex string.
+
+Two layers, added at different times, verified independently:
+
+| Layer | Key | Proves |
+|---|---|---|
+| Instance | per-installation Ed25519, generated on first run at `~/.relian/instance-ed25519.pem` mode 0600 | integrity and provenance-of-tool. **Not** identity of signer |
+| Countersignature | Visionblox release key `91e3a404155ba4dd`, detached | Visionblox attests to this report |
+
+The instance layer proves less than it looks like it proves, and the artifact
+says so in those words. `INSTANCE_LAYER_CLAIM` is in `report.json`, in
+`report.md`, and in the verifier's own output; a report with a good instance
+signature and no countersignature is **VALID AND UNATTESTED** with its own exit
+code (3), distinct from both 0 and 1. Three tests exist only for that wording,
+because a misrepresentation to a government customer is a different category of
+problem from a bug.
+
+### 2. Byte-identity, and where the one timestamp went
+
+`report.json` carries **no timestamp at all**. The single `generated_at` lives
+in the manifest, which is where the signature is taken. That is what makes ①
+hold by construction rather than by care:
+
+```
+$ python3 -m src.discovery.cli report build examples/demo --out A …
+$ python3 -m src.discovery.cli report build examples/demo --out B …
+$ cmp A/report.json B/report.json
+→ (identical)
+```
+
+Re-measured on CardDemo as well, where the report is 32 KB: identical.
+
+The canonical form is asserted on the **emitted bytes**, not on the dict, with
+the default serialisation as its converse control — without that, an assertion
+that the bytes equal `json.dumps(…, separators=(",", ":"))` could pass against
+a form that is not distinguishable from the default.
+
+Section order is carried by a **list**, not a mapping. Canonical JSON sorts
+keys, so a mapping cannot express "identification before scope" at all, and
+D26's requirement that the missing-copybook table lead the findings would have
+been unstatable.
+
+### 3. The leak test (②)
+
+The request line is three hexadecimal fields:
+
+```
+relian-countersign-request/1 manifest_sha256=<64> report_id=<32> instance_fingerprint=<16>
+```
+
+The argument that it cannot leak is "all three are digests". That is an
+argument, not a measurement, so the measurement exists: a report is built from
+a tree whose **directory name, copybook name, field names, and every free-text
+engagement field** carry distinctive marker strings, and six parametrised tests
+assert none reaches the line. A seventh asserts the fixture actually carried
+all six — without it the leak test could pass because the seeds were never
+there, which is a control that proves nothing.
+
+`countersign_request_line` also re-checks each field as hexadecimal before
+emitting, and raises rather than emitting if one is not. If a field ever has to
+carry text, the line is refused and the message says to escalate: that is R12
+failing and the design is wrong, not the implementation.
+
+### 4. Four verifier layers, each planted red and reverted (③)
+
+`tools/verify_report.py`, sha256 `43f0bf20a79bb5d07aecb619dc2b7364469769ea2d81a4679e9b1b588bc4cbd5` **as measured in this entry; superseded at WP-2.3.2 §1, and this line is left as it was because the log is append-only**. Standalone: standard library plus
+`cryptography`, no repo import, no network, no credential — all three asserted
+by AST rather than by grep. It prints its own digest on every run.
+
+| Layer | Planted red as | Other three while it was red |
+|---|---|---|
+| FILES | an edited `report.json`, and a deleted `report.md` | all PASS — the signature covers the MANIFEST's bytes, not the report's, which is exactly why this layer exists |
+| MANIFEST | a *consistently* edited manifest: report changed AND its recorded digest updated to match | FILES **PASS**, asserted, so the test proves the attack really does defeat layer 1 |
+| INSTANCE | one flipped nibble in `signature_hex`; separately, a declared fingerprint that is not the signer | FILES and MANIFEST PASS |
+| COUNTERSIGNATURE | a countersignature for a different report | the other three PASS |
+
+Each test reverts and re-verifies green in the same test, so a planted-red that
+left the fixture broken could not be mistaken for a passing suite.
+
+**⑤, the re-signed forgery.** The deliverable is re-signed end to end under an
+attacker-generated key — instance block and countersignature both — and then
+verified twice. Pinned to the attacker's own fingerprint it returns **0**,
+which is asserted first: without that assertion the test would not be
+exercising a forgery that is internally consistent. Pinned to the real
+fingerprint, FILES / MANIFEST / INSTANCE all **PASS** and only
+COUNTERSIGNATURE fails. `--pin-fingerprint` is `required=True` with no
+default, and a test runs the verifier without it and asserts argparse refuses.
+
+### 5. R11 lint, each term its own negative control (⑥)
+
+Vocabulary: `solana`, `on-chain`, `ml risk`, `machine learning`,
+`predicted`, `estimated`. Linted against the templates **and** against the
+emitted `report.json` and `report.md` — a term that only ever reached the page
+through an f-string would survive a template-only lint. The CLI runs the same
+lint on its own output and **refuses to write** if it fires.
+
+Twelve parametrised negative controls: each term planted in prose, and each
+term planted upper-cased. One converse control asserts the lint does not fire
+on ordinary report prose; without it a lint that flagged everything would pass
+all twelve and tell you nothing. The Technical Delivery Sheet gets the same
+treatment, with its own six.
+
+### 6. Measured triple
+
+```
+$ pytest -q
+→ 829 passed, 10 skipped, 0 failed
+```
+
+Net **+127** on 702, attributed file by file in `.github/workflows/tests.yml`
+and summarised here:
+
+| File | Δ |
+|---|---|
+| `tests/test_discovery_report.py` | +51 |
+| `tests/test_report_signing.py` | +31 |
+| `tests/test_verify_report.py` | +27 |
+| `tests/test_delivery_sheet.py` | +16 |
+| `tests/test_discovery_is_compiler_free.py` | +2 |
+
+The last is not a new test. `test_module_never_invokes_a_compiler` is
+parametrised over every module in `src/discovery/`, and `report.py` and
+`signing.py` are two more modules — so the D15 AST guard covers the new surface
+without being told to. **The skip count is unchanged at 10**: none of the 127
+carries a `skipif` and none needs `cobc` or `javac`.
+
+### 6b. One defect this work package found in itself
+
+The R1 gate (`lint_measured_fields`) was first exercised only against
+`examples/demo` — three flat copybooks, no `OCCURS`. Run against the sealed
+12-axis corpus it **refused to write a report**, naming every `OCCURS` index
+vector as an ungraded number:
+
+```
+REFUSED: a number reached the report without a grade (R1/R9):
+  $.sections[3].records[5].fields[2].subscripts[0]: bare number 1 with no grade …
+```
+
+A subscript is a structural coordinate, not a measurement — the same category
+as `level` and `offset`, both of which were already on the allowlist and both
+of which are covered by the layout's own grade and limitation block. The fix
+is one entry. What matters is where it was caught: the demo tree would never
+have surfaced it, and the first customer with a table in a copybook would have
+received a refusal instead of a report.
+
+`test_the_r1_gate_is_clean_over_the_sealed_twelve_axis_corpus` is the
+regression, and it is guarded by a control
+(`test_the_bench_fixture_exercises_more_than_the_demo_tree`) asserting the
+fixture really does contain subscripts, an ODO object and a REDEFINES — so it
+cannot quietly become vacuous if the corpus is ever narrowed.
+
+### 7. Dry runs (⑧)
+
+Full detail in `docs/dryruns/REPORT_DRYRUNS.md`. Both stop at the
+countersignature, which is an operator key session exactly as a seal is.
+
+| | `examples/demo` | CardDemo |
+|---|---|---|
+| report id | `017f5ff0fdc4457770ee467c7e9ff073` | `2fff4d2377c2cc199d6271bd1c21f885` |
+| manifest sha256 | `f36b5dd137575325f752f64c65dce90ec616edd9c065ad8bfa435f6da305de3a` | `04b599fa41e984fc54eba4c48d6bfdb43de8ab74194fb59b9b127b5c8f3cecac` |
+| instance fingerprint | `98616f9c7543d293` | `98616f9c7543d293` (same installation) |
+| record layouts | 3, all COMPLETE | not included, by decision |
+| missing copybooks | 0 | **8** |
+| verifier | VALID AND UNATTESTED, exit 3 | VALID AND UNATTESTED, exit 3 |
+
+CardDemo reproduced every count WP-2.2 measured — 106 files, 40 with a `COPY`,
+346 directive sites, 67 distinct names, 59 resolvable, 8 not, 306 edges, max
+fan-out 18 at `app/cbl/COACTUPC.cbl`, 40 `REPLACING` sites, 3 unreferenced
+members, 0 cycles. Zero drift. Had a row disagreed, the run would be
+authoritative and the table would say so.
+
+**Two narrowings are worth recording, because both remove something a reader
+might have expected to be there.**
+
+*No layouts on CardDemo.* WP-2.2 §10 established that no layout claim is made
+about any CardDemo record: the engine is verified against GnuCOBOL 3.1.2.0 and
+CardDemo is IBM-dialect source, so a layout would be graded against nothing.
+The report is resolver-only **by decision, not by failure**, and
+`Report.build` refuses to emit an empty layout section over a tree with
+resolvable copybooks unless a reason is supplied — an empty section with no
+stated reason reads as a clean result (R2). The reason is in the artifact.
+
+*No "likely source" column in the missing table.* The WP-2.2 dry-run note
+carried one — "CICS-supplied", "IBM MQ-supplied". Both are correct, and both
+are inferences about a member the engine never saw, sitting in a table where
+every other cell is a count taken in the run. In an internal note that is a
+useful annotation; in a customer artifact governed by R1 it is an inference
+wearing the costume of a finding. What is measured (referrers, directories
+searched) ships; what is inferred stays in the engagement conversation where a
+person owns it.
+
+### 8. D13 closed
+
+`docs/TECHNICAL_DELIVERY_SHEET.md` publishes both fingerprints, each labelled
+with what it signs and what it does not, and each tool's own SHA-256.
+`tests/test_delivery_sheet.py` pins the published digests against the files on
+disk, so editing a tool without updating the sheet turns the build red — a
+digest published in a document that can go stale in silence is a digest nobody
+should rely on.
+
+The two fingerprints were **graded differently, and deliberately**:
+
+* `233bb4406e2de606` — **VERIFIED**. It is recorded in both sealed ledgers in
+  this repository and CI pins against it on every run.
+* `91e3a404155ba4dd` — **PLAUSIBLE at the time of this entry.** Transcribed
+  from the WP-2.3 brief. Nothing in this repository had computed it from a key.
+
+Calling the second VERIFIED would have been a grade with nothing behind it.
+**It was upgraded to VERIFIED on 2026-08-21 — see WP-2.3.1 §2 below — when the
+operator derived it from the public key and supplied the method.** The upgrade
+is recorded rather than applied silently: a grade that changes without a dated
+reason is a grade nobody can audit.
+
+### 9. `bench/` and `discovery-bench/` are byte-identical (⑪)
+
+```
+$ git status --short -- bench/ discovery-bench/
+(empty)
+```
+
+No transform code was touched either, so BER cannot have moved. Both are
+checked rather than asserted.
+
+### 10. What this does NOT license
+
+- **No countersignature exists.** Both dry runs are `VALID AND UNATTESTED`.
+  Nothing in this repository has ever held the release key, and the flow is
+  proven under a stand-in key generated inside a test.
+- **No IBM Enterprise COBOL claim.** Unchanged from WP-2.2 and now stated in
+  the report's top matter as well as on each record.
+- **No file inventory, lineage or target-schema DDL.** WP-2.4+, and absent
+  here rather than approximated.
+- **PDF rendering was not built.** Markdown is the one derived rendering, and
+  it names `report.json` as authoritative. Adding a second renderer before
+  anyone has asked for one would double the surface on which a rendering can
+  disagree with the signed object.
+
+
+---
+
+## 2026-08-21 · WP-2.3.1 · Release-key corrections
+
+- **HEAD at start:** `c593573` (WP-2.3)
+- **Branch:** `claude/signed-data-discovery-report-oxb7w6` (same branch, no PR
+  merged yet)
+- **Baseline:** `829 passed, 10 skipped, 0 failed`, measured by CI run
+  32509335480 and reproduced locally.
+
+Three corrections supplied by the operator, plus the fingerprint upgrade they
+unblock.
+
+### 1. The key path was wrong
+
+`~/zil-keys/relian-release.pem` does not exist. The release key is
+`~/zil-keys/visionblox-release-key-v1.pem`. Corrected in `tools/countersign.py`
+(docstring, usage block, `--key` help), `docs/TECHNICAL_DELIVERY_SHEET.md`,
+`docs/dryruns/REPORT_DRYRUNS.md` and the absent-key fixture in
+`tests/test_report_signing.py`.
+
+Worth naming: **nothing failed because of this.** The absent-key planted-red
+passed happily against a path that was wrong in a second way, because "this
+file is not there" is true of any name you invent. A refusal test proves the
+refusal fires; it cannot prove the path it was pointed at was the real one.
+
+### 2. `91e3a404155ba4dd` is now VERIFIED, and derived from public material only
+
+Operator derivation, 2026-08-21: `visionblox-release-key-v1.pub`, a PEM
+SubjectPublicKeyInfo document holding an Ed25519 key, raw public length 32
+bytes; SHA-256 over those 32 raw bytes; first 16 hexadecimal characters =
+`91e3a404155ba4dd`.
+
+**Public material only, and that is the load-bearing part.** A fingerprint a
+customer cannot re-derive without the private key is not published, it is
+asserted — only the operator could ever check it. So the derivation now exists
+in code as `tools/countersign.py::fingerprint_from_public_pem`, whose sole
+input is the public document: it opens no private key and requests no
+passphrase, and a test asserts it cannot be handed one.
+
+`fingerprint_of` — which starts from a loaded private key — remains, for the
+one place that genuinely holds one: refusing, at signing time, a key that does
+not match the published value. Five generated keypairs assert the two functions
+agree, so the number the sheet PUBLISHES and the number the tool ENFORCES
+cannot drift into being different numbers wearing the same name.
+
+The sheet now prints the six-line recipe, and
+`test_the_published_recipe_computes_what_the_tool_computes` **executes those
+six lines** rather than reading them. A published recipe nobody has run is a
+recipe that can be wrong, and the customer is the one who finds out.
+
+**Still open (§5).** The comparison the operator asked for — derive from the
+*actual* `visionblox-release-key-v1.pub` and compare to the sheet's published
+value — is not in the suite, because the public key is not in this repository
+and is not on this machine. It is public material and belongs here; it is the
+one artifact needed to close this.
+
+### 3. The release key is passphrase-encrypted
+
+`getpass.getpass`, prompted at the moment the passphrase is needed, and
+accepted no other way:
+
+| Channel | Status | Why |
+|---|---|---|
+| `--passphrase` on argv | **absent, and asserted absent** | argv is world-readable in `/proc` and lands in shell history |
+| an environment variable | **never read, and asserted never read** | environment is inherited by every child and dumped by crash reporters |
+| any log line | **never printed, and asserted** | a refusal that quotes what was typed puts the passphrase in scrollback and in every CI transcript |
+
+The two argv/environment guards are AST walks over `countersign.py`, not greps,
+and each carries the assertion that it found something to walk — a guard over
+zero parsed options would pass vacuously.
+
+**What is NOT claimed.** The passphrase is a Python `str` while in use and
+CPython offers no way to scrub that memory. The code says so in a comment, and
+a test asserts the comment is still there, because the failure mode for a
+security claim is that it quietly becomes an overclaim.
+
+### 4. The wrong-passphrase planted-red
+
+The absent-key refusal proves the tool will not *invent* a key. It says nothing
+about a key it can see and cannot open. Four new cases close that:
+
+* a wrong passphrase raises and **writes no countersignature**;
+* the refusal **does not echo** the passphrase (asserted with a distinctive
+  string);
+* an empty passphrase is refused rather than retried;
+* the converse control — a plaintext key must NOT start prompting for a
+  passphrase that does not exist.
+
+Plus one control asserting the fixture key really is
+`-----BEGIN ENCRYPTED PRIVATE KEY-----`, without which every case above would
+pass vacuously against a plaintext PEM.
+
+### 5. Measured triple
+
+```
+$ pytest -q
+→ 848 passed, 10 skipped, 0 failed
+```
+
+Net **+19** on 829: `tests/test_report_signing.py` +15 (6 passphrase behaviour,
+4 custody/no-overclaim guards, 5 public-only derivation), and
+`tests/test_delivery_sheet.py` +4 (one test replaced by five: the graded row
+now has to carry its method and date, R4 is asserted to have survived the
+grade change, the recipe is asserted present, the recipe is EXECUTED, and the
+key path with its passphrase custody is pinned).
+
+### 6. What this does NOT resolve
+
+- **No countersignature has been produced.** The release key has still never
+  been in this repository, CI, or an agent session. Every passphrase test runs
+  against a key generated inside the test.
+- **The `.pub` comparison is not in the suite.** See §2. Until the public key
+  is committed, the sheet's VERIFIED grade rests on the operator's derivation
+  plus a tested, executable recipe — not on a re-derivation this suite performs.
+
+
+---
+
+## 2026-08-21 · WP-2.3.2 · A stated check that was not performed
+
+- **HEAD at start:** `3a4cdef` (WP-2.3.1), PR #31 open, all five CI jobs green.
+- **Found by:** automated review on PR #31, not by this suite. Recorded that
+  way: a finding the tests missed is worth more as a note about the tests than
+  as a silent fix.
+
+### 1. The defect
+
+`tools/countersign.py` records two advisory fields in every countersignature —
+`report_id` and `instance_fingerprint` — under a comment saying the verifier
+checks both against the manifest. `check_countersignature` compared only
+`report_id`. A countersignature naming a different installation's instance key
+passed layer 4 without a word.
+
+**Severity, stated honestly rather than inflated.** This was never a soundness
+hole. The countersignature covers the manifest hash, and the manifest commits
+to the instance key, so a forged or swapped countersignature already failed on
+the hash comparison one line above. Nothing that should have been rejected was
+accepted.
+
+What it was is a **verifier naming a check it did not perform**, on the single
+surface a customer is told to trust and told to re-run themselves. That is the
+same shape as the defects this package was written to prevent — a claim in an
+artifact that the artifact's behaviour does not keep — and it is worse in a
+verifier than anywhere else, because a verifier's whole value is that its
+output means what it says.
+
+It also cost the useful diagnostic. The realistic way that field goes wrong is
+not an attack: it is an operator countersigning from the wrong request line,
+for the right report but the wrong installation. That is now a named failure
+with the sentence *"do not describe the same installation"* instead of silence.
+
+### 2. The fix, and the guard that would have caught it
+
+The comparison is added, with the reasoning inline so the next reader knows why
+an advisory field is checked at all. Two tests:
+
+* `test_layer_countersignature_fails_on_a_mismatched_instance_fingerprint` —
+  planted red, other three layers asserted PASS, then reverted and re-verified
+  green, matching the shape of the other layer tests.
+* `test_countersign_records_exactly_the_advisory_fields_the_verifier_checks` —
+  **the guard that generalises it.** For every advisory field `countersign.py`
+  writes, `verify_report.py` must read it. This is the test whose absence let
+  the defect exist: WP-2.3 tested each layer's failure modes thoroughly and
+  never tested that the two tools agreed about what they were exchanging.
+
+### 3. A second staleness in the same shape
+
+`tools/verify_report.py` changed, so its published SHA-256 did. The delivery
+sheet is pinned by the suite and would have gone red; `docs/dryruns/REPORT_DRYRUNS.md`
+publishes the same two digests and was **not** pinned, so it would have gone
+stale in silence — the exact failure the sheet's own pinning exists to prevent,
+one file over. It is now pinned too.
+
+`docs/PHASE2_LOG.md` is deliberately NOT corrected. It is append-only and its
+WP-2.3 entry records what was measured at WP-2.3; the line is annotated as
+superseded instead. A log that gets edited to stay current is not a log.
+
+### 4. Measured triple
+
+```
+$ pytest -q
+→ 852 passed, 10 skipped, 0 failed
+```
+
+Net **+4** on 848: `tests/test_verify_report.py` +2 (the planted-red and the
+tool-agreement guard), `tests/test_delivery_sheet.py` +2 (the dry-run note's
+digests pinned, parametrised over both shipped tools).
+
+The count was predicted as +3 and measured as +4: the pinning test is
+parametrised over two tools, so it contributes two cases rather than one. The
+gate is set from the measurement, which is the only reason the gate is worth
+having.
