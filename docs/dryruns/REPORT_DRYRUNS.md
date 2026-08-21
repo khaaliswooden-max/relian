@@ -167,7 +167,7 @@ Countersignature request line, verbatim:
         --manifest-hash <the 64 hex from the line above> \
         --report-id <the report id from the line above> \
         --instance-fingerprint 98616f9c7543d293 \
-        --key ~/zil-keys/relian-release.pem \
+        --key ~/zil-keys/visionblox-release-key-v1.pem \
         --out report.countersig.json
 
 Then `report.countersig.json` goes back to the customer, who drops it next to

@@ -3490,17 +3490,18 @@ disk, so editing a tool without updating the sheet turns the build red — a
 digest published in a document that can go stale in silence is a digest nobody
 should rely on.
 
-The two fingerprints are **graded differently, and deliberately**:
+The two fingerprints were **graded differently, and deliberately**:
 
 * `233bb4406e2de606` — **VERIFIED**. It is recorded in both sealed ledgers in
   this repository and CI pins against it on every run.
-* `91e3a404155ba4dd` — **PLAUSIBLE**. Transcribed from the WP-2.3 brief.
-  Nothing in this repository has computed it from a key, because the key never
-  enters this repository, CI, or an agent session (R4). It is checked the first
-  time a real countersignature is produced: `tools/countersign.py` refuses to
-  sign if the key it is handed does not fingerprint to it.
+* `91e3a404155ba4dd` — **PLAUSIBLE at the time of this entry.** Transcribed
+  from the WP-2.3 brief. Nothing in this repository had computed it from a key.
 
 Calling the second VERIFIED would have been a grade with nothing behind it.
+**It was upgraded to VERIFIED on 2026-08-21 — see WP-2.3.1 §2 below — when the
+operator derived it from the public key and supplied the method.** The upgrade
+is recorded rather than applied silently: a grade that changes without a dated
+reason is a grade nobody can audit.
 
 ### 9. `bench/` and `discovery-bench/` are byte-identical (⑪)
 
@@ -3525,3 +3526,120 @@ checked rather than asserted.
   it names `report.json` as authoritative. Adding a second renderer before
   anyone has asked for one would double the surface on which a rendering can
   disagree with the signed object.
+
+
+---
+
+## 2026-08-21 · WP-2.3.1 · Release-key corrections
+
+- **HEAD at start:** `c593573` (WP-2.3)
+- **Branch:** `claude/signed-data-discovery-report-oxb7w6` (same branch, no PR
+  merged yet)
+- **Baseline:** `829 passed, 10 skipped, 0 failed`, measured by CI run
+  32509335480 and reproduced locally.
+
+Three corrections supplied by the operator, plus the fingerprint upgrade they
+unblock.
+
+### 1. The key path was wrong
+
+`~/zil-keys/relian-release.pem` does not exist. The release key is
+`~/zil-keys/visionblox-release-key-v1.pem`. Corrected in `tools/countersign.py`
+(docstring, usage block, `--key` help), `docs/TECHNICAL_DELIVERY_SHEET.md`,
+`docs/dryruns/REPORT_DRYRUNS.md` and the absent-key fixture in
+`tests/test_report_signing.py`.
+
+Worth naming: **nothing failed because of this.** The absent-key planted-red
+passed happily against a path that was wrong in a second way, because "this
+file is not there" is true of any name you invent. A refusal test proves the
+refusal fires; it cannot prove the path it was pointed at was the real one.
+
+### 2. `91e3a404155ba4dd` is now VERIFIED, and derived from public material only
+
+Operator derivation, 2026-08-21: `visionblox-release-key-v1.pub`, a PEM
+SubjectPublicKeyInfo document holding an Ed25519 key, raw public length 32
+bytes; SHA-256 over those 32 raw bytes; first 16 hexadecimal characters =
+`91e3a404155ba4dd`.
+
+**Public material only, and that is the load-bearing part.** A fingerprint a
+customer cannot re-derive without the private key is not published, it is
+asserted — only the operator could ever check it. So the derivation now exists
+in code as `tools/countersign.py::fingerprint_from_public_pem`, whose sole
+input is the public document: it opens no private key and requests no
+passphrase, and a test asserts it cannot be handed one.
+
+`fingerprint_of` — which starts from a loaded private key — remains, for the
+one place that genuinely holds one: refusing, at signing time, a key that does
+not match the published value. Five generated keypairs assert the two functions
+agree, so the number the sheet PUBLISHES and the number the tool ENFORCES
+cannot drift into being different numbers wearing the same name.
+
+The sheet now prints the six-line recipe, and
+`test_the_published_recipe_computes_what_the_tool_computes` **executes those
+six lines** rather than reading them. A published recipe nobody has run is a
+recipe that can be wrong, and the customer is the one who finds out.
+
+**Still open (§5).** The comparison the operator asked for — derive from the
+*actual* `visionblox-release-key-v1.pub` and compare to the sheet's published
+value — is not in the suite, because the public key is not in this repository
+and is not on this machine. It is public material and belongs here; it is the
+one artifact needed to close this.
+
+### 3. The release key is passphrase-encrypted
+
+`getpass.getpass`, prompted at the moment the passphrase is needed, and
+accepted no other way:
+
+| Channel | Status | Why |
+|---|---|---|
+| `--passphrase` on argv | **absent, and asserted absent** | argv is world-readable in `/proc` and lands in shell history |
+| an environment variable | **never read, and asserted never read** | environment is inherited by every child and dumped by crash reporters |
+| any log line | **never printed, and asserted** | a refusal that quotes what was typed puts the passphrase in scrollback and in every CI transcript |
+
+The two argv/environment guards are AST walks over `countersign.py`, not greps,
+and each carries the assertion that it found something to walk — a guard over
+zero parsed options would pass vacuously.
+
+**What is NOT claimed.** The passphrase is a Python `str` while in use and
+CPython offers no way to scrub that memory. The code says so in a comment, and
+a test asserts the comment is still there, because the failure mode for a
+security claim is that it quietly becomes an overclaim.
+
+### 4. The wrong-passphrase planted-red
+
+The absent-key refusal proves the tool will not *invent* a key. It says nothing
+about a key it can see and cannot open. Four new cases close that:
+
+* a wrong passphrase raises and **writes no countersignature**;
+* the refusal **does not echo** the passphrase (asserted with a distinctive
+  string);
+* an empty passphrase is refused rather than retried;
+* the converse control — a plaintext key must NOT start prompting for a
+  passphrase that does not exist.
+
+Plus one control asserting the fixture key really is
+`-----BEGIN ENCRYPTED PRIVATE KEY-----`, without which every case above would
+pass vacuously against a plaintext PEM.
+
+### 5. Measured triple
+
+```
+$ pytest -q
+→ 848 passed, 10 skipped, 0 failed
+```
+
+Net **+19** on 829: `tests/test_report_signing.py` +15 (6 passphrase behaviour,
+4 custody/no-overclaim guards, 5 public-only derivation), and
+`tests/test_delivery_sheet.py` +4 (one test replaced by five: the graded row
+now has to carry its method and date, R4 is asserted to have survived the
+grade change, the recipe is asserted present, the recipe is EXECUTED, and the
+key path with its passphrase custody is pinned).
+
+### 6. What this does NOT resolve
+
+- **No countersignature has been produced.** The release key has still never
+  been in this repository, CI, or an agent session. Every passphrase test runs
+  against a key generated inside the test.
+- **The `.pub` comparison is not in the suite.** See §2. Until the public key
+  is committed, the sheet's VERIFIED grade rests on the operator's derivation
+  plus a tested, executable recipe — not on a re-derivation this suite performs.

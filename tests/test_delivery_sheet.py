@@ -60,13 +60,74 @@ def test_the_sheet_publishes_both_fingerprints_with_what_each_signs(sheet: str) 
     assert "benchmark seals" in sheet
 
 
-def test_the_sheet_grades_the_release_fingerprint_honestly(sheet: str) -> None:
-    """R4/R9. Nothing in this repository has computed the release fingerprint
-    from a key, because the key never enters it. Saying VERIFIED would be a
-    grade with nothing behind it."""
-    row = next(l for l in sheet.splitlines() if RELEASE_KEY_FINGERPRINT in l and "|" in l
-               and "PLAUSIBLE" in l)
-    assert "never enters this repository" in row
+def test_the_sheet_grades_the_release_fingerprint_as_derived(sheet: str) -> None:
+    """R9. Upgraded from PLAUSIBLE to VERIFIED on 2026-08-21, when the operator
+    derived the value from the public key rather than transcribing it from a
+    design note. The row must carry the METHOD and the DATE, not just the word:
+    a grade whose basis is not stated is a grade with the units filed off."""
+    row = next(l for l in sheet.splitlines()
+               if RELEASE_KEY_FINGERPRINT in l and "|" in l and "VERIFIED" in l)
+    assert "2026-08-21" in row, "the row does not say when it was derived"
+    assert "visionblox-release-key-v1.pub" in row, "the row does not say from what"
+    assert "SubjectPublicKeyInfo" in row and "Ed25519" in row
+    assert "32 bytes" in row and "SHA-256" in row and "16 hexadecimal" in row
+    assert "Public material only" in row
+
+
+def test_the_sheet_still_says_the_private_key_never_enters_this_repository(
+    sheet: str,
+) -> None:
+    """R4 did not change when the grade did. VERIFIED here means the value was
+    computed from the PUBLIC key, not that this repository holds the key."""
+    assert "never enters this repository, CI, or an agent" in sheet
+    assert "It does not mean this repository holds the key" in sheet
+
+
+def test_the_sheet_publishes_a_recipe_the_recipient_can_run(sheet: str) -> None:
+    assert "How to re-derive" in sheet
+    assert "load_pem_public_key" in sheet
+    assert "fingerprint_from_public_pem" in sheet
+
+
+def test_the_published_recipe_computes_what_the_tool_computes() -> None:
+    """The sheet prints six lines and tells a customer they will reproduce the
+    fingerprint. Run those six lines. A published recipe nobody has executed is
+    a published recipe that can be wrong, and the customer is the one who finds
+    out."""
+    import hashlib as _hashlib
+    import sys
+
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    sys.path.insert(0, str(REPO_ROOT / "tools"))
+    try:
+        import countersign
+    finally:
+        sys.path.remove(str(REPO_ROOT / "tools"))
+
+    for _ in range(5):
+        pem = Ed25519PrivateKey.generate().public_key().public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        # --- verbatim from the sheet ---
+        raw = serialization.load_pem_public_key(pem).public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw,
+        )
+        assert len(raw) == 32
+        recipe = _hashlib.sha256(raw).hexdigest()[:16]
+        # --- end ---
+        assert recipe == countersign.fingerprint_from_public_pem(pem)
+
+
+def test_the_sheet_records_the_release_key_path_and_its_passphrase_custody(
+    sheet: str,
+) -> None:
+    assert "~/zil-keys/visionblox-release-key-v1.pem" in sheet
+    assert "never accepted on the command line" in sheet
+    assert "never read from the environment" in sheet
 
 
 def test_the_sheet_states_every_verifier_exit_code(sheet: str) -> None:

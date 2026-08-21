@@ -29,12 +29,41 @@ refuses the benchmark fingerprint outright when asked to sign a report.
 | Value | Grade | Basis |
 |---|---|---|
 | `233bb4406e2de606` | VERIFIED | it is the fingerprint recorded in the two sealed ledgers in this repository, and `tools/verify_manifest.py --pin-fingerprint` checks against it on every CI run |
-| `91e3a404155ba4dd` | PLAUSIBLE | specified by the operator in the WP-2.3 brief (D22/D23). The release key is in the operator's custody and never enters this repository, CI, or an agent session (R4), so nothing in this repository has computed this fingerprint from a key. It is transcribed, and it is checked the first time a real countersignature is produced — `tools/countersign.py` refuses to sign if the key it is handed does not fingerprint to this value |
+| `91e3a404155ba4dd` | VERIFIED | derived on 2026-08-21 by the operator from `visionblox-release-key-v1.pub` — a PEM SubjectPublicKeyInfo document holding an Ed25519 key, raw public length 32 bytes — as the first 16 hexadecimal characters of the SHA-256 over those 32 raw bytes. **Public material only:** no private key is opened and no passphrase is requested by that derivation, which is what makes the value re-derivable by a recipient rather than merely asserted by Visionblox |
 
-The second row is the honest statement of what is and is not known here. A
-recipient who pins `91e3a404155ba4dd` is pinning a value published by
-Visionblox; the pin proves the countersignature came from the key Visionblox
-named, which is exactly the claim a countersignature is for.
+### How to re-derive `91e3a404155ba4dd` yourself
+
+You need the public key and nothing else:
+
+```python
+import hashlib
+from cryptography.hazmat.primitives import serialization
+
+pem = open("visionblox-release-key-v1.pub", "rb").read()
+raw = serialization.load_pem_public_key(pem).public_bytes(
+    encoding=serialization.Encoding.Raw,
+    format=serialization.PublicFormat.Raw,
+)
+assert len(raw) == 32                       # Ed25519 raw public key
+print(hashlib.sha256(raw).hexdigest()[:16]) # -> 91e3a404155ba4dd
+```
+
+`tools/countersign.py::fingerprint_from_public_pem` is exactly this, and
+`tests/test_report_signing.py` asserts it agrees with the derivation the tool
+ENFORCES at signing time (`fingerprint_of`, which starts from a loaded private
+key). The two cannot drift apart: if they ever disagreed, the published value
+and the value that gates a real signature would be different numbers wearing
+the same name.
+
+**What VERIFIED does and does not mean in this row.** It means the fingerprint
+was computed from the public key by the stated method rather than transcribed
+from a design note — which is what it was before 2026-08-21, when this row read
+PLAUSIBLE. It does not mean this repository holds the key: the private key is
+in the operator's custody and never enters this repository, CI, or an agent
+session (R4). A recipient who pins `91e3a404155ba4dd` is pinning a value they
+can re-derive from the public key with the six lines above; the pin then proves
+the countersignature came from the key Visionblox named, which is exactly the
+claim a countersignature is for.
 
 ---
 
@@ -43,7 +72,7 @@ named, which is exactly the claim a countersignature is for.
 | Tool | SHA-256 | Checks |
 |---|---|---|
 | `tools/verify_report.py` | `43f0bf20a79bb5d07aecb619dc2b7364469769ea2d81a4679e9b1b588bc4cbd5` | a Data Discovery report: files, manifest, instance signature, countersignature |
-| `tools/countersign.py` | `c245426e706cb477f5cd32bac0b019a04f1effdf2fbc45d39b36240d9600b6e1` | operator-side only: produces a countersignature from a manifest hash |
+| `tools/countersign.py` | `b58718fd62ebf8af7b85670c5d6f6f53f0ab67c223abe2ea3d472c873ed46e87` | operator-side only: produces a countersignature from a manifest hash. Reads the release key from `~/zil-keys/visionblox-release-key-v1.pem`, prompting for its passphrase; the passphrase is never accepted on the command line, never read from the environment, and never printed |
 | `tools/verify_manifest.py` | `898a268e8c51e408ea92bfb910d742f57d66fea7f84b6d33cbf1563f21517c2a` | a sealed benchmark ledger: tree, payload, signature |
 
 These digests are **pinned by the test suite**

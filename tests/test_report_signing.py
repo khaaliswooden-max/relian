@@ -19,6 +19,7 @@ that is not 64 hex characters, and the benchmark key (D23) — each get a test.
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -352,7 +353,7 @@ def test_countersign_fails_hard_on_an_absent_key_with_no_generation_fallback(
     tmp_path,
 ) -> None:
     """Acceptance ⑨, planted-red. This is the WP-2.1 defect, refused here."""
-    absent = tmp_path / "nowhere" / "relian-release.pem"
+    absent = tmp_path / "nowhere" / "visionblox-release-key-v1.pem"
     out = tmp_path / "report.countersig.json"
     proc = _countersign(
         ["--manifest-hash", "a" * 64, "--report-id", "b" * 32,
@@ -470,3 +471,247 @@ def test_countersign_refuses_the_bench_key_by_fingerprint(tmp_path, monkeypatch)
             )
     finally:
         sys.path.remove(str(REPO_ROOT / "tools"))
+
+
+# --------------------------------------------------------------------------
+# The release key is passphrase-encrypted, and the passphrase lives nowhere
+# --------------------------------------------------------------------------
+
+
+def _encrypted_pem(tmp: Path, passphrase: bytes, name: str = "release.pem") -> Path:
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    private = Ed25519PrivateKey.generate()
+    path = tmp / name
+    path.write_bytes(
+        private.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.BestAvailableEncryption(passphrase),
+        )
+    )
+    return path
+
+
+def _tool():
+    sys.path.insert(0, str(REPO_ROOT / "tools"))
+    try:
+        import countersign
+
+        return countersign
+    finally:
+        sys.path.remove(str(REPO_ROOT / "tools"))
+
+
+def test_the_fixture_key_really_is_passphrase_encrypted(tmp_path) -> None:
+    """Control. Every test below would pass vacuously against a plaintext PEM."""
+    path = _encrypted_pem(tmp_path, b"correct horse battery staple")
+    assert path.read_bytes().startswith(b"-----BEGIN ENCRYPTED PRIVATE KEY-----")
+
+
+def test_an_encrypted_key_is_opened_with_the_prompted_passphrase(tmp_path) -> None:
+    tool = _tool()
+    path = _encrypted_pem(tmp_path, b"correct horse battery staple")
+    asked = []
+
+    def prompt(message: str) -> str:
+        asked.append(message)
+        return "correct horse battery staple"
+
+    key = tool.load_release_key(path, prompt=prompt)
+    assert key is not None
+    assert asked and str(path) in asked[0], "the prompt did not name the key file"
+
+
+def test_a_wrong_passphrase_is_refused_and_nothing_is_signed(tmp_path) -> None:
+    """PLANTED RED for the passphrase path. The absent-key refusal proves the
+    tool will not invent a key; this proves it will not sign under a key it
+    could not actually open."""
+    tool = _tool()
+    path = _encrypted_pem(tmp_path, b"correct horse battery staple")
+    out = tmp_path / "report.countersig.json"
+    with pytest.raises(tool.CountersignError, match="passphrase did not decrypt"):
+        tool.countersign(
+            "a" * 64, report_id="b" * 32, instance_fingerprint="c" * 16,
+            key_path=path, expect_fingerprint=_fingerprint_of_encrypted(path),
+            prompt=lambda _m: "Tr0ub4dor&3",
+        )
+    assert not out.exists(), "a countersignature was written despite a bad passphrase"
+
+
+def test_the_wrong_passphrase_is_never_echoed_in_the_refusal(tmp_path) -> None:
+    """A message that quotes what was typed puts the passphrase in the
+    operator's scrollback, their terminal log, and any CI transcript."""
+    tool = _tool()
+    path = _encrypted_pem(tmp_path, b"correct horse battery staple")
+    secret = "ZZQSECRETPASSPHRASEZZQ"
+    with pytest.raises(tool.CountersignError) as caught:
+        tool.load_release_key(path, prompt=lambda _m: secret)
+    assert secret not in str(caught.value)
+
+
+def test_an_empty_passphrase_is_refused_rather_than_retried(tmp_path) -> None:
+    tool = _tool()
+    path = _encrypted_pem(tmp_path, b"correct horse battery staple")
+    with pytest.raises(tool.CountersignError, match="no passphrase was entered"):
+        tool.load_release_key(path, prompt=lambda _m: "")
+
+
+def test_a_plaintext_key_is_still_opened_without_prompting(tmp_path) -> None:
+    """The converse control: an unencrypted key must not start asking for a
+    passphrase that does not exist."""
+    tool = _tool()
+    path = _ed25519_pem(tmp_path)
+
+    def refuse(_message: str) -> str:
+        raise AssertionError("prompted for a passphrase on an unencrypted key")
+
+    assert tool.load_release_key(path, prompt=refuse) is not None
+
+
+def _fingerprint_of_encrypted(path: Path) -> str:
+    from cryptography.hazmat.primitives import serialization
+
+    private = serialization.load_pem_private_key(
+        path.read_bytes(), password=b"correct horse battery staple"
+    )
+    raw = private.public_key().public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+    )
+    return hashlib.sha256(raw).hexdigest()[:16]
+
+
+def test_there_is_no_way_to_pass_the_passphrase_on_the_command_line() -> None:
+    """argv is world-readable in /proc and lands in shell history."""
+    source = COUNTERSIGN.read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    options = []
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "add_argument"):
+            options.extend(
+                a.value for a in node.args
+                if isinstance(a, ast.Constant) and isinstance(a.value, str)
+            )
+    assert options, "no argparse options found — this guard is not walking anything"
+    leaking = [o for o in options
+               if any(w in o.lower() for w in ("pass", "secret", "pin", "phrase"))]
+    assert leaking == [], f"countersign.py accepts a secret on argv: {leaking}"
+
+
+def test_the_passphrase_is_never_read_from_the_environment() -> None:
+    """Environment is inherited by every child and dumped by crash reporters."""
+    tree = ast.parse(COUNTERSIGN.read_text(encoding="utf-8"))
+    reads = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and node.attr in ("environ", "getenv"):
+            reads.append(node.attr)
+        elif isinstance(node, ast.Name) and node.id in ("environ", "getenv"):
+            reads.append(node.id)
+    assert reads == [], f"countersign.py reads the environment: {reads}"
+
+
+def test_the_passphrase_is_read_through_getpass_and_nothing_else() -> None:
+    source = COUNTERSIGN.read_text(encoding="utf-8")
+    assert "getpass.getpass" in source
+    assert "input(" not in source, "a passphrase read with input() echoes it"
+
+
+def test_the_tool_does_not_claim_it_can_scrub_the_passphrase_from_memory() -> None:
+    """R1 applied to a security claim. CPython gives no way to wipe a str, and
+    implying otherwise would be a guarantee this tool cannot keep."""
+    source = COUNTERSIGN.read_text(encoding="utf-8")
+    assert "not a scrub" in source
+    assert "no way to wipe" in source
+
+
+# --------------------------------------------------------------------------
+# The published fingerprint is derived from PUBLIC material only (R4)
+# --------------------------------------------------------------------------
+
+
+def _public_pem(private) -> bytes:
+    from cryptography.hazmat.primitives import serialization
+
+    return private.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+
+
+def test_the_public_derivation_agrees_with_the_enforced_derivation(tmp_path) -> None:
+    """The published value and the value that GATES a real signature must be
+    the same number. `fingerprint_from_public_pem` is what a customer can run
+    over the .pub; `fingerprint_of` is what refuses a wrong key at signing
+    time. If they ever disagreed, the delivery sheet would be publishing one
+    number while the tool enforced another."""
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    tool = _tool()
+    for _ in range(5):
+        private = Ed25519PrivateKey.generate()
+        assert tool.fingerprint_from_public_pem(_public_pem(private)) == \
+            tool.fingerprint_of(private)
+
+
+def test_the_public_derivation_is_the_documented_method(tmp_path) -> None:
+    """SPKI PEM -> 32 raw bytes -> SHA-256 -> first 16 hex, spelled out here
+    independently of the tool so the tool cannot define its own correctness."""
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    tool = _tool()
+    private = Ed25519PrivateKey.generate()
+    pem = _public_pem(private)
+    raw = serialization.load_pem_public_key(pem).public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+    )
+    assert len(raw) == 32 == tool.ED25519_RAW_PUBLIC_LEN
+    assert tool.fingerprint_from_public_pem(pem) == hashlib.sha256(raw).hexdigest()[:16]
+
+
+def test_the_public_derivation_cannot_be_handed_a_private_key(tmp_path) -> None:
+    """R4. The function that produces the PUBLISHED fingerprint must be unable
+    to read private material, not merely unlikely to."""
+    tool = _tool()
+    private_pem = _ed25519_pem(tmp_path).read_bytes()
+    with pytest.raises(Exception) as caught:
+        tool.fingerprint_from_public_pem(private_pem)
+    assert not isinstance(caught.value, AssertionError)
+
+
+def test_the_public_derivation_refuses_a_non_ed25519_public_key() -> None:
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+
+    tool = _tool()
+    pem = rsa.generate_private_key(
+        public_exponent=65537, key_size=2048
+    ).public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    with pytest.raises(tool.CountersignError, match="not Ed25519"):
+        tool.fingerprint_from_public_pem(pem)
+
+
+def test_the_public_derivation_never_prompts(tmp_path) -> None:
+    """It takes a public document, so there is nothing to unlock. Asserted
+    rather than assumed, because a prompt appearing here would mean private
+    material had found its way into the published-value path."""
+    import getpass as getpass_mod
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    tool = _tool()
+    original = getpass_mod.getpass
+
+    def refuse(*_a, **_k):
+        raise AssertionError("the public derivation asked for a passphrase")
+
+    getpass_mod.getpass = refuse
+    try:
+        tool.fingerprint_from_public_pem(_public_pem(Ed25519PrivateKey.generate()))
+    finally:
+        getpass_mod.getpass = original

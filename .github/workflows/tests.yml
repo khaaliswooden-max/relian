@@ -4,7 +4,12 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     829 passed, 10 skipped, 0 failed
+#     848 passed, 10 skipped, 0 failed
+#
+# WP-2.3.1, 2026-08-21: was 829. Net +19 -- the release key turned out to be
+# passphrase-encrypted and its fingerprint was derived from the public key, so
+# countersign.py grew a getpass path and a public-only derivation, and both
+# grew tests. See docs/PHASE2_LOG.md, WP-2.3.1 §5.
 #
 # WP-2.3, 2026-08-21: was 702. Net +127, attributed file by file below. See
 # docs/PHASE2_LOG.md, WP-2.3 §6.
@@ -302,7 +307,40 @@ env:
   # THE SKIP COUNT IS UNCHANGED AT 10. None of the 127 carries a skipif and
   # none needs cobc or javac: the report surface is a serialiser and a
   # signature, and src/discovery/ still never invokes a compiler.
-  EXPECTED_PASSES: "829"
+  #
+  # WP-2.3.1, 2026-08-21: 829 -> 848. Net +19, attributed test by test:
+  #
+  #   tests/test_report_signing.py              +15
+  #       The release key is passphrase-encrypted, which WP-2.3 did not know.
+  #       6 on the passphrase itself: the fixture control asserting the key
+  #       really IS encrypted (without which every case below passes vacuously
+  #       against a plaintext PEM), the prompted happy path, the wrong-
+  #       passphrase planted-red that writes nothing, the refusal not echoing
+  #       what was typed, the empty-passphrase refusal, and the converse
+  #       control that a PLAINTEXT key must not start prompting. 4 custody
+  #       guards: no argv option carries a secret (AST walk, with an assertion
+  #       that it found options to walk), the environment is never read,
+  #       getpass is the only reader, and the tool does not claim it can scrub
+  #       a str from memory -- CPython cannot, and an overclaim in a security
+  #       note is the R1 failure with a different costume. 5 on the public-only
+  #       derivation: it agrees with the enforced derivation over 5 generated
+  #       keypairs, it is the documented SPKI->raw-32->sha256->16 method spelled
+  #       out independently of the tool, it cannot be handed a private key, it
+  #       refuses a non-Ed25519 public key, and it never prompts.
+  #
+  #   tests/test_delivery_sheet.py               +4
+  #       Net +4: one test removed, five added. The release row moved
+  #       PLAUSIBLE -> VERIFIED, so the assertion that it says PLAUSIBLE had to
+  #       go; what replaced it is stricter. The row must now carry its METHOD
+  #       and its DATE; R4 must still be stated (VERIFIED means derived from
+  #       the PUBLIC key, not that this repository holds the private one); the
+  #       re-derivation recipe must be present; the recipe is EXECUTED against
+  #       generated keypairs rather than read, because a published recipe
+  #       nobody has run is one the customer discovers is wrong; and the key
+  #       path with its passphrase custody is pinned.
+  #
+  #   15 + 4 = 19. Skip count still 10; nothing added carries a skipif.
+  EXPECTED_PASSES: "848"
 
 jobs:
   parser-regen:
