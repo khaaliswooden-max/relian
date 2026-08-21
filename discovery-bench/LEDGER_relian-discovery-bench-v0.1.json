@@ -1,0 +1,138 @@
+{
+  "benchmark": "RELIAN-DISCOVERY-BENCH",
+  "version": "0.1.0",
+  "tag": "relian-discovery-bench-v0.1",
+  "committed_at": "2026-08-21T13:35:29.039134+00:00",
+  "file_count": 21,
+  "files": [
+    {
+      "path": "SPEC.md",
+      "sha256": "55c3de9c794d83d1c2909334ae9ab139ff32e88ce244b0208be73af43048b941"
+    },
+    {
+      "path": "corpus/D01_display.cpy",
+      "sha256": "a3f08ad35becfc9b0aae3f1dfd0de0261565978b2490b3be1fdfbbb909b20288"
+    },
+    {
+      "path": "corpus/D02_binary.cpy",
+      "sha256": "2ae4e3311c6ab755fb24243aa9fccc49e4b2a799cd699b427ba079e045a3b2f5"
+    },
+    {
+      "path": "corpus/D03_packed.cpy",
+      "sha256": "e4d114569ece11f61e8a058b961642bdacb4dbc54f8e11165b28453f6b66cf17"
+    },
+    {
+      "path": "corpus/D04_sign.cpy",
+      "sha256": "968a60cfb8832b54af54cb303bda8a8768cc1b4a4f099fa4786d29273ab5e14d"
+    },
+    {
+      "path": "corpus/D05_occurs.cpy",
+      "sha256": "6a883208aa24b549736b3d448173166100a7d9c1fa046b28cc5aa82b76f17925"
+    },
+    {
+      "path": "corpus/D06_occurs_nested.cpy",
+      "sha256": "19eab10111d3ecb7f59a724303b6f51a14d1474b65132e5fc74450cb952b00bc"
+    },
+    {
+      "path": "corpus/D07_odo.cpy",
+      "sha256": "896d38a73433131442fae27e09f900a625b5892f138c41b5e0684487148255a6"
+    },
+    {
+      "path": "corpus/D08_redefines.cpy",
+      "sha256": "bc1509f72f01cbaaacb94c0700fe40c6888962c0c54a994bae257fab64938962"
+    },
+    {
+      "path": "corpus/D09_conditions.cpy",
+      "sha256": "21bc17cc5826a92d8e2869e6631edc41d33daaf10e32a03bc44a5dbf1382dc38"
+    },
+    {
+      "path": "corpus/D10_sync.cpy",
+      "sha256": "af3b09527f7292796b3c5bad8c06986796ac7cfd4adb50c8a47c8e4331b20fda"
+    },
+    {
+      "path": "corpus/D11_renames.cpy",
+      "sha256": "76517f73d5f2913da11b033e6c4c5d545ff3ec1071318fe8ee977797491dbd93"
+    },
+    {
+      "path": "corpus/D12_edited.cpy",
+      "sha256": "da655b3b3be2a51c97fbd32b2b13aedda363c29504e7f8409862a8a6497c14b4"
+    },
+    {
+      "path": "corpus/MUBBREC.cpy",
+      "sha256": "38d2e9fd298daee77599a8d2edb77a56e994225065dcc59a10fa33a2efe6c7d0"
+    },
+    {
+      "path": "corpus/MUBCONS.cpy",
+      "sha256": "c3332a221ab5985f89282014a528268cf6c32ea9c5532b7b7752a7b1ba6a3aba"
+    },
+    {
+      "path": "corpus/MUBCUST.cpy",
+      "sha256": "8f8e120e1ee66a304865b57ef316420d9906930b2c917799474875480f99a94b"
+    },
+    {
+      "path": "harness/__init__.py",
+      "sha256": "a1abc363d27091b02b639f6a022595c41f5dae56456ba981cf8cba3edab11f5e"
+    },
+    {
+      "path": "harness/gen_probe.py",
+      "sha256": "6670c06188c25050c4d20addf5d5e995c2338b35c0ab4e2b492f61ece50c8a83"
+    },
+    {
+      "path": "harness/oracle_layouts.py",
+      "sha256": "b775edd41d64d0484c6039e3a285e27553dff9151dd9dbd6a8a8089f2532e7cf"
+    },
+    {
+      "path": "oracle/oracle.json",
+      "sha256": "b2fcb760cf2f5e0e74db13e05af64a47b745ef6957fc93e4d17e297aabdea122"
+    },
+    {
+      "path": "seal.toml",
+      "sha256": "62d2773e08c820fbb3b693fb4a15c62f6b5fb5a3a81fcc7bf820f621edbf8248"
+    }
+  ],
+  "payload_sha256": "62e3ebd43f839202dfa6748fc9a0900e00f23f0e000a6565d4f53dc0c3f948b4",
+  "toolchain": {
+    "cobc": "cobc (GnuCOBOL) 3.1.2.0",
+    "java": "openjdk version \"21.0.11\" 2026-04-21",
+    "javac": "javac 21.0.11",
+    "python": "Python 3.12.3"
+  },
+  "include_rules": {
+    "dirs": [
+      "corpus",
+      "harness",
+      "oracle"
+    ],
+    "files": [
+      "SPEC.md",
+      "seal.toml"
+    ],
+    "exclude_suffix": [
+      ".o",
+      ".pyc"
+    ],
+    "exclude_names": [
+      "__pycache__"
+    ]
+  },
+  "expected_absent": [],
+  "oracle_toolchain": {
+    "cobc": "cobc (GnuCOBOL) 3.1.2.0"
+  },
+  "corpus_counts": {
+    "conditions": 9,
+    "copybooks": 15,
+    "elementary_fields": 124,
+    "gap_rows": 6,
+    "probe_rows": 170,
+    "variants": 16
+  },
+  "signature": {
+    "alg": "Ed25519",
+    "manifest_sha256": "696397e0d4d865a368735404f8a0db52367ad01a66fcd3d4eb22add06a77f265",
+    "signature_hex": "75316ec9fbc0ac5fd313f6e05795a234587b604f3077c6337f86b98cb3b9111ea3332369bb82fd6cf085a567a19651e459043a22125f1d8cf2133a91b7448008",
+    "public_key_hex": "91b67d34b603f36a367051f0f5a0b3ec0b722a027f55092c1804ba36bd15dd13",
+    "key_fingerprint": "233bb4406e2de606",
+    "signed_at": "2026-08-21T13:35:29.163815+00:00"
+  }
+}
