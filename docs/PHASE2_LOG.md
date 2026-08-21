@@ -3264,3 +3264,264 @@ red rather than produce a green comparison between two different corpora.
 - **D13 publication remains open.** `233bb4406e2de606` still needs to reach the
   Technical Delivery Sheet and every attestation deliverable alongside the
   verification command. Operator, R11.
+
+---
+
+## 2026-08-21 · WP-2.3 · The signed Data Discovery report
+
+- **HEAD at start:** `3ac6ee5` (merge of PR #30, WP-2.2)
+- **Branch:** `claude/signed-data-discovery-report-oxb7w6`
+- **Baseline triple, re-measured in this session:** `702 passed, 10 skipped,
+  0 failed`. Re-measured rather than transcribed, and the first measurement
+  disagreed: the container had no `cobc` and no `javac`, which produced
+  `683 passed, 28 skipped, 1 failed`. The 19-test gap is exactly the 18 extra
+  skips plus the one seal test that needs a complete toolchain probe. GnuCOBOL
+  3.1.2-5.1ubuntu1 and OpenJDK were installed and the run reproduced the sealed
+  triple before any code was written. A baseline taken on a degraded runner
+  would have made every later delta wrong by 19.
+- **Scope guard:** nothing under `bench/` or `discovery-bench/` was created,
+  modified or deleted (§9). No transform code was touched, so BER cannot have
+  moved; §9 records the check rather than the assumption.
+
+---
+
+### 1. The constraint, and what it forced
+
+R12 keeps customer source in the customer perimeter. R4 keeps the release key
+in the operator's custody. Different machines, neither may travel. So the CLI
+signs a **manifest of digests** and the only thing that crosses is a
+64-character hex string.
+
+Two layers, added at different times, verified independently:
+
+| Layer | Key | Proves |
+|---|---|---|
+| Instance | per-installation Ed25519, generated on first run at `~/.relian/instance-ed25519.pem` mode 0600 | integrity and provenance-of-tool. **Not** identity of signer |
+| Countersignature | Visionblox release key `91e3a404155ba4dd`, detached | Visionblox attests to this report |
+
+The instance layer proves less than it looks like it proves, and the artifact
+says so in those words. `INSTANCE_LAYER_CLAIM` is in `report.json`, in
+`report.md`, and in the verifier's own output; a report with a good instance
+signature and no countersignature is **VALID AND UNATTESTED** with its own exit
+code (3), distinct from both 0 and 1. Three tests exist only for that wording,
+because a misrepresentation to a government customer is a different category of
+problem from a bug.
+
+### 2. Byte-identity, and where the one timestamp went
+
+`report.json` carries **no timestamp at all**. The single `generated_at` lives
+in the manifest, which is where the signature is taken. That is what makes ①
+hold by construction rather than by care:
+
+```
+$ python3 -m src.discovery.cli report build examples/demo --out A …
+$ python3 -m src.discovery.cli report build examples/demo --out B …
+$ cmp A/report.json B/report.json
+→ (identical)
+```
+
+Re-measured on CardDemo as well, where the report is 32 KB: identical.
+
+The canonical form is asserted on the **emitted bytes**, not on the dict, with
+the default serialisation as its converse control — without that, an assertion
+that the bytes equal `json.dumps(…, separators=(",", ":"))` could pass against
+a form that is not distinguishable from the default.
+
+Section order is carried by a **list**, not a mapping. Canonical JSON sorts
+keys, so a mapping cannot express "identification before scope" at all, and
+D26's requirement that the missing-copybook table lead the findings would have
+been unstatable.
+
+### 3. The leak test (②)
+
+The request line is three hexadecimal fields:
+
+```
+relian-countersign-request/1 manifest_sha256=<64> report_id=<32> instance_fingerprint=<16>
+```
+
+The argument that it cannot leak is "all three are digests". That is an
+argument, not a measurement, so the measurement exists: a report is built from
+a tree whose **directory name, copybook name, field names, and every free-text
+engagement field** carry distinctive marker strings, and six parametrised tests
+assert none reaches the line. A seventh asserts the fixture actually carried
+all six — without it the leak test could pass because the seeds were never
+there, which is a control that proves nothing.
+
+`countersign_request_line` also re-checks each field as hexadecimal before
+emitting, and raises rather than emitting if one is not. If a field ever has to
+carry text, the line is refused and the message says to escalate: that is R12
+failing and the design is wrong, not the implementation.
+
+### 4. Four verifier layers, each planted red and reverted (③)
+
+`tools/verify_report.py`, sha256 `43f0bf20a79bb5d07aecb619dc2b7364469769ea2d81a4679e9b1b588bc4cbd5`. Standalone: standard library plus
+`cryptography`, no repo import, no network, no credential — all three asserted
+by AST rather than by grep. It prints its own digest on every run.
+
+| Layer | Planted red as | Other three while it was red |
+|---|---|---|
+| FILES | an edited `report.json`, and a deleted `report.md` | all PASS — the signature covers the MANIFEST's bytes, not the report's, which is exactly why this layer exists |
+| MANIFEST | a *consistently* edited manifest: report changed AND its recorded digest updated to match | FILES **PASS**, asserted, so the test proves the attack really does defeat layer 1 |
+| INSTANCE | one flipped nibble in `signature_hex`; separately, a declared fingerprint that is not the signer | FILES and MANIFEST PASS |
+| COUNTERSIGNATURE | a countersignature for a different report | the other three PASS |
+
+Each test reverts and re-verifies green in the same test, so a planted-red that
+left the fixture broken could not be mistaken for a passing suite.
+
+**⑤, the re-signed forgery.** The deliverable is re-signed end to end under an
+attacker-generated key — instance block and countersignature both — and then
+verified twice. Pinned to the attacker's own fingerprint it returns **0**,
+which is asserted first: without that assertion the test would not be
+exercising a forgery that is internally consistent. Pinned to the real
+fingerprint, FILES / MANIFEST / INSTANCE all **PASS** and only
+COUNTERSIGNATURE fails. `--pin-fingerprint` is `required=True` with no
+default, and a test runs the verifier without it and asserts argparse refuses.
+
+### 5. R11 lint, each term its own negative control (⑥)
+
+Vocabulary: `solana`, `on-chain`, `ml risk`, `machine learning`,
+`predicted`, `estimated`. Linted against the templates **and** against the
+emitted `report.json` and `report.md` — a term that only ever reached the page
+through an f-string would survive a template-only lint. The CLI runs the same
+lint on its own output and **refuses to write** if it fires.
+
+Twelve parametrised negative controls: each term planted in prose, and each
+term planted upper-cased. One converse control asserts the lint does not fire
+on ordinary report prose; without it a lint that flagged everything would pass
+all twelve and tell you nothing. The Technical Delivery Sheet gets the same
+treatment, with its own six.
+
+### 6. Measured triple
+
+```
+$ pytest -q
+→ 829 passed, 10 skipped, 0 failed
+```
+
+Net **+127** on 702, attributed file by file in `.github/workflows/tests.yml`
+and summarised here:
+
+| File | Δ |
+|---|---|
+| `tests/test_discovery_report.py` | +51 |
+| `tests/test_report_signing.py` | +31 |
+| `tests/test_verify_report.py` | +27 |
+| `tests/test_delivery_sheet.py` | +16 |
+| `tests/test_discovery_is_compiler_free.py` | +2 |
+
+The last is not a new test. `test_module_never_invokes_a_compiler` is
+parametrised over every module in `src/discovery/`, and `report.py` and
+`signing.py` are two more modules — so the D15 AST guard covers the new surface
+without being told to. **The skip count is unchanged at 10**: none of the 127
+carries a `skipif` and none needs `cobc` or `javac`.
+
+### 6b. One defect this work package found in itself
+
+The R1 gate (`lint_measured_fields`) was first exercised only against
+`examples/demo` — three flat copybooks, no `OCCURS`. Run against the sealed
+12-axis corpus it **refused to write a report**, naming every `OCCURS` index
+vector as an ungraded number:
+
+```
+REFUSED: a number reached the report without a grade (R1/R9):
+  $.sections[3].records[5].fields[2].subscripts[0]: bare number 1 with no grade …
+```
+
+A subscript is a structural coordinate, not a measurement — the same category
+as `level` and `offset`, both of which were already on the allowlist and both
+of which are covered by the layout's own grade and limitation block. The fix
+is one entry. What matters is where it was caught: the demo tree would never
+have surfaced it, and the first customer with a table in a copybook would have
+received a refusal instead of a report.
+
+`test_the_r1_gate_is_clean_over_the_sealed_twelve_axis_corpus` is the
+regression, and it is guarded by a control
+(`test_the_bench_fixture_exercises_more_than_the_demo_tree`) asserting the
+fixture really does contain subscripts, an ODO object and a REDEFINES — so it
+cannot quietly become vacuous if the corpus is ever narrowed.
+
+### 7. Dry runs (⑧)
+
+Full detail in `docs/dryruns/REPORT_DRYRUNS.md`. Both stop at the
+countersignature, which is an operator key session exactly as a seal is.
+
+| | `examples/demo` | CardDemo |
+|---|---|---|
+| report id | `017f5ff0fdc4457770ee467c7e9ff073` | `2fff4d2377c2cc199d6271bd1c21f885` |
+| manifest sha256 | `f36b5dd137575325f752f64c65dce90ec616edd9c065ad8bfa435f6da305de3a` | `04b599fa41e984fc54eba4c48d6bfdb43de8ab74194fb59b9b127b5c8f3cecac` |
+| instance fingerprint | `98616f9c7543d293` | `98616f9c7543d293` (same installation) |
+| record layouts | 3, all COMPLETE | not included, by decision |
+| missing copybooks | 0 | **8** |
+| verifier | VALID AND UNATTESTED, exit 3 | VALID AND UNATTESTED, exit 3 |
+
+CardDemo reproduced every count WP-2.2 measured — 106 files, 40 with a `COPY`,
+346 directive sites, 67 distinct names, 59 resolvable, 8 not, 306 edges, max
+fan-out 18 at `app/cbl/COACTUPC.cbl`, 40 `REPLACING` sites, 3 unreferenced
+members, 0 cycles. Zero drift. Had a row disagreed, the run would be
+authoritative and the table would say so.
+
+**Two narrowings are worth recording, because both remove something a reader
+might have expected to be there.**
+
+*No layouts on CardDemo.* WP-2.2 §10 established that no layout claim is made
+about any CardDemo record: the engine is verified against GnuCOBOL 3.1.2.0 and
+CardDemo is IBM-dialect source, so a layout would be graded against nothing.
+The report is resolver-only **by decision, not by failure**, and
+`Report.build` refuses to emit an empty layout section over a tree with
+resolvable copybooks unless a reason is supplied — an empty section with no
+stated reason reads as a clean result (R2). The reason is in the artifact.
+
+*No "likely source" column in the missing table.* The WP-2.2 dry-run note
+carried one — "CICS-supplied", "IBM MQ-supplied". Both are correct, and both
+are inferences about a member the engine never saw, sitting in a table where
+every other cell is a count taken in the run. In an internal note that is a
+useful annotation; in a customer artifact governed by R1 it is an inference
+wearing the costume of a finding. What is measured (referrers, directories
+searched) ships; what is inferred stays in the engagement conversation where a
+person owns it.
+
+### 8. D13 closed
+
+`docs/TECHNICAL_DELIVERY_SHEET.md` publishes both fingerprints, each labelled
+with what it signs and what it does not, and each tool's own SHA-256.
+`tests/test_delivery_sheet.py` pins the published digests against the files on
+disk, so editing a tool without updating the sheet turns the build red — a
+digest published in a document that can go stale in silence is a digest nobody
+should rely on.
+
+The two fingerprints are **graded differently, and deliberately**:
+
+* `233bb4406e2de606` — **VERIFIED**. It is recorded in both sealed ledgers in
+  this repository and CI pins against it on every run.
+* `91e3a404155ba4dd` — **PLAUSIBLE**. Transcribed from the WP-2.3 brief.
+  Nothing in this repository has computed it from a key, because the key never
+  enters this repository, CI, or an agent session (R4). It is checked the first
+  time a real countersignature is produced: `tools/countersign.py` refuses to
+  sign if the key it is handed does not fingerprint to it.
+
+Calling the second VERIFIED would have been a grade with nothing behind it.
+
+### 9. `bench/` and `discovery-bench/` are byte-identical (⑪)
+
+```
+$ git status --short -- bench/ discovery-bench/
+(empty)
+```
+
+No transform code was touched either, so BER cannot have moved. Both are
+checked rather than asserted.
+
+### 10. What this does NOT license
+
+- **No countersignature exists.** Both dry runs are `VALID AND UNATTESTED`.
+  Nothing in this repository has ever held the release key, and the flow is
+  proven under a stand-in key generated inside a test.
+- **No IBM Enterprise COBOL claim.** Unchanged from WP-2.2 and now stated in
+  the report's top matter as well as on each record.
+- **No file inventory, lineage or target-schema DDL.** WP-2.4+, and absent
+  here rather than approximated.
+- **PDF rendering was not built.** Markdown is the one derived rendering, and
+  it names `report.json` as authoritative. Adding a second renderer before
+  anyone has asked for one would double the surface on which a rendering can
+  disagree with the signed object.

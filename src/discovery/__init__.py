@@ -13,6 +13,14 @@ package's AST to assert it. That constraint is not stylistic:
   no GnuCOBOL and whose COBOL is IBM Enterprise. An engine that needs a
   compiler is not shippable.
 
+WP-2.3 adds the report surface: :mod:`src.discovery.report` builds the
+canonical ``report.json`` and its unsigned Markdown rendering, and
+:mod:`src.discovery.signing` builds the manifest of digests and takes the
+per-installation instance signature over it. Both keep the same discipline as
+the engine below them — no compiler, no network, and no number without a grade.
+``cryptography`` is imported inside functions there so that importing this
+package stays as light as the layout engine needs it to be.
+
 Scope of what a passing round-trip licenses (R11): the engine reproduces
 **GnuCOBOL 3.1.2.0's** byte layout on the sealed 15-copybook corpus. IBM
 Enterprise COBOL equivalence is UNMEASURED and belongs in the customer report
@@ -29,6 +37,24 @@ from .copybook import (
     find_copy_directives,
     replacing_limitations,
     resolve,
+)
+from .report import (
+    FORBIDDEN_VOCABULARY,
+    Report,
+    ReportError,
+    ReportMeta,
+    lint_measured_fields,
+    lint_report_text,
+    render_markdown,
+)
+from .signing import (
+    InstanceKey,
+    SigningError,
+    build_manifest,
+    countersign_request_line,
+    load_or_create_instance_key,
+    manifest_hash,
+    sign_manifest,
 )
 from .layout import (
     Condition,
@@ -59,4 +85,18 @@ __all__ = [
     "compute",
     "compute_text",
     "lint_layout",
+    "FORBIDDEN_VOCABULARY",
+    "Report",
+    "ReportError",
+    "ReportMeta",
+    "lint_measured_fields",
+    "lint_report_text",
+    "render_markdown",
+    "InstanceKey",
+    "SigningError",
+    "build_manifest",
+    "countersign_request_line",
+    "load_or_create_instance_key",
+    "manifest_hash",
+    "sign_manifest",
 ]
