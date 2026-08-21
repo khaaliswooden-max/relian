@@ -1,0 +1,55 @@
+# RELIAN-DISCOVERY-BENCH v0.1 -- sealing configuration.
+#
+# This file is an INPUT to tools/seal.py and is itself sealed (it sits at the
+# root of the include set as an included file), so what the seal covered is
+# reviewable in a diff rather than reconstructed from a command line. That is
+# the point of D12: absences and inclusions are declared by the SIGNER, inside
+# the signed payload, not asserted by whoever happens to run the check.
+#
+# The ceremony is R4 / operator-only. Nothing in this repository signs.
+
+[seal]
+name    = "RELIAN-DISCOVERY-BENCH"
+version = "0.1.0"
+tag     = "relian-discovery-bench-v0.1"
+root    = "."
+out     = "LEDGER_relian-discovery-bench-v0.1.json"
+
+# Which probe labels carry the compiler that produced the oracle. Recorded as
+# `oracle_toolchain` in the manifest and asserted by CI against the runner's
+# own `cobc --version`. The PATCH level is what matters: T4 observed three
+# javac patch levels across three sessions under a major-only pin, and `cobc`
+# is installed unpinned via apt, so the same exposure applies.
+oracle_toolchain = ["cobc"]
+
+# Counts are READ from the generated oracle, never recounted here. Two
+# independent counts of the same thing is two things to disagree.
+corpus_counts_from = "oracle/oracle.json"
+
+[include]
+# `results/` is deliberately absent: it mirrors bench/results and holds run
+# output, which must not be inside the artifact those runs are scored against.
+dirs           = ["corpus", "harness", "oracle"]
+files          = ["SPEC.md", "seal.toml"]
+exclude_suffix = [".pyc", ".o"]
+exclude_names  = ["__pycache__"]
+
+# EMPTY, AND IT MUST STAY EMPTY (acceptance gate ⑤).
+#
+# The v1.2 seal covers eight files a third party cannot verify -- seven
+# held-out vector files and the vector generator, correctly withheld under
+# forbidden actions 1 and 6. A layout oracle has NO held-out split: the ground
+# truth IS the answer key, and the whole claim is that a third party can
+# re-derive it. Anything here means the seal covers something the public repo
+# cannot check, and the seal is wrong. An entry appearing here is an escalation,
+# not a declaration.
+expected_absent = []
+
+[toolchain]
+# Every probe listed must answer. `UNAVAILABLE` refuses the signature
+# (difference 2) rather than being frozen into the record the way v1.2's
+# "javac": "UNAVAILABLE" was.
+cobc   = ["cobc", "--version"]
+javac  = ["javac", "-version"]
+java   = ["java", "-version"]
+python = ["python3", "--version"]

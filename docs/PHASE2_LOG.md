@@ -2478,3 +2478,379 @@ and this section supersedes it.
 - The three residuals inherited from WP-2.0 §11 — gnucobol intake
   misclassification, the repository not being `black`-formatted, and
   preprocessor integration — are untouched here and **remain UNRESOLVED**.
+
+---
+
+## 2026-08-20 · WP-2.1 · Build RELIAN-DISCOVERY-BENCH v0.1 (unsealed)
+
+- **HEAD at start:** `2b01022` (merge of PR #27, WP-2.0.2)
+- **Branch:** `claude/relian-discovery-bench-v0.1-oen5te`
+- **Scope guard:** nothing under `bench/` modified — confirmed at close-out with
+  `git status --short -- bench/` (§8). `src/discovery/` was not created —
+  `git log --diff-filter=A -- src/discovery/` returns nothing (§8).
+- **Baseline:** `310 passed, 10 skipped, 0 failed`, re-measured in this session
+  before any change (§1).
+- **Not done, deliberately:** no signing, no tagging, no `src/discovery/`. The
+  sealing ceremony is operator-only (R4) and R7 puts the bench before the
+  engine. This work package lands the corpus, harness, oracle, sealer and tests
+  **unsigned**.
+
+---
+
+### 1. Toolchain, recorded before anything else
+
+Every offset in this work package is one compiler's byte layout, so the
+compiler was identified before a line was written.
+
+```
+python3 --version   → Python 3.11.15
+cobc --version      → cobc (GnuCOBOL) 3.1.2.0        [first line]
+dpkg -l gnucobol3   → ii  gnucobol3  3.1.2-5.1ubuntu1  amd64
+javac -version      → javac 21.0.10
+java -version       → openjdk version "21.0.10" 2026-01-20
+git --version       → git version 2.43.0
+```
+
+`cobc` was **not present at session start** and was installed with the same
+unpinned command CI uses (`apt-get install -y gnucobol`, T16). It resolved to
+`3.1.2.0`, which equals T3 **including the patch level**, so the escalation
+trigger ("if your `cobc` is not 3.1.2.0, stop") did not fire.
+
+`javac` is 21.0.10 — one of the three patch levels already observed under a
+major-only pin (T4), not a fourth.
+
+The authoring interpreter is 3.11.15 while the CI gate pins 3.12. Recorded as a
+deviation rather than glossed: nothing in the harness is version-sensitive, and
+CI regenerating the oracle byte-identically on 3.12 is the check on that claim
+rather than this sentence.
+
+Baseline re-measured in this session, not quoted from the WP:
+
+```
+python3 -m pytest -q -rs
+→ 310 passed, 10 skipped in 137.36s
+```
+
+---
+
+### 2. `tools/seal.py` — written fresh, five differences, each tested
+
+Not copied from and not importing `bench/harness/commit.py`. `commit.py` is
+**inside the v1.2 manifest** (`bench/harness/` is an include dir), so any edit
+to it — a comment included — changes its sha256, then `payload_sha256`, then
+`manifest_sha256`, then invalidates the signature. Rule 4 forbids the edit
+independently.
+
+The two posix conventions are replicated verbatim with a comment citing
+`commit.py` as origin and stating why they are duplicated rather than shared:
+sharing would mean importing from inside the sealed tree.
+`test_both_conventions_match_commit_py_on_the_same_tree` reimplements
+`commit.py`'s ordering and hashing independently and asserts `seal.py` produces
+the identical entry list, so a drift in either file goes red.
+
+| # | Difference | Proof |
+|---|---|---|
+| 1 | Absent key file raises; **no generation fallback** | `test_absent_key_raises_and_never_generates` + the planted red `test_commit_py_is_the_behaviour_being_corrected`, which executes `commit.sign()` into `tmp_path`, asserts a PEM **was** written, asserts `commit.verify()` returns `True` on it, and asserts the resulting fingerprint is not `233bb4406e2de606` |
+| 2 | Any `UNAVAILABLE` toolchain probe raises | `test_unavailable_toolchain_probe_refuses_to_sign`, plus `test_the_v1_2_ledger_still_carries_the_unavailable_this_prevents`, which reads `"javac": "UNAVAILABLE"` out of the signed v1.2 ledger rather than recalling it |
+| 3 | Name, version, tag, include-set, output path are parameters | `test_identity_and_output_path_are_parameters`, `test_include_set_is_a_parameter_and_exclusions_apply`, `test_config_file_round_trips` |
+| 4 | Manifest records `include_rules`, `expected_absent`, `oracle_toolchain`, `corpus_counts` | `test_manifest_records_its_own_rules_absences_toolchain_and_counts`, plus `test_v1_2_records_none_of_them_which_is_why_difference_4_exists` |
+| 5 | Verification pins `233bb4406e2de606` rather than trusting the embedded key | `test_seal_verify_requires_and_honours_the_pin`, `test_seal_refuses_to_write_a_manifest_signed_by_an_unpinned_key`, and the forgery test in §3 |
+
+**Configuration form chosen: a TOML file (`discovery-bench/seal.toml`), with CLI
+flags able to override.** Stated because the WP left it to the implementer. The
+include-set and `expected_absent` are part of what gets *signed*, so they should
+be reviewable in a diff and identical between the ceremony and CI, rather than
+retyped on a command line where a dropped `--include-dir` silently narrows what
+the seal covers. `seal.toml` is itself inside the include set, so what the seal
+covered is recoverable from the sealed tree. The CLI overrides exist for tests
+and one-off checks, not for the ceremony.
+
+One property found while rehearsing and then pinned: `verify()`'s
+`expected_fingerprint` default is bound at **definition** time, so reassigning
+`seal.EXPECTED_KEY_FINGERPRINT` does not move it. An importer cannot quietly
+widen what counts as the published signer — it has to pass a different value at
+the call site, where a reviewer sees it.
+`test_the_pin_cannot_be_rebound_by_an_importer_at_runtime` stops a later
+refactor from giving that away.
+
+---
+
+### 3. `tools/verify_manifest.py` — `--from-manifest` and `--pin-fingerprint`
+
+`--from-manifest` reads `include_rules` and `expected_absent` out of the signed
+payload, so verification needs no argument beyond `--ledger`; `--root` defaults
+to the ledger's own directory. It **refuses** on a manifest that does not
+self-describe rather than falling back to the transcribed v1.2 defaults —
+falling back would let the flag report a walk the signer never attested to.
+v1.2's lack of self-description is recorded as a format limitation, and its
+existing CLI path is unchanged.
+
+Regression, run before and after the change:
+
+```
+python3 tools/verify_manifest.py --ledger bench/LEDGER_relian-bench-v1.2.json \
+    --root bench --include-dirs corpus,harness --include-files SPEC.md \
+    --expect-absent '**/vectors/heldout.jsonl,harness/gen_vectors.py' \
+    --pin-fingerprint 233bb4406e2de606
+→ VERDICT: PASS (3/3 layers)
+  recorded 29, verified 21, declared_absent 8, mismatches 0
+```
+
+`--pin-fingerprint` is the WP's spelling; `--key-fingerprint` is the spelling
+the existing CI step already uses. Same `dest`, so both work and neither breaks
+the other — `test_pin_fingerprint_and_key_fingerprint_are_the_same_flag`.
+
+**The forgery test** — `test_resigned_forgery_passes_three_layers_and_fails_the_pin`
+— is the one the WP asked for specifically. It seals a tree honestly, verifies
+it, then edits a corpus file, **re-seals it consistently**, and signs with an
+ephemeral attacker key. It asserts, in this order:
+
+- layer 1 TREE **passes** (the tree matches the re-written `files[]`);
+- layer 2 PAYLOAD **passes** (`payload_sha256` matches the re-written `files[]`);
+- layer 3 SIGNATURE **passes** unpinned (the embedded key is the attacker's);
+- the overall verdict is **PASS** without a pin;
+- with `--pin-fingerprint` set to the honest signer, the run fails, and
+  `failed_layers() == ["signature"]` — only the pin catches it.
+
+No real key is touched anywhere in this file. Every test that needs one
+generates an ephemeral key in `tmp_path` and pins against *its* fingerprint.
+
+---
+
+### 4. The corpus — 15 copybooks
+
+Three seeded by copying `examples/demo/copy/{MUBBREC,MUBCONS,MUBCUST}.cpy`
+verbatim; byte-identity is asserted **in both directions** so a change to either
+copy goes red (D10). Twelve authored, one axis each, headers naming the axis and
+stating the file is synthetic and not derived from any customer or benchmark
+source. `examples/demo/src/MUBPOST.cbl` was read first; D07 and D08 are anchored
+to its inline ODO and REDEFINES.
+
+All fifteen compile clean under Route A and inside a generated probe — sweep run
+before the harness was finished, `0 errors` and `0 warnings` on every file.
+
+Two authoring facts were discovered by measurement rather than assumed:
+
+- **An item may not follow an ODO table in the same group.** First draft of
+  `D07_odo.cpy` had a trailer field and cobc rejected it:
+  `error: 'D07-ENTRY' cannot have OCCURS DEPENDING because of '<name>'`. The
+  copybook was fixed before sealing, which is where a copybook defect belongs.
+- **`SYNCHRONIZED` does align in GnuCOBOL 3.1.2.** An early scratch test
+  suggested it did not; that test happened to be naturally aligned already.
+  `D10_sync.cpy` declares 20 bytes of fields and occupies 25 — five slack bytes,
+  at offsets 2 (3 bytes), 10 (1) and 16 (1). The copybook's header was rewritten
+  to state what was measured rather than what was first believed. **No
+  divergence-from-standard claim survives; there was nothing to escalate here.**
+
+---
+
+### 5. `gen_probe.py`, `oracle_layouts.py`, and one deviation from the WP
+
+Routes run in the fixed order the WP specifies. Route A
+(`cobc -x -t sym.lst -ftsymbols -I<dir>`) gives per-field SIZE and the group
+total; the probe cannot be emitted without that total, because it sizes the
+byte window. Offsets are 1-based. `FUNCTION HEX-OF` is never emitted, asserted
+per copybook by `test_every_probe_compiles_and_runs_under_the_pinned_cobc`.
+
+**Deviation, and the measurement that forced it.** WP §3.3 specifies
+`MOVE HIGH-VALUES TO <field>`. Measured on GnuCOBOL 3.1.2.0, that form is
+unsound for the edited axis:
+
+```
+MOVE HIGH-VALUES TO <PIC ZZZZZZZZ9.99>   → first 0, last 0, marked 0
+MOVE HIGH-VALUES TO <PIC ZZZ9 BLANK …>   → first 0, last 0, marked 0
+MOVE HIGH-VALUES TO <PIC XXBXX>          → first 13, last 17, marked 4 of 5
+```
+
+It compiles, runs, exits zero and writes **no high-value bytes at all** on a
+numeric-edited item. A probe built on it would have recorded
+`offset: 0, length: 0` for every numeric-edited field in `D12_edited.cpy` **and
+for `BPR-AMOUNT-DUE` in the seeded `MUBBREC.cpy`**, whose real layout is offset
+46, length 12. Under D8/R1 that is a fabricated zero wearing the costume of a
+measurement — worse than a null.
+
+The probe therefore fills through `MOVE HIGH-VALUES TO <field> (1:)`, which
+reference-modifies the item and makes the receiving field alphanumeric of its
+full length regardless of category. Exact for all fifteen copybooks.
+`test_the_naive_probe_form_silently_measures_nothing_on_a_numeric_edited_item`
+compiles and runs both forms side by side and asserts `NAIVE == 0` and
+`REFMOD == 12`, so if GnuCOBOL ever changes this the deviation's justification
+changes with it, visibly.
+
+Consequence for T13, recorded rather than dropped: `-Warchaic` fires on the
+plain form and **not** on the reference-modified form, and it is **not enabled
+by default** — a default compile of the plain form reports `0 warnings`. The
+harness passes neither `-Warchaic` nor `-Werror`, suppresses nothing globally,
+and treats no warning as failure.
+
+**Second deviation, also forced.** The WP's `REDEFINES … OCCURS total_len TIMES
+PIC X(01)` byte table is used for fourteen copybooks and is impossible for the
+fifteenth: `error: the original definition 'D07-ODO' cannot be variable length`.
+`D07_odo.cpy` reads bytes through reference modification on the group instead.
+The two windows are proved equivalent, not assumed:
+`test_both_byte_windows_agree_on_a_fixed_copybook` probes `D05_occurs.cpy` under
+both and asserts every row identical.
+
+D9's conditioned invariant is asserted per copybook and independently per ODO
+variant; aliases are asserted separately. `gap` spans live in their own array,
+never in `fields`. Level-88 rows carry `offset: null, length: null` and appear
+in no field row.
+
+---
+
+### 6. Suite delta: 310 → 370 (+60), attributed test by test
+
+```
+python3 -m pytest -q -rs
+→ 369 passed, 10 skipped in 148.53s      [before the +1 in §2's last paragraph]
+python3 -m pytest tests/test_seal.py tests/test_bench_oracle.py -q
+→ 60 passed in 16.64s                    [28 + 32]
+```
+
+Final expected triple: **370 passed, 10 skipped, 0 failed**. `EXPECTED_PASSES`
+moved `310 → 370` in the same commit. No existing test was changed, renamed,
+deleted or deselected; the entire delta is two new files.
+
+**The skip count is unchanged at 10, and that is deliberate rather than lucky.**
+`tests/test_bench_oracle.py` guards its cobc-dependent tests with a `skipif` so
+a developer without GnuCOBOL still gets the JSON half of the suite — which would
+be green-by-skip in CI. `RELIAN_REQUIRE_COBC=1` in the pytest job disarms the
+guard, so on the runner those tests must run; a runner that lost `cobc` fails
+rather than skips.
+
+#### `tests/test_seal.py` (+28)
+
+| Test | Pins |
+|---|---|
+| `test_absent_key_raises_and_never_generates` | difference 1 |
+| `test_commit_py_is_the_behaviour_being_corrected` | difference 1 (planted red against `commit.py`) |
+| `test_unavailable_toolchain_probe_refuses_to_sign` | difference 2 |
+| `test_the_v1_2_ledger_still_carries_the_unavailable_this_prevents` | difference 2's precedent |
+| `test_a_complete_toolchain_is_accepted` | difference 2, the passing side |
+| `test_identity_and_output_path_are_parameters` | difference 3 |
+| `test_include_set_is_a_parameter_and_exclusions_apply` | difference 3 |
+| `test_an_empty_include_set_refuses_rather_than_sealing_nothing` | difference 3, refusal |
+| `test_config_file_round_trips` | difference 3, TOML form |
+| `test_manifest_records_its_own_rules_absences_toolchain_and_counts` | difference 4 |
+| `test_v1_2_records_none_of_them_which_is_why_difference_4_exists` | difference 4's justification |
+| `test_missing_oracle_refuses_rather_than_recording_zero` | R1 on `corpus_counts` |
+| `test_from_manifest_reproduces_the_argument_mode_result_exactly` | D12 |
+| `test_from_manifest_refuses_a_manifest_that_does_not_self_describe` | v1.2 not retrofitted |
+| `test_a_file_on_disk_but_absent_from_files_fails` | reverse-walk detection |
+| `test_expected_absent_must_be_empty_for_the_discovery_bench` | gate ⑤ |
+| `test_the_discovery_seal_config_is_buildable_and_records_what_it_should` | the real config, dry-run |
+| `test_seal_verify_requires_and_honours_the_pin` | difference 5 |
+| `test_seal_refuses_to_write_a_manifest_signed_by_an_unpinned_key` | difference 5 |
+| `test_the_pin_cannot_be_rebound_by_an_importer_at_runtime` | difference 5, found while rehearsing |
+| `test_resigned_forgery_passes_three_layers_and_fails_the_pin` | **the hole pinning exists to close** |
+| `test_pin_fingerprint_and_key_fingerprint_are_the_same_flag` | CLI compatibility |
+| `test_manifest_paths_are_posix_even_for_nested_files` | posix convention #1 |
+| `test_entries_are_sorted_by_the_posix_string_not_the_path_object` | posix convention #2 |
+| `test_both_conventions_match_commit_py_on_the_same_tree` | the two sealers still agree |
+| `test_the_manifest_is_deterministic_across_two_runs` | determinism |
+| `test_the_published_fingerprint_is_the_one_this_repo_already_trusts` | D14, one custody chain |
+| `test_seal_contains_no_key_generation_or_serialisation_call` | R4, asserted on the parsed AST |
+
+#### `tests/test_bench_oracle.py` (+32)
+
+| Test | Pins |
+|---|---|
+| `test_the_corpus_is_exactly_fifteen_copybooks` | gate ① |
+| `test_seed_copies_are_byte_identical_in_both_directions` | D10 |
+| `test_every_authored_copybook_declares_its_axis_and_that_it_is_synthetic` | in-band provenance |
+| `test_no_copybook_line_exceeds_column_72` | fixed-format truncation |
+| `test_committed_oracle_is_serialised_deterministically` | sorted keys, one trailing newline |
+| `test_every_number_in_the_oracle_names_its_source` | **gate ④** |
+| `test_the_lint_actually_bites` | gate ④'s gate |
+| `test_offsets_are_one_based_and_match_the_measurement_in_the_wp` | T14 |
+| `test_mubcust_reproduces_the_flat_cross_check_from_the_wp` | T15 |
+| `test_every_field_row_carries_a_probe_source_and_gaps_are_kept_apart` | D8 |
+| `test_conditions_carry_nulls_and_appear_in_no_field_row` | R1, no fabricated zero |
+| `test_the_d9_tiling_invariant_holds_for_every_copybook_and_variant` | **D9** |
+| `test_sum_of_tiling_fields_and_gaps_equals_the_route_a_group_size` | zero tolerance |
+| `test_aliases_are_asserted_separately_from_the_tiling` | D9's separate half |
+| `test_odo_copybook_records_both_lengths_and_they_differ` | min and max both recorded |
+| `test_every_other_copybook_is_fixed_length_and_uses_the_redefines_window` | window selection |
+| `test_the_sync_axis_recovered_five_slack_bytes_as_gaps` | the SYNC measurement |
+| `test_filler_is_recovered_as_gap_and_never_as_a_field` | FILLER is not probeable |
+| `test_the_numeric_edited_field_the_naive_probe_would_have_zeroed` | §5's deviation, on real data |
+| `test_the_counts_block_matches_the_rows_it_summarises` | gate ① |
+| `test_route_a_and_route_b_agreed_on_every_copybook_with_zero_tolerance` | **gate ③** |
+| `test_spec_states_the_same_integers_the_oracle_does` | gate ①, SPEC vs oracle |
+| `test_the_oracle_records_the_toolchain_that_produced_it` | provenance |
+| `test_recorded_copybook_hashes_match_the_files_on_disk` | oracle vs corpus |
+| `test_the_committed_oracle_is_byte_identical_to_a_fresh_regeneration` | **gate ②**, local half |
+| `test_regeneration_is_byte_identical_across_two_consecutive_runs` | gate ②, determinism half |
+| `test_every_probe_compiles_and_runs_under_the_pinned_cobc` | every copybook compiles in a probe; no `HEX-OF` |
+| `test_both_byte_windows_agree_on_a_fixed_copybook` | the ODO fallback is equivalent |
+| `test_a_variable_length_group_cannot_be_redefined` | why there are two windows |
+| `test_the_naive_probe_form_silently_measures_nothing_on_a_numeric_edited_item` | **the planted red behind §5** |
+| `test_require_cobc_env_turns_a_missing_toolchain_into_a_failure` | green-by-skip closed |
+| `test_the_runner_cobc_matches_the_oracle_toolchain_recorded_in_the_seal` | gate ⑥ |
+
+---
+
+### 7. CI
+
+Three changes to `.github/workflows/tests.yml`. `bench.yml` is untouched.
+
+1. **`bench-seal` gains a discovery-ledger step.** **Choice made and stated: the
+   step is gated on the ledger file's existence and skips with a named reason,
+   rather than being commented out behind a `TODO`.** A commented-out step is
+   invisible in the checks list; this one appears on every run and says which
+   state it is in. The moment the operator commits the ledger the same step
+   starts enforcing with no workflow edit, so turning the gate on cannot be the
+   thing somebody forgets. A `TODO(WP-2.1-seal)` marker records the one
+   post-ceremony change worth making: invert the condition so a *deleted* ledger
+   fails instead of skipping. It runs `--from-manifest --pin-fingerprint`, and
+   asserts `verified == recorded` and `declared_absent == 0` (gate ⑤).
+2. **New `oracle-regen` job** — regenerates `oracle.json` on a clean runner and
+   diffs byte-for-byte (gate ②, the `parser-regen` pattern), then confirms the
+   job wrote nothing into `discovery-bench/`. Sets `RELIAN_REQUIRE_COBC=1`.
+   Includes the **`cobc` version assertion** (gate ⑥): the runner's
+   `cobc --version` must equal the oracle's recorded `toolchain.cobc`, and —
+   once the ledger exists — the signed `oracle_toolchain.cobc` too, so the
+   assertion is against what the signer attested to rather than a string in the
+   workflow. Patch level, not major.
+3. **`pytest` job gains `RELIAN_REQUIRE_COBC: "1"`** and `EXPECTED_PASSES`
+   moves `310 → 370`.
+
+---
+
+### 8. Scope confirmations
+
+```
+git status --short -- bench/
+→ (empty)
+
+git log --diff-filter=A -- src/discovery/
+→ (empty)
+
+ls src/discovery 2>&1
+→ No such file or directory
+```
+
+Nothing under `bench/` was modified. `src/discovery/` was never created; R7
+puts the benchmark and its answer key before the engine, and the tag does not
+exist yet.
+
+---
+
+### 9. Open, and handed back
+
+- **The ceremony has not run.** `discovery-bench/LEDGER_relian-discovery-bench-v0.1.json`
+  does not exist and no tag was created. Rehearsed end-to-end in a scratch copy
+  with an **ephemeral** key: 21 recorded, 21 verified, 0 declared absent, 0
+  mismatches, 3/3 layers. The real key was not touched.
+- **`expected_absent` is empty and must stay empty.** An entry appearing there
+  is an escalation, not a declaration.
+- **The IBM-may-differ caveat is unmeasured (◐).** Everything in §8 of
+  `discovery-bench/SPEC.md` is GnuCOBOL 3.1.2 behaviour. Whether IBM Enterprise
+  COBOL agrees — particularly on SYNC slack, which depends on `binary-size` —
+  has not been measured here and belongs in the customer report as a stated
+  limitation of a GnuCOBOL-derived oracle.
+- **D13's publication step is an operator call.** The fingerprint
+  `233bb4406e2de606` needs to reach the Technical Delivery Sheet and every
+  attestation deliverable alongside the verification command; re-derivability is
+  only a real claim if the third party knows which key to expect. That is a
+  quotable-capability matrix change (R11) and is not made here.

@@ -4,7 +4,11 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     310 passed, 10 skipped, 0 failed
+#     370 passed, 10 skipped, 0 failed
+#
+# WP-2.1, 2026-08-20: was 310. Net +60, in two new files: tests/test_seal.py
+# (+28) and tests/test_bench_oracle.py (+32), which land RELIAN-DISCOVERY-BENCH
+# v0.1 and the sealer that will seal it. See docs/PHASE2_LOG.md, WP-2.1 §6.
 #
 # WP-2.0.2, 2026-08-20: was 286. Net +24, all of them tests/test_verify_manifest.py,
 # which proves each of the three layers of tools/verify_manifest.py fails on its
@@ -101,7 +105,32 @@ env:
   # teeth. Attributed test by test in docs/PHASE2_LOG.md, WP-2.0.2 §2. No
   # existing test changed, was renamed, or stopped being collected: collection
   # went 296 -> 320 and the skip count is untouched at 10.
-  EXPECTED_PASSES: "310"
+  #
+  # WP-2.1 (2026-08-20): 310 -> 370. Net +60, in two new files and nothing else:
+  #
+  #     tests/test_seal.py           +28   tools/seal.py -- one test per
+  #                                        deliberate difference from
+  #                                        bench/harness/commit.py, plus both
+  #                                        posix conventions, plus the
+  #                                        re-signed-forgery proof for
+  #                                        fingerprint pinning.
+  #     tests/test_bench_oracle.py   +32   RELIAN-DISCOVERY-BENCH v0.1 -- the
+  #                                        corpus, the committed oracle's
+  #                                        internal consistency, and (when
+  #                                        cobc is present) its byte-identical
+  #                                        regeneration.
+  #
+  # Attributed test by test in docs/PHASE2_LOG.md, WP-2.1 §6. No existing test
+  # was changed, renamed, deleted or deselected; the +60 is entirely new files.
+  #
+  # THE SKIP COUNT IS UNCHANGED AT 10, and that is deliberate rather than
+  # lucky. tests/test_bench_oracle.py guards its cobc-dependent tests with a
+  # skipif so a developer without GnuCOBOL still gets the JSON half of the
+  # suite -- which would be green-by-skip here. RELIAN_REQUIRE_COBC=1 in the
+  # pytest job disarms that guard, so on the runner those tests must RUN. If
+  # the runner ever loses cobc they fail rather than skip, and the skip count
+  # stays pinned to the ten fixture-shape skips it exists to pin.
+  EXPECTED_PASSES: "370"
 
 jobs:
   parser-regen:
@@ -203,6 +232,84 @@ jobs:
             --expect-absent '**/vectors/heldout.jsonl,harness/gen_vectors.py' \
             --key-fingerprint 233bb4406e2de606
 
+      - name: Verify discovery-bench/ against its ledger
+        # WP-2.1. RELIAN-DISCOVERY-BENCH v0.1 is sealed by the OPERATOR in a
+        # key session (R4); nothing in this repository signs. Until that
+        # happens there is no ledger to check.
+        #
+        # CHOICE MADE, STATED PLAINLY: this step is GATED ON THE FILE'S
+        # EXISTENCE and skips with a named reason, rather than being commented
+        # out with a TODO. Both were offered; existence-gating wins because a
+        # commented-out step is invisible in the checks list, whereas this one
+        # appears on every run and says which of the two states it is in. The
+        # moment the operator commits the ledger, the same step starts
+        # enforcing with no workflow edit -- so the gate cannot be forgotten,
+        # and turning it on cannot be the thing somebody forgets to do.
+        #
+        # TODO(WP-2.1-seal): after the ceremony, replace the `if` with an
+        # unconditional run so a DELETED ledger fails instead of skipping.
+        # Until the ledger exists, that inversion would fail every run.
+        #
+        # --from-manifest reads include_rules and expected_absent out of the
+        # SIGNED payload, so the include set and the declared absences are the
+        # signer's claim rather than this workflow's. That is the difference
+        # from the v1.2 step above, which has to be told the rules because the
+        # v1.2 format does not record them.
+        #
+        # Gate 5: verified must equal recorded and declared_absent must be 0.
+        # A layout oracle has no held-out split -- the ground truth IS the
+        # answer key -- so anything less means the seal covers something the
+        # public repo cannot check, and the seal is wrong.
+        run: |
+          LEDGER=discovery-bench/LEDGER_relian-discovery-bench-v0.1.json
+          if [ ! -f "$LEDGER" ]; then
+            echo "SKIPPED: $LEDGER does not exist yet."
+            echo "REASON : RELIAN-DISCOVERY-BENCH v0.1 has not been sealed."
+            echo "         Sealing is an operator-only key session (R4/CLAUDE.md"
+            echo "         rule 4); WP-2.1 lands the corpus, harness, oracle and"
+            echo "         tests UNSIGNED and the ceremony follows separately."
+            echo "         This step enforces automatically once the ledger is"
+            echo "         committed -- no workflow edit is required."
+            echo "TODO(WP-2.1-seal): make this step unconditional post-ceremony."
+            exit 0
+          fi
+          echo "--- ledger present; verifying ---"
+          python3 tools/verify_manifest.py \
+            --ledger "$LEDGER" \
+            --from-manifest \
+            --pin-fingerprint 233bb4406e2de606 \
+            --json > discovery-verify.json
+          python3 - <<'PY'
+          import json, sys
+          from pathlib import Path
+          report = json.loads(Path("discovery-verify.json").read_text())
+          tree = next(l for l in report["layers"] if l["name"] == "tree")
+          detail = tree["detail"]
+          print(json.dumps(detail, indent=2, sort_keys=True)[:2000])
+          problems = []
+          if not report["ok"]:
+              problems.append(f"layers failed: {[l['name'] for l in report['layers'] if not l['ok']]}")
+          if detail["declared_absent"] != 0:
+              problems.append(
+                  f"declared_absent is {detail['declared_absent']}, expected 0. "
+                  f"The discovery bench has no held-out split; an unverifiable "
+                  f"file inside the seal means the seal is wrong. Escalate "
+                  f"rather than declare."
+              )
+          if detail["verified"] != detail["recorded"]:
+              problems.append(
+                  f"verified {detail['verified']} != recorded "
+                  f"{detail['recorded']}; the seal covers something this "
+                  f"perimeter cannot check"
+              )
+          if problems:
+              for problem in problems:
+                  print(f"GATE FAILED: {problem}")
+              sys.exit(1)
+          print(f"GATE MET: {detail['verified']}/{detail['recorded']} verified, "
+                f"0 declared absent, 0 mismatches, signer pinned.")
+          PY
+
       - name: Confirm nothing under bench/ was modified
         # Rule 4: bench/ is not editable by an agent or by CI. The suite's
         # mutation tests all run against a tmp_path copy, so the working tree
@@ -216,10 +323,141 @@ jobs:
           test -z "$(git status --porcelain -- bench/)" \
             || { echo "FAIL: bench/ was modified during this run"; exit 1; }
 
+  oracle-regen:
+    # WP-2.1 -- discovery-bench/oracle/oracle.json is GENERATED GROUND TRUTH
+    # that sits inside the seal (D7). Committed generated data is only
+    # trustworthy if it can be shown to still match what generated it, so this
+    # job regenerates it from the fifteen copybooks with the pinned `cobc` and
+    # fails on any byte difference. Same pattern as parser-regen, and a
+    # separate job for the same reason: a drifted answer key is a PROVENANCE
+    # failure and should be legible as one in the checks list rather than as a
+    # test failure.
+    #
+    # This is acceptance gate 2's clean-runner half. The local half -- byte
+    # identity across two consecutive runs on the authoring machine -- is
+    # asserted by tests/test_bench_oracle.py.
+    #
+    # If this goes red, do NOT edit the oracle to agree. Either something about
+    # the toolchain changed (which the version assertion below should have
+    # caught first) or the harness changed, and both are re-version events:
+    # v0.2, new seal, new tag. Never a silent edit to the answer key.
+    name: discovery oracle is byte-identical to a fresh regeneration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      # Any toolchain skip becomes a failure. Green-by-skip is closed on day
+      # one rather than discovered later: a runner that quietly lost `cobc`
+      # would otherwise regenerate nothing and report success.
+      RELIAN_REQUIRE_COBC: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pin the interpreter
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the system toolchain
+        # Unpinned by apt (T16), which is exactly why the next step asserts the
+        # version rather than trusting it.
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends gnucobol
+
+      - name: Assert cobc matches the oracle's recorded toolchain
+        # Acceptance gate 6. Every offset in oracle.json is THIS compiler's
+        # byte layout; an oracle derived under a different one is a different
+        # oracle, and it would fail the diff below with a confusing message
+        # about JSON rather than a clear one about the compiler.
+        #
+        # Read from the oracle's own `toolchain.cobc`, and -- once the ledger
+        # exists -- cross-checked against the SIGNED `oracle_toolchain.cobc`,
+        # so the assertion is against what the signer attested to rather than
+        # against a string in this workflow. The patch level is compared, not
+        # just the major: `setup-java` pinning majors only has already produced
+        # three observed javac patch levels (T4), and nothing pins cobc at all.
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, sys
+          from pathlib import Path
+
+          measured = subprocess.run(
+              ["cobc", "--version"], capture_output=True, text=True, timeout=30
+          ).stdout.splitlines()[0].strip()
+
+          oracle = json.loads(
+              Path("discovery-bench/oracle/oracle.json").read_text()
+          )
+          recorded = oracle["toolchain"]["cobc"]
+
+          print(f"  runner cobc      : {measured}")
+          print(f"  oracle toolchain : {recorded}")
+
+          problems = []
+          if measured != recorded:
+              problems.append(
+                  f"the runner's cobc is {measured!r} but the oracle was "
+                  f"generated by {recorded!r}. Every offset in that file is "
+                  f"one compiler's byte layout. Do not regenerate under a "
+                  f"different compiler and call it the same oracle -- that is "
+                  f"a v0.2 with a new seal and a new tag."
+              )
+
+          ledger = Path(
+              "discovery-bench/LEDGER_relian-discovery-bench-v0.1.json"
+          )
+          if ledger.is_file():
+              signed = json.loads(ledger.read_text())["oracle_toolchain"]["cobc"]
+              print(f"  signed as        : {signed}")
+              if signed != measured:
+                  problems.append(
+                      f"the SIGNED oracle_toolchain is {signed!r}, which the "
+                      f"runner's {measured!r} does not match"
+                  )
+          else:
+              print("  signed as        : (not sealed yet -- "
+                    "TODO(WP-2.1-seal))")
+
+          if problems:
+              for problem in problems:
+                  print(f"GATE FAILED: {problem}")
+              sys.exit(1)
+          print("GATE MET: runner cobc equals the oracle's recorded toolchain.")
+          PY
+
+      - name: Regenerate the oracle and diff byte-for-byte
+        run: |
+          python3 discovery-bench/harness/oracle_layouts.py --check
+
+      - name: Confirm the regeneration wrote nothing into discovery-bench/
+        # --check regenerates in memory. If the tree is dirty afterwards,
+        # something wrote to the artifact during the job that verifies it.
+        if: always()
+        run: |
+          echo "--- git status --short -- discovery-bench/ ---"
+          git status --short -- discovery-bench/
+          test -z "$(git status --porcelain -- discovery-bench/)" \
+            || { echo "FAIL: discovery-bench/ was modified during this run"; exit 1; }
+
   pytest:
     name: pytest (CPython 3.12, GnuCOBOL + JDK)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    env:
+      # WP-2.1. tests/test_bench_oracle.py guards its cobc-dependent tests with
+      # a skipif so a developer without GnuCOBOL still gets the pure-JSON half
+      # of the suite. That is honest locally and would be green-by-skip here,
+      # so on the runner the guard is disarmed: with this set, a missing `cobc`
+      # raises out of require_cobc() instead of skipping, and the job goes red.
+      #
+      # This also protects EXPECTED_SKIPS. The discovery oracle tests must
+      # contribute ZERO skips on the runner; if they ever contributed some, the
+      # skip-count assertion below would drift for a reason that has nothing to
+      # do with the ten fixture-shape skips it exists to pin.
+      RELIAN_REQUIRE_COBC: "1"
 
     steps:
       - uses: actions/checkout@v4
