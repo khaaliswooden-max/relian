@@ -4,7 +4,7 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     683 passed, 10 skipped, 0 failed
+#     702 passed, 10 skipped, 0 failed
 #
 # WP-2.1, 2026-08-20: was 310. Net +60, in two new files: tests/test_seal.py
 # (+28) and tests/test_bench_oracle.py (+32), which land RELIAN-DISCOVERY-BENCH
@@ -131,9 +131,9 @@ env:
   # the runner ever loses cobc they fail rather than skip, and the skip count
   # stays pinned to the ten fixture-shape skips it exists to pin.
   #
-  # WP-2.2 (2026-08-21): 370 -> 683. Net +313, in four new files and nothing
+  # WP-2.2 (2026-08-21): 370 -> 702. Net +332, in four new files and nothing
   # else. `src/discovery/` -- the copybook resolver and the static layout
-  # engine -- did not exist before this work package, so every one of the 313
+  # engine -- did not exist before this work package, so every one of the 332
   # is new coverage rather than a renamed or re-parametrised existing test.
   # Attributed file by file, and within each file by what the cases actually
   # cover:
@@ -165,7 +165,7 @@ env:
   #       raise; 1 pinning D17 -- no antlr4 import, which is what decouples
   #       WP-2.2 from WP-2.5. 4+7+4+8+4+5+3+1+1 = 37.
   #
-  #   tests/test_discovery_layout.py            +111
+  #   tests/test_discovery_layout.py            +130
   #       §3.2, the engine, axis by axis, on inputs the sealed corpus does NOT
   #       contain -- so a failure names one construct rather than one
   #       copybook. Counted by collection, not by hand:
@@ -176,11 +176,23 @@ env:
   #            the R7 refusals for the five usages v0.1 does not measure, and
   #            three negative controls proving the lint rejects a fabricated
   #            zero, a silent null, and a level-88 that grew an extent
-  #          3 Measured reuse (R9)   3 structural
+  #         22 Measured reuse and the STATED BASIS of the grade (R9/R11)
+  #          3 structural
   #       The 7 binary cases include the refusal at 19 digits, and the 4 SYNC
   #       cases include the two that narrow the claim to PARTIAL rather than
   #       approximating -- an honest eleven-of-twelve is shippable, a fudged
   #       twelve is not.
+  #
+  #       The 22 R9/R11 cases are load-bearing rather than decorative. 15 of
+  #       them (one per corpus copybook) assert that every number the engine
+  #       PUBLISHES carries the basis of its grade inside its own provenance
+  #       string -- "PLAUSIBLE" with no stated basis is a grade with the units
+  #       filed off, and a caveat that lives only in the commit log is a caveat
+  #       the customer never sees. Two more pin the prose to the measurements
+  #       it quotes: the "186 of 186" in the published limitation is read back
+  #       out of the round-trip harness, and COMPILER_BASIS is checked against
+  #       the toolchain the SEALED oracle records, so neither can go stale in
+  #       silence.
   #
   #   tests/test_layout_roundtrip.py            +145
   #       §3.3, the gate. 5 seal checks that run BEFORE any row is trusted; 3
@@ -194,10 +206,10 @@ env:
   #       comparisons pass at tolerance zero. 5+3+128+1+3+4+1 = 145.
   #
   # No existing test was changed, renamed, deleted or deselected. THE SKIP
-  # COUNT IS UNCHANGED AT 10: none of the 313 carries a skipif, and none of
+  # COUNT IS UNCHANGED AT 10: none of the 332 carries a skipif, and none of
   # them needs cobc -- src/discovery/ never invokes one, which is the point.
   # Measured triple for this change is in docs/PHASE2_LOG.md, WP-2.2 §6.
-  EXPECTED_PASSES: "683"
+  EXPECTED_PASSES: "702"
 
 jobs:
   parser-regen:

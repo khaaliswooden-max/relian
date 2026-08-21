@@ -3011,36 +3011,55 @@ someone writing a target schema.
 engine can never discover a defect in the answer key, which is most of what
 committing the benchmark first was supposed to buy.
 
-**Planted red — a probe-sourced row.** One character changed in the SYNC
-alignment rule:
+Both directions were provoked with a one-line planted defect, run, captured
+verbatim, and reverted. Neither plant is in the tree.
+
+**Direction 1 — ACCUSES: engine.** Planted in `picture_size()`: `CR` counted as
+one character position instead of two.
 
 ```
-MISMATCH  D10_sync.cpy / D10-SYNC / D10-BIN-A
-  oracle : offset 5  length 4  source probe   (sealed, relian-discovery-bench-v0.1)
-  engine : offset 4  length 4  source computed
-  ACCUSES: engine — the oracle row is 'probe'-sourced — MEASURED by GnuCOBOL
-  3.1.2.0 — and the seal verifies (manifest 696397e0d4d865a3…, key
-  233bb4406e2de606). Fix src/discovery/, not the answer key.
+AssertionError: MISMATCH  D12_edited.cpy / D12-EDITED / D12-EDITED
+oracle : offset 1  length 66  source probe   (sealed, relian-discovery-bench-v0.1)
+engine : offset 1  length 65  source computed
+ACCUSES: engine — the oracle row is 'probe'-sourced — MEASURED by GnuCOBOL 3.1.2.0 — and the seal verifies (manifest 696397e0d4d865a3…, key 233bb4406e2de606). Fix src/discovery/, not the answer key.
+
+MISMATCH  D12_edited.cpy / D12-EDITED / D12-CREDIT-EDIT
+oracle : offset 42  length 11  source probe   (sealed, relian-discovery-bench-v0.1)
+engine : offset 42  length 10  source computed
+ACCUSES: engine — the oracle row is 'probe'-sourced — MEASURED by GnuCOBOL 3.1.2.0 — and the seal verifies (manifest 696397e0d4d865a3…, key 233bb4406e2de606). Fix src/discovery/, not the answer key.
+
+MISMATCH  D12_edited.cpy / D12-EDITED / D12-JUST-X
+oracle : offset 53  length 8  source probe   (sealed, relian-discovery-bench-v0.1)
+engine : offset 52  length 8  source computed
+ACCUSES: engine — the oracle row is 'probe'-sourced — MEASURED by GnuCOBOL 3.1.2.0 — and the seal verifies (manifest 696397e0d4d865a3…, key 233bb4406e2de606). Fix src/discovery/, not the answer key.
+
+MISMATCH  D12_edited.cpy / D12-EDITED / D12-JUST-A
+oracle : offset 61  length 6  source probe   (sealed, relian-discovery-bench-v0.1)
+engine : offset 60  length 6  source computed
+ACCUSES: engine — the oracle row is 'probe'-sourced — MEASURED by GnuCOBOL 3.1.2.0 — and the seal verifies (manifest 696397e0d4d865a3…, key 233bb4406e2de606). Fix src/discovery/, not the answer key.
+
+MISMATCH  D12_edited.cpy / D12-EDITED / D12-EDITED (group length)
+oracle : offset 1  length 66  source listing   (sealed, relian-discovery-bench-v0.1)
+engine : offset 1  length 65  source computed
+ACCUSES: engine — the oracle row is 'listing'-sourced — MEASURED by GnuCOBOL 3.1.2.0 — and the seal verifies (manifest 696397e0d4d865a3…, key 233bb4406e2de606). Fix src/discovery/, not the answer key.
+assert not ['MISMATCH  D12_edited.cpy / D12-EDITED / D12-EDITED\n  oracle : offset 1  length 66  source probe   (sealed, relian-d...0 — and the seal verifies (manifest 696397e0d4d865a3…, key 233bb4406e2de606). Fix src/discovery/, not the answer key.']
 ```
 
-**The same planted red — a derived gap row.** Same defect, different artifact
-accused, because the disagreement lands somewhere the engine may legitimately
-know more:
+Note the last block: the group-length comparison is `listing`-sourced rather
+than `probe`-sourced, and it is accused the same way, because Route A's symbol
+table is a measurement too.
+
+**Direction 2 — ACCUSES: oracle (ESCALATE).** Planted in `_sync_align()`: slack
+computed one byte short of the boundary. Same class of defect as direction 1,
+but the disagreement lands on a DERIVED row, so the verdict flips.
 
 ```
-MISMATCH  D10_sync.cpy / D10-SYNC / gap projection (filler ∪ slack)
-  oracle : spans [(2, 4), (10, 10), (16, 16)]  source gap
-  engine : spans [(2, 3), (14, 15)]  source ['slack']
-  ACCUSES: oracle (ESCALATE) — the oracle row is 'gap'-sourced — DERIVED by
-  subtraction, not measured. […] The engine reads the source and can
-  distinguish explicit FILLER from implicit SYNC slack, so it may legitimately
-  know more here (D18).
-  HALT: this work package stops. Do NOT edit oracle.json — CLAUDE.md rule 4
-  freezes discovery-bench/ and the Ed25519 signature over the manifest would
-  fail regardless. The remedy is a v0.2 re-seal, which is an operator key
-  session. Finding an oracle defect is a SUCCESSFUL outcome of WP-2.2.
-  engine gap detail: 2+2 slack (SYNCHRONIZED alignment of D10-BIN-A to a
-  4-byte boundary); 14+2 slack (…)
+Failed: MISMATCH  D10_sync.cpy / D10-SYNC / gap projection (filler ∪ slack)
+oracle : spans [(2, 4), (10, 10), (16, 16)]  source gap   (sealed, relian-discovery-bench-v0.1)
+engine : spans [(2, 3), (14, 15)]  source ['slack']
+ACCUSES: oracle (ESCALATE) — the oracle row is 'gap'-sourced — DERIVED by subtraction, not measured. FILLER and SYNC slack cannot receive a MOVE, so the probe cannot see them and the oracle recovers them as the bytes no named field claims (SPEC.md §7). The engine reads the source and can distinguish explicit FILLER from implicit SYNC slack, so it may legitimately know more here (D18).
+HALT: this work package stops. Do NOT edit oracle.json — CLAUDE.md rule 4 freezes discovery-bench/ and the Ed25519 signature over the manifest would fail regardless. The remedy is a v0.2 re-seal, which is an operator key session. Finding an oracle defect is a SUCCESSFUL outcome of WP-2.2.
+engine gap detail: 2+2 slack (SYNCHRONIZED alignment of D10-BIN-A to a 4-byte boundary); 14+2 slack (SYNCHRONIZED alignment of D10-BIN-C to a 8-byte boundary)
 ```
 
 Both reverted; 145 passed. A third case is pinned too: if the seal does **not**
@@ -3150,9 +3169,9 @@ worst kind: the layout that follows looks complete and names the wrong fields.
 
 ### 8. Test count
 
-`EXPECTED_PASSES` 370 → **683**. Net **+313**, in four new files and nothing
+`EXPECTED_PASSES` 370 → **702**. Net **+332**, in four new files and nothing
 else; no existing test was changed, renamed, deleted or deselected. The skip
-count stays pinned at 10 — none of the 313 carries a `skipif`, and none of them
+count stays pinned at 10 — none of the 332 carries a `skipif`, and none of them
 needs `cobc`, which is the point of the whole package. Attributed file by file,
 and within each file by what the cases cover, in the `EXPECTED_PASSES` comment
 block in `.github/workflows/tests.yml`.
@@ -3160,9 +3179,59 @@ block in `.github/workflows/tests.yml`.
 ```
 tests/test_discovery_is_compiler_free.py   +20
 tests/test_discovery_copybook.py           +37
-tests/test_discovery_layout.py            +111
+tests/test_discovery_layout.py            +130
 tests/test_layout_roundtrip.py            +145
 ```
+
+### 8b. The grade states its basis, in the output rather than the log
+
+`Layout.summary()` grades every number **PLAUSIBLE**, never VERIFIED. VERIFIED
+would claim the offset holds on the compiler the customer actually runs, and
+that is exactly what has not been measured.
+
+But a grade with no stated basis is a grade with the units filed off: *plausible
+with respect to what?* Recording the answer in this log and in the docstrings
+would leave it where no customer will ever read it. So the reason travels inside
+the artifact:
+
+* **Inside every `Measured.provenance`.** A consumer that renders a number
+  cannot render it without the basis attached.
+* **As `Layout.limitations()`**, whose first entry is the IBM-equivalence
+  limitation and whose remainder is that record's own `PARTIAL`/`NONE` reasons —
+  so a caller that renders the tuple renders the whole caveat set rather than
+  half of it.
+* **In `Layout.to_dict()`**, as `grade`, `verified_against`, `benchmark` and
+  `limitations`.
+* **At the top of the `discovery layout` JSON document as well as on each
+  record**, because a caveat that exists only one level down is a caveat a
+  reader can scroll past.
+
+The published text:
+
+> Verified byte-for-byte against GnuCOBOL 3.1.2.0 on RELIAN-DISCOVERY-BENCH v0.1
+> (relian-discovery-bench-v0.1), 186 of 186 comparisons at tolerance zero.
+> Equivalence with IBM Enterprise COBOL is UNMEASURED: SYNCHRONIZED slack in
+> particular moves with the compiler's binary-size setting and its SYNCHRONIZED
+> handling, so an IBM layout may differ from the one below. Grade PLAUSIBLE, not
+> VERIFIED, for that reason.
+
+**The prose is pinned to the measurements it quotes.** A measurement frozen into
+a string constant is a measurement that can go stale in silence, which is the R1
+failure this project keeps deleting. Two tests close that:
+
+* the "186 of 186" is read back out of the round-trip harness's
+  `EXPECTED_COMPARISONS`, so changing one without the other goes red;
+* `COMPILER_BASIS` is checked against `toolchain.cobc` in the **sealed** oracle,
+  so a v0.2 sealed on a different compiler cannot leave this claim pointing at
+  the old one.
+
+Fifteen further cases — one per corpus copybook — assert that every number the
+engine publishes carries the basis in its own provenance string.
+
+`discovery resolve` carries a different note, because the IBM limitation does not
+apply to it: resolution reads `COPY` directives rather than storage, so it is
+dialect-independent. What it says instead is that it makes **no layout claim at
+all**, which is better than leaving a reader to infer that from an absence.
 
 ### 9. `discovery-bench/` is byte-identical to the seal
 
@@ -3184,8 +3253,9 @@ red rather than produce a green comparison between two different corpora.
   `binary-size` and with the compiler's `SYNCHRONIZED` handling. This belongs in
   the customer report as a stated limitation and stays out of the
   quotable-capability matrix until measured against a real IBM layout (R11).
-  `Layout.summary()` grades every number **PLAUSIBLE**, not VERIFIED, for
-  exactly this reason.
+  `Layout.summary()` grades every number **PLAUSIBLE**, not VERIFIED, and §8b
+  is how that reason reaches a reader of the output rather than a reader of
+  this log.
 - **No layout claim about any CardDemo record.** The resolver ran; the engine
   did not.
 - **Dictionary, file inventory, lineage, DDL, signed report** — WP-2.3+ (D21).

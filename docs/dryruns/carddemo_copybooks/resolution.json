@@ -169,6 +169,7 @@
     }
   ],
   "root": "/root/corpora/carddemo",
+  "scope": "Copybook resolution only. No record layout is computed or claimed by this command, so no compiler-dialect limitation applies to the counts below. Use `discovery layout` for layouts, and read its stated limitations before acting on any offset.",
   "unreferenced": [
     "CSDB2RPY",
     "CSDB2RWY",

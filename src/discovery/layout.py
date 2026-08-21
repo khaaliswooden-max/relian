@@ -97,6 +97,34 @@ BINARY_WIDTHS: Tuple[Tuple[int, int], ...] = ((2, 1), (4, 2), (9, 4), (18, 8))
 SYNC_BOUNDARIES = frozenset({2, 4, 8})
 
 
+#: The compiler whose byte layout this engine is verified against, and the
+#: benchmark that verifies it. Both appear in the PROVENANCE of every number
+#: the engine publishes -- not only in the docstrings and the log.
+COMPILER_BASIS = "GnuCOBOL 3.1.2.0"
+VERIFIED_AGAINST = "RELIAN-DISCOVERY-BENCH v0.1 (relian-discovery-bench-v0.1)"
+
+#: R11/R9. The one sentence a customer must be able to read off the artifact
+#: itself, in the artifact itself. Everything this engine is verified against is
+#: GnuCOBOL's byte layout; the compiler the customer actually runs is IBM
+#: Enterprise COBOL, and that equivalence is UNMEASURED. Keeping this only in
+#: the commit log and the docstrings would mean the report says "PLAUSIBLE"
+#: without ever saying plausible-with-respect-to-what, which is a grade with the
+#: units filed off.
+IBM_EQUIVALENCE_LIMITATION = (
+    f"Verified byte-for-byte against {COMPILER_BASIS} on {VERIFIED_AGAINST}, "
+    f"186 of 186 comparisons at tolerance zero. Equivalence with IBM Enterprise "
+    f"COBOL is UNMEASURED: SYNCHRONIZED slack in particular moves with the "
+    f"compiler's binary-size setting and its SYNCHRONIZED handling, so an IBM "
+    f"layout may differ from the one below. Grade PLAUSIBLE, not VERIFIED, for "
+    f"that reason."
+)
+
+#: Why a statically computed offset is PLAUSIBLE and not VERIFIED. VERIFIED
+#: would claim the number holds on the customer's compiler, which is precisely
+#: what has not been measured.
+LAYOUT_GRADE: Grade = "PLAUSIBLE"
+
+
 class LayoutStatus(str, Enum):
     """What the engine is willing to claim about a record."""
 
@@ -254,12 +282,20 @@ class Layout:
         """Report-facing numbers, each carrying provenance and a grade (R9).
 
         ``None`` where nothing was computed. A statically computed layout is
-        graded PLAUSIBLE rather than VERIFIED: it is verified against GnuCOBOL
-        3.1.2 by the round-trip, and unmeasured against IBM Enterprise COBOL,
-        which is the compiler the customer actually runs (R11).
+        graded PLAUSIBLE rather than VERIFIED: it is verified against
+        :data:`COMPILER_BASIS` by the round-trip, and unmeasured against IBM
+        Enterprise COBOL, which is the compiler the customer actually runs
+        (R11).
+
+        That reason travels **inside the provenance string**, so it reaches
+        every consumer of a number rather than only a reader of this docstring.
+        A grade with no stated basis is a grade with the units filed off.
         """
-        provenance = f"src.discovery.layout static computation over {self.origin}"
-        grade: Grade = "PLAUSIBLE"
+        provenance = (
+            f"src.discovery.layout static computation over {self.origin}; "
+            f"{IBM_EQUIVALENCE_LIMITATION}"
+        )
+        grade: Grade = LAYOUT_GRADE
         declared = sum(
             f.length for f in self.fields if f.in_tiling and f.length is not None
         )
@@ -279,11 +315,29 @@ class Layout:
             "condition_rows": Measured(len(self.conditions), provenance, grade),
         }
 
+    def limitations(self) -> Tuple[str, ...]:
+        """Everything a reader must know before acting on the numbers above.
+
+        First entry is always the IBM-equivalence limitation (R11): it applies
+        to every layout this engine produces, green or not. A ``PARTIAL`` or
+        ``NONE`` status appends its own reasons, so a caller that renders this
+        tuple renders the whole caveat set rather than half of it.
+        """
+        return (IBM_EQUIVALENCE_LIMITATION,) + self.reasons
+
     def to_dict(self) -> Dict[str, object]:
         return {
             "group": self.group,
             "group_length": self.group_length,
             "status": self.status.value,
+            "grade": LAYOUT_GRADE,
+            "verified_against": COMPILER_BASIS,
+            "benchmark": VERIFIED_AGAINST,
+            "limitations": list(self.limitations()),
+            "summary": {
+                key: (measured.to_dict() if measured is not None else None)
+                for key, measured in self.summary().items()
+            },
             "fields": [f.to_dict() for f in self.fields],
             "gaps": [g.to_dict() for g in self.gaps],
             "conditions": [c.to_dict() for c in self.conditions],

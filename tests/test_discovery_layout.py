@@ -29,6 +29,9 @@ import pytest
 
 from src.discovery.layout import (
     BINARY_WIDTHS,
+    COMPILER_BASIS,
+    IBM_EQUIVALENCE_LIMITATION,
+    LAYOUT_GRADE,
     LayoutStatus,
     binary_width,
     compute,
@@ -698,6 +701,86 @@ def test_the_grade_is_plausible_rather_than_verified() -> None:
     layout = compute(CORPUS / "MUBCUST.cpy")
     assert layout is not None
     assert layout.summary()["group_length"].grade == "PLAUSIBLE"
+    assert LAYOUT_GRADE == "PLAUSIBLE"
+
+
+@pytest.mark.parametrize("path", sorted(CORPUS.glob("*.cpy")), ids=lambda p: p.name)
+def test_every_published_number_carries_the_reason_for_its_grade(path: Path) -> None:
+    """R9/R11 — the reason travels in the OUTPUT, not only in the log.
+
+    "PLAUSIBLE" on its own is a grade with the units filed off: plausible with
+    respect to which compiler? Every ``Measured`` this engine publishes carries
+    the answer inside its provenance string, so a consumer that renders a number
+    cannot render it without the basis.
+    """
+    layout = compute(path)
+    assert layout is not None
+    for name, measured in layout.summary().items():
+        if measured is None:
+            continue
+        assert measured.grade == "PLAUSIBLE", name
+        assert "GnuCOBOL 3.1.2.0" in measured.provenance, name
+        assert "IBM Enterprise COBOL is UNMEASURED" in measured.provenance, name
+        assert "not VERIFIED" in measured.provenance, name
+
+
+def test_the_limitation_is_the_first_thing_a_layout_reports() -> None:
+    """It applies to every layout, green or not, so it leads rather than
+    trailing the record-specific reasons."""
+    layout = compute(CORPUS / "D10_sync.cpy")
+    assert layout is not None
+    assert layout.limitations()[0] == IBM_EQUIVALENCE_LIMITATION
+    assert layout.to_dict()["limitations"][0] == IBM_EQUIVALENCE_LIMITATION
+    assert layout.to_dict()["grade"] == "PLAUSIBLE"
+    assert layout.to_dict()["verified_against"] == "GnuCOBOL 3.1.2.0"
+
+
+def test_a_partial_layout_reports_the_limitation_AND_its_own_reasons() -> None:
+    """Rendering `limitations()` must give a reader the whole caveat set. A
+    caller that got only half of it would publish a PARTIAL layout that read
+    like a complete one."""
+    layout = _record("   01  R.", "       05  P  PIC S9(04) INDEX.")
+    assert layout.status is LayoutStatus.PARTIAL
+    assert layout.limitations()[0] == IBM_EQUIVALENCE_LIMITATION
+    assert len(layout.limitations()) == 1 + len(layout.reasons)
+    assert any("INDEX" in reason for reason in layout.limitations()[1:])
+
+
+def test_the_limitation_text_states_the_measured_comparison_count() -> None:
+    """The prose is pinned to the assertion that produces it.
+
+    ``IBM_EQUIVALENCE_LIMITATION`` quotes "186 of 186". That is a MEASUREMENT,
+    and a measurement frozen into a string constant is a measurement that can go
+    stale silently -- exactly the R1 failure this project keeps deleting. This
+    reads the number back out of the round-trip harness, so changing one without
+    the other goes red.
+    """
+    import re
+    import sys
+
+    sys.path.insert(0, str(REPO_ROOT / "tests"))
+    from test_layout_roundtrip import EXPECTED_COMPARISONS
+
+    quoted = re.findall(r"(\d+) of (\d+) comparisons", IBM_EQUIVALENCE_LIMITATION)
+    assert quoted == [(str(EXPECTED_COMPARISONS), str(EXPECTED_COMPARISONS))], quoted
+
+
+def test_the_limitation_names_the_toolchain_the_oracle_recorded() -> None:
+    """``COMPILER_BASIS`` is not a remembered version string. It is checked
+    against the ``toolchain.cobc`` the sealed oracle carries, so a v0.2 sealed
+    on a different compiler cannot leave this claim pointing at the old one."""
+    import json
+
+    oracle = json.loads(
+        (REPO_ROOT / "discovery-bench" / "oracle" / "oracle.json").read_text()
+    )
+    recorded = oracle["toolchain"]["cobc"]          # "cobc (GnuCOBOL) 3.1.2.0"
+    version = recorded.rsplit(" ", 1)[-1]
+    assert COMPILER_BASIS == f"GnuCOBOL {version}", (
+        f"the oracle was measured on {recorded!r}, but the engine publishes "
+        f"{COMPILER_BASIS!r} as the basis of every number it grades"
+    )
+    assert COMPILER_BASIS in IBM_EQUIVALENCE_LIMITATION
 
 
 # ==========================================================================

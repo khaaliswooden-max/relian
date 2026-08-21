@@ -22,7 +22,14 @@ from pathlib import Path
 from typing import List, Optional, Sequence
 
 from .copybook import resolve
-from .layout import compute, compute_text
+from .layout import (
+    COMPILER_BASIS,
+    IBM_EQUIVALENCE_LIMITATION,
+    LAYOUT_GRADE,
+    VERIFIED_AGAINST,
+    compute,
+    compute_text,
+)
 
 
 def _layout_command(args: argparse.Namespace) -> int:
@@ -37,8 +44,20 @@ def _layout_command(args: argparse.Namespace) -> int:
             layout.to_dict()
             for layout in compute_text(text, odo_value=args.odo, origin=path.as_posix())
         ]
-    print(json.dumps({"source": path.as_posix(), "records": payload},
-                     indent=2, sort_keys=True))
+    # The limitation is emitted at the TOP of the document as well as on each
+    # record. A caveat that only exists one level down is a caveat a reader can
+    # scroll past without ever seeing (R9/R11).
+    print(json.dumps(
+        {
+            "source": path.as_posix(),
+            "grade": LAYOUT_GRADE,
+            "verified_against": COMPILER_BASIS,
+            "benchmark": VERIFIED_AGAINST,
+            "limitations": [IBM_EQUIVALENCE_LIMITATION],
+            "records": payload,
+        },
+        indent=2, sort_keys=True,
+    ))
     return 0 if payload else 1
 
 
@@ -50,6 +69,16 @@ def _resolve_command(args: argparse.Namespace) -> int:
 
     payload = {
         "root": resolution.root,
+        # Resolution is dialect-independent -- it reads COPY directives, not
+        # storage -- so the IBM-equivalence limitation does not apply here. What
+        # DOES apply is that no layout claim is made at all, and saying so is
+        # better than leaving a reader to infer it from an absence.
+        "scope": (
+            "Copybook resolution only. No record layout is computed or claimed "
+            "by this command, so no compiler-dialect limitation applies to the "
+            "counts below. Use `discovery layout` for layouts, and read its "
+            "stated limitations before acting on any offset."
+        ),
         "counts": {
             # Every one of these is COUNTED IN THIS RUN. None is transcribed
             # from a previous log: if a run disagrees with the log, the run is
