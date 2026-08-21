@@ -21,7 +21,15 @@ Four layers, each NAMED and each failing INDEPENDENTLY:
                              for the instance key.
   LAYER 4  COUNTERSIGNATURE  the detached report.countersig.json verifies over
                              the SAME manifest hash, under a release-key
-                             fingerprint the caller PINS.
+                             fingerprint the caller PINS; and its two advisory
+                             fields -- report id and instance fingerprint --
+                             describe THIS report. The advisory fields cannot
+                             let a forgery through, because the signature
+                             covers the manifest hash and that already commits
+                             to both; they are checked because countersign.py
+                             says they are, and a verifier that names a check
+                             it does not perform is the defect this package
+                             exists to avoid.
 
 Every layer is evaluated even when an earlier one fails, so one run tells you
 the whole picture rather than the first thing that broke.
@@ -315,12 +323,31 @@ def check_countersignature(
             f"manifest hash {signed_over}, and this report's manifest hashes "
             f"to {ours}",
         )
+    # The two advisory fields countersign.py records. Neither is what the
+    # signature covers -- the manifest hash is, and it already commits to both
+    # -- so a mismatch here cannot let a forgery through. It is checked anyway,
+    # because countersign.py TELLS the operator these are checked, and a
+    # verifier that names a check it does not perform is the defect this whole
+    # package exists to avoid. Silence would also hide the likelier cause: a
+    # countersignature built from the wrong request line.
     declared_id = countersig.get("report_id")
     if declared_id and declared_id != manifest.get("report_id"):
         return LayerResult(
             "COUNTERSIGNATURE", False,
             f"this countersignature names report id {declared_id}, and this "
             f"report is {manifest.get('report_id')}",
+        )
+    declared_instance = (countersig.get("instance_fingerprint") or "").lower()
+    ours_instance = (
+        ((manifest.get("signature") or {}).get("key_fingerprint")) or ""
+    ).lower()
+    if declared_instance and ours_instance and declared_instance != ours_instance:
+        return LayerResult(
+            "COUNTERSIGNATURE", False,
+            f"this countersignature names instance key {declared_instance}, "
+            f"and this report was instance-signed by {ours_instance}. The "
+            f"countersignature request line and this report do not describe "
+            f"the same installation.",
         )
     try:
         actual_fp = fingerprint(embedded)

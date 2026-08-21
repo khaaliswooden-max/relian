@@ -164,3 +164,27 @@ def test_the_sheet_repeats_what_relian_does_not_claim(sheet: str) -> None:
     assert "No risk scoring of any kind" in sheet
     assert "No claim of equivalence with IBM Enterprise COBOL" in sheet
     assert "Ed25519 hash chain" in sheet
+
+
+# --------------------------------------------------------------------------
+# Every LIVE document that publishes a tool digest is pinned, not just the sheet
+# --------------------------------------------------------------------------
+
+DRYRUN_NOTE = REPO_ROOT / "docs" / "dryruns" / "REPORT_DRYRUNS.md"
+
+
+@pytest.mark.parametrize("tool", ["tools/verify_report.py", "tools/countersign.py"])
+def test_the_dryrun_note_publishes_the_tools_actual_sha256(tool: str) -> None:
+    """WP-2.3.2. The delivery sheet was pinned and the dry-run note was not, so
+    a tool change would have turned one red and left the other quietly wrong —
+    which is the failure the sheet's pinning exists to prevent, one file over.
+
+    `docs/PHASE2_LOG.md` is deliberately NOT covered here: it is append-only,
+    and its entries record what was measured at the time rather than what is
+    true now. A log edited to stay current is not a log.
+    """
+    actual = hashlib.sha256((REPO_ROOT / tool).read_bytes()).hexdigest()
+    assert actual in DRYRUN_NOTE.read_text(encoding="utf-8"), (
+        f"{tool} hashes to {actual}, which docs/dryruns/REPORT_DRYRUNS.md does "
+        f"not publish"
+    )

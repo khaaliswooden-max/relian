@@ -15,8 +15,8 @@ only thing that would cross the perimeter to change that.
 | | |
 |---|---|
 | Anchor | `3ac6ee5` (merge of PR #30, WP-2.2) |
-| Verifier | `tools/verify_report.py`, sha256 `43f0bf20a79bb5d07aecb619dc2b7364469769ea2d81a4679e9b1b588bc4cbd5` |
-| Countersign tool | `tools/countersign.py`, sha256 `c245426e706cb477f5cd32bac0b019a04f1effdf2fbc45d39b36240d9600b6e1` |
+| Verifier | `tools/verify_report.py`, sha256 `edfdcf49e57f9f0ace727fc98c7fff30c203667e7158b7e61a87bc01a7889b97` |
+| Countersign tool | `tools/countersign.py`, sha256 `b58718fd62ebf8af7b85670c5d6f6f53f0ab67c223abe2ea3d472c873ed46e87` |
 | Instance key fingerprint (both runs) | `98616f9c7543d293` |
 | Instance key location | `/root/relian-dryrun-home/.relian/instance-ed25519.pem`, mode 0600, generated on the first of these two runs |
 

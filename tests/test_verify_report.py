@@ -352,6 +352,58 @@ def test_layer_countersignature_fails_alone_on_a_countersignature_for_another_re
     assert _verify(delivery, fingerprint).returncode == EXIT_OK
 
 
+def test_layer_countersignature_fails_on_a_mismatched_instance_fingerprint(
+    attested,
+) -> None:
+    """`countersign.py` records `instance_fingerprint` and tells the operator
+    the verifier checks it against the manifest. It did not — only `report_id`
+    was compared — so the mismatch stayed silent. Found by review on PR #31.
+
+    This cannot pass a forgery: the signature covers the manifest hash, which
+    already commits to the instance key, so layer 4 was never unsound. What it
+    was is a verifier naming a check it did not perform, on the one surface a
+    customer is told to trust — and the likeliest real cause of a mismatch, a
+    countersignature built from the wrong request line, went unreported.
+    """
+    delivery, fingerprint, _key = attested
+    path = delivery / "report.countersig.json"
+    original = path.read_bytes()
+    block = json.loads(original.decode("utf-8"))
+    assert block["instance_fingerprint"], "the fixture carries no fingerprint to break"
+    block["instance_fingerprint"] = "0" * 16
+    path.write_text(
+        json.dumps(block, sort_keys=True, separators=(",", ":"),
+                   ensure_ascii=False) + "\n", encoding="utf-8",
+    )
+    proc = _verify(delivery, fingerprint, "--json")
+    verdicts = _layers(proc)
+    assert verdicts["COUNTERSIGNATURE"] == "FAIL"
+    assert verdicts["FILES"] == "PASS"
+    assert verdicts["MANIFEST"] == "PASS"
+    assert verdicts["INSTANCE"] == "PASS"
+    assert "do not describe the same installation" in proc.stdout
+    assert proc.returncode == EXIT_FAILED
+
+    path.write_bytes(original)                                   # revert
+    assert _verify(delivery, fingerprint).returncode == EXIT_OK
+
+
+def test_countersign_records_exactly_the_advisory_fields_the_verifier_checks() -> None:
+    """The pairing that broke. Every advisory field `countersign.py` writes
+    must have a comparison in `verify_report.py`, or the comment promising one
+    is prose the code does not keep."""
+    countersign_source = COUNTERSIGN.read_text(encoding="utf-8")
+    verifier_source = VERIFIER.read_text(encoding="utf-8")
+    for advisory in ("report_id", "instance_fingerprint"):
+        assert f'"{advisory}": {advisory}' in countersign_source, (
+            f"{advisory} is no longer recorded by countersign.py"
+        )
+        assert f'countersig.get("{advisory}")' in verifier_source, (
+            f"countersign.py records {advisory} and verify_report.py never "
+            f"reads it, so a mismatch would be silent"
+        )
+
+
 # --------------------------------------------------------------------------
 # Acceptance ⑤ — the pin is required, and it is the only thing that catches a
 # re-signed forgery

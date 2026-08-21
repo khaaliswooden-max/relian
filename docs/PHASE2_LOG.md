@@ -3355,7 +3355,7 @@ failing and the design is wrong, not the implementation.
 
 ### 4. Four verifier layers, each planted red and reverted (③)
 
-`tools/verify_report.py`, sha256 `43f0bf20a79bb5d07aecb619dc2b7364469769ea2d81a4679e9b1b588bc4cbd5`. Standalone: standard library plus
+`tools/verify_report.py`, sha256 `43f0bf20a79bb5d07aecb619dc2b7364469769ea2d81a4679e9b1b588bc4cbd5` **as measured in this entry; superseded at WP-2.3.2 §1, and this line is left as it was because the log is append-only**. Standalone: standard library plus
 `cryptography`, no repo import, no network, no credential — all three asserted
 by AST rather than by grep. It prints its own digest on every run.
 
@@ -3643,3 +3643,81 @@ key path with its passphrase custody is pinned).
 - **The `.pub` comparison is not in the suite.** See §2. Until the public key
   is committed, the sheet's VERIFIED grade rests on the operator's derivation
   plus a tested, executable recipe — not on a re-derivation this suite performs.
+
+
+---
+
+## 2026-08-21 · WP-2.3.2 · A stated check that was not performed
+
+- **HEAD at start:** `3a4cdef` (WP-2.3.1), PR #31 open, all five CI jobs green.
+- **Found by:** automated review on PR #31, not by this suite. Recorded that
+  way: a finding the tests missed is worth more as a note about the tests than
+  as a silent fix.
+
+### 1. The defect
+
+`tools/countersign.py` records two advisory fields in every countersignature —
+`report_id` and `instance_fingerprint` — under a comment saying the verifier
+checks both against the manifest. `check_countersignature` compared only
+`report_id`. A countersignature naming a different installation's instance key
+passed layer 4 without a word.
+
+**Severity, stated honestly rather than inflated.** This was never a soundness
+hole. The countersignature covers the manifest hash, and the manifest commits
+to the instance key, so a forged or swapped countersignature already failed on
+the hash comparison one line above. Nothing that should have been rejected was
+accepted.
+
+What it was is a **verifier naming a check it did not perform**, on the single
+surface a customer is told to trust and told to re-run themselves. That is the
+same shape as the defects this package was written to prevent — a claim in an
+artifact that the artifact's behaviour does not keep — and it is worse in a
+verifier than anywhere else, because a verifier's whole value is that its
+output means what it says.
+
+It also cost the useful diagnostic. The realistic way that field goes wrong is
+not an attack: it is an operator countersigning from the wrong request line,
+for the right report but the wrong installation. That is now a named failure
+with the sentence *"do not describe the same installation"* instead of silence.
+
+### 2. The fix, and the guard that would have caught it
+
+The comparison is added, with the reasoning inline so the next reader knows why
+an advisory field is checked at all. Two tests:
+
+* `test_layer_countersignature_fails_on_a_mismatched_instance_fingerprint` —
+  planted red, other three layers asserted PASS, then reverted and re-verified
+  green, matching the shape of the other layer tests.
+* `test_countersign_records_exactly_the_advisory_fields_the_verifier_checks` —
+  **the guard that generalises it.** For every advisory field `countersign.py`
+  writes, `verify_report.py` must read it. This is the test whose absence let
+  the defect exist: WP-2.3 tested each layer's failure modes thoroughly and
+  never tested that the two tools agreed about what they were exchanging.
+
+### 3. A second staleness in the same shape
+
+`tools/verify_report.py` changed, so its published SHA-256 did. The delivery
+sheet is pinned by the suite and would have gone red; `docs/dryruns/REPORT_DRYRUNS.md`
+publishes the same two digests and was **not** pinned, so it would have gone
+stale in silence — the exact failure the sheet's own pinning exists to prevent,
+one file over. It is now pinned too.
+
+`docs/PHASE2_LOG.md` is deliberately NOT corrected. It is append-only and its
+WP-2.3 entry records what was measured at WP-2.3; the line is annotated as
+superseded instead. A log that gets edited to stay current is not a log.
+
+### 4. Measured triple
+
+```
+$ pytest -q
+→ 852 passed, 10 skipped, 0 failed
+```
+
+Net **+4** on 848: `tests/test_verify_report.py` +2 (the planted-red and the
+tool-agreement guard), `tests/test_delivery_sheet.py` +2 (the dry-run note's
+digests pinned, parametrised over both shipped tools).
+
+The count was predicted as +3 and measured as +4: the pinning test is
+parametrised over two tools, so it contributes two cases rather than one. The
+gate is set from the measurement, which is the only reason the gate is worth
+having.

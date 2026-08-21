@@ -4,7 +4,18 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     848 passed, 10 skipped, 0 failed
+#     852 passed, 10 skipped, 0 failed
+#
+# WP-2.3.2, 2026-08-21: was 848. Net +4 -- review on PR #31 found that
+# verify_report.py named a check it did not perform (countersign.py records
+# two advisory fields and the verifier compared only one). Never a soundness
+# hole: the signature covers the manifest hash, which already commits to the
+# instance key. But a verifier that claims a check it skips is the defect this
+# package exists to prevent. +2 for the planted-red and the guard that
+# generalises it (every advisory field one tool writes, the other must read),
+# +2 pinning the dry-run note's published digests the way the delivery sheet's
+# already were -- parametrised over both shipped tools, one case each. See
+# docs/PHASE2_LOG.md, WP-2.3.2.
 #
 # WP-2.3.1, 2026-08-21: was 829. Net +19 -- the release key turned out to be
 # passphrase-encrypted and its fingerprint was derived from the public key, so
@@ -340,7 +351,7 @@ env:
   #       path with its passphrase custody is pinned.
   #
   #   15 + 4 = 19. Skip count still 10; nothing added carries a skipif.
-  EXPECTED_PASSES: "848"
+  EXPECTED_PASSES: "852"
 
 jobs:
   parser-regen:

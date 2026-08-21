@@ -71,7 +71,7 @@ claim a countersignature is for.
 
 | Tool | SHA-256 | Checks |
 |---|---|---|
-| `tools/verify_report.py` | `43f0bf20a79bb5d07aecb619dc2b7364469769ea2d81a4679e9b1b588bc4cbd5` | a Data Discovery report: files, manifest, instance signature, countersignature |
+| `tools/verify_report.py` | `edfdcf49e57f9f0ace727fc98c7fff30c203667e7158b7e61a87bc01a7889b97` | a Data Discovery report: files, manifest, instance signature, countersignature |
 | `tools/countersign.py` | `b58718fd62ebf8af7b85670c5d6f6f53f0ab67c223abe2ea3d472c873ed46e87` | operator-side only: produces a countersignature from a manifest hash. Reads the release key from `~/zil-keys/visionblox-release-key-v1.pem`, prompting for its passphrase; the passphrase is never accepted on the command line, never read from the environment, and never printed |
 | `tools/verify_manifest.py` | `898a268e8c51e408ea92bfb910d742f57d66fea7f84b6d33cbf1563f21517c2a` | a sealed benchmark ledger: tree, payload, signature |
 
