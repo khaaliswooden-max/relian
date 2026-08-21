@@ -263,15 +263,11 @@ jobs:
         run: |
           LEDGER=discovery-bench/LEDGER_relian-discovery-bench-v0.1.json
           if [ ! -f "$LEDGER" ]; then
-            echo "SKIPPED: $LEDGER does not exist yet."
-            echo "REASON : RELIAN-DISCOVERY-BENCH v0.1 has not been sealed."
-            echo "         Sealing is an operator-only key session (R4/CLAUDE.md"
-            echo "         rule 4); WP-2.1 lands the corpus, harness, oracle and"
-            echo "         tests UNSIGNED and the ceremony follows separately."
-            echo "         This step enforces automatically once the ledger is"
-            echo "         committed -- no workflow edit is required."
-            echo "TODO(WP-2.1-seal): make this step unconditional post-ceremony."
-            exit 0
+            echo "FAIL: $LEDGER is missing."
+            echo "RELIAN-DISCOVERY-BENCH v0.1 was sealed 2026-08-21 and tagged"
+            echo "relian-discovery-bench-v0.1. An absent ledger means the seal"
+            echo "was deleted, not that it is pending."
+            exit 1
           fi
           echo "--- ledger present; verifying ---"
           python3 tools/verify_manifest.py \
