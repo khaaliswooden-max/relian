@@ -2854,3 +2854,343 @@ exist yet.
   attestation deliverable alongside the verification command; re-derivability is
   only a real claim if the third party knows which key to expect. That is a
   quotable-capability matrix change (R11) and is not made here.
+
+---
+
+## WP-2.2 — copybook resolver and layout engine (2026-08-21)
+
+Anchored at `f720cca`, tag `relian-discovery-bench-v0.1`. `discovery-bench/` is
+frozen under `CLAUDE.md` rule 4 from that tag forward: read, never written. This
+work package creates `src/discovery/`, which did not exist when the benchmark
+was sealed. That ordering is R7 and it is now a fact in the git history rather
+than a claim in a document.
+
+### 1. The hole this package exists to not have
+
+The oracle **is** GnuCOBOL 3.1.2.0's byte layout, measured by compiling probe
+programs. If the layout engine shelled out to `cobc`, the round-trip would be
+100% by construction: the oracle would be grading itself, every capability claim
+built on that number would be circular, and — the part that matters — the
+circularity would be invisible in a green result.
+
+So `src/discovery/` never invokes a compiler, and
+`tests/test_discovery_is_compiler_free.py` asserts it by walking the parsed
+syntax tree rather than grepping, because `__import__("sub" + "process")`
+defeats a grep and `"co" + "bc"` defeats the other one. Four independent
+assertions: the package's own AST, the transitive first-party import closure,
+the round-trip harness itself (it reads the committed `oracle.json`; re-deriving
+it inside the grading step would reintroduce the dependency through the back
+door), and a runtime probe that computes a real layout in an interpreter where
+`subprocess`, `ctypes` and `pty` are unimportable.
+
+It is also a shipping constraint. The product runs in the customer perimeter
+(R12) on machines that have no GnuCOBOL and whose COBOL is IBM Enterprise. An
+engine that needs a compiler is not shippable.
+
+**Planted red, run once and reverted.** `import subprocess` plus
+`subprocess.run(["cobc", "--version"])` added to `src/discovery/layout.py`:
+
+```
+FAILED test_module_never_invokes_a_compiler[layout.py]
+    src/discovery/layout.py:50: imports subprocess
+    src/discovery/layout.py:379: a non-docstring literal contains 'cobc'
+FAILED test_transitive_first_party_closure_is_compiler_free
+FAILED test_engine_computes_a_layout_with_process_spawning_unimportable
+    ImportError: WP-2.2 D15: subprocess is not importable inside the layout engine
+3 failed, 17 passed
+```
+
+All three independent assertions bit. Reverted; 20 passed.
+
+Eleven further negative controls are **permanent** rather than anecdotal: one
+per forbidden shape (`os.system`, `os.popen`, `os.exec*`, `shutil.which`,
+`ctypes`, `__import__`, `eval`, …), plus a converse control proving the detector
+does not flag a plain static calculator. A detector that flagged everything
+would pass the negative controls and tell you nothing.
+
+**One narrowing, stated rather than quietly applied.** The literal check covers
+*invocable binaries* — `cobc`, `cobcrun`, `cob2`, `igycrctl` — and not the
+product name `GnuCOBOL`, and it exempts docstrings. Both narrowings are load
+bearing in the other direction: the D16 accusation block has to be able to say
+"MEASURED by GnuCOBOL 3.1.2.0", which is exactly the provenance R9 requires, and
+forbidding the word would push the reasoning out of the modules that most need
+to carry it.
+
+### 2. The round-trip: 186 of 186, tolerance zero
+
+`tests/test_layout_roundtrip.py`. The seal is verified **before a single row is
+trusted**, not after: all three layers of `tools/verify_manifest.py`, the signer
+pinned to fingerprint `233bb4406e2de606`, the manifest hash checked against the
+published `696397e0d4d865a3…`, and `oracle/oracle.json`'s digest checked against
+the signed manifest. There is deliberately no code path that loads the oracle
+without that chain — "we checked it in another test" is how a green-by-skip gets
+in.
+
+**What 186 is made of.** The same composition the oracle uses for its own
+Route A / Route B agreement: 170 probe field rows, `offset` and `length`
+compared together at tolerance zero, plus one group-length comparison per
+variant, 16 of them. The count is asserted at 186 *and* its per-copybook
+composition is checked against the oracle's own `agreement.per_copybook.checks`,
+so two offsetting errors cannot cancel.
+
+Gap projections, level-88 conditions, REDEFINES containment and the tiling
+invariant are asserted **in addition** and counted separately — the oracle does
+not fold them into its 186 either, and folding them in here would move the
+number for a reason that has nothing to do with coverage.
+
+| Axis | Copybook | Rows | Agreement |
+|---|---|---|---|
+| DISPLAY numeric | `D01_display.cpy` | 12 | 12 / 12 |
+| COMP / COMP-4 / BINARY / COMP-5 | `D02_binary.cpy` | 13 | 13 / 13 |
+| COMP-3 | `D03_packed.cpy` | 13 | 13 / 13 |
+| SIGN clause | `D04_sign.cpy` | 8 | 8 / 8 |
+| OCCURS fixed | `D05_occurs.cpy` | 18 | 18 / 18 |
+| OCCURS nested, INDEXED BY | `D06_occurs_nested.cpy` | 27 | 27 / 27 |
+| OCCURS DEPENDING ON | `D07_odo.cpy` (2 variants) | 23 | 23 / 23 |
+| REDEFINES | `D08_redefines.cpy` | 14 | 14 / 14 |
+| level-88 | `D09_conditions.cpy` | 6 | 6 / 6 |
+| **SYNCHRONIZED** | `D10_sync.cpy` | 9 | **9 / 9** |
+| **level-66 RENAMES** | `D11_renames.cpy` | 11 | **11 / 11** |
+| edited / JUSTIFIED | `D12_edited.cpy` | 10 | 10 / 10 |
+| seeded (FILLER, numeric-edited) | `MUBBREC.cpy` | 7 | 7 / 7 |
+| seeded (COMP-3 constants) | `MUBCONS.cpy` | 7 | 7 / 7 |
+| seeded (flat, tiling) | `MUBCUST.cpy` | 8 | 8 / 8 |
+| **Total** | **15 copybooks, 16 variants** | **186** | **186 / 186** |
+
+Twelve of twelve, and the two axes flagged as most likely to disagree both came
+in exact on the first run.
+
+**SYNC.** The brief allowed a PARTIAL outcome here. It was not needed: GnuCOBOL
+3.1.2's placement in `D10_sync.cpy` is reproducible from one static rule —
+*align a SYNCHRONIZED binary item to its own width, measured from the start of
+the record* — which yields slack at offsets 2, 10 and 16 and a 25-byte group
+over 20 declared bytes, byte for byte. `cobc` was not called, and the temptation
+to call it "just for SYNC" was the hole in §1 reopening.
+
+The claim is narrowed where the evidence stops rather than where the rule stops.
+SYNC on a **non-binary** item and SYNC **inside an OCCURS table** are not
+measured by v0.1: the engine applies no alignment, marks the layout `PARTIAL`,
+and names the construct. Both cases are pinned by tests. An honest eleven of
+twelve is shippable; a fudged twelve is not, and that logic does not stop
+applying once the twelfth axis comes in green.
+
+**RENAMES.** The brief anticipated that the sealed row shape might not express a
+span, which would have been a D16 finding rather than a bug to work around. It
+does express one. `D11_renames.cpy`'s level-66 rows carry `offset` = the renamed
+start item's offset, `length` = the span, `redefines` = the start item's name,
+`renames: true`, `in_tiling: false`. The engine emits that shape rather than
+inventing a second one and reconciling later, and `D11-ALPHA-BETA` is asserted
+to be *longer* than `D11-ALPHA` — if it were not, the axis would be
+indistinguishable from REDEFINES.
+
+**One correction to the brief, from the seal.** WP-2.2 §3.2's table gives the
+binary rule as "1-4 digits → 2 bytes". The sealed measurement says otherwise:
+`D02-COMP-1 PIC S9(01) COMP` occupies **1** byte and `D02-COMP-2 PIC S9(02)
+COMP` occupies 1 as well, so GnuCOBOL's `binary-size: 1-2-4-8` table is
+1-2 → 1, 3-4 → 2, 5-9 → 4, 10-18 → 8. The engine implements what was measured.
+`BINARY_WIDTHS` is pinned by a test that says so.
+
+### 3. Gaps compare by projection, not by label (D18)
+
+The oracle can only observe "bytes no named field claims" and calls them `gap`.
+The engine reads the source, so it distinguishes `filler` (an explicit `FILLER`
+entry) from `slack` (bytes SYNCHRONIZED inserted), and the comparison asserts
+that `filler ∪ slack` equals the oracle's `gap` spans **as byte ranges**.
+Comparing labels directly would fail on extra information rather than on
+disagreement.
+
+All six gap rows agree: `D10_sync.cpy` at 2+3, 10+1, 16+1, all three labelled
+`slack` with the causing item named; `MUBBREC.cpy` at 11+2, 44+2, 58+2, all
+three labelled `filler`. "Bytes 2, 10 and 16 are SYNC slack, not data" is a
+different sentence from "there is a three-byte gap", and only one of them helps
+someone writing a target schema.
+
+### 4. The accusation path, proven in both directions
+
+100% agreement is a claim about the **pair**. A harness that can only accuse the
+engine can never discover a defect in the answer key, which is most of what
+committing the benchmark first was supposed to buy.
+
+**Planted red — a probe-sourced row.** One character changed in the SYNC
+alignment rule:
+
+```
+MISMATCH  D10_sync.cpy / D10-SYNC / D10-BIN-A
+  oracle : offset 5  length 4  source probe   (sealed, relian-discovery-bench-v0.1)
+  engine : offset 4  length 4  source computed
+  ACCUSES: engine — the oracle row is 'probe'-sourced — MEASURED by GnuCOBOL
+  3.1.2.0 — and the seal verifies (manifest 696397e0d4d865a3…, key
+  233bb4406e2de606). Fix src/discovery/, not the answer key.
+```
+
+**The same planted red — a derived gap row.** Same defect, different artifact
+accused, because the disagreement lands somewhere the engine may legitimately
+know more:
+
+```
+MISMATCH  D10_sync.cpy / D10-SYNC / gap projection (filler ∪ slack)
+  oracle : spans [(2, 4), (10, 10), (16, 16)]  source gap
+  engine : spans [(2, 3), (14, 15)]  source ['slack']
+  ACCUSES: oracle (ESCALATE) — the oracle row is 'gap'-sourced — DERIVED by
+  subtraction, not measured. […] The engine reads the source and can
+  distinguish explicit FILLER from implicit SYNC slack, so it may legitimately
+  know more here (D18).
+  HALT: this work package stops. Do NOT edit oracle.json — CLAUDE.md rule 4
+  freezes discovery-bench/ and the Ed25519 signature over the manifest would
+  fail regardless. The remedy is a v0.2 re-seal, which is an operator key
+  session. Finding an oracle defect is a SUCCESSFUL outcome of WP-2.2.
+  engine gap detail: 2+2 slack (SYNCHRONIZED alignment of D10-BIN-A to a
+  4-byte boundary); 14+2 slack (…)
+```
+
+Both reverted; 145 passed. A third case is pinned too: if the seal does **not**
+verify, the block accuses neither artifact, because accusing the engine on the
+strength of a document whose signature failed would be worse than reporting
+nothing.
+
+**No accusation landed on the oracle in this run.** All 186 comparisons passed
+on the first execution of the engine against the sealed document, so the
+escalation trigger did not fire.
+
+### 5. `None` never becomes zero (acceptance ⑦)
+
+WP-2.1 measured the trap on the other side of this boundary: `MOVE HIGH-VALUES`
+to a `PIC ZZZZZZZZ9.99` compiles, runs, exits 0 and marks **zero bytes**, with
+no warning enabled by default. A probe built on it would have recorded
+`offset: 0, length: 0` for `BPR-AMOUNT-DUE`, whose true layout is offset 46,
+length 12.
+
+Same trap, new surface. `lint_layout()` fails on any field carrying `0` where
+nothing was computed, on a `None` length with no stated reason, and on a
+level-88 that grew an extent. It runs over all 15 corpus copybooks and over
+every one of the 16 sealed variants inside the round-trip. Three negative
+controls prove it rejects each shape — a lint that has never rejected anything
+is a lint whose failure path is unproven.
+
+The lint found one real defect during the build: when a child's length could not
+be computed, the enclosing **group** row came back with `length: None` and no
+`unmeasured_reason` — the same "a number that will not say why it is absent"
+failure, one level up. Fixed rather than exempted.
+
+**R7 shows up as a refusal.** A usage the sealed corpus does not measure —
+`COMP-1`, `COMP-2`, `COMP-X`, `INDEX`, `POINTER` — returns `None` with a named
+reason rather than a plausible width, and marks the layout `PARTIAL`. These have
+widely documented widths. A documented width is not a measured width.
+
+### 6. CardDemo dry run — resolver only
+
+Full record: `docs/dryruns/carddemo_copybooks/`. No layout claim is made about
+any CardDemo program; program parse is still blocked on WP-2.5 and the blockers
+are dialect as well as `COPY`. Copybook resolution is unaffected by that (D17) —
+the resolver is our own over our own grammar and imports no ANTLR parser, which
+is what decouples WP-2.2 from WP-2.5 entirely.
+
+Clone at `~/corpora/carddemo`, commit `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`,
+Apache-2.0, **outside the repository**; no CardDemo bytes are committed here.
+
+| Row | **Measured in this run** | WP-2.0.0 §0.4 | Drift |
+|---|---|---|---|
+| Source files scanned | **106** | 44 `.cbl` + 62 `.cpy` | none |
+| Files with ≥1 `COPY` | **40** | 40 of 44 | none |
+| `COPY` directive sites | **346** | not recorded | — |
+| Distinct names referenced | **67** | 67 | none |
+| — resolvable | **59** | 59 | none |
+| — **not** resolvable | **8** | 8 | none |
+| Edges | **306** | 306 | none |
+| Max fan-out | **18**, `app/cbl/COACTUPC.cbl` | 18, `COACTUPC.cbl` | none |
+| `COPY … REPLACING` sites | **40** | 40 | none |
+| Present but unreferenced | **3** | 3 | none |
+| Cycles | **0** | not recorded | — |
+
+The run and the log agree on every row §0.4 recorded. Had they disagreed the run
+would be authoritative; both are recorded either way.
+
+The eight unresolvable names are `DFHAID` `DFHBMSCA` `CMQGMOV` `CMQMDV` `CMQODV` `CMQPMOV` `CMQTML` `CMQV` — CICS- and IBM MQ-supplied, absent
+from the sample and present at the customer site. `DFHAID` and `DFHBMSCA` are
+each referenced by 21 programs, the same fan-in as the four most-shared members
+that *do* resolve. That is the shape of the risk, and reporting it before a
+migration starts is a capability, not an apology (D20, R2).
+
+**Two things §0.4 did not record, measured here.** `346`
+directive sites against `306` edges — a program that `COPY`s a member
+twice is two sites and one edge, and conflating them makes the edge count and
+the REPLACING-site count the same kind of number when they are not. And the
+40 `COPY … REPLACING` sites are **not** all in one program: 39 in
+`app/cbl/COACTUPC.cbl` and 1 in
+`app/app-transaction-type-db2/cbl/COTRTUPC.cbl`. All 40 parsed completely.
+
+**One correction to §0.4.** The phantom `REPLACING` copybook appears at **two**
+sites, not one. Measured by scanning the corpus twice with patterns differing
+only in the boundary assertion — same operand grammar, same margins:
+
+| Pattern | Distinct names |
+|---|---|
+| `\bCOPY\s+…` | **68** |
+| `(?<![A-Za-z0-9$_-])COPY(?![A-Za-z0-9$_-])\s+…` | **67** |
+| Only in the naive set | `REPLACING` |
+
+matched out of `INITIALIZE REQUEST-MSG-COPY  REPLACING NUMERIC BY ZEROES` at
+`app/app-vsam-mq/cbl/CODATE01.cbl:294` — the site §0.4 named — **and** at
+`app/app-vsam-mq/cbl/COACCT01.cbl:345`, which it did not.
+
+### 7. Two limitations the resolver reports rather than absorbing
+
+Both would otherwise be a substitution that quietly did not happen, which is the
+worst kind: the layout that follows looks complete and names the wrong fields.
+
+* **A `REPLACING` operand spanning a line break.** Program text has a margin on
+  both sides, so the bytes between two lines are not whitespace and a per-line
+  substitution cannot span them. Detected by re-running the match over the
+  joined program text and comparing counts; surfaced as `Assembly.unapplied`,
+  which makes the assembly incomplete, which makes the layout `NONE` with the
+  reason named. None of CardDemo's 40 sites hits this.
+* **A substitution overflowing column 72.** A replacement longer than what it
+  replaced can push program text into the identification area where nothing will
+  read it. Reported, not truncated.
+
+### 8. Test count
+
+`EXPECTED_PASSES` 370 → **683**. Net **+313**, in four new files and nothing
+else; no existing test was changed, renamed, deleted or deselected. The skip
+count stays pinned at 10 — none of the 313 carries a `skipif`, and none of them
+needs `cobc`, which is the point of the whole package. Attributed file by file,
+and within each file by what the cases cover, in the `EXPECTED_PASSES` comment
+block in `.github/workflows/tests.yml`.
+
+```
+tests/test_discovery_is_compiler_free.py   +20
+tests/test_discovery_copybook.py           +37
+tests/test_discovery_layout.py            +111
+tests/test_layout_roundtrip.py            +145
+```
+
+### 9. `discovery-bench/` is byte-identical to the seal
+
+```
+$ git status --short -- discovery-bench/
+(empty)
+```
+
+Nothing under `discovery-bench/` or `bench/` was created, modified or deleted.
+The engine reads the corpus; the harness reads the committed `oracle.json`;
+neither writes. The round-trip additionally asserts each corpus file's sha256
+against the digest recorded *inside* the oracle, so a drifted corpus would go
+red rather than produce a green comparison between two different corpora.
+
+### 10. What this does NOT license
+
+- **IBM Enterprise COBOL equivalence is unmeasured (◐).** Everything verified
+  here is GnuCOBOL 3.1.2.0 behaviour. SYNC slack in particular moves with
+  `binary-size` and with the compiler's `SYNCHRONIZED` handling. This belongs in
+  the customer report as a stated limitation and stays out of the
+  quotable-capability matrix until measured against a real IBM layout (R11).
+  `Layout.summary()` grades every number **PLAUSIBLE**, not VERIFIED, for
+  exactly this reason.
+- **No layout claim about any CardDemo record.** The resolver ran; the engine
+  did not.
+- **Dictionary, file inventory, lineage, DDL, signed report** — WP-2.3+ (D21).
+  The CLI here is `discovery layout` and `discovery resolve`, which is what the
+  dry run needed and no more.
+- **D13 publication remains open.** `233bb4406e2de606` still needs to reach the
+  Technical Delivery Sheet and every attestation deliverable alongside the
+  verification command. Operator, R11.
