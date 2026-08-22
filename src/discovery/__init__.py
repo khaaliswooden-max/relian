@@ -13,6 +13,19 @@ package's AST to assert it. That constraint is not stylistic:
   no GnuCOBOL and whose COBOL is IBM Enterprise. An engine that needs a
   compiler is not shippable.
 
+WP-2.4 adds the file inventory (:mod:`src.discovery.jcl`,
+:mod:`src.discovery.files`), the lineage graph (:mod:`src.discovery.lineage`)
+and the target-schema DDL (:mod:`src.discovery.ddl`). Those join three
+independent customer artifacts — ``SELECT``, ``FD`` and the job stream's ``DD``
+— and cross-check the copybook's computed record length against the ``LRECL``
+the JCL declares. When those two disagree the tool reports both and resolves
+neither: a copybook that does not describe the data is the most expensive thing
+to discover during a migration and the cheapest to discover before one.
+
+None of it opens a dataset. ``tests/test_discovery_reads_no_data.py`` runs the
+whole pipeline under an audit hook, with decoy datasets present, and asserts
+none is touched (R12).
+
 WP-2.3 adds the report surface: :mod:`src.discovery.report` builds the
 canonical ``report.json`` and its unsigned Markdown rendering, and
 :mod:`src.discovery.signing` builds the manifest of digests and takes the
@@ -55,6 +68,63 @@ from .signing import (
     load_or_create_instance_key,
     manifest_hash,
     sign_manifest,
+)
+from .jcl import (
+    DCB,
+    RDW_BYTES,
+    DDStatement,
+    Evidence,
+    JclInventory,
+    JclMember,
+    Step,
+    parse_dcb,
+    parse_member,
+    parse_text,
+)
+from .files import (
+    CrossCheck,
+    CrossCheckOutcome,
+    FdEntry,
+    FileInventory,
+    FileRecord,
+    Finding,
+    FindingKind,
+    OpenStatement,
+    ProgramFiles,
+    SelectStatement,
+    build_inventory,
+    cross_check,
+    parse_file_control,
+    parse_file_section,
+    parse_opens,
+    parse_program,
+    scan_programs,
+)
+from .lineage import (
+    Coverage,
+    Direction,
+    Edge,
+    InferredPair,
+    LineageGraph,
+    build_graph,
+    lint_completeness_claim,
+)
+from .ddl import (
+    MAPPING_RULES,
+    RULESET_VERSION,
+    Basis,
+    Column,
+    MappingRule,
+    Overlap,
+    Table,
+    TableStatus,
+    generate_table,
+    lint_mapping_rules,
+    lint_schema,
+    lint_table,
+    mapping_table,
+    render_schema,
+    render_table,
 )
 from .layout import (
     Condition,
@@ -99,4 +169,57 @@ __all__ = [
     "load_or_create_instance_key",
     "manifest_hash",
     "sign_manifest",
+    # WP-2.4 -- JCL
+    "DCB",
+    "RDW_BYTES",
+    "DDStatement",
+    "Evidence",
+    "JclInventory",
+    "JclMember",
+    "Step",
+    "parse_dcb",
+    "parse_member",
+    "parse_text",
+    # WP-2.4 -- files, the three-source join and the cross-check
+    "CrossCheck",
+    "CrossCheckOutcome",
+    "FdEntry",
+    "FileInventory",
+    "FileRecord",
+    "Finding",
+    "FindingKind",
+    "OpenStatement",
+    "ProgramFiles",
+    "SelectStatement",
+    "build_inventory",
+    "cross_check",
+    "parse_file_control",
+    "parse_file_section",
+    "parse_opens",
+    "parse_program",
+    "scan_programs",
+    # WP-2.4 -- lineage
+    "Coverage",
+    "Direction",
+    "Edge",
+    "InferredPair",
+    "LineageGraph",
+    "build_graph",
+    "lint_completeness_claim",
+    # WP-2.4 -- target-schema DDL
+    "MAPPING_RULES",
+    "RULESET_VERSION",
+    "Basis",
+    "Column",
+    "MappingRule",
+    "Overlap",
+    "Table",
+    "TableStatus",
+    "generate_table",
+    "lint_mapping_rules",
+    "lint_schema",
+    "lint_table",
+    "mapping_table",
+    "render_schema",
+    "render_table",
 ]
