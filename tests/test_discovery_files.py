@@ -568,3 +568,67 @@ def test_demo_join_binds_every_select_to_its_dd():
     }
     assert "CUSTMAST" in bound
     assert "SUSPENSE" in bound
+
+
+# --------------------------------------------------------------------------
+# A cross-check row must be able to name the record it checked
+# --------------------------------------------------------------------------
+
+def test_a_copy_supplied_record_is_named_from_the_computed_layout(tmp_path):
+    """An FD whose record arrives through COPY names no 01 of its own.
+
+    Falling back to the layout's group is what stops such a row reading
+    "record: (unnamed)". Measured on CardDemo: four of the thirteen AGREE rows
+    are COPY-supplied, so without this a third of the strongest evidence the
+    cross-check produces could not say what it was about.
+    """
+    from src.discovery.copybook import resolve
+    from src.discovery.files import _record_name
+    from src.discovery.jcl import JclInventory
+
+    book = tmp_path / "CVACT01Y.cpy"
+    book.write_text(cobol("""
+        01  ACCOUNT-RECORD.
+            05  ACCT-ID    PIC 9(11).
+            05  ACCT-NAME  PIC X(19).
+    """), encoding="utf-8")
+    source = tmp_path / "P.cbl"
+    source.write_text(cobol("""
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. CBIMPORT.
+        ENVIRONMENT DIVISION.
+        FILE-CONTROL.
+            SELECT ACCOUNT-OUTPUT ASSIGN TO ACCTOUT.
+        DATA DIVISION.
+        FILE SECTION.
+        FD ACCOUNT-OUTPUT.
+        01 ACCT-OUT-REC.
+           COPY CVACT01Y.
+    """), encoding="utf-8")
+
+    program = parse_program(source, tmp_path)
+    jcl = JclInventory(root=".", members=(parse_text(
+        "//STEP1  EXEC PGM=CBIMPORT\n"
+        "//ACCTOUT DD DSN=A.B,DCB=(LRECL=30,RECFM=FB)\n", "J.jcl"),))
+    inventory = build_inventory([program], jcl, resolve(tmp_path))
+
+    record = next(r for r in inventory.records if r.ddname == "ACCTOUT")
+    assert record.fd is not None and record.fd.copy_members == ("CVACT01Y",)
+    assert record.fd.record_names == ("ACCT-OUT-REC",)
+    assert record.check is not None
+    assert record.check.record_name is not None
+    assert record.check.outcome is CrossCheckOutcome.AGREE
+
+    # And the fallback itself, directly: no FD 01 name, layout supplies it.
+    assert _record_name(None, record.layout) == "ACCOUNT-RECORD"
+    assert _record_name(None, None) is None
+
+
+def test_the_conflict_text_names_the_record_rather_than_unnamed(tmp_path):
+    """A DISAGREE a customer cannot trace to a record is a finding they cannot
+    act on."""
+    inventory = _inventory(MISMATCHED_PROGRAM, MISMATCHED_JCL, tmp_path)
+    check = next(r for r in inventory.records if r.ddname == "OUTFILE").check
+    assert check is not None and check.conflict is not None
+    assert check.record_name == "OUT-REC"
+    assert "(unnamed)" not in check.conflict

@@ -997,6 +997,25 @@ def _layout_for_fd(
     return layout, "inline", reason
 
 
+def _record_name(fd: Optional[FdEntry], layout: Optional[Layout]) -> Optional[str]:
+    """Name the record a cross-check row is about.
+
+    The FD's own ``01`` name where there is one. When the record arrives
+    through ``COPY``, the FD names no ``01`` at all — the name is inside the
+    copybook — so the computed layout's group is used instead.
+
+    Without the fallback, every COPY-supplied record produced a row reading
+    ``record: (unnamed)``. Measured on CardDemo: four of the thirteen AGREE
+    rows are COPY-supplied, so a third of the strongest evidence the
+    cross-check produces could not say what it was about.
+    """
+    if fd is not None and fd.record_names:
+        return fd.record_names[0]
+    if layout is not None and layout.group:
+        return layout.group
+    return None
+
+
 def build_inventory(
     programs: Sequence[ProgramFiles],
     jcl: Optional[JclInventory] = None,
@@ -1055,9 +1074,7 @@ def build_inventory(
                 matched.add((program.program, dd.ddname))
 
             layout, origin, reason = _layout_for_fd(fd, resolution)
-            record_name = (
-                fd.record_names[0] if fd is not None and fd.record_names else None
-            )
+            record_name = _record_name(fd, layout)
             check = cross_check(
                 computed_length=layout.group_length if layout else None,
                 dd=dd,
@@ -1106,7 +1123,7 @@ def build_inventory(
                 check=cross_check(
                     computed_length=layout.group_length if layout else None,
                     dd=None,
-                    record_name=fd.record_names[0] if fd.record_names else None,
+                    record_name=_record_name(fd, layout),
                     layout_status=layout.status.value if layout else None,
                     layout_reason=reason,
                     layout_evidence=fd.evidence,

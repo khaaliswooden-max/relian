@@ -434,7 +434,16 @@ env:
   # that skips is not a gate.
   #
   # WP-2.3.2, 2026-08-21: was 848.
-  EXPECTED_PASSES: "1065"
+  # WP-2.4a (2026-08-22): 1065 -> 1067. Net +2, both in
+  # tests/test_discovery_files.py. Breaking NO_LAYOUT down by cause exposed a
+  # cross-check row that could not name the record it checked when the record
+  # arrived through COPY (FdEntry.record_names is empty in that case, so the
+  # row read `record: (unnamed)`). Four of CardDemo's thirteen AGREE rows are
+  # COPY-supplied, so a third of the strongest evidence the tool produces could
+  # not say what it was about. +1 for the fallback and its direct unit case,
+  # +1 for the converse -- a DISAGREE's conflict text must name the record.
+  # See docs/PHASE2_LOG.md, WP-2.4a §5.
+  EXPECTED_PASSES: "1067"
 
 jobs:
   parser-regen:

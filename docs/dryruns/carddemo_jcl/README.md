@@ -122,40 +122,59 @@ program `CBACT01C`, over lines 37–40.
 
 ## 2. The cross-check (D29)
 
-44 programs scanned, 17 declaring a `FILE-CONTROL` paragraph.
+44 programs scanned, 17 declaring a `FILE-CONTROL` paragraph. The scan is wired
+to WP-2.2's copybook resolver (100 members indexed, 8 unresolvable).
 
 | Outcome | Count |
 |---|---|
-| `AGREE` | **9** |
+| `AGREE` | **13** |
 | `DISAGREE` | **0** |
-| `NO_LRECL` | 35 |
-| `NO_LAYOUT` | 204 |
+| `NO_LRECL` | 41 |
+| `NO_LAYOUT` | 194 |
 
-### The nine agreements
+> **Correction.** The first version of this run reported 9 / 0 / 35 / 204. It
+> was executed **without passing the copybook resolver** to `build_inventory`,
+> so every FD whose record arrives through `COPY` came back with
+> *"no copybook resolution was provided to this scan"* and was counted as
+> `NO_LAYOUT`. That was a defect in the dry run, not in the tool: it understated
+> the cross-check's reach by four agreements. The figures above are the
+> resolver-wired run and supersede the earlier ones. The earlier ones are
+> recorded here rather than deleted, because a number that changed silently is
+> worth less than one whose change is accounted for.
 
-Each row states its own comparison basis. Note `VBRCFILE`: the computed record
-length is 80, the declared `LRECL` is 84, and they **agree** — because
-`RECFM=VB` means z/OS counts the 4-byte Record Descriptor Word inside `LRECL`.
-That adjustment is stated in the row rather than folded in silently.
+### The thirteen agreements
 
-| Program | DD | Record | Computed | RECFM | RDW | Adjusted | LRECL | Δ |
-|---|---|---|---|---|---|---|---|---|
-| CBACT01C | OUTFILE | OUT-ACCT-REC | 107 | FB | 0 | 107 | 107 | 0 |
-| CBACT01C | ARRYFILE | ARR-ARRAY-REC | 110 | FB | 0 | 110 | 110 | 0 |
-| CBACT01C | VBRCFILE | VBR-REC | 80 | **VB** | **4** | **84** | 84 | 0 |
-| CBACT04C | TRANSACT | FD-TRANFILE-REC | 350 | F | 0 | 350 | 350 | 0 |
-| CBIMPORT | ERROUT | ERROR-OUTPUT-RECORD | 132 | FB | 0 | 132 | 132 | 0 |
-| CBSTM03A | STMTFILE | FD-STMTFILE-REC | 80 | FB | 0 | 80 | 80 | 0 |
-| CBSTM03A | HTMLFILE | FD-HTMLFILE-REC | 100 | FB | 0 | 100 | 100 | 0 |
-| CBTRN02C | DALYREJS | FD-REJS-RECORD | 430 | F | 0 | 430 | 430 | 0 |
-| CBTRN03C | TRANREPT | FD-REPTFILE-REC | 133 | FB | 0 | 133 | 133 | 0 |
+Each row states its own comparison basis. Note `VBRCFILE`: computed 80 against
+a declared `LRECL` of 84, and they **agree** — `RECFM=VB` means z/OS counts the
+4-byte Record Descriptor Word inside `LRECL`. That adjustment is applied and
+stated in the row rather than folded in silently.
 
-**Zero disagreements is a result, not an absence of one.** Nine independently
-authored copybooks each computed to exactly the length the job stream declares
-for the dataset holding them — including one that only agrees after a 4-byte
-RDW adjustment. Two artifacts that share no code and no author agreeing to the
-byte on nine records is evidence the layout engine computes IBM-dialect record
-lengths correctly, on a corpus it was never fitted to.
+| Program | DD | Record | Via | Computed | RECFM | RDW | Adjusted | LRECL | Δ |
+|---|---|---|---|---|---|---|---|---|---|
+| CBACT01C | OUTFILE | OUT-ACCT-REC | inline | 107 | FB | 0 | 107 | 107 | 0 |
+| CBACT01C | ARRYFILE | ARR-ARRAY-REC | inline | 110 | FB | 0 | 110 | 110 | 0 |
+| CBACT01C | VBRCFILE | VBR-REC | inline | 80 | **VB** | **4** | **84** | 84 | 0 |
+| CBACT04C | TRANSACT | FD-TRANFILE-REC | inline | 350 | F | 0 | 350 | 350 | 0 |
+| CBIMPORT | CUSTOUT | CUSTOMER-RECORD | `COPY CVCUS01Y` | 500 | FB | 0 | 500 | 500 | 0 |
+| CBIMPORT | ACCTOUT | ACCOUNT-RECORD | `COPY CVACT01Y` | 300 | FB | 0 | 300 | 300 | 0 |
+| CBIMPORT | XREFOUT | CARD-XREF-RECORD | `COPY CVACT03Y` | 50 | FB | 0 | 50 | 50 | 0 |
+| CBIMPORT | TRNXOUT | TRAN-RECORD | `COPY CVTRA05Y` | 350 | FB | 0 | 350 | 350 | 0 |
+| CBIMPORT | ERROUT | ERROR-OUTPUT-RECORD | inline | 132 | FB | 0 | 132 | 132 | 0 |
+| CBSTM03A | STMTFILE | FD-STMTFILE-REC | inline | 80 | FB | 0 | 80 | 80 | 0 |
+| CBSTM03A | HTMLFILE | FD-HTMLFILE-REC | inline | 100 | FB | 0 | 100 | 100 | 0 |
+| CBTRN02C | DALYREJS | FD-REJS-RECORD | inline | 430 | F | 0 | 430 | 430 | 0 |
+| CBTRN03C | TRANREPT | FD-REPTFILE-REC | inline | 133 | FB | 0 | 133 | 133 | 0 |
+
+The four `COPY`-supplied rows are the strongest evidence here: the copybook
+resolver, the layout engine and the JCL parser are three independent pieces of
+machinery, and all three have to be right for the row to come out zero.
+
+**Zero disagreements is a result, not an absence of one.** Thirteen
+independently authored copybooks each computed to exactly the length the job
+stream declares for the dataset holding them. Two artifacts that share no code
+and no author agreeing to the byte on thirteen records is evidence the layout
+engine computes IBM-dialect record lengths correctly on a corpus it was never
+fitted to.
 
 It is **not** evidence that the check would catch a disagreement. That is what
 the fixtures are for: `tests/test_discovery_files.py` carries a deliberately
@@ -163,14 +182,85 @@ mismatched pair (12 computed against `LRECL=107` declared) and asserts both
 numbers survive into the report, that the conflict names them, and that no
 resolving accessor exists on `CrossCheck` at all.
 
-### The other two outcomes
+### What the cross-check can be claimed to reach
 
-* **`NO_LRECL` (35)** — a record layout with no `DCB=` anywhere in the job
-  stream to check it against. Mostly VSAM KSDS files, which carry their record
-  length in the catalog rather than in JCL. Reported as *unverified against any
-  external source*, not as verified.
-* **`NO_LAYOUT` (204)** — overwhelmingly the `DATASET_NOT_DECLARED` finding
-  below: a DD the job stream allocates that no `SELECT` in scope assigns to.
+The only rows the cross-check can possibly evaluate are DD statements that
+carry a program, a DSN **and** a declared `LRECL`. CardDemo has 31 such DD
+statements, collapsing to **21 distinct (program, DD) pairs**.
+
+| | |
+|---|---|
+| (program, DD) pairs with a program, a DSN and a declared `LRECL` | 21 |
+| — cross-checked | **12** |
+| — not reached | 9 |
+| Additionally cross-checked with no DSN to pair on | 1 |
+
+The one extra is `CBSTM03A`/`STMTFILE`: it has an `LRECL` and no DSN, because
+the DSN sat on the record stranded by the corruption at
+`app/jcl/CREASTMT.JCL:87`. It still cross-checks, on the `DCB=` it does have.
+
+**All nine unreached pairs belong to steps that are not COBOL programs:**
+
+| Step program | DDs | What it is |
+|---|---|---|
+| `DFSRRC00` | DFSURGU1, OUTFIL1, OUTFIL2 | IMS region controller |
+| `IEFBR14` | DD1, HTMLFILE, STMTFILE | z/OS null program (allocation only) |
+| `IDCAMS` | SYSPRINT | access-method utility |
+| `IEBGENER` | SYSUT2 | copy utility |
+| `SORT` | SORTOUT | DFSORT/SYNCSORT |
+
+None has COBOL source in the tree, so no `SELECT` or `FD` exists to describe
+its records. That is not a limitation of the cross-check — it is the correct
+answer: *no COBOL we can see describes these datasets.* Restricted to steps
+whose program has COBOL source in the tree, the cross-check reaches **12 of
+12**.
+
+### The 194 `NO_LAYOUT` rows, by cause
+
+This is the number that governs the claim above, so it is broken down by cause
+rather than reported as one bucket.
+
+| Cause | Count |
+|---|---|
+| No `SELECT` in any program in scope declares this DD | **194** |
+| Unresolvable copybook blocking an FD | **0** |
+| Program parse failure | **0** |
+| Layout-engine refusal with the construct named | **0** |
+
+**Every one of the 194 is a scope fact, not a failure of the resolver, the
+parser or the engine.** Each was checked directly rather than inferred from the
+total:
+
+* **Unresolvable copybooks — 0.** The resolver reports 8 unresolvable names
+  (`DFHAID`, `DFHBMSCA`, `CMQV`, `CMQODV`, `CMQMDV`, `CMQGMOV`, `CMQPMOV`,
+  `CMQTML`). All are CICS and MQ system copybooks that ship with the product
+  rather than with the sample. **No `FD` in the corpus references any of
+  them** — they are `WORKING-STORAGE` structures — so not one blocks a record
+  description.
+* **Program parse failures — 0.** 44 programs parsed, 44 `PROGRAM-ID`s
+  recovered, 0 programs with a `SELECT` but no `FD`. Two programs declare a
+  `FILE-CONTROL` paragraph and yield zero `SELECT`s, and both are correct
+  refusals rather than misses: `CBPAUP0C`'s `FILE-CONTROL.` is **empty**, and
+  every `SELECT` in `DBUNLDGS` is **commented out** in column 7. The second
+  closes a loop with the table above — `DFSRRC00`'s `OUTFIL1`/`OUTFIL2` appear
+  as undeclared datasets precisely because the only program that ever named
+  them has those `SELECT`s commented out.
+* **Layout-engine refusals — 0.** Zero records produced a computed layout with
+  no length, and zero layouts came back other than `COMPLETE`. Every record
+  description the engine was handed, it measured.
+
+Sub-dividing the 194 by what kind of DD it is:
+
+| | LRECL declared | no LRECL |
+|---|---|---|
+| Infrastructure DD (STEPLIB, SYSOUT, SYSPRINT, IMS, …) | 13 | 103 |
+| Data-shaped DD | **6** | 72 |
+
+Only the 6 data-shaped rows with a declared `LRECL` are findings a migration
+team would act on — a dataset with a stated record length that nothing in scope
+describes — and all 6 are the utility and IMS steps listed above. The 175 rows
+with no `LRECL` at all check nothing; they are reported so they are not
+mistaken for checks that passed.
 
 ### Findings from keeping the three sources apart (D28)
 
@@ -179,12 +269,7 @@ resolving accessor exists on `CrossCheck` at all.
 | `DATASET_NOT_DECLARED` — a dataset the job stream supplies that no `SELECT` in scope declares | 194 |
 | `FILE_NOT_SUPPLIED` — a `SELECT` whose DD no step running that program supplies | 16 |
 
-Both are invisible in a design that merges the three sources into one row. The
-194 is dominated by `STEPLIB`/`JOBLIB`/`SYSPRINT`-class DDs and by utility
-steps (IDCAMS, SORT) whose programs are not COBOL in this tree — which is
-itself the honest reading: *no COBOL we can see declares these*.
-
----
+Both are invisible in a design that merges the three sources into one row.
 
 ## 3. Lineage (D30)
 
@@ -241,8 +326,8 @@ affected columns.
 ## 5. What this dry run does not establish
 
 * **IBM Enterprise COBOL equivalence** — still unmeasured, still disclosed. The
-  nine agreements are evidence about record *lengths*, not about every byte of
-  every field.
+  thirteen agreements are evidence about record *lengths*, not about every
+  byte of every field.
 * **That CardDemo's copybooks describe CardDemo's data.** They describe the
   lengths the job stream declares. Whether the bytes on the volume match is not
   determinable from source, and this tool never opens a volume to find out.

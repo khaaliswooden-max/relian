@@ -3919,3 +3919,128 @@ skips conditionally.
 * **Whether a copybook describes the bytes on the volume** — not determinable
   from source. This tool never opens a volume to find out, and that is the
   point of D34.
+
+---
+
+## 2026-08-22 · WP-2.4a · Held-out score, and the NO_LAYOUT breakdown
+
+Follow-up to WP-2.4 at PR #32. Two things the work package's acceptance ⑫ and
+§4 asked for that the first pass answered incompletely.
+
+### 1. Held-out BER — the public split does not satisfy ⑫
+
+WP-2.4's report quoted the **public** split (BER 1.0000, branch 0.8333). That
+is a development measurement, not the gate. `bench.yml` runs only on
+`push: main` and `pull_request: main`, so the held-out figure did not exist
+until the PR was opened. Opening PR #32 produced it.
+
+`RELIAN-BENCH scoring` run #156, on `2da6e5e`, conclusion verbatim from the
+job log:
+
+```
+THRESHOLD MET: n_vectors 425, BER 1.0 >= 0.95, build_rate 1.0 >= 1.0,
+               branch_coverage 0.8854 >= 0.8 (jacoco-0.8.12)
+```
+
+Toolchain recorded on the runner: `cobc (GnuCOBOL) 3.1.2.0`,
+`javac 21.0.12`.
+
+**425 held-out vectors, BER 1.0000, build rate 1.00, branch coverage 0.8854.**
+Every R10 merge gate met on the held-out split.
+
+No held-out vector was read by this session (rule 1 / R3). CI fetched and
+scored them with the deploy key; what was read here is the conclusion line the
+job printed. That is the one sanctioned use of the scalar, and it is read
+**once, at PR time** — which is exactly the discipline the trigger narrowing in
+`bench.yml` exists to enforce. Reading it repeatedly is how the held-out set
+becomes a dev set.
+
+### 2. `NO_LAYOUT` broken down by cause — and a defect in the dry run
+
+`NO_LAYOUT` was reported as a single count of 204. Broken down, the first thing
+it revealed was a defect in the dry run itself: `build_inventory` was called
+**without the copybook resolver**, so every `FD` whose record arrives through
+`COPY` returned *"no copybook resolution was provided to this scan"* and was
+counted as `NO_LAYOUT`.
+
+Re-run with the resolver wired in:
+
+| | first run | resolver-wired | Δ |
+|---|---|---|---|
+| `AGREE` | 9 | **13** | +4 |
+| `DISAGREE` | 0 | 0 | — |
+| `NO_LRECL` | 35 | 41 | +6 |
+| `NO_LAYOUT` | 204 | 194 | −10 |
+
+The four new agreements are `CBIMPORT`'s `COPY`-supplied records — `CUSTOUT`
+500, `ACCTOUT` 300, `XREFOUT` 50, `TRNXOUT` 350, every one exact. Those are the
+strongest rows in the run: the resolver, the layout engine and the JCL parser
+are three independent pieces of machinery and all three must be right for the
+delta to be zero.
+
+The dry-run document is corrected, with the superseded figures kept and
+accounted for rather than deleted.
+
+### 3. The 194, by cause
+
+Each cause checked directly rather than inferred from the total:
+
+| Cause | Count |
+|---|---|
+| No `SELECT` in any program in scope declares this DD | **194** |
+| Unresolvable copybook blocking an FD | **0** |
+| Program parse failure | **0** |
+| Layout-engine refusal with the construct named | **0** |
+
+* **Unresolvable copybooks — 0.** The resolver reports 8 unresolvable names
+  (`DFHAID`, `DFHBMSCA`, and six `CMQ*` MQ copybooks). All are CICS/MQ system
+  members that ship with the product; **no `FD` references any of them.**
+* **Program parse failures — 0.** 44 programs, 44 `PROGRAM-ID`s, 0 with a
+  `SELECT` and no `FD`. Two declare a `FILE-CONTROL` and yield zero `SELECT`s,
+  and both are correct refusals: `CBPAUP0C`'s paragraph is empty, and every
+  `SELECT` in `DBUNLDGS` is commented out in column 7. The second closes a
+  loop — `DFSRRC00`'s `OUTFIL1`/`OUTFIL2` show as undeclared datasets
+  *because* the only program that ever named them has those `SELECT`s
+  commented out.
+* **Layout-engine refusals — 0.** Zero computed layouts came back without a
+  length; zero came back other than `COMPLETE`.
+
+So the 194 is entirely a **scope** fact. Nothing in it is a resolver, parser or
+engine failure.
+
+### 4. What the cross-check reaches, stated as a fraction
+
+31 DD statements carry a program, a DSN and a declared `LRECL` — the only rows
+the check can evaluate. They collapse to 21 distinct (program, DD) pairs, of
+which **12 are cross-checked** and 9 are not, plus one extra reached with no
+DSN to pair on (`CBSTM03A`/`STMTFILE`, whose DSN was lost to the corrupted
+record at `app/jcl/CREASTMT.JCL:87`).
+
+All nine unreached pairs belong to steps that are **not COBOL programs**:
+`DFSRRC00` (IMS region controller), `IEFBR14`, `IDCAMS`, `IEBGENER`, `SORT`.
+None has COBOL source in the tree, so no `SELECT` or `FD` exists to describe
+its records — the correct answer, not a gap.
+
+**Restricted to steps whose program has COBOL source, the cross-check reaches
+12 of 12.** That is the honest form of the claim, and it is the form that
+should be quoted: "13 agreements on CardDemo" without the denominator invites
+the reading that the other 191 rows were failures.
+
+### 5. One defect fixed
+
+A cross-check row could not name the record it checked when the record arrived
+through `COPY`: `FdEntry.record_names` is empty in that case, so the row read
+`record: (unnamed)`. Four of the thirteen agreements are `COPY`-supplied, so a
+third of the strongest evidence the tool produces could not say what it was
+about. `_record_name` now falls back to the computed layout's group. +2 tests.
+
+### 6. Measured triple
+
+```
+$ RELIAN_REQUIRE_COBC=1 pytest -q -rs
+→ 1067 passed, 10 skipped, 0 failed
+```
+
+Net **+2** on 1065, both in `tests/test_discovery_files.py`: the `COPY`-supplied
+record-naming case and its converse (a `DISAGREE`'s conflict text must name the
+record rather than say `(unnamed)`).
