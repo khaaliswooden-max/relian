@@ -49,6 +49,9 @@ as finished Java. That refusal is the thing being sold.
 | C1 transpiler | `transpiler/c1_rulebased.py` | Dispatch table `SUPPORTED_STATEMENTS` → Java with BigDecimal |
 | Orchestrator | `src/core/orchestrator.py` | Seven-stage state machine; stages 2 and 4 are removed, not disabled |
 | Differential validation | `src/validation/differential.py` | Builds and executes both sides against the GnuCOBOL oracle |
+| File inventory | `src/discovery/files.py`, `jcl.py` | `SELECT`/`FD`/`OPEN` joined with the JCL's DD statements; record length cross-checked against LRECL |
+| Lineage | `src/discovery/lineage.py` | Program→dataset edges from OPEN modes, with the bound on their coverage published alongside |
+| Target-schema DDL | `src/discovery/ddl.py` | PostgreSQL DDL against a published mapping table, executed against a real database in CI |
 | Report + signing | `src/discovery/report.py`, `signing.py` | Canonical `report.json`, manifest, Ed25519 instance signature |
 
 Nothing in that column opens a socket or calls a model.
@@ -189,11 +192,20 @@ of record is the `data-current` attribute on `#rail` in that file.
    instance signature. If a key cannot be obtained the command writes nothing. Suite:
    {{fig:suite_passed}} passed, {{fig:suite_skipped}} skipped, {{fig:suite_failed}} failed.
 
-### Phase 3 — delivery · not built
+### Phase 3 — delivery · current position (2026-08-22)
 
-9. **WP-2.4** — file inventory from SELECT / FD / JCL DD, lineage across programs,
-   target-schema DDL, dictionary rendering. Absent today rather than approximated, and
-   the shipped report says so on its own face.
+9. **File inventory, lineage, and target-schema DDL** ← *we are here.* Four new modules:
+   `jcl.py` (DD statements, `DCB=` sub-parameters, continuations), `files.py` (the
+   `SELECT`/`FD`/`OPEN` join and the LRECL cross-check), `lineage.py` (OPEN-mode
+   program→dataset edges with their coverage bound stated), and `ddl.py` (PostgreSQL
+   DDL, executed against a real `postgres:16` in CI rather than merely generated).
+   On AWS CardDemo: {{fig:inventory_agree}} datasets where FD record length and JCL
+   LRECL agree exactly, {{fig:inventory_disagree}} disagreements, {{fig:inventory_no_lrecl}}
+   with no LRECL declared and {{fig:inventory_no_layout}} with no resolvable layout.
+   Breaking `NO_LAYOUT` down by cause immediately exposed a defect in the dry run
+   itself — it had run without the copybook resolver — and the superseded figures are
+   kept and accounted for rather than deleted. **The dictionary rendering did not ship**
+   and no module for it exists.
 10. **First countersigned report.** The flow is proven only under a stand-in key
     generated inside a test. Two things gate it: `visionblox-release-key-v1.pub` —
     public material, the one artifact still missing — reaching the repository so the
@@ -311,7 +323,7 @@ Arrow keys work too, and the controls under the panel step forward and back.
 That is a local view change. **The position of record is one line in
 `site/figures.json`:**
 
-    "position": "s8"
+    "position": "s9"
 
 Change it, push, and the deployed page moves — the builder stamps the new state
 into the served markup, so the page is correct on first paint and with scripting

@@ -57,7 +57,7 @@ Clicking a stop on Plate III moves the flag for that viewer. The position of
 record is one line:
 
 ```json
-"position": "s8"
+"position": "s9"
 ```
 
 Change it in `site/figures.json` and push. The builder stamps the new state into

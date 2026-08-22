@@ -456,7 +456,7 @@
         <li class="stop" data-id="s9" data-state="future">
           <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
           <span class="stop-dot"></span>
-          <button class="stop-btn" type="button" data-target="s9"><span class="stop-id">09</span><span class="stop-name">Inventory · lineage · DDL</span><span class="stop-when">not built</span></button>
+          <button class="stop-btn" type="button" data-target="s9"><span class="stop-id">09</span><span class="stop-name">Inventory · lineage · DDL</span><span class="stop-when">2026-08-22</span></button>
         </li>
 
         <li class="stop" data-id="s10" data-state="future">
@@ -620,18 +620,21 @@
       </div>
     </section>
 
-    <section class="panel" data-for="s9" data-status="none" hidden>
+    <section class="panel" data-for="s9" data-status="measured" hidden>
       <div>
-        <div class="panel-meta"><span class="chip chip-none">Not built</span><span class="eyebrow">Phase 3 · stop 09 · WP-2.4</span></div>
+        <div class="panel-meta"><span class="chip chip-measured">Measured</span><span class="eyebrow">Phase 3 · stop 09 · WP-2.4 / 2.4a · 2026-08-22</span></div>
         <h3>File inventory, lineage, and target-schema DDL</h3>
         <div class="panel-body">
-          <p>The next work package: a file inventory drawn from SELECT / FD / JCL DD statements, data lineage across programs, target-schema DDL generation, and a data-dictionary rendering.</p>
-          <p>All four are <strong>absent today rather than approximated</strong>, and the shipped report says so on its own face rather than leaving a reader to infer it.</p>
-          <p><em>What standing here would require:</em> the four surfaces built; discovery-bench extended and re-sealed to cover them, in that order; and their gaps reported by projection the way the layout engine's already are.</p>
+          <p>Four modules that did not exist before: <code>jcl.py</code> reads <code>//name DD</code>, <code>DSN=</code>, <code>DCB=</code> sub-parameters, <code>DISP=</code>, in-stream data and <code>EXEC PGM=</code>; <code>files.py</code> joins <code>SELECT</code>, <code>FD</code> and <code>OPEN</code> into one inventory and cross-checks record length against the JCL's LRECL; <code>lineage.py</code> derives program→dataset edges from OPEN modes and publishes the bound on its own coverage; <code>ddl.py</code> emits PostgreSQL DDL against a published mapping table. A load-and-reconcile gate runs the generated DDL against a real <code>postgres:16</code> in CI, because DDL nobody has executed is DDL nobody should ship.</p>
+          <p><strong>The cross-check on AWS CardDemo:</strong> <span class="num">{{fig:inventory_agree}}</span> datasets where the FD record length and the JCL LRECL agree exactly, <span class="num">{{fig:inventory_disagree}}</span> that disagree, <span class="num">{{fig:inventory_no_lrecl}}</span> where the JCL declares no LRECL to check against, and <span class="num">{{fig:inventory_no_layout}}</span> with no resolvable layout. Four of the agreements arrive through <code>COPY</code>, which means the resolver, the layout engine and the JCL parser — three independent pieces of machinery — all had to be right for the delta to be zero.</p>
+          <p><em>The most useful thing in the work package is a defect it found in itself.</em> <code>NO_LAYOUT</code> was first reported as one number, 204. Broken down by cause, the breakdown immediately showed the dry run had called the inventory <em>without</em> the copybook resolver, so every FD whose record arrives through <code>COPY</code> was miscounted. Ten rows moved. The superseded figures are kept and accounted for rather than deleted — a count that changes without a dated reason is a count nobody can audit.</p>
+          <p>A second defect was planted rather than found: the naive per-line <code>DCB=(…)</code> scan is <strong>kept in the test file permanently</strong> and asserted to fail on a continuation that splits across records. It returns a plausible, complete-looking, wrong answer — the fields it drops are silently indistinguishable from a DD that never declared them, and the one field that survives is exactly the one the cross-check turns on.</p>
+          <p><strong>Not built, and not implied:</strong> the data-dictionary rendering. Three of the four surfaces this stop was defined by shipped; that one did not, and there is no module for it.</p>
         </div>
       </div>
       <div class="panel-side">
-        <div class="side-block is-none"><h4>Blocking</h4><ul><li>A re-sealed discovery benchmark must precede the merge (R7)</li><li>Lineage across programs needs a resolved call graph, which does not exist yet</li></ul></div>
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>A file inventory and lineage a customer can check against their own JCL</li><li>Target-schema DDL that has been executed against a real database, not just generated</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>Dictionary rendering — no module exists</li><li>Lineage beyond OPEN-mode edges; the coverage bound is published with the result</li></ul></div>
       </div>
     </section>
 

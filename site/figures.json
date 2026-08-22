@@ -14,7 +14,7 @@
     "To advance the position flag: change `position` to the stop id and push."
   ],
 
-  "position": "s8",
+  "position": "s9",
 
   "appendix_only": [],
 
@@ -46,14 +46,14 @@
     "disc_gaps":       {"value": "6",                           "grade": "VERIFIED", "derive": "disc_gaps",       "basis": "same ledger -> corpus_counts.gap_rows"},
     "disc_oracle":     {"value": "GnuCOBOL 3.1.2.0",            "grade": "VERIFIED", "derive": "disc_oracle",     "basis": "same ledger -> oracle_toolchain.cobc"},
 
-    "suite_passed":    {"value": "882", "grade": "VERIFIED", "derive": "suite_passed",  "basis": ".github/workflows/tests.yml -> EXPECTED_PASSES, the value CI asserts the run against"},
+    "suite_passed":    {"value": "1097", "grade": "VERIFIED", "derive": "suite_passed",  "basis": ".github/workflows/tests.yml -> EXPECTED_PASSES, the value CI asserts the run against"},
     "suite_skipped":   {"value": "10",  "grade": "VERIFIED", "derive": "suite_skipped", "basis": "same workflow -> EXPECTED_SKIPS"},
     "suite_failed":    {"value": "0",   "grade": "VERIFIED", "basis": "the gate fails the job on any failure; there is no continue-on-error in that workflow"},
 
-    "ber_heldout":     {"value": "1.0000",    "grade": "VERIFIED", "basis": "CI job 95240930271, PR #15 @ 8c676e9, 2026-08-16. NOT derivable here: bench/results/C1_rulebased.json holds the pre-implementation v1.2 baseline, not this run, and the held-out vectors never enter this repository (R3)"},
-    "ber_matched":     {"value": "425 / 425", "grade": "VERIFIED", "basis": "same CI run; all seven programs matched on every held-out vector"},
-    "build_rate":      {"value": "1.0000",    "grade": "VERIFIED", "basis": "same CI run; 7 of 7 programs compiled"},
-    "branch_coverage": {"value": "0.8854",    "grade": "VERIFIED", "basis": "same CI run, JaCoCo 0.8.12 -- the coverage tool the ledger requires"},
+    "ber_heldout":     {"value": "1.0000",    "grade": "VERIFIED", "basis": "RELIAN-BENCH scoring run #156 on 2da6e5e (PR #32, 2026-08-22), conclusion line THRESHOLD MET; first measured at CI job 95240930271, PR #15 @ 8c676e9. NOT derivable here: bench/results/C1_rulebased.json holds the pre-implementation v1.2 baseline, not this run, and the held-out vectors never enter this repository (R3). The scalar is read once, at PR time, by design"},
+    "ber_matched":     {"value": "425 / 425", "grade": "VERIFIED", "basis": "same run; all seven programs matched on every held-out vector"},
+    "build_rate":      {"value": "1.0000",    "grade": "VERIFIED", "basis": "same run; 7 of 7 programs compiled"},
+    "branch_coverage": {"value": "0.8854",    "grade": "VERIFIED", "basis": "same run, JaCoCo 0.8.12 -- the coverage tool the ledger requires"},
 
     "layout_roundtrip":{"value": "186 / 186", "grade": "VERIFIED", "basis": "docs/PHASE2_LOG.md WP-2.2 section 2, against the sealed oracle, tolerance zero"},
 
@@ -76,6 +76,11 @@
     "demand_write":    {"value": "224", "grade": "PLAUSIBLE", "basis": "same count, WRITE"},
     "demand_goto":     {"value": "186", "grade": "PLAUSIBLE", "basis": "same count, GO TO"},
     "demand_call":     {"value": "183", "grade": "PLAUSIBLE", "basis": "same count, CALL"},
+
+    "inventory_agree":     {"value": "13",  "grade": "VERIFIED", "basis": "WP-2.4a dry run over AWS CardDemo with the copybook resolver wired in: FD record length and JCL LRECL agree exactly on 13 datasets, four of them with records arriving through COPY"},
+    "inventory_disagree":  {"value": "0",   "grade": "VERIFIED", "basis": "same run. Resolver, layout engine and JCL parser are three independent pieces of machinery and all three must be right for this to be zero"},
+    "inventory_no_lrecl":  {"value": "41",  "grade": "VERIFIED", "basis": "same run: the JCL declares no LRECL, so there is nothing to cross-check against"},
+    "inventory_no_layout": {"value": "194", "grade": "VERIFIED", "basis": "same run, broken down by cause rather than reported as one number. The first pass said 204; wiring the resolver moved 10 into AGREE and NO_LRECL, which was a defect in the dry run -- recorded, not quietly corrected"},
 
     "release_fingerprint": {"value": "91e3a404155ba4dd", "grade": "VERIFIED", "basis": "derived by the operator on 2026-08-21 from visionblox-release-key-v1.pub -- PUBLIC material only, SHA-256 over the 32 raw Ed25519 bytes, first 16 hex. Not derived here: the public key is not yet in this repository, which is the one open item that would close it"},
 

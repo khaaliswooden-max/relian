@@ -351,12 +351,104 @@ env:
   #       path with its passphrase custody is pinned.
   #
   #   15 + 4 = 19. Skip count still 10; nothing added carries a skipif.
+  # WP-2.4 (2026-08-22): 852 -> 1065. Net +213, in five new test files plus
+  # four new parametrised cases in an existing one. `src/discovery/jcl.py`,
+  # `files.py`, `lineage.py` and `ddl.py` did not exist before this work
+  # package, so every one of the 213 is new coverage rather than a renamed or
+  # re-parametrised existing test. Attributed file by file, measured by
+  # collection rather than counted by hand:
   #
-  # Site build (2026-08-22): 852 -> 880. Net +28, all of them the new
-  # tests/test_site_build.py, which gives tools/build_site.py its teeth. The
-  # published site derives its figures from this repository rather than
-  # restating them, and every gate that makes that true is proven here by
-  # PLANTING the failure it catches:
+  #   tests/test_discovery_jcl.py                +48
+  #       §3.1, the JCL reader. 2 planted-red/guard pair on the continuation
+  #       trap (the naive line scan is kept in the file and asserted to FAIL
+  #       on a split DCB=, then this parser is asserted to recover all four
+  #       sub-parameters from the same bytes); 2 more on that fixture's
+  #       evidence extent and on the columns 73-80 identification field never
+  #       entering an operand; 3 card-geometry; 3 on the two continuation
+  #       rules (comma, column 72, and a mid-token join); 4 on the ways a
+  #       continuation is interrupted -- comment, new statement, end of
+  #       member, and the orphan that must not be reported as a JCL verb;
+  #       4 in-stream (DD * vs DD DATA, and the unterminated block);
+  #       9 DD shapes (no DSN, DUMMY, concatenation, the qualified
+  #       procstep.ddname CardDemo actually uses, EXEC PGM= binding, JOBLIB,
+  #       a bare PROC invocation, GDG, PDS member); 12 DCB sub-parameters
+  #       including the 6 parametrised RECFM->RDW cases and the refusal to
+  #       treat an undeclared RECFM as fixed; 4 operand splitting; 5 over the
+  #       committed demo corpus (V7) and the missing-root refusal.
+  #
+  #   tests/test_discovery_files.py              +41
+  #       §3.2, SELECT/FD and the join. 7 SELECT (multi-line clauses,
+  #       OPTIONAL, evidence, alternate keys, the UT-S- environment prefix,
+  #       the quoted literal that is not a DD name, absent clauses as None);
+  #       5 FD; 5 OPEN including the parametrised four modes; 6 on D28 -- the
+  #       three evidences kept separate, and each of the four findings that
+  #       only exists because they are; 5 on the four D29 outcomes; 5 on
+  #       DISAGREE never being resolved (both numbers survive, the conflict
+  #       names them, no resolving accessor exists, no tolerance band);
+  #       6 on the RDW adjustment both ways and its statement in the row;
+  #       2 over the committed demo corpus (V8).
+  #
+  #   tests/test_discovery_lineage.py            +30
+  #       §3.3. 7 edges including the parametrised four OPEN modes and the
+  #       I-O case that is one edge rather than two; 4 on no transitive
+  #       inference; 11 on D30 coverage and the completeness lint, of which 8
+  #       are the parametrised negative controls proving the lint bites on
+  #       each forbidden phrase plus the converse control proving it does not
+  #       fire on the honest disclaimer; 1 over the demo corpus.
+  #
+  #   tests/test_discovery_ddl.py                +53
+  #       §3.4. 9 on acceptance (6) -- every rule has a basis, every choice an
+  #       alternative, no forced rule an alternative, and 4 negative controls
+  #       proving the lint bites; 12 type mapping including the parametrised
+  #       binary widths and precision/scale reads; 5 on 88-level CHECK
+  #       constraints and the three cases that must NOT generate one (THRU,
+  #       figurative constants, a partial enumeration); 11 on acceptance (7)
+  #       -- REDEFINES PARTIAL with the overlap named in bytes, only the
+  #       primary reading emitted, the redefining view commented, no invented
+  #       discriminator, ODO always PARTIAL, OCCURS above and below the
+  #       published limit, and 2 planted reds on the lint; 4 running the whole
+  #       thing over the sealed 15-copybook corpus; 6 rendering; 6 identifiers.
+  #
+  #   tests/test_discovery_reads_no_data.py      +37
+  #       D34/R12. 4 runtime -- the whole WP-2.4 pipeline runs in a subprocess
+  #       under a sys.addaudithook with four decoy datasets present, and none
+  #       may be opened; plus the two converse controls (the run must have
+  #       done real work, and must have opened the source artifacts) and the
+  #       negative control proving the hook reports a dataset open that
+  #       definitely happened; 16 static, parametrised over every module in
+  #       src/discovery/ (8 record-unpacking imports, 8 EBCDIC codec names);
+  #       2 on the file-selection allowlists; 15 negative controls and the
+  #       docstring-exemption converse control.
+  #
+  #   tests/test_discovery_is_compiler_free.py    +4
+  #       Not a new file and not new intent: D15's per-module AST scan is
+  #       parametrised over `src/discovery/*.py`, and this package gained four
+  #       modules. One new case each for jcl.py, files.py, lineage.py and
+  #       ddl.py. No existing case changed.
+  #
+  # 48 + 41 + 30 + 53 + 37 + 4 = 213. THE SKIP COUNT IS UNCHANGED AT 10 and
+  # remains entirely tests/assessment/test_cross_check.py: nothing added here
+  # skips conditionally. The `ddl-loads` gate is deliberately a JOB rather
+  # than a test for exactly that reason -- a test needing a live PostgreSQL
+  # would skip on every developer machine and drift this number, and a gate
+  # that skips is not a gate.
+  #
+  # WP-2.3.2, 2026-08-21: was 848.
+  # WP-2.4a (2026-08-22): 1065 -> 1067. Net +2, both in
+  # tests/test_discovery_files.py. Breaking NO_LAYOUT down by cause exposed a
+  # cross-check row that could not name the record it checked when the record
+  # arrived through COPY (FdEntry.record_names is empty in that case, so the
+  # row read `record: (unnamed)`). Four of CardDemo's thirteen AGREE rows are
+  # COPY-supplied, so a third of the strongest evidence the tool produces could
+  # not say what it was about. +1 for the fallback and its direct unit case,
+  # +1 for the converse -- a DISAGREE's conflict text must name the record.
+  # See docs/PHASE2_LOG.md, WP-2.4a §5.
+  #
+  # Site build (2026-08-22, merged after WP-2.4a): 1067 -> 1097. Net +30, all
+  # of them the new tests/test_site_build.py, which gives tools/build_site.py
+  # its teeth. The published site derives its figures from this repository
+  # rather than restating them, and every gate that makes that true is proven
+  # here by PLANTING the failure it catches:
   #
   #   4  the tree as committed -- both pages build, no figure disagrees with
   #      the repository, every figure carries a grade and a basis (R9), and
@@ -371,6 +463,10 @@ env:
   #      real renderer bug while this was being written -- a paragraph opening
   #      with **bold** matched the old bullet rule, matched nothing after it,
   #      and was dropped on the floor. Pinned so it cannot come back.
+  #   2  the contents list of the Technical Summary, which was hand-written
+  #      and broke SILENTLY the first time a section was retitled. It is now
+  #      generated from the rendered headings: 1 asserts every contents link
+  #      resolves, 1 asserts a summary with no sections is refused.
   #   6  the position flag, parametrised over s1/s2/s8/s10/s11/s12: the SERVED
   #      markup must already show the right stop -- stop states, aria-current,
   #      the one visible panel, and the phase bands -- because a page that
@@ -383,22 +479,14 @@ env:
   #   1  R3 -- no held-out vector content, and no mention of the private
   #      repository, reaches either published page.
   #
-  #   4 + 7 + 1 + 6 + 1 + 7 + 1 = 27 ... plus test_a_pinned_figure_is_not_stamped
-  #   counted inside the 7 above; collection is the authority and reports 28.
-  #   Measured, not predicted: 833 -> 861 passed in a container without
-  #   GnuCOBOL, an exact +28 with the skip and failure counts unmoved.
-  #
-  #   +2 during the same session: the contents list of the Technical Summary
-  #   was hand-written and broke SILENTLY the first time a section was
-  #   retitled. It is now generated from the rendered headings, so an entry
-  #   cannot point at a heading that is not there; 1 test asserts every
-  #   contents link resolves, 1 asserts a summary with no sections is refused.
-  #   852 -> 882 in total, measured 833 -> 863 in this container.
+  #   Collection is the authority and reports 30. Measured on this branch
+  #   before and after the merge with main, in a container without GnuCOBOL:
+  #   the same +30 both times, with the skip and failure counts unmoved.
   #
   # THE SKIP COUNT IS UNCHANGED AT 10. Nothing in the new file carries a
   # skipif: the builder is standard library only and reads committed JSON, so
-  # there is no toolchain for it to be missing.
-  EXPECTED_PASSES: "882"
+  # it has no toolchain to be missing.
+  EXPECTED_PASSES: "1097"
 
 jobs:
   parser-regen:
@@ -704,6 +792,144 @@ jobs:
           git status --short -- discovery-bench/
           test -z "$(git status --porcelain -- discovery-bench/)" \
             || { echo "FAIL: discovery-bench/ was modified during this run"; exit 1; }
+
+  ddl-loads:
+    # WP-2.4 D33 -- the generated target-schema DDL is executed against a real
+    # PostgreSQL, and then information_schema is asked whether PostgreSQL
+    # agrees with what we said we generated.
+    #
+    # Both halves are needed and only the second is a measurement of the
+    # mapping. Loading proves the DDL is syntactically valid and mutually
+    # consistent; it says nothing about whether CHAR(30) is what we claimed to
+    # emit. Querying information_schema proves PostgreSQL's own catalogue
+    # matches the mapping table, column for column.
+    #
+    # THE SHORTCUT THIS JOB MUST NEVER TAKE: verifying the DDL by re-reading
+    # the strings the generator produced. That is the WP-2.2 §0 circularity in
+    # a new place -- the generator grading its own homework -- and it would
+    # make this gate decorative while leaving it green. tools/ddl_load_check.py
+    # therefore compares against `data_type`, `character_maximum_length`,
+    # `numeric_precision` and `numeric_scale` as PostgreSQL reports them, and
+    # never re-parses the emitted SQL.
+    #
+    # PROVEN TO BITE, not argued. Running the tool with the rendered DDL
+    # sabotaged to execute CHAR(99) while continuing to claim CHAR(1) fails on
+    # the reconciliation, naming all four affected columns:
+    #
+    #   GATE FAILED (reconcile): d09_conditions_d09_conditions.d09_status:
+    #     claimed CHAR(1) (character_maximum_length=1), PostgreSQL reports
+    #     character_maximum_length=99
+    #
+    # A separate job from `pytest` on purpose, and NOT a pytest test: a test
+    # needing a live PostgreSQL would skip on every developer machine, drift
+    # EXPECTED_SKIPS, and be green-by-skip here -- which is the failure mode
+    # tests/toolchain.py exists to close.
+    #
+    # R12: the corpus is copybook SOURCE. No dataset is opened, nothing is
+    # INSERTed. The schema is the deliverable; the data never leaves the
+    # customer perimeter.
+    name: generated DDL loads into postgres:16 and matches information_schema
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: relian
+          POSTGRES_PASSWORD: relian
+          POSTGRES_DB: relian_ddl
+        ports:
+          - 5432:5432
+        # Without the health check the job races the container and fails on
+        # connection refused, which reads as a DDL defect rather than a
+        # scheduling one.
+        #
+        # The health command is EXACTLY the one proven green in run 44
+        # (https://github.com/khaaliswooden-max/relian/actions/runs/32542445394).
+        # It probes with no `-d`, so pg_isready connects to a database named
+        # after the USER, which does not exist, and the service-container log
+        # carries two `FATAL: database "relian" does not exist` lines on a job
+        # that is passing. That is noise, not a fault: pg_isready reports
+        # "accepting connections" because the server answered, which is the
+        # only thing this check needs to establish.
+        #
+        # Adding `-d relian_ddl` would quiet those two lines and is very likely
+        # correct, but it is UNVERIFIED here -- this container has no Docker
+        # daemon, so it could not be exercised before being pushed at a gate.
+        # A cosmetic change to a gate, shipped unmeasured, is the trade this
+        # repository does not make. Left as it is, deliberately.
+        #
+        # NOTHING BUT DOCKER ARGUMENTS MAY GO INSIDE `options:`. It is a YAML
+        # FOLDED scalar (`>-`), so every line below is joined with spaces and
+        # handed to `docker create` verbatim -- a `#` comment in there is not a
+        # comment, it is an argument. Measured: run 45 put these five comment
+        # lines inside the block and `docker create` rejected the whole thing
+        # with `invalid reference format` before the container ever started.
+        # Hence the explanation lives out here.
+        options: >-
+          --health-cmd "pg_isready -U relian"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+        id: checkout
+
+      - name: Pin the interpreter
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned dependencies
+        # psycopg2-binary==2.9.12 is already in the fully-hashed lock file
+        # (V10); nothing new is resolved here.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+
+      - name: Record the measured PostgreSQL version
+        # R9: the version that produced the result, in the run log, so a green
+        # tick is never separable from the conditions that earned it.
+        env:
+          PGPASSWORD: relian
+        run: psql -h localhost -U relian -d relian_ddl -c "SELECT version();"
+
+      - name: Execute the generated DDL and reconcile information_schema
+        env:
+          RELIAN_DDL_DSN: postgresql://relian:relian@localhost:5432/relian_ddl
+        run: |
+          python3 tools/ddl_load_check.py \
+            --dsn "$RELIAN_DDL_DSN" \
+            --corpus discovery-bench/corpus \
+            --schema relian_ddl_check \
+            --json ddl-load-report.json
+
+      - name: Confirm nothing under discovery-bench/ was modified
+        # Rule 4: the corpus is frozen. This job READS fifteen copybooks and
+        # must write nothing back into the sealed tree.
+        #
+        # Conditioned on the checkout rather than on `always()` alone. When the
+        # service container failed to start in run 45, checkout was skipped and
+        # this step still ran, reporting `fatal: not a git repository` -- a
+        # second, misleading error on top of the real one. The guard must fire
+        # whenever there is a tree to check and stay quiet when there is not.
+        if: always() && steps.checkout.outcome == 'success'
+
+        run: |
+          echo "--- git status --short -- discovery-bench/ ---"
+          git status --short -- discovery-bench/
+          test -z "$(git status --porcelain -- discovery-bench/)" \
+            || { echo "FAIL: discovery-bench/ was modified during this run"; exit 1; }
+
+      - name: Upload the reconciliation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ddl-load-report
+          path: ddl-load-report.json
+          if-no-files-found: warn
 
   pytest:
     name: pytest (CPython 3.12, GnuCOBOL + JDK)
