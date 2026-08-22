@@ -1,0 +1,1576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relian Build Atlas</title>
+<meta name="description" content="Relian — system architecture, production cycle, build timeline with a movable position flag, and the technical summary.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+
+<style>
+/* ============================================================
+   RELIAN BUILD ATLAS
+   Palette: Visionblox brand — ink navy, paper, seal teal,
+   signal amber, slate. Amber is reserved for one thing only:
+   the position flag.
+   Type: IBM Plex superfamily — Sans (structure), Mono (every
+   measured value), Serif (the state record). Mono is semantic
+   here: if it is set in mono, a process produced it.
+   ============================================================ */
+
+:root {
+  --paper:        #F5F5F0;
+  --surface:      #FFFFFF;
+  --surface-2:    #ECEDE6;
+  --sunk:         #E3E5DD;
+  --ink:          #141B31;
+  --ink-2:        #3D4763;
+  --ink-3:        #6C7794;
+  --rule:         #D2D5CA;
+  --rule-strong:  #B4B9AC;
+
+  --seal:         #1E8672;
+  --seal-soft:    #E0F0EB;
+  --seal-line:    #9FCFC2;
+  --signal:       #C08A00;
+  --signal-pure:  #F7B801;
+  --signal-soft:  #FBF0D2;
+  --slate:        #8892A4;
+  --brick:        #A8462F;
+  --brick-soft:   #F6E4DE;
+
+  --shadow:       0 1px 2px rgba(20,27,49,.06), 0 8px 24px -14px rgba(20,27,49,.28);
+  --shadow-lift:  0 2px 4px rgba(20,27,49,.08), 0 18px 44px -20px rgba(20,27,49,.40);
+
+  --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+
+  --measure: 66ch;
+  --gutter: clamp(20px, 4vw, 56px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:       #0C1122;
+    --surface:     #141B31;
+    --surface-2:   #1B2440;
+    --sunk:        #0A0F1E;
+    --ink:         #EDEFF5;
+    --ink-2:       #B6BECF;
+    --ink-3:       #8892A4;
+    --rule:        #2A3350;
+    --rule-strong: #3C476A;
+
+    --seal:        #45C4AA;
+    --seal-soft:   #10312C;
+    --seal-line:   #2C6B5F;
+    --signal:      #F7B801;
+    --signal-pure: #F7B801;
+    --signal-soft: #33270A;
+    --slate:       #7C869B;
+    --brick:       #E08066;
+    --brick-soft:  #34160F;
+
+    --shadow:      0 1px 2px rgba(0,0,0,.5), 0 10px 30px -16px rgba(0,0,0,.8);
+    --shadow-lift: 0 2px 6px rgba(0,0,0,.55), 0 22px 54px -22px rgba(0,0,0,.9);
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:       #0C1122;
+  --surface:     #141B31;
+  --surface-2:   #1B2440;
+  --sunk:        #0A0F1E;
+  --ink:         #EDEFF5;
+  --ink-2:       #B6BECF;
+  --ink-3:       #8892A4;
+  --rule:        #2A3350;
+  --rule-strong: #3C476A;
+
+  --seal:        #45C4AA;
+  --seal-soft:   #10312C;
+  --seal-line:   #2C6B5F;
+  --signal:      #F7B801;
+  --signal-pure: #F7B801;
+  --signal-soft: #33270A;
+  --slate:       #7C869B;
+  --brick:       #E08066;
+  --brick-soft:  #34160F;
+
+  --shadow:      0 1px 2px rgba(0,0,0,.5), 0 10px 30px -16px rgba(0,0,0,.8);
+  --shadow-lift: 0 2px 6px rgba(0,0,0,.55), 0 22px 54px -22px rgba(0,0,0,.9);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
+.narrow { max-width: var(--measure); }
+
+h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; margin: 0; font-weight: 600; letter-spacing: -0.015em; }
+p { margin: 0; }
+
+/* --- shared atoms ------------------------------------------------ */
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--seal);
+  white-space: nowrap;
+}
+.num-null { font-family: var(--mono); color: var(--slate); font-style: normal; white-space: nowrap; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: .45em;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: .32em .62em; border-radius: 3px;
+  border: 1px solid transparent; white-space: nowrap;
+}
+.chip-measured { color: var(--seal); background: var(--seal-soft); border-color: var(--seal-line); }
+.chip-sealed   { color: var(--seal); background: transparent; border-color: var(--seal-line); }
+.chip-here     { color: #3A2A00; background: var(--signal-pure); border-color: var(--signal-pure); font-weight: 600; }
+.chip-none     { color: var(--slate); background: transparent; border-color: var(--rule-strong); }
+.chip-refuse   { color: var(--brick); background: var(--brick-soft); border-color: var(--brick); }
+
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+
+/* --- masthead ---------------------------------------------------- */
+
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+  padding: clamp(36px, 6vw, 72px) 0 0;
+}
+.mast-top { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: baseline; justify-content: space-between; }
+.mast-title { font-size: clamp(34px, 5.6vw, 60px); letter-spacing: -0.03em; font-weight: 700; }
+.mast-title em { font-style: normal; color: var(--seal); }
+.mast-sub {
+  font-family: var(--serif); font-size: clamp(16px, 1.7vw, 19px);
+  color: var(--ink-2); max-width: 60ch; margin-top: 14px;
+}
+.mast-warn {
+  margin-top: 26px; padding: 12px 16px;
+  border-left: 3px solid var(--brick);
+  background: var(--brick-soft);
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.55; color: var(--ink);
+}
+
+.readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; margin-top: 36px; border-top: 1px solid var(--rule); }
+.readout > div { padding: 18px 20px 20px 0; border-right: 1px solid var(--rule); }
+.readout > div:last-child { border-right: 0; }
+.readout dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; }
+.readout dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: clamp(20px, 2.4vw, 26px); font-weight: 500; color: var(--ink); letter-spacing: -0.02em; }
+.readout dd.is-seal { color: var(--seal); }
+.readout dd.is-zero { color: var(--slate); }
+.readout dd small { display: block; font-family: var(--sans); font-size: 11.5px; font-weight: 400; letter-spacing: 0; color: var(--ink-3); margin-top: 5px; line-height: 1.4; }
+
+/* --- plates ------------------------------------------------------ */
+
+.plate { padding: clamp(56px, 8vw, 104px) 0; border-bottom: 1px solid var(--rule); }
+.plate:nth-of-type(even) { background: var(--surface); }
+.plate-head { display: flex; gap: clamp(16px, 3vw, 40px); align-items: flex-start; margin-bottom: clamp(32px, 4vw, 52px); }
+.plate-numeral {
+  font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: .14em;
+  color: var(--seal); border: 1px solid var(--seal-line); border-radius: 3px;
+  padding: .4em .6em; flex: none; margin-top: 6px;
+}
+.plate-title { font-size: clamp(24px, 3.4vw, 36px); letter-spacing: -0.025em; }
+.plate-lede { font-family: var(--serif); font-size: clamp(15.5px, 1.6vw, 18px); color: var(--ink-2); max-width: var(--measure); margin-top: 12px; }
+
+figure { margin: 0; }
+figure svg { display: block; width: 100%; height: auto; }
+.figframe {
+  background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px;
+  padding: clamp(14px, 2.4vw, 30px); overflow-x: auto;
+}
+.plate:nth-of-type(even) .figframe { background: var(--sunk); }
+figcaption { font-family: var(--serif); font-size: 14.5px; color: var(--ink-2); margin-top: 16px; max-width: var(--measure); }
+figcaption b { font-family: var(--sans); font-weight: 600; color: var(--ink); }
+
+/* --- the rail and the flag --------------------------------------- */
+
+.rail-scroll { overflow-x: auto; padding: 88px 0 8px; margin: 0 calc(var(--gutter) * -1); padding-left: var(--gutter); padding-right: var(--gutter); }
+.rail {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(148px, 1fr);
+  min-width: 940px; position: relative;
+}
+.rail::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--rule-strong);
+}
+
+.stop { position: relative; padding: 0 10px 0 0; }
+.stop-btn {
+  appearance: none; -webkit-appearance: none;
+  display: block; width: 100%; text-align: left;
+  background: none; border: 0; padding: 22px 8px 16px 0;
+  cursor: pointer; color: inherit; font: inherit;
+  border-top: 2px solid transparent; margin-top: -2px;
+  transition: border-color .28s ease, opacity .28s ease;
+}
+.stop-btn:focus-visible { outline: 2px solid var(--seal); outline-offset: 3px; border-radius: 3px; }
+
+.stop-dot {
+  position: absolute; top: -6px; left: 0; width: 11px; height: 11px; border-radius: 50%;
+  background: var(--paper); border: 2px solid var(--rule-strong);
+  transition: background .28s ease, border-color .28s ease, transform .28s ease;
+}
+.plate:nth-of-type(even) .stop-dot { background: var(--surface); }
+
+.stop-id { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; color: var(--ink-3); display: block; }
+.stop-name { font-size: 13.5px; font-weight: 600; line-height: 1.3; margin-top: 7px; display: block; letter-spacing: -0.01em; }
+.stop-when { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); margin-top: 6px; display: block; font-variant-numeric: tabular-nums; }
+
+/* state: done */
+.stop[data-state="done"] .stop-dot { background: var(--seal); border-color: var(--seal); }
+.stop[data-state="done"] .stop-btn { border-top-color: var(--seal); }
+
+/* state: current — the one place amber is spent */
+.stop[data-state="current"] .stop-dot { background: var(--signal-pure); border-color: var(--signal-pure); transform: scale(1.35); }
+.stop[data-state="current"] .stop-btn { border-top-color: var(--signal-pure); }
+.stop[data-state="current"] .stop-name { color: var(--ink); }
+
+/* state: future */
+.stop[data-state="future"] .stop-btn { opacity: .5; }
+.stop[data-state="future"] .stop-name { font-weight: 500; }
+
+.stop-btn:hover .stop-name { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+/* the flag itself */
+.flag {
+  position: absolute; left: -3px; bottom: calc(100% + 4px);
+  width: 74px; pointer-events: none;
+  opacity: 0; transform: translateY(10px) scale(.9); transform-origin: 4px 100%;
+  transition: opacity .34s ease, transform .34s cubic-bezier(.2,1.5,.4,1);
+}
+.stop[data-state="current"] .flag { opacity: 1; transform: translateY(0) scale(1); }
+.flag-here {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 600; letter-spacing: .14em;
+  fill: var(--ink);
+}
+@media (prefers-reduced-motion: reduce) {
+  .flag, .stop-dot, .stop-btn { transition: none; }
+}
+
+/* phase bands under the rail */
+.bands { display: grid; grid-auto-flow: column; min-width: 940px; margin-top: 4px; }
+.band { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
+  border-top: 1px solid var(--rule); padding: 8px 10px 0 0; }
+.band span { display: block; border-left: 2px solid var(--rule-strong); padding-left: 8px; }
+.band[data-done="true"] span { border-left-color: var(--seal); color: var(--seal); }
+
+/* --- state panel -------------------------------------------------- */
+
+.panel-zone { margin-top: clamp(28px, 4vw, 44px); }
+.panel {
+  display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 52px);
+  border: 1px solid var(--rule); border-top: 3px solid var(--seal);
+  border-radius: 6px; background: var(--surface); box-shadow: var(--shadow);
+  padding: clamp(22px, 3.2vw, 38px);
+}
+.plate:nth-of-type(even) .panel { background: var(--sunk); }
+.panel[data-status="here"]  { border-top-color: var(--signal-pure); }
+.panel[data-status="none"]  { border-top-color: var(--rule-strong); }
+.panel[hidden] { display: none; }
+
+.panel-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+.panel h3 { font-size: clamp(20px, 2.6vw, 27px); letter-spacing: -0.025em; }
+.panel-body { font-family: var(--serif); font-size: 16.5px; line-height: 1.68; color: var(--ink-2); margin-top: 16px; display: grid; gap: 14px; max-width: 62ch; }
+.panel-body strong { font-family: var(--sans); font-weight: 600; color: var(--ink); }
+.panel-body em { font-style: italic; }
+
+.panel-side { display: grid; gap: 18px; align-content: start; }
+.side-block { border-left: 2px solid var(--rule); padding-left: 14px; }
+.side-block.is-seal { border-left-color: var(--seal-line); }
+.side-block.is-none { border-left-color: var(--rule-strong); }
+.side-block h4 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+.side-block ul { margin: 9px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.side-block li { font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+.side-block li::before { content: "—"; color: var(--rule-strong); margin-right: .5em; font-family: var(--mono); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 22px; }
+.controls p { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); line-height: 1.5; }
+.btn {
+  appearance: none; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  padding: .62em 1em; border-radius: 3px; border: 1px solid var(--rule-strong);
+  background: transparent; color: var(--ink-2); cursor: pointer;
+  transition: border-color .18s ease, color .18s ease, background .18s ease;
+}
+.btn:hover { border-color: var(--seal); color: var(--seal); }
+.btn:focus-visible { outline: 2px solid var(--seal); outline-offset: 2px; }
+.btn[data-role="save"] { border-color: var(--signal-pure); color: var(--signal); }
+.btn[data-role="save"]:hover { background: var(--signal-soft); }
+.btn[hidden] { display: none; }
+.save-note { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+
+/* --- provenance table --------------------------------------------- */
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+.plate:nth-of-type(even) .tablewrap { background: var(--sunk); }
+table { border-collapse: collapse; width: 100%; min-width: 720px; }
+caption { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding: 0 0 12px; }
+th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13.5px; line-height: 1.5; }
+thead th { font-family: var(--mono); font-size: 10.5px; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; background: var(--surface-2); }
+.plate:nth-of-type(even) thead th { background: var(--surface); }
+tbody tr:last-child td { border-bottom: 0; }
+td.v { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); }
+td.src { color: var(--ink-3); font-size: 12.5px; }
+td.src code { font-size: 11.5px; }
+
+.grade { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; padding: .25em .5em; border-radius: 2px; border: 1px solid; white-space: nowrap; }
+.g-verified { color: var(--seal); border-color: var(--seal-line); }
+.g-plausible { color: var(--signal); border-color: var(--signal); }
+.g-none { color: var(--slate); border-color: var(--rule-strong); }
+
+/* --- footer ------------------------------------------------------- */
+
+footer { padding: clamp(40px, 6vw, 72px) 0; }
+.foot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 28px; }
+.foot-grid h4 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; margin-bottom: 10px; }
+.foot-grid p, .foot-grid li { font-size: 13px; line-height: 1.6; color: var(--ink-2); }
+.foot-grid ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+.colophon { margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 11px; color: var(--ink-3); line-height: 1.7; }
+
+@media (max-width: 900px) {
+  .panel { grid-template-columns: 1fr; }
+  .readout > div { border-right: 0; border-bottom: 1px solid var(--rule); padding-right: 0; }
+  .plate-head { flex-direction: column; gap: 14px; }
+}
+</style>
+
+<style>
+/* diagram vocabulary — shared by all three plates */
+.d-box       { fill: var(--surface); stroke: var(--rule-strong); stroke-width: 1; }
+.plate:nth-of-type(even) .d-box { fill: var(--surface); }
+.d-sunk      { fill: var(--surface-2); stroke: var(--rule); stroke-width: 1; }
+.plate:nth-of-type(even) .d-sunk { fill: var(--surface-2); }
+.d-seal      { fill: var(--seal-soft); stroke: var(--seal); stroke-width: 1.25; }
+.d-brick     { fill: var(--brick-soft); stroke: var(--brick); stroke-width: 1.25; }
+.d-zone      { fill: none; stroke: var(--seal); stroke-width: 1.25; stroke-dasharray: 7 5; }
+.d-zone-q    { fill: none; stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 4; }
+.d-t         { fill: var(--ink); font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+.d-t-sm      { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-weight: 600; }
+.d-s         { fill: var(--ink-3); font-family: var(--mono); font-size: 10.5px; }
+.d-s2        { fill: var(--ink-2); font-family: var(--sans); font-size: 11.5px; }
+.d-zonelab   { fill: var(--seal); font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .13em; }
+.d-mutelab   { fill: var(--ink-3); font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: .13em; }
+.d-bricklab  { fill: var(--brick); font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .13em; }
+.d-num       { fill: var(--seal); font-family: var(--mono); font-size: 11px; font-weight: 500; }
+.d-line      { stroke: var(--rule-strong); stroke-width: 1.5; fill: none; }
+.d-line-seal { stroke: var(--seal); stroke-width: 1.5; fill: none; }
+.d-line-dash { stroke: var(--rule-strong); stroke-width: 1.25; fill: none; stroke-dasharray: 4 4; }
+.d-alab      { fill: var(--ink-2); font-family: var(--mono); font-size: 10px; }
+.d-head      { fill: var(--rule-strong); }
+.d-head-seal { fill: var(--seal); }
+</style>
+
+<style>
+/* ---- site chrome: the two-tab shell shared by both pages ---- */
+.tabs {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--rule);
+}
+.tabs-inner { display: flex; align-items: center; gap: clamp(14px, 3vw, 34px); min-height: 52px; flex-wrap: wrap; }
+.tabs-brand { font-weight: 700; font-size: 15px; letter-spacing: -0.02em; color: var(--ink); flex: none; }
+.tabs-brand span { color: var(--seal); font-weight: 500; }
+.tabs-links { display: flex; gap: 4px; flex: 1 1 auto; }
+.tab {
+  font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .11em; text-transform: uppercase;
+  color: var(--ink-3); text-decoration: none; padding: 16px 12px 15px;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color .18s ease, border-color .18s ease;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-current="page"] { color: var(--seal); border-bottom-color: var(--seal); }
+.tab:focus-visible { outline: 2px solid var(--seal); outline-offset: -4px; border-radius: 2px; }
+.tabs-meta { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); letter-spacing: .06em; flex: none; }
+
+/* ---- the rendered technical summary ---- */
+.md { padding: clamp(40px, 6vw, 80px) 0 clamp(56px, 8vw, 96px); }
+.md-body { max-width: 78ch; }
+.md-body > h1 {
+  font-size: clamp(30px, 4.6vw, 46px); letter-spacing: -0.03em; font-weight: 700;
+  margin: 0 0 6px; padding-bottom: 0;
+}
+.md-body > h2 {
+  font-size: clamp(20px, 2.6vw, 27px); letter-spacing: -0.025em;
+  margin: 56px 0 4px; padding-top: 26px; border-top: 1px solid var(--rule);
+}
+.md-body > h2:first-of-type { border-top: 0; padding-top: 0; }
+.md-body > h3 { font-size: clamp(16px, 1.9vw, 19px); letter-spacing: -0.015em; margin: 34px 0 2px; color: var(--ink); }
+.md-body > h4 { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: 26px 0 2px; font-weight: 500; }
+.md-body > p { font-family: var(--serif); font-size: 16.5px; line-height: 1.68; color: var(--ink-2); margin: 14px 0 0; }
+.md-body > p > strong, .md-body li > strong { font-family: var(--sans); font-weight: 600; color: var(--ink); }
+.md-body > ul, .md-body > ol { margin: 14px 0 0; padding-left: 1.4em; display: grid; gap: 10px; }
+.md-body li { font-family: var(--serif); font-size: 16px; line-height: 1.62; color: var(--ink-2); }
+.md-body li::marker { color: var(--ink-3); font-family: var(--mono); font-size: .82em; }
+.md-body code { font-family: var(--mono); font-size: .84em; background: var(--surface-2); padding: .12em .38em; border-radius: 3px; color: var(--ink); }
+.md-body > blockquote {
+  margin: 22px 0 0; padding: 16px 20px; border-left: 3px solid var(--brick);
+  background: var(--brick-soft); border-radius: 0 4px 4px 0;
+}
+.md-body > blockquote p { font-family: var(--sans); font-size: 14px; line-height: 1.6; color: var(--ink); margin: 0; }
+.md-body > blockquote code { background: transparent; padding: 0; }
+.md-body > hr.rule { margin: 44px 0 0; }
+.md-body .tablewrap { margin: 20px 0 0; }
+.md-body table { min-width: 560px; }
+.md-body td:first-child { font-weight: 500; color: var(--ink); }
+.md-body a { color: var(--seal); text-underline-offset: 2px; }
+.md-toc {
+  margin: 0 0 clamp(28px, 4vw, 44px); padding: 18px 22px;
+  border: 1px solid var(--rule); border-left: 3px solid var(--seal); border-radius: 0 5px 5px 0;
+  background: var(--surface);
+}
+.md-toc h4 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; font-weight: 500; }
+.md-toc ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.md-toc li { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.md-toc a { color: var(--ink-2); text-decoration: none; }
+.md-toc a:hover { color: var(--seal); text-decoration: underline; text-underline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .tabs-meta { display: none; }
+  .tabs-inner { gap: 10px; }
+}
+</style>
+
+<style>
+/* ---- the two tabs, switched in-page. One file, no navigation. ---- */
+.tabs { position: sticky; top: 0; z-index: 40;
+  background: var(--surface); border-bottom: 1px solid var(--rule); }
+@supports (backdrop-filter: blur(10px)) {
+  .tabs { background: color-mix(in srgb, var(--surface) 92%, transparent);
+          backdrop-filter: saturate(1.4) blur(10px);
+          -webkit-backdrop-filter: saturate(1.4) blur(10px); }
+}
+.tabs-inner { display: flex; align-items: center; gap: clamp(14px, 3vw, 34px);
+  min-height: 52px; flex-wrap: wrap; }
+.tabs-brand { font-weight: 700; font-size: 15px; letter-spacing: -0.02em; color: var(--ink); flex: none; }
+.tabs-brand span { color: var(--seal); font-weight: 500; }
+.tabs-links { display: flex; gap: 4px; flex: 1 1 auto; }
+.tab {
+  font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--ink-3);
+  background: none; border: 0; border-bottom: 2px solid transparent;
+  padding: 16px 12px 15px; margin-bottom: -1px; cursor: pointer;
+  transition: color .18s ease, border-color .18s ease;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--seal); border-bottom-color: var(--seal); }
+.tab:focus-visible { outline: 2px solid var(--seal); outline-offset: -4px; border-radius: 2px; }
+.tabs-meta { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); letter-spacing: .06em; flex: none; }
+[role="tabpanel"][hidden] { display: none; }
+
+/* ---- the technical summary panel ---- */
+.md { padding: clamp(40px, 6vw, 80px) 0 clamp(56px, 8vw, 96px); }
+.md-body { max-width: 78ch; }
+.md-body > h1 { font-size: clamp(30px, 4.6vw, 46px); letter-spacing: -0.03em; font-weight: 700; margin: 0 0 6px; }
+.md-body > h2 { font-size: clamp(20px, 2.6vw, 27px); letter-spacing: -0.025em; margin: 56px 0 4px; padding-top: 26px; border-top: 1px solid var(--rule); }
+.md-body > h2:first-of-type { border-top: 0; padding-top: 0; }
+.md-body > h3 { font-size: clamp(16px, 1.9vw, 19px); letter-spacing: -0.015em; margin: 34px 0 2px; color: var(--ink); }
+.md-body > h4 { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: 26px 0 2px; font-weight: 500; }
+.md-body > p { font-family: var(--serif); font-size: 16.5px; line-height: 1.68; color: var(--ink-2); margin: 14px 0 0; }
+.md-body > p > strong, .md-body li > strong { font-family: var(--sans); font-weight: 600; color: var(--ink); }
+.md-body > ul, .md-body > ol { margin: 14px 0 0; padding-left: 1.4em; display: grid; gap: 10px; }
+.md-body li { font-family: var(--serif); font-size: 16px; line-height: 1.62; color: var(--ink-2); }
+.md-body li::marker { color: var(--ink-3); font-family: var(--mono); font-size: .82em; }
+.md-body code { font-family: var(--mono); font-size: .84em; background: var(--surface-2); padding: .12em .38em; border-radius: 3px; color: var(--ink); }
+.md-body > blockquote { margin: 22px 0 0; padding: 16px 20px; border-left: 3px solid var(--brick); background: var(--brick-soft); border-radius: 0 4px 4px 0; }
+.md-body > blockquote p { font-family: var(--sans); font-size: 14px; line-height: 1.6; color: var(--ink); margin: 0; }
+.md-body > blockquote code { background: transparent; padding: 0; }
+.md-body > hr.rule { margin: 44px 0 0; }
+.md-body .tablewrap { margin: 20px 0 0; }
+.md-body table { min-width: 560px; }
+.md-body td:first-child { font-weight: 500; color: var(--ink); }
+.md-body a { color: var(--seal); text-underline-offset: 2px; }
+.md-toc { margin: 0 0 clamp(28px, 4vw, 44px); padding: 18px 22px; border: 1px solid var(--rule);
+  border-left: 3px solid var(--seal); border-radius: 0 5px 5px 0; background: var(--surface); }
+.md-toc h4 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-3); margin: 0 0 10px; font-weight: 500; }
+.md-toc ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.md-toc li { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.md-toc a { color: var(--ink-2); text-decoration: none; }
+.md-toc a:hover { color: var(--seal); text-decoration: underline; text-underline-offset: 2px; }
+
+@media (max-width: 640px) { .tabs-meta { display: none; } .tabs-inner { gap: 10px; } }
+@media print { .tabs { position: static; } [role="tabpanel"][hidden] { display: block !important; } }
+</style>
+</head>
+<body>
+
+<nav class="tabs">
+  <div class="wrap-wide tabs-inner">
+    <span class="tabs-brand">Relian<span>&#8482;</span></span>
+    <div class="tabs-links" role="tablist" aria-label="Sections">
+      <button class="tab" type="button" role="tab" id="tab-atlas"
+              aria-controls="panel-atlas" aria-selected="true">Build Atlas</button>
+      <button class="tab" type="button" role="tab" id="tab-summary"
+              aria-controls="panel-summary" aria-selected="false">Technical Summary</button>
+    </div>
+    <span class="tabs-meta">ba58123 &middot; 2026-08-22</span>
+  </div>
+</nav>
+
+<div id="panel-atlas" role="tabpanel" aria-labelledby="tab-atlas">
+<header class="masthead">
+  <div class="wrap">
+    <div class="mast-top">
+      <div>
+        <p class="eyebrow">Zuup Innovation Lab · Visionblox LLC · internal technical brief</p>
+        <h1 class="mast-title">Relian <em>Build Atlas</em></h1>
+      </div>
+      <p class="eyebrow" style="text-align:right">Compiled 2026-08-22<br>HEAD <span style="text-transform:none">ba58123</span> · main</p>
+    </div>
+    <p class="mast-sub">Three plates: how the system is put together, what a production run
+      actually does to a customer's code, and exactly where the build stands today. The
+      position flag on Plate III moves as the build moves.</p>
+
+    <p class="mast-warn"><strong>PRE-MVP RESEARCH PROTOTYPE.</strong> Not production. Zero completed
+      customer migrations. Zero countersigned reports issued. Every figure below was produced by a
+      process that ran; anything not measured is printed as <span class="num-null">not measured</span>,
+      never as a default.</p>
+
+    <dl class="readout">
+      <div>
+        <dt>Held-out BER · C1</dt>
+        <dd class="is-seal">1.0000<small>425 / 425 vectors, RELIAN-BENCH v1.2</small></dd>
+      </div>
+      <div>
+        <dt>Build rate</dt>
+        <dd class="is-seal">1.0000<small>7 of 7 programs compile</small></dd>
+      </div>
+      <div>
+        <dt>Branch coverage</dt>
+        <dd class="is-seal">0.8854<small>JaCoCo 0.8.12 · bar is 0.80</small></dd>
+      </div>
+      <div>
+        <dt>Layout round-trip</dt>
+        <dd class="is-seal">186 / 186<small>vs sealed oracle, tolerance zero</small></dd>
+      </div>
+      <div>
+        <dt>Test suite</dt>
+        <dd>1097<small>passed · 10 skipped · 0 failed</small></dd>
+      </div>
+      <div>
+        <dt>Migrations delivered</dt>
+        <dd class="is-zero">0<small>and no attestation is real yet</small></dd>
+      </div>
+    </dl>
+  </div>
+</header>
+
+<section class="plate">
+  <div class="wrap">
+    <div class="plate-head">
+      <span class="plate-numeral">PLATE I</span>
+      <div>
+        <h2 class="plate-title">System architecture</h2>
+        <p class="plate-lede">The load-bearing decision is not a component — it is a boundary.
+          Customer source never leaves the customer's machine, and exactly one line crosses
+          outward: three digests with no content in them. Everything else in the drawing exists
+          to make a claim checkable by someone who does not trust us.</p>
+      </div>
+    </div>
+
+    <figure>
+      <div class="figframe">
+        <svg viewBox="0 0 1180 900" role="img" aria-label="Relian system architecture: a customer perimeter containing intake, ANTLR COBOL-85 parsing, copybook resolution, the assessment engine, the C1 transpiler, the discovery engine, differential validation against GnuCOBOL, and a measured-only gate; a single countersign request of three digests crossing the perimeter to operator key custody; a recipient-side verifier; and a CI-only sealed benchmark substrate that sets the thresholds.">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="d-head"/>
+            </marker>
+            <marker id="ahs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="d-head-seal"/>
+            </marker>
+          </defs>
+
+          <!-- ============ CUSTOMER PERIMETER ============ -->
+          <rect x="24" y="56" width="740" height="616" rx="6" class="d-zone"/>
+          <rect x="40" y="46" width="316" height="20" rx="3" fill="var(--paper)"/>
+          <text x="48" y="61" class="d-zonelab">CUSTOMER PERIMETER — R12 / R6</text>
+          <text x="26" y="692" class="d-s">CLI / on-prem · offline · read-only over source · no socket, no model, no network</text>
+
+          <!-- source -->
+          <rect x="48" y="88" width="692" height="42" rx="4" class="d-sunk"/>
+          <text x="64" y="107" class="d-t-sm">Customer COBOL</text>
+          <text x="64" y="122" class="d-s">source · copybooks · JCL — never copied, never uploaded</text>
+
+          <path d="M200,130 L200,168" class="d-line" marker-end="url(#ah)"/>
+          <path d="M560,130 L560,168" class="d-line" marker-end="url(#ah)"/>
+
+          <!-- front end -->
+          <rect x="48" y="170" width="320" height="62" rx="4" class="d-box"/>
+          <text x="64" y="192" class="d-t">ANTLR COBOL-85 parser → AST</text>
+          <text x="64" y="210" class="d-s">src/parsers/ · grammar replaced at WP-2.0</text>
+          <text x="64" y="224" class="d-s">token_scan fallback when a program will not parse</text>
+
+          <rect x="420" y="170" width="320" height="62" rx="4" class="d-box"/>
+          <text x="436" y="192" class="d-t">Copybook resolver + layout engine</text>
+          <text x="436" y="210" class="d-s">src/discovery/ · COPY fan-in, missing table</text>
+          <text x="436" y="224" class="d-s">offsets · SYNC · REDEFINES · ODO · RENAMES</text>
+
+          <path d="M130,232 L130,272" class="d-line" marker-end="url(#ah)"/>
+          <path d="M300,232 L300,272" class="d-line" marker-end="url(#ah)"/>
+          <path d="M600,232 L600,272" class="d-line" marker-end="url(#ah)"/>
+
+          <!-- three engines -->
+          <rect x="48" y="274" width="212" height="86" rx="4" class="d-box"/>
+          <text x="62" y="296" class="d-t">Assessment engine</text>
+          <text x="62" y="315" class="d-s">LOC · cyclomatic complexity</text>
+          <text x="62" y="329" class="d-s">construct coverage · risk tier</text>
+          <text x="62" y="349" class="d-s2">deterministic · identical reruns</text>
+
+          <rect x="276" y="274" width="212" height="86" rx="4" class="d-box"/>
+          <text x="290" y="296" class="d-t">C1 transpiler</text>
+          <text x="290" y="315" class="d-s">SUPPORTED_STATEMENTS table</text>
+          <text x="290" y="329" class="d-s">→ Java, BigDecimal, HALF_UP</text>
+          <text x="290" y="349" class="d-s2">no model in the transform path</text>
+
+          <rect x="504" y="274" width="236" height="86" rx="4" class="d-box"/>
+          <text x="518" y="296" class="d-t">Discovery engine</text>
+          <text x="518" y="315" class="d-s">record layouts · condition names</text>
+          <text x="518" y="329" class="d-s">gaps compared by projection</text>
+          <text x="518" y="349" class="d-s2">inventory / lineage / DDL: not built</text>
+
+          <path d="M154,360 L154,398" class="d-line" marker-end="url(#ah)"/>
+          <path d="M382,360 L382,398" class="d-line" marker-end="url(#ah)"/>
+          <text x="394" y="384" class="d-alab">verdicts cross-checked</text>
+
+          <!-- differential -->
+          <rect x="48" y="400" width="440" height="66" rx="4" class="d-box"/>
+          <text x="64" y="422" class="d-t">Differential validation</text>
+          <text x="64" y="441" class="d-s">build both (javac · cobc) → execute both on every input</text>
+          <text x="64" y="456" class="d-s">equivalence = byte-identical stdout AND same exit code</text>
+
+          <path d="M268,466 L268,502" class="d-line-seal" marker-end="url(#ahs)"/>
+          <text x="280" y="489" class="d-alab">the only source of semantic_score</text>
+
+          <!-- gate -->
+          <rect x="48" y="504" width="692" height="64" rx="4" class="d-seal"/>
+          <text x="64" y="525" class="d-t">MEASURED-ONLY GATE</text>
+          <text x="64" y="543" class="d-s">unmeasured → None → no attestation, no exceptions</text>
+          <text x="64" y="559" class="d-s">unsupported construct → diagnosed refusal naming the verb and the line; no Java is emitted</text>
+
+          <path d="M200,568 L200,594" class="d-line" marker-end="url(#ah)"/>
+          <path d="M560,568 L560,594" class="d-line" marker-end="url(#ah)"/>
+
+          <!-- outputs -->
+          <rect x="48" y="596" width="330" height="60" rx="4" class="d-box"/>
+          <text x="62" y="617" class="d-t">Signed report</text>
+          <text x="62" y="635" class="d-s">report.json + manifest of digests</text>
+          <text x="62" y="649" class="d-s">+ Ed25519 instance signature</text>
+
+          <rect x="410" y="596" width="330" height="60" rx="4" class="d-brick"/>
+          <text x="424" y="617" class="d-t">Attestation</text>
+          <text x="424" y="635" class="d-s">self-identifies as simulated: true</text>
+          <text x="424" y="649" class="d-s">skipped whenever validation was not measured</text>
+
+          <!-- ============ THE CROSSING ============ -->
+          <path d="M213,656 L213,712" class="d-line-seal" marker-end="url(#ahs)"/>
+          <rect x="24" y="716" width="740" height="80" rx="6" class="d-seal"/>
+          <text x="44" y="740" class="d-zonelab">THE ONLY THING THAT LEAVES THE PERIMETER</text>
+          <text x="44" y="762" class="d-s2">The countersign request: manifest hash · report id · instance fingerprint.</text>
+          <text x="44" y="782" class="d-s2">Three digests. No source code, no field names, no record contents, no file paths.</text>
+
+          <path d="M764,756 L784,756 L784,470 L796,470" class="d-line-seal" marker-end="url(#ahs)"/>
+
+          <!-- ============ BENCH SUBSTRATE ============ -->
+          <rect x="800" y="88" width="356" height="300" rx="6" class="d-box"/>
+          <text x="816" y="112" class="d-mutelab">VERIFICATION SUBSTRATE — CI ONLY, R3</text>
+          <line x1="816" y1="124" x2="1140" y2="124" stroke="var(--rule)"/>
+
+          <text x="816" y="148" class="d-t-sm">RELIAN-BENCH v1.2 · sealed</text>
+          <text x="816" y="167" class="d-s">7 COBOL programs</text>
+          <text x="816" y="183" class="d-num">425 held-out · 89 public vectors</text>
+          <text x="816" y="201" class="d-s">bar: BER ≥ 0.95 · build 1.00 · branch ≥ 0.80</text>
+
+          <text x="816" y="234" class="d-t-sm">RELIAN-DISCOVERY-BENCH v0.1 · sealed</text>
+          <text x="816" y="253" class="d-s">15 copybooks · 124 elementary fields</text>
+          <text x="816" y="269" class="d-num">170 probe rows · oracle from GnuCOBOL</text>
+
+          <line x1="816" y1="292" x2="1140" y2="292" stroke="var(--rule)"/>
+          <text x="816" y="313" class="d-s">Ed25519 seal key 233bb4406e2de606</text>
+          <text x="816" y="333" class="d-s2">Held-out vectors are not in this repository</text>
+          <text x="816" y="350" class="d-s2">and are never read by an agent. Scored on</text>
+          <text x="816" y="367" class="d-s2">main only — a score returned on every push</text>
+          <text x="816" y="384" class="d-s2">is a channel you can fit against.</text>
+
+          <path d="M800,432 L768,432" class="d-line-dash" marker-end="url(#ah)"/>
+          <text x="760" y="420" class="d-alab" text-anchor="end">sets the bar · gates the merge</text>
+
+          <!-- ============ OPERATOR ============ -->
+          <rect x="800" y="424" width="356" height="128" rx="6" class="d-box"/>
+          <text x="816" y="448" class="d-mutelab">OPERATOR CUSTODY — R4</text>
+          <line x1="816" y1="460" x2="1140" y2="460" stroke="var(--rule)"/>
+          <text x="816" y="482" class="d-t-sm">tools/countersign.py</text>
+          <text x="816" y="501" class="d-s">Visionblox release key 91e3a404155ba4dd</text>
+          <text x="816" y="518" class="d-s">passphrase via getpass only — never argv,</text>
+          <text x="816" y="534" class="d-s">never env, never logged. The key never enters</text>
+          <text x="816" y="547" class="d-s">this repo, CI, or an agent session.</text>
+
+          <!-- ============ RECIPIENT ============ -->
+          <path d="M978,552 L978,576" class="d-line-seal" marker-end="url(#ahs)"/>
+          <text x="990" y="570" class="d-alab">countersignature</text>
+
+          <rect x="800" y="580" width="356" height="120" rx="6" class="d-box"/>
+          <text x="816" y="604" class="d-mutelab">RECIPIENT — TRUSTS NOTHING</text>
+          <line x1="816" y1="616" x2="1140" y2="616" stroke="var(--rule)"/>
+          <text x="816" y="638" class="d-t-sm">verify_report.py --pin-fingerprint</text>
+          <text x="816" y="657" class="d-s">four layers, each failing independently:</text>
+          <text x="816" y="673" class="d-s">files↔manifest · manifest hash ·</text>
+          <text x="816" y="689" class="d-s">instance signature · countersignature</text>
+
+          <!-- ============ NOT IN THE PATH ============ -->
+          <rect x="24" y="820" width="1132" height="76" rx="6" class="d-zone-q"/>
+          <text x="44" y="844" class="d-bricklab">DELIBERATELY NOT IN THE PATH</text>
+          <text x="44" y="865" class="d-s2">Generative-AI semantic analysis (orchestrator Stage 2) and LLM test generation (Stage 4) were deleted under R6, not gated — a flag can be flipped, a deleted call cannot.</text>
+          <text x="44" y="883" class="d-s2">The risk-scoring limb was deleted under R1: it retrained every 20 migrations on rows whose "cognitive complexity" was cyclomatic × 1.2. risk_score and test_coverage are None by construction.</text>
+        </svg>
+      </div>
+      <figcaption><b>The perimeter is the product.</b> Two things make a Relian claim worth
+        anything to a buyer who has no reason to trust Visionblox: their code never moved, and the
+        number attached to it was produced by executing both programs rather than by asking a model
+        how it felt about the translation. Everything on this plate is one of those two things or
+        the plumbing that keeps them true.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="plate">
+  <div class="wrap">
+    <div class="plate-head">
+      <span class="plate-numeral">PLATE II</span>
+      <div>
+        <h2 class="plate-title">The production cycle</h2>
+        <p class="plate-lede">What a run actually does to a customer's codebase, and — more to the
+          point — where it is allowed to stop. Three of the seven stations can end the run with no
+          output at all. That is the feature: a migration tool's real character is what it does
+          outside its depth, and every exit below is a named refusal rather than a
+          confident-looking approximation.</p>
+      </div>
+    </div>
+
+    <figure>
+      <div class="figframe">
+        <svg viewBox="0 0 1180 510" role="img" aria-label="The Relian production cycle as seven stations — intake, assess, discover, transpile, validate, gate, deliver — banded into three commercial lines, with three refusal exits dropping to a lower rail: an out-of-subset refusal at transpile, an unmeasurable-oracle exit at validate, and a threshold failure at the gate.">
+          <defs>
+            <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="d-head"/>
+            </marker>
+            <marker id="ahs2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="d-head-seal"/>
+            </marker>
+            <marker id="ahb2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--brick)"/>
+            </marker>
+          </defs>
+
+          <!-- commercial bands -->
+          <rect x="22" y="26" width="306" height="22" rx="3" class="d-sunk"/>
+          <text x="34" y="41" class="d-mutelab">LEGACY CODE ASSESSMENT · SHIPPED</text>
+          <rect x="354" y="26" width="140" height="22" rx="3" class="d-sunk"/>
+          <text x="366" y="41" class="d-mutelab">DISCOVERY · SHIPPED</text>
+          <rect x="520" y="26" width="638" height="22" rx="3" class="d-sunk"/>
+          <text x="532" y="41" class="d-mutelab">MIGRATION · BENCH-GATED, NO CUSTOMER RUN YET</text>
+
+          <!-- stations -->
+          <rect x="22" y="70" width="140" height="126" rx="4" class="d-box"/>
+          <text x="34" y="92" class="d-s">01</text>
+          <text x="34" y="112" class="d-t">Intake</text>
+          <text x="34" y="132" class="d-s2">File discovery,</text>
+          <text x="34" y="148" class="d-s2">encoding, line</text>
+          <text x="34" y="164" class="d-s2">endings. Read-only</text>
+          <text x="34" y="180" class="d-s2">mount.</text>
+
+          <rect x="188" y="70" width="140" height="126" rx="4" class="d-box"/>
+          <text x="200" y="92" class="d-s">02</text>
+          <text x="200" y="112" class="d-t">Assess</text>
+          <text x="200" y="132" class="d-s2">LOC, complexity,</text>
+          <text x="200" y="148" class="d-s2">construct coverage,</text>
+          <text x="200" y="164" class="d-s2">risk tier. Same tree</text>
+          <text x="200" y="180" class="d-s2">→ same report_hash.</text>
+
+          <rect x="354" y="70" width="140" height="126" rx="4" class="d-box"/>
+          <text x="366" y="92" class="d-s">03</text>
+          <text x="366" y="112" class="d-t">Discover</text>
+          <text x="366" y="132" class="d-s2">COPY fan-in, record</text>
+          <text x="366" y="148" class="d-s2">layouts, gaps. Signed</text>
+          <text x="366" y="164" class="d-s2">report or nothing —</text>
+          <text x="366" y="180" class="d-s2">no unsigned artifact.</text>
+
+          <rect x="520" y="70" width="140" height="126" rx="4" class="d-box"/>
+          <text x="532" y="92" class="d-s">04</text>
+          <text x="532" y="112" class="d-t">Transpile</text>
+          <text x="532" y="132" class="d-s2">Dispatch table →</text>
+          <text x="532" y="148" class="d-s2">Java. Second pass</text>
+          <text x="532" y="164" class="d-s2">must hash-match the</text>
+          <text x="532" y="180" class="d-s2">first.</text>
+
+          <rect x="686" y="70" width="140" height="126" rx="4" class="d-box"/>
+          <text x="698" y="92" class="d-s">05</text>
+          <text x="698" y="112" class="d-t">Validate</text>
+          <text x="698" y="132" class="d-s2">javac + cobc, then</text>
+          <text x="698" y="148" class="d-s2">every input through</text>
+          <text x="698" y="164" class="d-s2">both binaries. stdout</text>
+          <text x="698" y="180" class="d-s2">and exit code.</text>
+
+          <rect x="852" y="70" width="140" height="126" rx="4" class="d-seal"/>
+          <text x="864" y="92" class="d-s">06</text>
+          <text x="864" y="112" class="d-t">Gate</text>
+          <text x="864" y="132" class="d-s2">BER ≥ 0.95</text>
+          <text x="864" y="148" class="d-s2">build = 1.00</text>
+          <text x="864" y="164" class="d-s2">branch ≥ 0.80</text>
+          <text x="864" y="180" class="d-s2">— all measured.</text>
+
+          <rect x="1018" y="70" width="140" height="126" rx="4" class="d-box"/>
+          <text x="1030" y="92" class="d-s">07</text>
+          <text x="1030" y="112" class="d-t">Deliver</text>
+          <text x="1030" y="132" class="d-s2">Signed artifact,</text>
+          <text x="1030" y="148" class="d-s2">countersigned by the</text>
+          <text x="1030" y="164" class="d-s2">operator, verified by</text>
+          <text x="1030" y="180" class="d-s2">the recipient.</text>
+
+          <!-- forward arrows -->
+          <path d="M162,133 L184,133" class="d-line" marker-end="url(#ah2)"/>
+          <path d="M328,133 L350,133" class="d-line" marker-end="url(#ah2)"/>
+          <path d="M494,133 L516,133" class="d-line" marker-end="url(#ah2)"/>
+          <path d="M660,133 L682,133" class="d-line" marker-end="url(#ah2)"/>
+          <path d="M826,133 L848,133" class="d-line" marker-end="url(#ah2)"/>
+          <path d="M992,133 L1014,133" class="d-line-seal" marker-end="url(#ahs2)"/>
+
+          <!-- refusal drops -->
+          <path d="M590,196 L590,286" class="d-line" stroke="var(--brick)" marker-end="url(#ahb2)"/>
+          <path d="M756,196 L756,286" class="d-line" stroke="var(--brick)" marker-end="url(#ahb2)"/>
+          <path d="M922,196 L922,286" class="d-line" stroke="var(--brick)" marker-end="url(#ahb2)"/>
+
+          <!-- refusal rail -->
+          <rect x="520" y="288" width="638" height="126" rx="4" class="d-brick"/>
+          <text x="536" y="312" class="d-bricklab">HONEST-FAILURE RAIL — R2</text>
+          <line x1="536" y1="322" x2="1142" y2="322" stroke="var(--brick)" opacity=".4"/>
+
+          <text x="536" y="344" class="d-t-sm">Out of subset</text>
+          <text x="536" y="362" class="d-s2">Refusal names the verb</text>
+          <text x="536" y="377" class="d-s2">and the line. No Java is</text>
+          <text x="536" y="392" class="d-s2">written at all — not even a</text>
+          <text x="536" y="407" class="d-s2">commented placeholder.</text>
+
+          <text x="742" y="344" class="d-t-sm">Oracle unavailable</text>
+          <text x="742" y="362" class="d-s2">Equivalence reported as</text>
+          <text x="742" y="377" class="d-s2">not measured. It is never</text>
+          <text x="742" y="392" class="d-s2">assumed from a clean build</text>
+          <text x="742" y="407" class="d-s2">or from a passing unit test.</text>
+
+          <text x="948" y="344" class="d-t-sm">Threshold missed</text>
+          <text x="948" y="362" class="d-s2">No attestation is issued.</text>
+          <text x="948" y="377" class="d-s2">Signing an unmeasured number</text>
+          <text x="948" y="392" class="d-s2">makes it tamper-evident,</text>
+          <text x="948" y="407" class="d-s2">which is not the same as true.</text>
+
+          <!-- 93% note -->
+          <rect x="22" y="288" width="466" height="126" rx="4" class="d-box"/>
+          <text x="38" y="312" class="d-mutelab">THE RULE THE DEMO EXISTS TO PROVE</text>
+          <line x1="38" y1="322" x2="472" y2="322" stroke="var(--rule)"/>
+          <text x="38" y="344" class="d-s2">Two of the demo's programs are expected to fail, and one of them is</text>
+          <text x="38" y="360" class="d-s2">93% transpilable. It still gets a diagnosed refusal, emits no Java and</text>
+          <text x="38" y="376" class="d-s2">issues no attestation — because 93% is not 100%, and a partial</text>
+          <text x="38" y="392" class="d-s2">migration that looks whole is the failure mode with a real cost — the</text>
+          <text x="38" y="407" class="d-s2">seven percent nobody was told about.</text>
+
+          <!-- measured strip -->
+          <text x="22" y="448" class="d-mutelab">MEASURED, NOT PROJECTED</text>
+          <text x="22" y="470" class="d-s2">Assessment over AWS CardDemo — 44 programs, 329 files — completed in <tspan class="d-num">4.61 s</tspan>.  ·  Full demo (assess, transpile, build both, execute both) over 7 programs</text>
+          <text x="22" y="488" class="d-s2">and <tspan class="d-num">89 inputs</tspan> in roughly <tspan class="d-num">15 s</tspan>, with 100% stdout-and-exit-code equivalence.  ·  Engagement duration and cost are deliberately absent: no engagement has been run.</text>
+        </svg>
+      </div>
+      <figcaption><b>Three of seven stations can end the run.</b> Nothing on this plate produces a
+        best-effort artifact. The commercial consequence is worth stating plainly — Relian will
+        return "we could not migrate this" for programs a less careful tool would hand back as
+        finished Java, and that refusal is the thing being sold.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+.wrap-wide { max-width: 1680px; margin: 0 auto; padding: 0 var(--gutter); }
+.rail, .bands { grid-template-columns: repeat(12, minmax(132px, 1fr)); grid-auto-flow: row; min-width: 1584px; }
+.flag { width: 104px; }
+.panel-zone .panel, .panel-zone .controls, .panel-zone > .scrollhint { max-width: 1240px; }
+.stop { padding-right: 4px; }
+.scrollhint { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase; margin-top: 10px; }
+</style>
+
+<section class="plate" id="plate-iii">
+  <div class="wrap-wide">
+    <div class="plate-head">
+      <span class="plate-numeral">PLATE III</span>
+      <div>
+        <h2 class="plate-title">Build timeline — and where we are</h2>
+        <p class="plate-lede">Twelve stops across four phases. Seven are behind us with a measured
+          result attached, one is the current position, and four have not been built — labelled as
+          such rather than shaded in as nearly-done. <strong>Click any stop to plant the
+          flag there</strong>; the record below changes with it.</p>
+      </div>
+    </div>
+
+    <div class="rail-scroll">
+      <ol class="rail" id="rail" data-current="s9">
+
+        <li class="stop" data-id="s1" data-state="done">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s1"><span class="stop-id">01</span><span class="stop-name">Bench sealed first</span><span class="stop-when">≤ 2026-08-16</span></button>
+        </li>
+
+        <li class="stop" data-id="s2" data-state="done">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s2"><span class="stop-id">02</span><span class="stop-name">C1 clears the bar</span><span class="stop-when">2026-08-17</span></button>
+        </li>
+
+        <li class="stop" data-id="s3" data-state="done">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s3"><span class="stop-id">03</span><span class="stop-name">Assessment engine</span><span class="stop-when">2026-08-16</span></button>
+        </li>
+
+        <li class="stop" data-id="s4" data-state="done">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s4"><span class="stop-id">04</span><span class="stop-name">Honest failure wired</span><span class="stop-when">2026-08-16</span></button>
+        </li>
+
+        <li class="stop" data-id="s5" data-state="done">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s5"><span class="stop-id">05</span><span class="stop-name">Fabricated limbs removed</span><span class="stop-when">2026-08-20</span></button>
+        </li>
+
+        <li class="stop" data-id="s6" data-state="done">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s6"><span class="stop-id">06</span><span class="stop-name">Discovery bench sealed</span><span class="stop-when">2026-08-21</span></button>
+        </li>
+
+        <li class="stop" data-id="s7" data-state="done">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s7"><span class="stop-id">07</span><span class="stop-name">Layout engine</span><span class="stop-when">2026-08-21</span></button>
+        </li>
+
+        <li class="stop" data-id="s8" data-state="done">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s8"><span class="stop-id">08</span><span class="stop-name">Signed discovery report</span><span class="stop-when">2026-08-21</span></button>
+        </li>
+
+        <li class="stop" data-id="s9" data-state="current">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s9" aria-current="step"><span class="stop-id">09</span><span class="stop-name">Inventory · lineage · DDL</span><span class="stop-when">2026-08-22</span></button>
+        </li>
+
+        <li class="stop" data-id="s10" data-state="future">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s10"><span class="stop-id">10</span><span class="stop-name">First countersigned report</span><span class="stop-when">not built</span></button>
+        </li>
+
+        <li class="stop" data-id="s11" data-state="future">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s11"><span class="stop-id">11</span><span class="stop-name">Corpus v2 · scope extension</span><span class="stop-when">not built</span></button>
+        </li>
+
+        <li class="stop" data-id="s12" data-state="future">
+          <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
+          <span class="stop-dot"></span>
+          <button class="stop-btn" type="button" data-target="s12"><span class="stop-id">12</span><span class="stop-name">Real attestation</span><span class="stop-when">not built</span></button>
+        </li>
+      </ol>
+
+      <div class="bands">
+        <div class="band" data-done="true" style="grid-column: span 2"><span>Phase 0 · substrate</span></div>
+        <div class="band" data-done="true" style="grid-column: span 2"><span>Phase 1 · assessment</span></div>
+        <div class="band" data-done="true" style="grid-column: span 4"><span>Phase 2 · discovery</span></div>
+        <div class="band" style="grid-column: span 2"><span>Phase 3 · delivery</span></div>
+        <div class="band" style="grid-column: span 2"><span>Phase 4 · scope</span></div>
+      </div>
+    </div>
+    <p class="scrollhint">Rail scrolls horizontally on narrow screens · ← → arrow keys move the flag</p>
+  </div>
+
+  <div class="wrap-wide panel-zone" id="panels">
+
+    <section class="panel" data-for="s1" data-status="sealed" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-sealed">Sealed</span><span class="eyebrow">Phase 0 · stop 01 · on or before 2026-08-16</span></div>
+        <h3>The benchmark was sealed before the solution existed</h3>
+        <div class="panel-body">
+          <p>RELIAN-BENCH's success criteria were committed and Ed25519-signed <em>before</em> any transform work was scored against them. That ordering is the whole point: a bar you can move after seeing the result is not a bar.</p>
+          <p>Version v1.2 seals 29 files under payload <span class="num">a8695c2c…</span>, key fingerprint <span class="num">233bb4406e2de606</span> — 7 COBOL programs, <span class="num">425</span> held-out vectors and <span class="num">89</span> public ones. The thresholds live in the ledger, not in a README: held-out BER ≥ 0.95, build rate 1.00, JaCoCo branch coverage ≥ 0.80.</p>
+          <p><strong>The held-out vectors are not in this repository</strong> and are never read by an agent. They are scored in CI on <code>main</code> only — because a score returned on every push is a feedback channel, and a feedback channel is something you can fit against one commit at a time without ever intending to.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>"Candidate X scored Y on criteria nobody could tune against"</li><li>Re-verification by a recipient, from the ledger alone</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>Any statement about COBOL outside the sealed corpus</li><li>Any claim the benchmark itself is representative of a customer estate</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s2" data-status="measured" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-measured">Measured</span><span class="eyebrow">Phase 0 · stop 02 · 2026-08-16 → 08-17</span></div>
+        <h3>The deterministic transpiler clears its own bar</h3>
+        <div class="panel-body">
+          <p>C1 is the pipeline's transform core and there is no model anywhere in that path. At the moment v1.2 was sealed, C1 was <em>red on it</em>: BER <span class="num">0.7176</span>, building 6/7 programs. That red is the receipt that the criteria came first.</p>
+          <p>WP-1.5.4 and WP-1.5.5 closed it. Measured in CI on PR #15 at commit <code>8c676e9</code>: <span class="num">425 / 425</span> held-out vectors match across all 7 programs, build rate <span class="num">1.0000</span>, JaCoCo branch coverage <span class="num">0.8854</span> against a bar of 0.80.</p>
+          <p><strong>Scope, stated rather than implied.</strong> The supported subset is COBOL-85: COMP-3 arithmetic, EVALUATE, PERFORM VARYING, OCCURS/SEARCH, INSPECT, edited pictures, VALUE, and CONTINUE/GOBACK/EXIT PROGRAM. Numeric business logic is emitted as BigDecimal with explicit COBOL rounding — ROUNDED is HALF_UP, an unrounded COMPUTE is DOWN.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>Behavioral equivalence on the sealed corpus, held-out</li><li>Reproducibility — a second pass emits identical bytes</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>CICS, VSAM, JCL, embedded SQL, or copybooks in the transform path</li><li>IBM Enterprise COBOL — the oracle is GnuCOBOL 3.1.2.0</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s3" data-status="measured" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-measured">Shipped</span><span class="eyebrow">Phase 1 · stop 03 · 2026-08-16</span></div>
+        <h3>The assessment engine — the first thing a customer can buy</h3>
+        <div class="panel-body">
+          <p>WP-1.1 through WP-1.9 built <code>src/assessment/</code>: intake, LOC, cyclomatic complexity, construct coverage, risk tiering, report, CLI. It is read-only over customer source and fully offline — nothing in the package opens a socket or calls a model.</p>
+          <p>Determinism is asserted three ways, not assumed: two runs over the same tree produce byte-identical JSON and the same <code>report_hash</code>, and a CRLF copy of a tree scores identically to its LF original.</p>
+          <p><strong>The capability list is not hand-maintained.</strong> The coverage analyzer reads <code>SUPPORTED_STATEMENTS</code> off the transpiler at call time and probes DATA DIVISION features by running real programs through it. Teach the transpiler a new verb and the report changes on the next run with nobody editing a list. Data features are reported three-state — <em>supported</em>, <em>accepted but ignored</em>, <em>unsupported</em> — because a clause that parses and is then discarded is not a clause you support, and conflating the two is how a migration silently loses semantics.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>A priced, deliverable read-only assessment</li><li>Construct inventories on estates far outside the transpiler's subset</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>Any migration claim — assessment measures distance, not equivalence</li><li>Effort or cost forecasting; no such model exists</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s4" data-status="measured" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-measured">Shipped</span><span class="eyebrow">Phase 1 · stop 04 · 2026-08-16</span></div>
+        <h3>Honest failure wired down to the statement</h3>
+        <div class="panel-body">
+          <p>Before WP-1.2 there was no <code>else</code> branch in the transpiler's statement dispatch and no <code>unsupported()</code> anywhere. An unsupported verb that began a statement was <em>silently discarded</em>; one that followed a statement was absorbed into its predecessor and surfaced later as a misattributed error. Honest failure existed only at whole-program granularity, and only for two of the four observed failure shapes.</p>
+          <p>The <code>if/elif</code> chain became a dispatch table with an <code>unsupported(verb, line_no)</code> fall-through, so a refusal now names the verb and the line that carried it.</p>
+          <p><strong>The refactor was gated on bytes, not on opinion.</strong> All five generated Java files regenerated SHA-256-identical before and after, and identical to the committed candidates. A behavior-preserving change that cannot be shown to preserve bytes is a change nobody should merge into a transform.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>"Unsupported input produces a diagnosis, not output"</li><li>A demand signal ranked by real occurrence counts</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>Completeness of the diagnosis for constructs never exercised</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s5" data-status="measured" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-measured">Shipped</span><span class="eyebrow">Phase 2 · stop 05 · 2026-08-20</span></div>
+        <h3>The limbs that produced numbers nobody measured were deleted</h3>
+        <div class="panel-body">
+          <p>Three things left the tree in one phase, and their absence is now part of the architecture.</p>
+          <p><strong>The risk-scoring limb</strong> (R1). It retrained a gradient-boosted model every twenty migrations on rows whose "cognitive complexity" feature was cyclomatic complexity × 1.2 — a fabricated input feeding a fabricated score, tightening on itself. Both the scorer and its pattern store were deleted. <code>risk_score</code> and <code>test_coverage</code> are now <span class="num-null">None</span> by construction, not by configuration.</p>
+          <p><strong>The generative-AI semantic analysis stage and the LLM test generator</strong> (R6). Both sent customer source code to a hosted model. They were deleted rather than flagged off, because a flag can be flipped and a deleted call cannot. <code>semantic_score</code> now has exactly one source: Stage 6 differential execution against the legacy oracle — which is the only measurement of semantic preservation this pipeline ever actually had. A model's self-reported confidence was never one.</p>
+          <p>Alongside that: the environment was pinned in <code>requirements.lock</code>, a toolchain guard added, and CI switched from "no failures" to asserting the <em>exact</em> test triple, so a test that quietly stops being collected turns the build red.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>"No customer source reaches a generative model" — R6, structurally</li><li>Every emitted metric traces to a process that ran</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>Risk prioritisation of any kind — the capability is gone, not hidden</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s6" data-status="sealed" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-sealed">Sealed</span><span class="eyebrow">Phase 2 · stop 06 · 2026-08-21</span></div>
+        <h3>A second benchmark, sealed before the code it judges</h3>
+        <div class="panel-body">
+          <p>R7 is bench-first: nothing is "supported" until a sealed benchmark covers it, and the bench commit must predate the merge. So the copybook work was gated on a benchmark that did not yet exist, and building it came first.</p>
+          <p>RELIAN-DISCOVERY-BENCH v0.1 — <span class="num">15</span> copybooks, <span class="num">124</span> elementary fields, <span class="num">170</span> probe rows, 16 variants, 9 conditions and 6 gap rows — has its oracle layouts generated by GnuCOBOL 3.1.2.0 and was sealed under the same benchmark key on 2026-08-21. CI enforces the ledger on every run, and <code>discovery-bench/</code> became frozen the moment the tag existed.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>Layout claims measured against an oracle that predates the code</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>IBM Enterprise COBOL layout semantics — the oracle is GnuCOBOL</li><li>Copybook support inside the transform path; this is discovery only</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s7" data-status="measured" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-measured">Measured</span><span class="eyebrow">Phase 2 · stop 07 · 2026-08-21</span></div>
+        <h3>Copybook resolver and static layout engine</h3>
+        <div class="panel-body">
+          <p><code>src/discovery/copybook.py</code> resolves the COPY fan-in graph and reports the missing-copybook table. <code>layout.py</code> computes static record layouts: offsets, lengths, SYNC padding, REDEFINES, OCCURS DEPENDING ON, RENAMES.</p>
+          <p>Round-trip against the sealed oracle: <span class="num">186 / 186</span>, tolerance zero. Not "within a byte" — identical.</p>
+          <p><strong>Gaps compare by projection, not by label.</strong> A padding byte cannot be renamed into agreement with the oracle, which is the obvious way a layout engine passes a test it should fail. Two limitations are reported by the tool rather than absorbed by it, and <span class="num-null">None</span> never silently becomes zero.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>Record layouts a customer can check against their own DDL</li><li>A named, enumerated missing-copybook table</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>File inventory, lineage, or target-schema DDL — stop 09</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s8" data-status="here" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-here">We are here</span><span class="chip chip-measured">Measured</span><span class="eyebrow">Phase 2 · stop 08 · 2026-08-22 · HEAD ba58123</span></div>
+        <h3>The signed Data Discovery report</h3>
+        <div class="panel-body">
+          <p><code>python3 -m src.discovery.cli report build</code> emits a canonical <code>report.json</code>, a Markdown rendering that names the JSON as authoritative, a manifest of digests, and an Ed25519 instance signature over that manifest. <strong>If a signing key cannot be obtained it writes nothing</strong> — an unsigned artifact that looks signed is worse than no artifact at all.</p>
+          <p>Custody is split across two keys so that rotating or compromising one cannot put the other's claims in question. The benchmark seal key <span class="num">233bb4406e2de606</span> signs ledgers and never a customer deliverable; the Visionblox release key <span class="num">91e3a404155ba4dd</span> countersigns reports and never a benchmark. The countersigning tool refuses the benchmark fingerprint outright.</p>
+          <p>Exactly one line crosses the customer perimeter: manifest hash, report id, instance fingerprint. <strong>Three digests, no content.</strong> Recipients check the result with <code>verify_report.py --pin-fingerprint</code>, which has four independently-failing layers and prints its own SHA-256 before it says anything else. The pin has no default, because without one a report re-signed under any key at all passes every internally-consistent check.</p>
+          <p><em>Stated because it is true and would be easy to leave out:</em> no countersignature has ever been issued. Both dry runs read VALID AND UNATTESTED. Suite at this commit: <span class="num">1097 passed</span>, 10 skipped, 0 failed.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>A verifiable discovery deliverable a recipient can check without trusting us</li><li>Perimeter compliance demonstrated by a leak test, not asserted</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>Any countersigned artifact — none exists</li><li>PDF rendering; Markdown is the one derived rendering</li><li>File inventory, lineage, target-schema DDL</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s9" data-status="measured">
+      <div>
+        <div class="panel-meta"><span class="chip chip-measured">Measured</span><span class="eyebrow">Phase 3 · stop 09 · WP-2.4 / 2.4a · 2026-08-22</span></div>
+        <h3>File inventory, lineage, and target-schema DDL</h3>
+        <div class="panel-body">
+          <p>Four modules that did not exist before: <code>jcl.py</code> reads <code>//name DD</code>, <code>DSN=</code>, <code>DCB=</code> sub-parameters, <code>DISP=</code>, in-stream data and <code>EXEC PGM=</code>; <code>files.py</code> joins <code>SELECT</code>, <code>FD</code> and <code>OPEN</code> into one inventory and cross-checks record length against the JCL's LRECL; <code>lineage.py</code> derives program→dataset edges from OPEN modes and publishes the bound on its own coverage; <code>ddl.py</code> emits PostgreSQL DDL against a published mapping table. A load-and-reconcile gate runs the generated DDL against a real <code>postgres:16</code> in CI, because DDL nobody has executed is DDL nobody should ship.</p>
+          <p><strong>The cross-check on AWS CardDemo:</strong> <span class="num">13</span> datasets where the FD record length and the JCL LRECL agree exactly, <span class="num">0</span> that disagree, <span class="num">41</span> where the JCL declares no LRECL to check against, and <span class="num">194</span> with no resolvable layout. Four of the agreements arrive through <code>COPY</code>, which means the resolver, the layout engine and the JCL parser — three independent pieces of machinery — all had to be right for the delta to be zero.</p>
+          <p><em>The most useful thing in the work package is a defect it found in itself.</em> <code>NO_LAYOUT</code> was first reported as one number, 204. Broken down by cause, the breakdown immediately showed the dry run had called the inventory <em>without</em> the copybook resolver, so every FD whose record arrives through <code>COPY</code> was miscounted. Ten rows moved. The superseded figures are kept and accounted for rather than deleted — a count that changes without a dated reason is a count nobody can audit.</p>
+          <p>A second defect was planted rather than found: the naive per-line <code>DCB=(…)</code> scan is <strong>kept in the test file permanently</strong> and asserted to fail on a continuation that splits across records. It returns a plausible, complete-looking, wrong answer — the fields it drops are silently indistinguishable from a DD that never declared them, and the one field that survives is exactly the one the cross-check turns on.</p>
+          <p><strong>Not built, and not implied:</strong> the data-dictionary rendering. Three of the four surfaces this stop was defined by shipped; that one did not, and there is no module for it.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>A file inventory and lineage a customer can check against their own JCL</li><li>Target-schema DDL that has been executed against a real database, not just generated</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>Dictionary rendering — no module exists</li><li>Lineage beyond OPEN-mode edges; the coverage bound is published with the result</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s10" data-status="none" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-none">Not built</span><span class="eyebrow">Phase 3 · stop 10</span></div>
+        <h3>The first countersigned report</h3>
+        <div class="panel-body">
+          <p>The countersignature flow is proven end to end — but only under a stand-in key generated inside a test. Nothing in this repository has ever held the release key, and nothing ever will: custody is the operator's, and R4 keeps private material out of the repo, out of CI, and out of any agent session.</p>
+          <p><em>Two things gate this stop.</em> First, <code>visionblox-release-key-v1.pub</code> — public material, and the one artifact still missing — must reach the repository, so the published fingerprint can be checked against the actual key rather than against a transcription of it. Second, one real engagement whose report the operator countersigns.</p>
+          <p>Until both happen, every report Relian produces is <strong>VALID AND UNATTESTED</strong>, and that is the correct label rather than a caveat.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-none"><h4>Blocking</h4><ul><li>Public key not yet in the repository</li><li>No customer engagement has been run</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s11" data-status="none" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-none">Not built</span><span class="eyebrow">Phase 4 · stop 11</span></div>
+        <h3>Corpus v2 and the scope extension it gates</h3>
+        <div class="panel-body">
+          <p>"Migrates COBOL" is licensed today only for the subset the sealed corpus exercises. Extending it is a benchmark action before it is a grammar action: corpus v2 harvests third-party COBOL, seals it, and only then may CICS, VSAM, JCL, embedded SQL or copybooks-in-transform be attempted. Each construct pair earns the word "supported" by clearing held-out CI, and the bench commit must predate the grammar merge.</p>
+          <p><strong>The distance is already measured, and it is large.</strong> Across three real-world corpora the assessment engine found <span class="num">2,190</span> unsupported occurrences, and six constructs account for roughly 70% of everything blocking migration: EXIT (368), EXEC (306), CONTINUE (271), WRITE (224), GO TO (186), CALL (183). The cheapest third of that backlog is dispatch-table work with no new semantics.</p>
+          <p>Construct coverage on those corpora — AWS CardDemo <span class="num">0.8511</span>, the OMP course corpus <span class="num">0.6945</span>, GnuCOBOL's own tests <span class="num">0.5968</span> — is graded PLAUSIBLE, not VERIFIED, for a specific reason: <em>not one</em> third-party program parsed cleanly under the then-bundled grammar, so all three were analysed through the token-scan fallback. The grammar was replaced at WP-2.0 and these figures have not been re-measured since.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-none"><h4>Blocking</h4><ul><li>Corpus v2 not harvested, not sealed</li><li>Dry runs need re-measuring against the replaced grammar</li><li>Third-party licensing must be cleared per source</li></ul></div>
+      </div>
+    </section>
+
+    <section class="panel" data-for="s12" data-status="none" hidden>
+      <div>
+        <div class="panel-meta"><span class="chip chip-none">Not built</span><span class="eyebrow">Phase 4 · stop 12</span></div>
+        <h3>Attestation that is not simulated</h3>
+        <div class="panel-body">
+          <p>Today's attestation self-identifies as <code>simulated: true</code>, and the pipeline refuses to issue even that over unmeasured values — if Stage 6 did not measure, Stage 7 is skipped outright. The reasoning is worth keeping: signing a fabricated number does not make it true, it makes it <em>tamper-evident</em>, which is strictly worse because it lends the number a guarantee it has not earned.</p>
+          <p>Retiring the flag needs a real integration; nothing simulated ships (R5), so the flag stays until the integration is real. Symbolic test generation returns empty by construction and stays that way until KLEE is genuinely wired in. The risk model was <em>deleted, not trained</em> — any re-entry starts from zero and is bench-gated like everything else.</p>
+        </div>
+      </div>
+      <div class="panel-side">
+        <div class="side-block is-none"><h4>Blocking</h4><ul><li>No attestation backend selected or integrated</li><li>KLEE not integrated; generated-test count is 0 by construction</li></ul></div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button class="btn" type="button" id="btn-prev">← Previous stop</button>
+      <button class="btn" type="button" id="btn-next">Next stop →</button>
+      <button class="btn" type="button" id="btn-reset">Reset to 09</button>
+      <button class="btn" data-role="save" type="button" id="btn-save" hidden>Save this position for everyone</button>
+      <span class="save-note" id="save-note"></span>
+    </div>
+    <p class="scrollhint" style="margin-top:14px">The position of record lives in the markup, on <code>#rail[data-current]</code>. Change it there — or click a stop and save — and the flag moves.</p>
+  </div>
+</section>
+
+<section class="plate">
+  <div class="wrap">
+    <div class="plate-head">
+      <span class="plate-numeral">APPX</span>
+      <div>
+        <h2 class="plate-title">Provenance ledger</h2>
+        <p class="plate-lede">Rule R9: every externally visible number carries a grade and the
+          basis it rests on. This is that table for every figure on the three plates above.
+          <strong>VERIFIED</strong> means a process produced it and the transcript is in the
+          repository. <strong>PLAUSIBLE</strong> means it was measured, but under conditions that
+          qualify what it can be used for — the qualification is printed, not omitted.</p>
+      </div>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <caption>Every figure on this page, with its basis</caption>
+        <thead>
+          <tr><th scope="col">Figure</th><th scope="col">Value</th><th scope="col">Grade</th><th scope="col">Basis</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Held-out BER, C1 on RELIAN-BENCH v1.2</td><td class="v">1.0000 (425 / 425)</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">CI job 95240930271, PR #15 @ <code>8c676e9</code>, 2026-08-16 · <code>docs/PHASE1_LOG.md</code></td></tr>
+          <tr><td>Build rate, same run</td><td class="v">1.0000 (7/7)</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">same CI run; threshold <code>build_rate_min</code> 1.0</td></tr>
+          <tr><td>Branch coverage, same run</td><td class="v">0.8854</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">JaCoCo 0.8.12, the ledger's required coverage tool; bar 0.80</td></tr>
+          <tr><td>C1 baseline at v1.2 sealing</td><td class="v">BER 0.7176 · build 6/7</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>bench/LEDGER_relian-bench-v1.2.json</code> → <code>baselines_recorded</code>; the pre-implementation red</td></tr>
+          <tr><td>RELIAN-BENCH v1.2 seal</td><td class="v">29 files · a8695c2c… · fp 233bb4406e2de606</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">Ed25519 over the manifest; <code>tools/verify_manifest.py --pin-fingerprint</code> checks it every CI run</td></tr>
+          <tr><td>Vector counts, v1.2</td><td class="v">425 held-out · 89 public</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">ledger <code>vector_counts</code>, summed across 7 programs</td></tr>
+          <tr><td>RELIAN-DISCOVERY-BENCH v0.1 corpus</td><td class="v">15 · 124 · 170</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>discovery-bench/LEDGER_relian-discovery-bench-v0.1.json</code> → <code>corpus_counts</code>: copybooks, elementary fields, probe rows. Sealed 2026-08-21</td></tr>
+          <tr><td>Layout engine round-trip</td><td class="v">186 / 186, tolerance 0</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>docs/PHASE2_LOG.md</code> WP-2.2 §2, against the sealed oracle</td></tr>
+          <tr><td>Test suite</td><td class="v">1097 passed · 10 skipped · 0 failed</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">CI gate asserts this exact triple, not "no failures" · <code>.github/workflows/tests.yml</code></td></tr>
+          <tr><td>Demo — both-sides execution</td><td class="v">89 inputs · 7 programs · 100%</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>python3 -m demo</code>, ~15 s; equivalence requires identical stdout and exit code · <code>demo/README.md</code></td></tr>
+          <tr><td>Assessment wall time, AWS CardDemo</td><td class="v">4.61 s · 44 programs · 329 files</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">WP-1.9 dry run, zero intervention · <code>docs/dryruns/</code></td></tr>
+          <tr><td>Construct coverage, third-party corpora</td><td class="v">0.8511 · 0.6945 · 0.5968</td><td><span class="grade g-plausible">PLAUSIBLE</span></td><td class="src">CardDemo / OMP course / GnuCOBOL. <strong>Every one analysed via the token-scan fallback</strong> — no third-party program parsed cleanly under the then-bundled grammar. Grammar replaced at WP-2.0; not re-measured since</td></tr>
+          <tr><td>Unsupported-construct demand signal</td><td class="v">2,190 occurrences</td><td><span class="grade g-plausible">PLAUSIBLE</span></td><td class="src">Same three corpora, same token-scan caveat. EXIT 368 · EXEC 306 · CONTINUE 271 · WRITE 224 · GO TO 186 · CALL 183</td></tr>
+          <tr><td>Countersigned reports issued</td><td class="v">0</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">Both dry runs read VALID AND UNATTESTED; the flow is proven only under a stand-in key generated inside a test</td></tr>
+          <tr><td>Completed customer migrations</td><td class="v">0</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">No engagement has been run. Stated in <code>README.md</code></td></tr>
+          <tr><td>Risk score · test coverage · generated tests</td><td class="v">None · None · 0</td><td><span class="grade g-none">NOT MEASURED</span></td><td class="src">None by construction after WP-2.0.-3 / -2, not by configuration · <code>src/core/orchestrator.py</code></td></tr>
+          <tr><td>Engagement duration, cost, or effort</td><td class="v">—</td><td><span class="grade g-none">NO BASIS</span></td><td class="src">Deliberately absent. No engagement has been run, so any figure here would be an invention</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h4>The five rules this page obeys</h4>
+        <ul>
+          <li><strong>R1</strong> — a metric is measured or None. Never a constant or a default wearing a measurement's name.</li>
+          <li><strong>R2</strong> — honest failure is a feature. Unsupported input gets a diagnosis, never a silent pass.</li>
+          <li><strong>R5</strong> — nothing simulated ships; where an integration is absent it is said plainly.</li>
+          <li><strong>R7</strong> — bench-first. No construct is "supported" until a sealed benchmark covers it and CI passes.</li>
+          <li><strong>R9</strong> — every externally visible number carries a grade and a basis. See the appendix.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>What is safe to say in a room</h4>
+        <p>That Relian assesses a COBOL estate offline and read-only, and produces a signed,
+          independently verifiable discovery report. That its transpiler clears a benchmark sealed
+          before the transpiler was written, on vectors it has never seen. That it refuses rather
+          than approximates.</p>
+      </div>
+      <div>
+        <h4>What is not</h4>
+        <p>That anything has been migrated for a customer. That any report has been countersigned.
+          That the tool handles CICS, VSAM, JCL, embedded SQL, copybooks in the transform path, or
+          IBM Enterprise COBOL semantics. That attestation is real — it self-identifies as
+          simulated, and the pipeline skips it whenever validation was not measured.</p>
+      </div>
+    </div>
+    <p class="colophon">
+      Relian™ — Legacy Refactoring Substrate. © 2025–2026 Zuup, LLC / Visionblox LLC. Proprietary.<br>
+      Compiled 2026-08-22 against <code>main</code> at <code>ba58123</code>. Figures re-read from the
+      repository at compile time; nothing on this page is transcribed from an earlier deck.<br>
+      Held-out benchmark vectors are neither reproduced nor referenced here (R3). No private key
+      material appears on this page (R4).
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var rail = document.getElementById("rail");
+  if (!rail) return;
+
+  var stops   = Array.prototype.slice.call(rail.querySelectorAll(".stop"));
+  var ids     = stops.map(function (s) { return s.getAttribute("data-id"); });
+  var panels  = Array.prototype.slice.call(document.querySelectorAll(".panel[data-for]"));
+  var bands   = Array.prototype.slice.call(document.querySelectorAll(".band"));
+  var BAND_END = [2, 4, 8, 10, 12];          // last stop number in each phase band
+  var AUTHORED = rail.getAttribute("data-current") || ids[0];
+
+  function apply(id, focus) {
+    var idx = ids.indexOf(id);
+    if (idx < 0) return;
+    rail.setAttribute("data-current", id);
+
+    stops.forEach(function (stop, i) {
+      stop.setAttribute("data-state", i < idx ? "done" : (i === idx ? "current" : "future"));
+      var btn = stop.querySelector(".stop-btn");
+      if (!btn) return;
+      if (i === idx) { btn.setAttribute("aria-current", "step"); }
+      else { btn.removeAttribute("aria-current"); }
+    });
+
+    panels.forEach(function (p) {
+      if (p.getAttribute("data-for") === id) { p.removeAttribute("hidden"); }
+      else { p.setAttribute("hidden", ""); }
+    });
+
+    bands.forEach(function (b, i) {
+      if (BAND_END[i] <= idx + 1) { b.setAttribute("data-done", "true"); }
+      else { b.removeAttribute("data-done"); }
+    });
+
+    if (focus) {
+      var current = stops[idx].querySelector(".stop-btn");
+      if (current) { current.focus(); }
+      if (current && current.scrollIntoView) {
+        current.scrollIntoView({ block: "nearest", inline: "center",
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      }
+    }
+  }
+
+  function step(delta) {
+    var idx = ids.indexOf(rail.getAttribute("data-current"));
+    var next = Math.min(ids.length - 1, Math.max(0, idx + delta));
+    apply(ids[next], true);
+  }
+
+  rail.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest(".stop-btn") : null;
+    if (!btn) return;
+    apply(btn.getAttribute("data-target"), false);
+  });
+
+  rail.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
+  });
+
+  var prev = document.getElementById("btn-prev");
+  var next = document.getElementById("btn-next");
+  var reset = document.getElementById("btn-reset");
+  if (prev)  { prev.addEventListener("click", function () { step(-1); }); }
+  if (next)  { next.addEventListener("click", function () { step(1); }); }
+  if (reset) { reset.addEventListener("click", function () { apply(AUTHORED, false); }); }
+
+  /* --- Optional shared save, when this page is running as a published
+     artifact with the `artifact` capability. The authored position in the
+     markup stays the source of record; a saved position is an override
+     carried in a sibling data file. Absent everywhere else — opened from
+     disk, or in a read-only view — the flag simply starts where the markup
+     put it. ------------------------------------------------------------ */
+
+  var saveBtn = document.getElementById("btn-save");
+  var saveNote = document.getElementById("save-note");
+  var api = null;
+
+  function note(text) { if (saveNote) { saveNote.textContent = text || ""; } }
+
+  var canFetchState = /^https?:$/.test(window.location.protocol);
+  try {
+    if (!canFetchState) { throw new Error("no origin"); }
+    fetch("flag-state.json", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data && typeof data.current === "string" && ids.indexOf(data.current) >= 0) {
+          apply(data.current, false);
+          if (data.current !== AUTHORED) { note("showing a saved position; authored position is " + AUTHORED.toUpperCase()); }
+        }
+      })
+      .catch(function () { /* no saved override — the markup stands */ });
+  } catch (err) { /* opened from disk, or no origin — the markup stands */ }
+
+  if (window.claude && typeof window.claude.use === "function" && saveBtn) {
+    window.claude.use("artifact").then(function (a) {
+      if (!a || typeof a.publish !== "function") { return; }
+      api = a;
+      saveBtn.hidden = false;
+    }).catch(function () { /* capability unavailable — button stays hidden */ });
+  }
+
+  if (saveBtn) {
+    saveBtn.addEventListener("click", function () {
+      if (!api) { return; }
+      var id = rail.getAttribute("data-current");
+      saveBtn.disabled = true;
+      note("saving…");
+      api.publish({ "flag-state.json": JSON.stringify({ current: id }, null, 2) })
+        .then(function () { note("saved — every viewer now opens on " + id.toUpperCase()); saveBtn.disabled = false; })
+        .catch(function (err) {
+          saveBtn.disabled = false;
+          var code = err && err.code;
+          if (code === "not_writer" || code === "not_granted" || code === "capability_disabled") {
+            saveBtn.hidden = true;
+            note("this view is read-only; the flag moved for you only");
+          } else if (code === "conflict") {
+            note("someone else saved first — reloading to their position");
+          } else {
+            note("could not save; the flag moved for you only");
+          }
+        });
+    });
+  }
+
+  apply(AUTHORED, false);
+}());
+</script>
+
+</div>
+
+<div id="panel-summary" role="tabpanel" aria-labelledby="tab-summary" hidden>
+  <section class="md">
+    <div class="wrap">
+      <nav class="md-toc" aria-label="Contents">
+        <h4>Contents</h4>
+        <ul><li><a href="#what-relian-is">1. What Relian is</a></li><li><a href="#architecture">2. Architecture</a></li><li><a href="#the-production-cycle">3. The production cycle</a></li><li><a href="#where-the-build-stands">4. Where the build stands</a></li><li><a href="#scope-what-is-and-is-not-supported-today">5. Scope — what is and is not supported today</a></li><li><a href="#known-limitations-and-open-risks">6. Known limitations and open risks</a></li><li><a href="#provenance-ledger-r9">7. Provenance ledger (R9)</a></li><li><a href="#using-the-build-atlas">8. Using the Build Atlas</a></li></ul>
+      </nav>
+      <article class="md-body">
+<h1 id="relian-technical-summary">Relian — Technical Summary</h1>
+<p><strong>The second tab of <a href="relian-architecture.html"><code>relian-architecture.html</code></a>.</strong> This file is the readable source; the Atlas renders it as its Technical Summary tab.</p>
+<blockquote><p><strong>Status: pre-MVP research prototype.</strong> Not production. Zero completed customer migrations. Zero countersigned reports issued. Every figure in this document was produced by a process that ran and is traceable to a file in this repository; anything not measured is written as <code>None</code> or "not measured", never as a default (R1). Numbers carry a Trutina grade and a basis (R9) — see §7.</p></blockquote>
+<hr class="rule">
+<h2 id="what-relian-is">1. What Relian is</h2>
+<p>Relian is a <strong>legacy refactoring substrate</strong>: a toolchain that assesses a COBOL estate, resolves and lays out its data structures, deterministically transpiles the subset it genuinely supports to Java, and proves the result by executing the original and the migration against each other — then signs the outcome so a recipient can check it without trusting Visionblox.</p>
+<p>Two properties define the product, and everything else in the architecture is in service of one of them:</p>
+<ol start="1"><li><strong>The customer's source code never leaves the customer's machine.</strong> The CLI is offline and read-only over the codebase. Exactly one line crosses the perimeter, and it carries three digests and no content.</li><li><strong>Every quality number is a measurement or it is absent.</strong> There are no constants, defaults, or formulas standing in for observations, and the pipeline refuses to attest anything it did not measure.</li></ol>
+<p>The commercial consequence of (2) is unusual and worth stating up front: Relian will return <em>"we could not migrate this"</em> for programs a less careful tool would hand back as finished Java. That refusal is the thing being sold.</p>
+<hr class="rule">
+<h2 id="architecture">2. Architecture</h2>
+<h3 id="inside-the-customer-perimeter-r12-r6">2.1 Inside the customer perimeter (R12, R6)</h3>
+<div class="tablewrap"><table><thead><tr><th scope="col">Component</th><th scope="col">Path</th><th scope="col">Role</th></tr></thead><tbody><tr><td>Intake</td><td><code>src/assessment/intake.py</code></td><td>File discovery, encoding, line endings</td></tr><tr><td>COBOL-85 parser</td><td><code>src/parsers/</code></td><td>ANTLR grammar → AST; <code>token_scan</code> fallback when a program will not parse</td></tr><tr><td>Copybook resolver</td><td><code>src/discovery/copybook.py</code></td><td>COPY fan-in graph, missing-copybook table</td></tr><tr><td>Layout engine</td><td><code>src/discovery/layout.py</code></td><td>Offsets, lengths, SYNC, REDEFINES, OCCURS DEPENDING ON, RENAMES</td></tr><tr><td>Assessment engine</td><td><code>src/assessment/</code></td><td>LOC, cyclomatic complexity, construct coverage, risk tier, report, CLI</td></tr><tr><td>C1 transpiler</td><td><code>transpiler/c1_rulebased.py</code></td><td>Dispatch table <code>SUPPORTED_STATEMENTS</code> → Java with BigDecimal</td></tr><tr><td>Orchestrator</td><td><code>src/core/orchestrator.py</code></td><td>Seven-stage state machine; stages 2 and 4 are removed, not disabled</td></tr><tr><td>Differential validation</td><td><code>src/validation/differential.py</code></td><td>Builds and executes both sides against the GnuCOBOL oracle</td></tr><tr><td>File inventory</td><td><code>src/discovery/files.py</code>, <code>jcl.py</code></td><td><code>SELECT</code>/<code>FD</code>/<code>OPEN</code> joined with the JCL's DD statements; record length cross-checked against LRECL</td></tr><tr><td>Lineage</td><td><code>src/discovery/lineage.py</code></td><td>Program→dataset edges from OPEN modes, with the bound on their coverage published alongside</td></tr><tr><td>Target-schema DDL</td><td><code>src/discovery/ddl.py</code></td><td>PostgreSQL DDL against a published mapping table, executed against a real database in CI</td></tr><tr><td>Report + signing</td><td><code>src/discovery/report.py</code>, <code>signing.py</code></td><td>Canonical <code>report.json</code>, manifest, Ed25519 instance signature</td></tr></tbody></table></div>
+<p>Nothing in that column opens a socket or calls a model.</p>
+<h3 id="what-crosses-the-perimeter">2.2 What crosses the perimeter</h3>
+<p>One line, produced by <code>report countersign-request</code>: <strong>manifest hash, report id, instance fingerprint</strong>. No source, no field names, no record contents, no file paths. The constraint is enforced by a leak test, not by convention.</p>
+<h3 id="operator-side-r4">2.3 Operator side (R4)</h3>
+<p><code>tools/countersign.py</code> runs only in the operator's custody. The Visionblox release key is read from disk and its passphrase is taken via <code>getpass</code> at the moment it is needed — never from <code>argv</code> (world-readable in <code>/proc</code>, and it lands in shell history), never from the environment (inherited by every child, dumped by crash reporters), and never printed. Two of those three guards are AST walks over the tool, not greps, and each asserts that it found something to walk.</p>
+<p><strong>Two keys, two claim classes.</strong> The benchmark seal key <code>233bb4406e2de606</code> signs ledgers and never a customer deliverable. The Visionblox release key <code>91e3a404155ba4dd</code> countersigns reports and never a benchmark. The countersigning tool refuses the benchmark fingerprint outright. If either key is rotated or compromised, the event does not put the other's claims in question — which a single key could not give you.</p>
+<h3 id="recipient-side">2.4 Recipient side</h3>
+<p><code>tools/verify_report.py --pin-fingerprint &lt;fp&gt;</code>. Four layers, each failing independently: files against the manifest, the manifest hash, the instance signature, the countersignature. The pin is <strong>required and has no default</strong>, because without one a report re-signed under any key at all passes every internally-consistent check — the files match the manifest, the manifest recomputes, and the signature verifies under the key the forger generated. The pin is the only layer that sees it. The tool prints its own SHA-256 before it says anything else, and that digest is pinned by the test suite.</p>
+<h3 id="verification-substrate-ci-only-r3">2.5 Verification substrate (CI only, R3)</h3>
+<p>Two sealed, Ed25519-signed benchmarks whose ledgers CI verifies on every run:</p>
+<ul><li><strong>RELIAN-BENCH v1.2</strong> — 7 COBOL programs, 425 held-out and 89 public vectors, 29 files under payload <code>a8695c2c…</code>. Thresholds live in the ledger: held-out BER ≥ 0.95, build rate 1.00, JaCoCo branch coverage ≥ 0.80.</li><li><strong>RELIAN-DISCOVERY-BENCH v0.1</strong> — 15 copybooks, 124 elementary fields, 170 probe rows, oracle layouts generated by GnuCOBOL 3.1.2.0.</li></ul>
+<p>Held-out vectors are not in this repository and are never read by an agent. They are scored on <code>main</code> only. The reason is not runner minutes: a score returned on every push is a feedback channel, and a feedback channel is something you can fit against one commit at a time without ever intending to. Nudge a rounding mode, push, read the BER; nudge it back, push, read it again. Nobody has to see a single held-out vector for the held-out set to stop measuring generalisation.</p>
+<h3 id="what-is-deliberately-absent">2.6 What is deliberately absent</h3>
+<div class="tablewrap"><table><thead><tr><th scope="col">Removed</th><th scope="col">Under</th><th scope="col">Why it mattered</th></tr></thead><tbody><tr><td>Generative-AI semantic analysis (Stage 2)</td><td>R6, WP-2.0.-2</td><td>Sent customer source to a hosted model</td></tr><tr><td>LLM test generation (Stage 4)</td><td>R6, WP-2.0.-2</td><td>Same dependency, same egress</td></tr><tr><td>Risk-scoring limb (XGBoost)</td><td>R1, WP-2.0.-3</td><td>Retrained every 20 migrations on rows whose "cognitive complexity" feature was cyclomatic × 1.2 — a fabricated input producing a fabricated score</td></tr></tbody></table></div>
+<p>All three were <strong>deleted rather than flagged off</strong>: a flag can be flipped, a deleted call cannot. As a result <code>semantic_score</code> has exactly one source — Stage 6 differential execution — and <code>risk_score</code>, <code>test_coverage</code> and <code>tests_generated</code> are <code>None</code>/<code>0</code> by construction rather than by configuration.</p>
+<hr class="rule">
+<h2 id="the-production-cycle">3. The production cycle</h2>
+<p>Seven stations. Three of them can end the run with no output.</p>
+<div class="tablewrap"><table><thead><tr><th scope="col">#</th><th scope="col">Station</th><th scope="col">Can it stop the run?</th></tr></thead><tbody><tr><td>01</td><td><strong>Intake</strong> — file discovery, encoding, line endings</td><td>no</td></tr><tr><td>02</td><td><strong>Assess</strong> — LOC, complexity, construct coverage, risk tier</td><td>no</td></tr><tr><td>03</td><td><strong>Discover</strong> — COPY fan-in, record layouts, gaps</td><td>signs or writes nothing</td></tr><tr><td>04</td><td><strong>Transpile</strong> — dispatch table → Java; second pass must hash-match the first</td><td><strong>yes</strong> — out of subset</td></tr><tr><td>05</td><td><strong>Validate</strong> — <code>javac</code> + <code>cobc</code>, then every input through both binaries</td><td><strong>yes</strong> — oracle unavailable</td></tr><tr><td>06</td><td><strong>Gate</strong> — BER ≥ 0.95, build = 1.00, branch ≥ 0.80, all measured</td><td><strong>yes</strong> — threshold missed</td></tr><tr><td>07</td><td><strong>Deliver</strong> — signed, countersigned, recipient-verified</td><td>—</td></tr></tbody></table></div>
+<p>Behavioral equivalence requires **byte-identical stdout <em>and</em> the same process exit code**. A clean build is not evidence of equivalence and is never treated as such.</p>
+<p><strong>The honest-failure rail.</strong> An out-of-subset construct produces a refusal that names the verb and the line; no Java is written, not even a commented placeholder. If the oracle cannot be executed, equivalence is reported as <em>not measured</em> rather than assumed. If a threshold is missed, no attestation is issued — signing a fabricated number does not make it true, it makes it <em>tamper-evident</em>, which is worse, because it lends the number a guarantee it has not earned.</p>
+<p>The shipped demo exercises this deliberately: two of its programs are expected to fail, and <strong>one of them is 93% transpilable</strong>. It still gets a diagnosed refusal and emits no Java, because 93% is not 100% and a partial migration that looks whole is the failure mode with a real cost.</p>
+<hr class="rule">
+<h2 id="where-the-build-stands">4. Where the build stands</h2>
+<p>Twelve stops across four phases. The Build Atlas carries a movable flag; the position of record is the <code>data-current</code> attribute on <code>#rail</code> in that file.</p>
+<h3 id="phase-0-substrate-complete">Phase 0 — substrate · complete</h3>
+<ol start="1"><li><strong>Bench sealed first.</strong> RELIAN-BENCH's criteria were committed and signed before any transform work was scored against them. At v1.2's sealing, C1 was <em>red on it</em> (BER 0.7176, build 6/7) — which is the receipt that the ordering was real.</li><li><strong>C1 clears the bar.</strong> 425 / 425 held-out vectors, build 1.0000, branch coverage 0.8854, measured in CI on PR #15 at <code>8c676e9</code>.</li></ol>
+<h3 id="phase-1-assessment-complete-2026-08-16-17">Phase 1 — assessment · complete (2026-08-16/17)</h3>
+<ol start="3"><li><strong>Assessment engine.</strong> WP-1.1 → WP-1.9. Read-only, offline, deterministic: two runs over the same tree produce byte-identical JSON and the same <code>report_hash</code>, and a CRLF copy scores identically to its LF original. The capability list is not hand-maintained — the analyzer reads <code>SUPPORTED_STATEMENTS</code> off the transpiler at call time and probes DATA DIVISION features by running programs through it. Features are reported three-state (<em>supported</em> / <em>accepted but ignored</em> / <em>unsupported</em>), because a clause that parses and is then discarded is not a clause you support.</li><li><strong>Honest failure wired.</strong> Before WP-1.2 there was no <code>else</code> in the statement dispatch and no <code>unsupported()</code> anywhere: an unsupported verb that began a statement was silently discarded, and one that followed a statement was absorbed into its predecessor and surfaced as a misattributed error. The dispatch-table refactor was gated on bytes — all five generated Java files regenerated SHA-256-identical.</li></ol>
+<h3 id="phase-2-discovery-complete-current-position-2026-08-20-21">Phase 2 — discovery · complete → <strong>current position</strong> (2026-08-20/21)</h3>
+<ol start="5"><li><strong>Fabricated limbs removed</strong>, environment pinned, CI switched to asserting the exact test triple rather than "no failures".</li><li><strong>RELIAN-DISCOVERY-BENCH v0.1 built and sealed</strong> — before the code it judges (R7).</li><li><strong>Copybook resolver + layout engine</strong> — 186 / 186 against the sealed oracle, tolerance zero. Gaps compare by projection rather than by label, so a padding byte cannot be renamed into agreement.</li><li><strong>The signed Data Discovery report</strong> ← <em>we are here.</em> Canonical <code>report.json</code>, a Markdown rendering that names the JSON as authoritative, a manifest, and an Ed25519 instance signature. If a key cannot be obtained the command writes nothing. Suite: 1097 passed, 10 skipped, 0 failed.</li></ol>
+<h3 id="phase-3-delivery-current-position-2026-08-22">Phase 3 — delivery · current position (2026-08-22)</h3>
+<ol start="9"><li><strong>File inventory, lineage, and target-schema DDL</strong> ← <em>we are here.</em> Four new modules: <code>jcl.py</code> (DD statements, <code>DCB=</code> sub-parameters, continuations), <code>files.py</code> (the <code>SELECT</code>/<code>FD</code>/<code>OPEN</code> join and the LRECL cross-check), <code>lineage.py</code> (OPEN-mode program→dataset edges with their coverage bound stated), and <code>ddl.py</code> (PostgreSQL DDL, executed against a real <code>postgres:16</code> in CI rather than merely generated). On AWS CardDemo: 13 datasets where FD record length and JCL LRECL agree exactly, 0 disagreements, 41 with no LRECL declared and 194 with no resolvable layout. Breaking <code>NO_LAYOUT</code> down by cause immediately exposed a defect in the dry run itself — it had run without the copybook resolver — and the superseded figures are kept and accounted for rather than deleted. <strong>The dictionary rendering did not ship</strong> and no module for it exists.</li><li><strong>First countersigned report.</strong> The flow is proven only under a stand-in key generated inside a test. Two things gate it: <code>visionblox-release-key-v1.pub</code> — public material, the one artifact still missing — reaching the repository so the published fingerprint can be checked against the actual key rather than a transcription of it; and one real engagement. Until then every report is <strong>VALID AND UNATTESTED</strong>, which is the correct label, not a caveat.</li></ol>
+<h3 id="phase-4-scope-not-built">Phase 4 — scope · not built</h3>
+<ol start="11"><li><strong>Corpus v2 and scope extension.</strong> Extending "migrates COBOL" is a benchmark action before it is a grammar action (R7): harvest third-party COBOL, seal it, and only then attempt CICS, VSAM, JCL, embedded SQL, or copybooks-in-transform. The bench commit must predate the grammar merge.</li><li><strong>Attestation that is not simulated</strong>, plus KLEE symbolic test generation. Nothing simulated ships (R5), so the <code>simulated: true</code> flag stays until the integration is real. The risk model was deleted, not trained; any re-entry starts from zero.</li></ol>
+<hr class="rule">
+<h2 id="scope-what-is-and-is-not-supported-today">5. Scope — what is and is not supported today</h2>
+<p><strong>Supported</strong> (the COBOL-85 subset the sealed corpus exercises): COMP-3 arithmetic, EVALUATE, PERFORM VARYING, OCCURS/SEARCH, INSPECT, edited pictures, VALUE, CONTINUE / GOBACK / EXIT PROGRAM. Numeric business logic is emitted as BigDecimal with explicit COBOL rounding semantics — ROUNDED is HALF_UP, an unrounded COMPUTE is DOWN.</p>
+<p><strong>Not supported, and not claimed</strong>: CICS, VSAM, JCL, embedded SQL, copybooks inside the transform path, and IBM Enterprise COBOL semantics (the oracle is GnuCOBOL 3.1.2.0).</p>
+<p><strong>The distance to a real estate is measured and large.</strong> Across three third-party corpora the assessment engine found <strong>2,190 unsupported occurrences</strong>, and six constructs are roughly 70% of everything blocking migration:</p>
+<div class="tablewrap"><table><thead><tr><th scope="col">Construct</th><th scope="col">Occurrences</th></tr></thead><tbody><tr><td><code>EXIT</code></td><td>368</td></tr><tr><td><code>EXEC</code></td><td>306</td></tr><tr><td><code>CONTINUE</code></td><td>271</td></tr><tr><td><code>WRITE</code></td><td>224</td></tr><tr><td><code>GO TO</code></td><td>186</td></tr><tr><td><code>CALL</code></td><td>183</td></tr></tbody></table></div>
+<p>The cheapest third of that backlog is dispatch-table work with no new semantics.</p>
+<hr class="rule">
+<h2 id="known-limitations-and-open-risks">6. Known limitations and open risks</h2>
+<ul><li><strong>No countersignature has ever been issued.</strong> Both dry runs read <em>VALID AND UNATTESTED</em>.</li><li><strong>No customer engagement has been run</strong>, so there is no measured engagement duration, cost, or effort figure anywhere — and inventing one would be an R1 violation.</li><li><strong>The public release key is not in the repository.</strong> Until it is, the published fingerprint is re-derivable in principle but not checked against the actual key inside the suite. This is the single smallest open item with the largest credibility effect.</li><li><strong>Third-party construct-coverage figures are graded PLAUSIBLE, not VERIFIED.</strong> <em>Not one</em> third-party program parsed cleanly under the then-bundled grammar, so all three corpora were analysed through the <code>token_scan</code> fallback. The grammar was replaced at WP-2.0 and these figures <strong>have not been re-measured since</strong> — re-running the dry runs is cheap and would either confirm or correct them.</li><li><strong><code>README.md</code> capability table — corrected 2026-08-22.</strong> Four rows had gone stale against the WP-2.0.-2 / WP-2.0.-3 removals: "LLM semantic analysis — working when API keys present" (the stage was deleted under R6), test generation and risk scoring (both described as pending integration or training when the code paths were deleted), and the orchestrator's stage count. All four now state the removals, and the risk row names the product that <em>does</em> exist — <code>src/assessment/risk.py</code>, graded PLAUSIBLE as a policy.</li><li><strong>The transpiler's oracle is GnuCOBOL 3.1.2.0</strong>, so equivalence is equivalence against GnuCOBOL. Any claim about mainframe behaviour requires an IBM oracle that does not exist here.</li></ul>
+<hr class="rule">
+<h2 id="provenance-ledger-r9">7. Provenance ledger (R9)</h2>
+<div class="tablewrap"><table><thead><tr><th scope="col">Figure</th><th scope="col">Value</th><th scope="col">Grade</th><th scope="col">Basis</th></tr></thead><tbody><tr><td>Held-out BER, C1 on v1.2</td><td>1.0000 (425 / 425)</td><td>VERIFIED</td><td>CI job 95240930271, PR #15 @ <code>8c676e9</code> · <code>docs/PHASE1_LOG.md</code></td></tr><tr><td>Build rate</td><td>1.0000 (7/7)</td><td>VERIFIED</td><td>same run</td></tr><tr><td>Branch coverage</td><td>0.8854</td><td>VERIFIED</td><td>JaCoCo 0.8.12, the ledger's required tool; bar 0.80</td></tr><tr><td>C1 baseline at v1.2 sealing</td><td>BER 0.7176, build 6/7</td><td>VERIFIED</td><td><code>bench/LEDGER_relian-bench-v1.2.json</code> → <code>baselines_recorded</code></td></tr><tr><td>v1.2 seal</td><td>29 files, <code>a8695c2c…</code>, fp <code>233bb4406e2de606</code></td><td>VERIFIED</td><td>Ed25519 over the manifest; checked by <code>verify_manifest.py</code> every CI run</td></tr><tr><td>Vector counts</td><td>425 held-out, 89 public</td><td>VERIFIED</td><td>ledger <code>vector_counts</code>, summed over 7 programs</td></tr><tr><td>Discovery-bench corpus</td><td>15 / 124 / 170</td><td>VERIFIED</td><td>discovery ledger <code>corpus_counts</code></td></tr><tr><td>Layout round-trip</td><td>186 / 186, tolerance 0</td><td>VERIFIED</td><td><code>docs/PHASE2_LOG.md</code> WP-2.2 §2</td></tr><tr><td>Test suite</td><td>1097 passed, 10 skipped, 0 failed</td><td>VERIFIED</td><td><code>.github/workflows/tests.yml</code> asserts this exact triple</td></tr><tr><td>Demo, both-sides execution</td><td>89 inputs, 7 programs, 100%</td><td>VERIFIED</td><td><code>python3 -m demo</code>, ~15 s · <code>demo/README.md</code></td></tr><tr><td>CardDemo assessment wall time</td><td>4.61 s over 44 programs / 329 files</td><td>VERIFIED</td><td>WP-1.9 dry run, zero intervention</td></tr><tr><td>Construct coverage, third-party</td><td>0.8511 / 0.6945 / 0.5968</td><td><strong>PLAUSIBLE</strong></td><td>CardDemo / OMP / GnuCOBOL — all via <code>token_scan</code> fallback; not re-measured since the WP-2.0 grammar swap</td></tr><tr><td>Unsupported-construct demand signal</td><td>2,190 occurrences</td><td><strong>PLAUSIBLE</strong></td><td>same three corpora, same caveat</td></tr><tr><td>Countersigned reports</td><td>0</td><td>VERIFIED</td><td>both dry runs VALID AND UNATTESTED</td></tr><tr><td>Completed migrations</td><td>0</td><td>VERIFIED</td><td><code>README.md</code></td></tr><tr><td>risk_score / test_coverage / tests_generated</td><td>None / None / 0</td><td>NOT MEASURED</td><td><code>None</code> by construction · <code>src/core/orchestrator.py</code></td></tr><tr><td>Engagement duration, cost, effort</td><td>—</td><td>NO BASIS</td><td>none has been run; any figure would be an invention</td></tr></tbody></table></div>
+<hr class="rule">
+<h2 id="using-the-build-atlas">8. Using the Build Atlas</h2>
+<p><code>relian-architecture.html</code> is <strong>one self-contained file</strong>. No build step, no sibling files, no external assets but Google Fonts. Open it from disk, email it, or project it; it is also what <code>https://khaaliswooden-max.github.io/relian/</code> serves.</p>
+<p><strong>The two tabs.</strong> <em>Build Atlas</em> is the three-plate visual brief; <em>Technical Summary</em> is this document. Both panels are real HTML inside the one file, so the summary is present with JavaScript disabled and when the page is printed — it is switched, not fetched.</p>
+<p><strong>Moving the position flag.</strong> Click any stop on Plate III and the flag plants there, the stops behind it fill in, the phase bands advance, and the record panel swaps to that stop's state. Arrow keys work too; the controls under the panel step forward and back.</p>
+<p>That is a view change. The position of record is the <code>data-current</code> attribute on <code>#rail</code> in the file — edit it and commit, and the build's position becomes a version-controlled fact rather than browser state.</p>
+<p><strong>As the build advances</strong>, a newly completed stop needs three edits in <code>relian-architecture.html</code>: its <code>data-state</code> on the rail, its panel copy and status chip, and any row it touches in the provenance appendix. A stop does not move from <em>not built</em> to <em>measured</em> until a command has been run and its output recorded — the same rule as everywhere else.</p>
+<hr class="rule">
+<p>Relian™ — Legacy Refactoring Substrate. © 2025–2026 Zuup, LLC / Visionblox LLC. Proprietary. Held-out benchmark vectors are neither reproduced nor referenced in this document (R3). No private key material appears here (R4).</p>
+      </article>
+    </div>
+  </section>
+</div>
+
+<script>
+/* The two tabs. Both panels are real HTML in this one file, so the summary is
+   present with scripting off (and in print) rather than fetched. */
+(function () {
+  "use strict";
+  var tabs = [
+    { btn: document.getElementById("tab-atlas"),   panel: document.getElementById("panel-atlas"),   hash: "#atlas" },
+    { btn: document.getElementById("tab-summary"), panel: document.getElementById("panel-summary"), hash: "#summary" }
+  ].filter(function (t) { return t.btn && t.panel; });
+  if (tabs.length !== 2) { return; }
+
+  function select(idx, push) {
+    tabs.forEach(function (t, i) {
+      var on = i === idx;
+      t.btn.setAttribute("aria-selected", on ? "true" : "false");
+      t.btn.tabIndex = on ? 0 : -1;
+      if (on) { t.panel.removeAttribute("hidden"); } else { t.panel.setAttribute("hidden", ""); }
+    });
+    if (push && window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", tabs[idx].hash);
+    }
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  tabs.forEach(function (t, i) {
+    t.btn.addEventListener("click", function () { select(i, true); });
+    t.btn.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") { return; }
+      e.preventDefault();
+      var next = (i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length;
+      select(next, true);
+      tabs[next].btn.focus();
+    });
+  });
+
+  /* A link into a summary section must land on the summary, not on a hidden panel. */
+  try {
+    var start = window.location.hash === "#summary" ? 1
+              : (window.location.hash && document.querySelector("#panel-summary " + window.location.hash) ? 1 : 0);
+    if (start === 1) { select(1, false); }
+  } catch (err) { /* an unparseable hash is not a reason to fail the page */ }
+}());
+</script>
+</body>
+</html>
