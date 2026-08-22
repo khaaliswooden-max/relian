@@ -4033,7 +4033,6 @@ through `COPY`: `FdEntry.record_names` is empty in that case, so the row read
 `record: (unnamed)`. Four of the thirteen agreements are `COPY`-supplied, so a
 third of the strongest evidence the tool produces could not say what it was
 about. `_record_name` now falls back to the computed layout's group. +2 tests.
-
 ### 6. Measured triple
 
 ```
@@ -4044,3 +4043,198 @@ $ RELIAN_REQUIRE_COBC=1 pytest -q -rs
 Net **+2** on 1065, both in `tests/test_discovery_files.py`: the `COPY`-supplied
 record-naming case and its converse (a `DISAGREE`'s conflict text must name the
 record rather than say `(unnamed)`).
+
+---
+
+## 2026-08-22 · Site · The published site, and a gate so its numbers cannot go stale
+
+- **HEAD at start:** `d6760e7` (`docs(README): four capability rows overstated
+  what survived WP-2.0.-2/-3`)
+- **Branch:** `claude/relian-architecture-diagram-k2c3wl`
+- **Scope guard:** nothing under `bench/`, `discovery-bench/`, `transpiler/` or
+  `src/` was modified. Verified at close-out (§6).
+- **Baseline:** `852 passed, 10 skipped, 0 failed` (sealed triple, WP-2.3.2).
+
+Not a numbered work package. A publishing surface plus the gate that keeps it
+honest, recorded here because it changes `EXPECTED_PASSES` and that number is
+only allowed to move alongside an attributed delta.
+
+### 1. Why this exists at all
+
+Earlier the same day, `README.md` was found carrying four capability rows that
+described stages deleted two work packages before — generative-AI semantic
+analysis advertised as "working when API keys present", test generation and
+risk scoring described as pending integration or training. Nothing was wrong
+with the code. What was wrong is that **nothing connected the prose to the
+tree**, so the prose decayed at its own pace and only a reader who went looking
+would ever know.
+
+A published page is that failure with a larger audience. So the site is
+generated, and every figure it displays is either recomputed from this
+repository or carries the run that produced it.
+
+### 2. What is derived, and what is merely declared
+
+`site/figures.json` holds 51 figures, each with a grade and a basis (R9). 26
+carry a `derive` key naming a recomputation in `tools/build_site.py`:
+
+| Source | Figures derived from it |
+|---|---|
+| `bench/LEDGER_relian-bench-v1.2.json` | version, tag, file count, payload digest, seal fingerprint, program count, both vector totals, all three thresholds, the C1 pre-implementation baseline |
+| `discovery-bench/LEDGER_relian-discovery-bench-v0.1.json` | version, tag, copybooks, elementary fields, probe rows, variants, conditions, gap rows, oracle toolchain |
+| `.github/workflows/tests.yml` | `EXPECTED_PASSES`, `EXPECTED_SKIPS` |
+| `git` | the commit under build and its date |
+
+The remaining figures are **declared, not derived, and the distinction is
+recorded rather than blurred**: the held-out triple (BER, build rate, branch
+coverage) came from CI job 95240930271 and is not committed as machine-readable
+JSON — `bench/results/C1_rulebased.json` holds the *pre-implementation* v1.2
+baseline, not that run, and the held-out vectors never enter this repository
+(R3). The demo timings and the third-party construct coverage are the same
+shape. Each carries its run in `basis`. Adding a `derive` key to one of them to
+make the table look uniform would be the exact dishonesty the gate exists to
+catch.
+
+### 3. The gate fired on its own, unprompted
+
+Not a contrived demonstration. `EXPECTED_PASSES` was raised from 852 to 880 for
+this work's own tests, and the very next build refused:
+
+```
+$ python3 tools/build_site.py --check
+BUILD REFUSED -- the site disagrees with the repository:
+
+  * suite_passed: declared '852' but suite_passed recomputes to '880'
+    -- the repository moved and site/figures.json did not
+```
+
+That is the whole mechanism working in the only circumstance that matters: an
+author who changed one thing and did not think about the other.
+
+### 4. Three further checks, and the real bug one of them found
+
+- **Orphan figures.** A figure declared but displayed on neither page fails the
+  build. It caught `disc_tag`, declared and never shown.
+- **Unknown placeholders.** A `{{fig:…}}` naming no figure fails the build.
+- **No content lost.** Every word of `site/summary.md` must survive into the
+  rendered HTML. **This found a real defect in the Markdown renderer written
+  for it:** the paragraph rule excluded any line beginning `[-*]`, so a
+  paragraph opening with `**bold**` looked like a bullet, matched no bullet
+  either, and was **dropped on the floor**. Twenty words of the summary were
+  missing from the first build — including the opening line of §2.3. Fixed by
+  giving the list branch and the paragraph guard one shared pattern that
+  requires whitespace after the marker, and by emitting an unconsumed line as a
+  paragraph rather than skipping it. Both the check and the regression are
+  pinned in the suite.
+
+An ordered-list bug rode in on the same check: `<ol>` restarted at 1 after every
+heading, so §4's twelve stops rendered 1,2 / 1,2 / 1,2,3,4 / 1,2 / 1,2. The
+lists now carry `start=`.
+
+A third, of the same family, was caught by rendering the page and clicking:
+the summary's contents list was hand-written, and it broke **silently** the
+first time a section was retitled — §8 went from "Using the Build Atlas in a
+presentation" to "Using the Build Atlas, and keeping it true" and its anchor
+went with it. That is this session's own defect repeated in miniature: a list
+of claims maintained by hand beside the thing it describes. The contents list
+is now generated from the rendered headings, so an entry cannot name a heading
+that does not exist, and a test asserts every link resolves.
+
+### 5. The position flag is stamped into the served markup
+
+Clicking a stop moves the flag for that viewer. The position of record is
+`"position"` in `site/figures.json`, and the builder writes the resulting state
+into the HTML — stop states, `aria-current`, the one visible panel, the phase
+bands — rather than leaving it to the script. A page that paints stop 8 and then
+corrects itself is briefly lying, and with scripting off it never corrects at
+all.
+
+The phase-band boundaries are **parsed from the template's own `BAND_END`
+literal**, the one the script uses, so the two cannot drift. Proven by breaking
+the literal and asserting the build refuses.
+
+Stamping verified at s1, s2, s8, s10, s11 and s12: bands done 0, 1, 3, 4, 4, 5
+respectively, one current stop and one visible panel in every case.
+
+### 6. Measured triple
+
+Measured twice: once on this branch before merging `main`, and again after
+WP-2.4/2.4a came in, because a delta transcribed across a merge is a delta
+nobody measured.
+
+```
+$ python3 -m pytest -q -o addopts="" --ignore=tests/test_site_build.py
+→ 1 failed, 1048 passed, 28 skipped        # this branch, without the new file
+$ python3 -m pytest -q -o addopts=""
+→ 1 failed, 1078 passed, 28 skipped        # with it
+```
+
+**This is not the sealed triple, and the difference is environmental, not a
+regression.** GnuCOBOL is absent from this container, so eighteen further tests
+skip on the toolchain guard and `tests/test_seal.py::test_the_discovery_seal_
+config_is_buildable_and_records_what_it_should` fails with *"the toolchain probe
+could not answer for cobc"* — the sealer refusing to sign a record whose
+toolchain it cannot name, which is the designed behaviour. The same container
+measured `833 passed, 28 skipped, 1 failed` before this work and `1048` after the
+merge, so the delta is an exact **+30 passes with the skip and failure counts
+unmoved**, on both bases.
+
+The container reads 1048 where `main` reads 1067 — a gap of nineteen, the same
+`cobc`/`javac` gap WP-2.4 §0 records (683/28/1 against a real 702/10/0 is that
+same nineteen). The gate is therefore set from `main`'s complete-toolchain figure
+plus the measured delta: **1067 + 30 = 1097**, attributed in the workflow's own
+comment block. Nothing in `tests/test_site_build.py` carries a `skipif`: the
+builder is standard library only and reads committed JSON, so it has no
+toolchain to be missing. CI on a pinned environment is the measurement that
+counts.
+
+Scope confirmed:
+
+```
+$ git status --short -- bench/ discovery-bench/ transpiler/ src/
+(empty)
+```
+
+No transform code was touched, so BER cannot have moved.
+
+### 7. `main` moved under this work, and only half of it was caught by a gate
+
+WP-2.4 and WP-2.4a merged (PR #32) while this was being built.
+
+`EXPECTED_PASSES` went 852 → 1067 on `main`. Merging it in, the next build
+refused on its own:
+
+```
+BUILD REFUSED -- the site disagrees with the repository:
+  * suite_passed: declared '882' but suite_passed recomputes to '1097'
+```
+
+**The more consequential change, no gate caught.** WP-2.4 built stop 09, which
+the Atlas described as NOT BUILT — so the page was one merge away from
+publishing a false "not built" about work that had shipped. The drift gate
+checks numbers; it does not check whether a milestone's prose still describes
+reality, and it should not be trusted to. That was caught by reading `main`'s
+log before opening the pull request, which is a human step and remains one.
+
+Worth stating plainly because it bounds what this session built: the gate
+narrows the staleness surface, it does not close it.
+
+Stop 09 is now MEASURED and carries what actually shipped — `jcl.py`,
+`files.py`, `lineage.py`, `ddl.py`, the CardDemo cross-check at 13 / 0 / 41 /
+194, and the dry-run defect the `NO_LAYOUT` breakdown exposed — together with
+what did **not**: the dictionary rendering, for which no module exists. The
+position flag moves to s9.
+
+### 8. What this does NOT license
+
+- **No new claim reaches the site.** Every figure on it already existed in this
+  repository or in a recorded run; the build only stops them decaying. The two
+  PLAUSIBLE figures still print their caveat on the page.
+- **The site is not evidence.** It is a rendering of evidence held elsewhere,
+  and each figure names where.
+- **Pages is public.** The repository was already public, so this changes reach
+  rather than disclosure — but it does change reach, and the candid material on
+  those pages (zero customers, zero countersignatures, the PLAUSIBLE grades) is
+  now a link someone can send rather than a file someone must find. That was a
+  deliberate choice, made in the knowledge that a page which omitted them would
+  be the more comfortable and less honest artifact.

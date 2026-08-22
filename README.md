@@ -6,6 +6,20 @@ Relian is an in-development platform for AI-assisted, verifiable migration of
 legacy code (initial path: COBOL → Java). It is developed by Zuup Innovation
 Lab / Visionblox LLC.
 
+## Architecture and build state
+
+**https://khaaliswooden-max.github.io/relian/** — two tabs, rebuilt and
+republished on every push to `main`:
+
+- **Build Atlas** — system architecture, the production cycle, and the build
+  timeline with a movable position flag
+- **Technical Summary** — the same ground in prose, with the provenance ledger
+
+Every number on both pages is declared in `site/figures.json` with a Trutina
+grade and a basis, and every figure that can be recomputed from this repository
+**is** recomputed on each build; the build fails rather than publishing a page
+that disagrees with the tree. See `docs/architecture/README.md`.
+
 ## What exists today (measured, not projected)
 
 | Component | State |
@@ -13,11 +27,11 @@ Lab / Visionblox LLC.
 | COBOL-85 ANTLR parser + AST | Working |
 | Deterministic COBOL→Java transpiler (C1) | **Working — full committed-bar PASS** (below) |
 | Deterministic transform adapters (OpenRewrite, Piranha, rope, jscodeshift) | Working scaffolds |
-| Orchestrator pipeline (7-stage state machine) | Working; transform stage is the deterministic C1 core |
-| LLM semantic analysis | Working when API keys present; **informational only** |
+| Orchestrator pipeline (7-stage state machine) | Working; **5 of the 7 stages execute** — stages 2 and 4 were removed under R6 (rows below). Transform stage is the deterministic C1 core |
+| LLM semantic analysis | **Removed** (WP-2.0.-2, R6). It sent customer source code to a hosted model, so it was deleted rather than gated — a flag can be flipped, a deleted call cannot. `semantic_score` is now set by one thing only: differential execution against the legacy oracle |
 | Differential validation vs. legacy oracle | Wired to RELIAN-BENCH harness |
-| Test generation (KLEE/symbolic) | Returns empty until KLEE integration lands |
-| Risk scoring | Heuristic only; ML model **not yet trained** |
+| Test generation (KLEE/symbolic) | **Not wired.** The LLM leg was removed with stage 4 (WP-2.0.-2, R6); the symbolic leg was never integrated. `src/generators/tests.py` is an unwired stub whose methods return `[]`. `tests_generated` is 0 and `test_coverage` is `None` by construction |
+| Risk scoring | **In the pipeline: none.** The model limb was deleted (WP-2.0.-3, R1) — not left untrained — and `risk_score` is `None` by construction. **As a product:** `src/assessment/risk.py`, a published deterministic tiering rule reached through the assessment CLI and `/api/v1/assess`. The tier is graded PLAUSIBLE (a policy is not a measurement); its inputs are VERIFIED |
 | Attestation | **Simulated locally**; self-identifies as `simulated: true` |
 
 ## Measured baseline (RELIAN-BENCH v1.0, committed & Ed25519-signed)

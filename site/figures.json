@@ -1,0 +1,90 @@
+{
+  "_comment": [
+    "Every number the published site displays, with a Trutina grade and a basis (R9).",
+    "",
+    "A figure carrying `derive` is RECOMPUTED from this repository on every build and",
+    "the build fails if it disagrees with `value`. A figure without `derive` was",
+    "produced by a run whose output is not committed as machine-readable JSON; its",
+    "`basis` names that run, and only a human can keep it true. Do not add `derive`",
+    "to such a figure to silence the difference -- the difference is the information.",
+    "",
+    "`volatile` means the derivation STAMPS the value rather than checking it (the",
+    "commit under build changes every commit; pinning it would make the gate useless).",
+    "",
+    "To advance the position flag: change `position` to the stop id and push."
+  ],
+
+  "position": "s9",
+
+  "appendix_only": [],
+
+  "figures": {
+    "head_sha":        {"value": "d6760e7",   "grade": "VERIFIED", "volatile": true, "derive": "head_sha",  "basis": "git rev-parse HEAD at build time"},
+    "head_date":       {"value": "2026-08-22","grade": "VERIFIED", "volatile": true, "derive": "head_date", "basis": "commit date of HEAD; no wall-clock read, so the build is deterministic (R8)"},
+
+    "bench_version":   {"value": "v1.2",              "grade": "VERIFIED", "derive": "bench_version",    "basis": "bench/LEDGER_relian-bench-v1.2.json -> version"},
+    "bench_tag":       {"value": "relian-bench-v1.2", "grade": "VERIFIED", "derive": "bench_tag",        "basis": "same ledger -> tag"},
+    "bench_files":     {"value": "29",                "grade": "VERIFIED", "derive": "bench_files",      "basis": "same ledger -> file_count"},
+    "bench_payload":   {"value": "a8695c2c",          "grade": "VERIFIED", "derive": "bench_payload",    "basis": "same ledger -> payload_sha256, first 8 hex"},
+    "seal_fingerprint":{"value": "233bb4406e2de606",  "grade": "VERIFIED", "derive": "seal_fingerprint", "basis": "same ledger -> signature.key_fingerprint; tools/verify_manifest.py --pin-fingerprint checks it every CI run"},
+    "bench_programs":  {"value": "7",                 "grade": "VERIFIED", "derive": "bench_programs",   "basis": "same ledger -> vector_counts, one public split per program"},
+    "heldout_vectors": {"value": "425",               "grade": "VERIFIED", "derive": "heldout_vectors",  "basis": "same ledger -> vector_counts, held-out splits summed"},
+    "public_vectors":  {"value": "89",                "grade": "VERIFIED", "derive": "public_vectors",   "basis": "same ledger -> vector_counts, public splits summed"},
+    "ber_bar":         {"value": "0.95",              "grade": "VERIFIED", "derive": "ber_bar",          "basis": "same ledger -> thresholds.ber_heldout_min"},
+    "build_bar":       {"value": "1.00",              "grade": "VERIFIED", "derive": "build_bar",        "basis": "same ledger -> thresholds.build_rate_min"},
+    "coverage_bar":    {"value": "0.80",              "grade": "VERIFIED", "derive": "coverage_bar",     "basis": "same ledger -> thresholds.branch_coverage_min"},
+    "c1_seal_ber":     {"value": "0.7176",            "grade": "VERIFIED", "derive": "c1_seal_ber",      "basis": "same ledger -> baselines_recorded.C1_rulebased.ber_overall; the pre-implementation red recorded AT sealing"},
+    "c1_seal_build":   {"value": "6/7",               "grade": "VERIFIED", "derive": "c1_seal_build",    "basis": "same ledger -> baselines_recorded.C1_rulebased.build_rate"},
+
+    "disc_version":    {"value": "v0.1",                        "grade": "VERIFIED", "derive": "disc_version",    "basis": "discovery-bench/LEDGER_relian-discovery-bench-v0.1.json -> version"},
+    "disc_tag":        {"value": "relian-discovery-bench-v0.1", "grade": "VERIFIED", "derive": "disc_tag",        "basis": "same ledger -> tag"},
+    "disc_copybooks":  {"value": "15",                          "grade": "VERIFIED", "derive": "disc_copybooks",  "basis": "same ledger -> corpus_counts.copybooks"},
+    "disc_fields":     {"value": "124",                         "grade": "VERIFIED", "derive": "disc_fields",     "basis": "same ledger -> corpus_counts.elementary_fields"},
+    "disc_probes":     {"value": "170",                         "grade": "VERIFIED", "derive": "disc_probes",     "basis": "same ledger -> corpus_counts.probe_rows"},
+    "disc_variants":   {"value": "16",                          "grade": "VERIFIED", "derive": "disc_variants",   "basis": "same ledger -> corpus_counts.variants"},
+    "disc_conditions": {"value": "9",                           "grade": "VERIFIED", "derive": "disc_conditions", "basis": "same ledger -> corpus_counts.conditions"},
+    "disc_gaps":       {"value": "6",                           "grade": "VERIFIED", "derive": "disc_gaps",       "basis": "same ledger -> corpus_counts.gap_rows"},
+    "disc_oracle":     {"value": "GnuCOBOL 3.1.2.0",            "grade": "VERIFIED", "derive": "disc_oracle",     "basis": "same ledger -> oracle_toolchain.cobc"},
+
+    "suite_passed":    {"value": "1097", "grade": "VERIFIED", "derive": "suite_passed",  "basis": ".github/workflows/tests.yml -> EXPECTED_PASSES, the value CI asserts the run against"},
+    "suite_skipped":   {"value": "10",  "grade": "VERIFIED", "derive": "suite_skipped", "basis": "same workflow -> EXPECTED_SKIPS"},
+    "suite_failed":    {"value": "0",   "grade": "VERIFIED", "basis": "the gate fails the job on any failure; there is no continue-on-error in that workflow"},
+
+    "ber_heldout":     {"value": "1.0000",    "grade": "VERIFIED", "basis": "RELIAN-BENCH scoring run #156 on 2da6e5e (PR #32, 2026-08-22), conclusion line THRESHOLD MET; first measured at CI job 95240930271, PR #15 @ 8c676e9. NOT derivable here: bench/results/C1_rulebased.json holds the pre-implementation v1.2 baseline, not this run, and the held-out vectors never enter this repository (R3). The scalar is read once, at PR time, by design"},
+    "ber_matched":     {"value": "425 / 425", "grade": "VERIFIED", "basis": "same run; all seven programs matched on every held-out vector"},
+    "build_rate":      {"value": "1.0000",    "grade": "VERIFIED", "basis": "same run; 7 of 7 programs compiled"},
+    "branch_coverage": {"value": "0.8854",    "grade": "VERIFIED", "basis": "same run, JaCoCo 0.8.12 -- the coverage tool the ledger requires"},
+
+    "layout_roundtrip":{"value": "186 / 186", "grade": "VERIFIED", "basis": "docs/PHASE2_LOG.md WP-2.2 section 2, against the sealed oracle, tolerance zero"},
+
+    "demo_inputs":     {"value": "89",   "grade": "VERIFIED", "basis": "python3 -m demo over the committed corpus, one run; equals the sealed public-vector count because the demo executes exactly that set"},
+    "demo_programs":   {"value": "7",    "grade": "VERIFIED", "basis": "same run"},
+    "demo_seconds":    {"value": "15",   "grade": "VERIFIED", "basis": "same run, approximate wall time quoted in demo/README.md"},
+
+    "carddemo_seconds":  {"value": "4.61", "grade": "VERIFIED", "basis": "WP-1.9 dry run over AWS CardDemo (Apache-2.0), zero intervention"},
+    "carddemo_programs": {"value": "44",   "grade": "VERIFIED", "basis": "same dry run"},
+    "carddemo_files":    {"value": "329",  "grade": "VERIFIED", "basis": "same dry run"},
+
+    "cov_carddemo":  {"value": "0.8511", "grade": "PLAUSIBLE", "basis": "WP-1.5.4/1.5.5 re-run of the WP-1.9 dry runs. PLAUSIBLE, not VERIFIED: not one third-party program parsed cleanly under the then-bundled grammar, so every figure was taken through the token_scan fallback. The grammar was replaced at WP-2.0 and this has not been re-measured since"},
+    "cov_omp":       {"value": "0.6945", "grade": "PLAUSIBLE", "basis": "same run, same token_scan caveat (OMP COBOL course, CC-BY-4.0)"},
+    "cov_gnucobol":  {"value": "0.5968", "grade": "PLAUSIBLE", "basis": "same run, same token_scan caveat (GnuCOBOL test suite, GPL-3.0)"},
+
+    "demand_total":  {"value": "2,190", "grade": "PLAUSIBLE", "basis": "unsupported-construct occurrences across the three dry-run corpora; same token_scan caveat"},
+    "demand_exit":     {"value": "368", "grade": "PLAUSIBLE", "basis": "same count, EXIT"},
+    "demand_exec":     {"value": "306", "grade": "PLAUSIBLE", "basis": "same count, EXEC"},
+    "demand_continue": {"value": "271", "grade": "PLAUSIBLE", "basis": "same count, CONTINUE"},
+    "demand_write":    {"value": "224", "grade": "PLAUSIBLE", "basis": "same count, WRITE"},
+    "demand_goto":     {"value": "186", "grade": "PLAUSIBLE", "basis": "same count, GO TO"},
+    "demand_call":     {"value": "183", "grade": "PLAUSIBLE", "basis": "same count, CALL"},
+
+    "inventory_agree":     {"value": "13",  "grade": "VERIFIED", "basis": "WP-2.4a dry run over AWS CardDemo with the copybook resolver wired in: FD record length and JCL LRECL agree exactly on 13 datasets, four of them with records arriving through COPY"},
+    "inventory_disagree":  {"value": "0",   "grade": "VERIFIED", "basis": "same run. Resolver, layout engine and JCL parser are three independent pieces of machinery and all three must be right for this to be zero"},
+    "inventory_no_lrecl":  {"value": "41",  "grade": "VERIFIED", "basis": "same run: the JCL declares no LRECL, so there is nothing to cross-check against"},
+    "inventory_no_layout": {"value": "194", "grade": "VERIFIED", "basis": "same run, broken down by cause rather than reported as one number. The first pass said 204; wiring the resolver moved 10 into AGREE and NO_LRECL, which was a defect in the dry run -- recorded, not quietly corrected"},
+
+    "release_fingerprint": {"value": "91e3a404155ba4dd", "grade": "VERIFIED", "basis": "derived by the operator on 2026-08-21 from visionblox-release-key-v1.pub -- PUBLIC material only, SHA-256 over the 32 raw Ed25519 bytes, first 16 hex. Not derived here: the public key is not yet in this repository, which is the one open item that would close it"},
+
+    "countersignatures": {"value": "0", "grade": "VERIFIED", "basis": "both dry runs read VALID AND UNATTESTED; the flow is proven only under a stand-in key generated inside a test"},
+    "migrations":        {"value": "0", "grade": "VERIFIED", "basis": "no customer engagement has been run; stated in README.md"}
+  }
+}

@@ -443,7 +443,50 @@ env:
   # not say what it was about. +1 for the fallback and its direct unit case,
   # +1 for the converse -- a DISAGREE's conflict text must name the record.
   # See docs/PHASE2_LOG.md, WP-2.4a §5.
-  EXPECTED_PASSES: "1067"
+  #
+  # Site build (2026-08-22, merged after WP-2.4a): 1067 -> 1097. Net +30, all
+  # of them the new tests/test_site_build.py, which gives tools/build_site.py
+  # its teeth. The published site derives its figures from this repository
+  # rather than restating them, and every gate that makes that true is proven
+  # here by PLANTING the failure it catches:
+  #
+  #   4  the tree as committed -- both pages build, no figure disagrees with
+  #      the repository, every figure carries a grade and a basis (R9), and
+  #      two builds of one commit are byte-identical (R8, no wall-clock read).
+  #   7  planted red, one per gate: a derived figure gone stale; the drift
+  #      message naming the figure AND both values; a volatile figure stamped
+  #      rather than pinned, WITH its converse control (a bug that stamped
+  #      every figure would silence the drift gate and pass the first test on
+  #      its own); a figure displayed nowhere; a placeholder naming no figure;
+  #      the content-loss check; and a position naming no stop.
+  #   1  the bold-opened-paragraph regression. The content-loss check found a
+  #      real renderer bug while this was being written -- a paragraph opening
+  #      with **bold** matched the old bullet rule, matched nothing after it,
+  #      and was dropped on the floor. Pinned so it cannot come back.
+  #   2  the contents list of the Technical Summary, which was hand-written
+  #      and broke SILENTLY the first time a section was retitled. It is now
+  #      generated from the rendered headings: 1 asserts every contents link
+  #      resolves, 1 asserts a summary with no sections is refused.
+  #   6  the position flag, parametrised over s1/s2/s8/s10/s11/s12: the SERVED
+  #      markup must already show the right stop -- stop states, aria-current,
+  #      the one visible panel, and the phase bands -- because a page that
+  #      paints stop 8 and then corrects itself is briefly lying.
+  #   1  the phase-band list is PARSED from the script's own BAND_END literal
+  #      rather than duplicated, proven by breaking the literal.
+  #   7  R11 vocabulary, one parametrised case per forbidden term over both
+  #      published pages, plus 1 converse control so a lint that matches
+  #      nothing cannot pass all six and tell you nothing.
+  #   1  R3 -- no held-out vector content, and no mention of the private
+  #      repository, reaches either published page.
+  #
+  #   Collection is the authority and reports 30. Measured on this branch
+  #   before and after the merge with main, in a container without GnuCOBOL:
+  #   the same +30 both times, with the skip and failure counts unmoved.
+  #
+  # THE SKIP COUNT IS UNCHANGED AT 10. Nothing in the new file carries a
+  # skipif: the builder is standard library only and reads committed JSON, so
+  # it has no toolchain to be missing.
+  EXPECTED_PASSES: "1097"
 
 jobs:
   parser-regen:
