@@ -3721,3 +3721,201 @@ The count was predicted as +3 and measured as +4: the pinning test is
 parametrised over two tools, so it contributes two cases rather than one. The
 gate is set from the measurement, which is the only reason the gate is worth
 having.
+
+---
+
+## 2026-08-22 · WP-2.4 · File inventory, lineage, and target-schema DDL
+
+Anchor: `origin/main` = `179fe59` (merge of PR #31, WP-2.3).
+
+### 0. Baseline — re-measured, not transcribed
+
+The work package quoted 852/10/0 and instructed a re-measurement, because the
+`.pub` derivation test might have landed on either side of the merge. It had
+landed inside `179fe59`; the figure is confirmed rather than corrected.
+
+Measured before any code was written, on a **complete** toolchain:
+
+```
+$ cobc --version | head -1      # cobc (GnuCOBOL) 3.1.2.0
+$ javac -version                # javac 21.0.10
+$ RELIAN_REQUIRE_COBC=1 pytest -q -rs
+→ 852 passed, 10 skipped, 0 failed
+```
+
+**The container did not start complete.** `cobc` was absent; GnuCOBOL was
+installed before measuring anything. This is the WP-2.3 trap verbatim: a
+container without `cobc`/`javac` reported 683/28/1 against a real 702/10/0, and
+a baseline transcribed rather than measured would have made every delta wrong
+by nineteen. Here the skip count is the tell — 10 on the complete toolchain,
+and it would have been higher on the incomplete one.
+
+Interpreter note: measured on CPython 3.11.15 locally; CI pins 3.12. The pass
+and skip counts are interpreter-independent for this suite, and CI is the
+authority on the gate.
+
+### 1. What was built
+
+Four new modules under `src/discovery/`, none of which existed before:
+
+| Module | What it does |
+|---|---|
+| `jcl.py` | `//name DD`, `DSN=`/`DSNAME=`, `DCB=` sub-parameters, `DISP=`, in-stream `DD *`/`DD DATA`, `EXEC PGM=`, and continuations |
+| `files.py` | `SELECT`/`FD`/`OPEN`, the three-source join, and the D29 LRECL cross-check |
+| `lineage.py` | `OPEN`-mode program→dataset edges, with a coverage statement that bounds them |
+| `ddl.py` | PostgreSQL DDL, the published mapping table, and the `PARTIAL` discipline |
+
+Plus `tools/ddl_load_check.py` (the D33 load-and-reconcile gate) and the
+`ddl-loads` CI job that runs it against a `postgres:16` service.
+
+### 2. The continuation trap, planted red
+
+`tests/test_discovery_jcl.py` keeps the naive per-line `DCB=(...)` scan
+permanently, and asserts it FAILS on a fixture whose `DCB=` splits across
+records:
+
+```
+--            DCB=(LRECL=107,RECFM=FB,                            00010001
+--            DSORG=PS,BLKSIZE=0),                                00020001
+```
+
+The naive scan returns `{lrecl: 107, recfm: 'FB'}` — **plausible, complete-
+looking, and wrong**. `DSORG` and `BLKSIZE` are silently absent, which is
+indistinguishable from a DD that declares neither. The field that survives the
+truncation is `LRECL`, which is exactly the one the §3.2 cross-check turns on,
+so no downstream check would have caught it.
+
+The fixture also carries a sequence number in columns 73–80, because CardDemo
+does: 102 records use the identification field, and a reader that takes whole
+lines swallows `00640019` as operand text.
+
+### 3. CardDemo — measured, and two count drifts explained
+
+Full run in `docs/dryruns/carddemo_jcl/README.md`. Summary:
+
+| Row | §0.4 | Measured | Drift |
+|---|---|---|---|
+| `.jcl` members | 55 | 55 | — |
+| DD statements | 524 | **555** | +31 |
+| — with `DSN=` | 245 | **242** | −3 |
+| — with `DCB=` | 43 | **43** | — |
+
+Both drifts are fully accounted for and neither figure is wrong; they count
+different things. §0.4's 524 is reproducible exactly as
+`grep -cE '^//\S+\s+DD\s'`, which counts **5 commented-out** DD statements
+(`\S+` matches `*DDPAUTP0`) and misses all **36 concatenated** ones. So
+`524 = 519 + 5` and `555 = 519 + 36`. The `DSN=` figure of 245 counts *lines*;
+242 counts *DD statements*, the difference being 2 comment records and 1
+orphaned continuation downstream of a record corrupted in the corpus itself
+(`app/jcl/CREASTMT.JCL:87`).
+
+**§0.4 is not edited.** This log is append-only; the earlier entry records what
+was measured then, and this one records what was measured now.
+
+Two parser defects were found by the parser's own notes on first contact with
+the corpus, and both are fixed and regression-tested: qualified `procstep.ddname`
+DD names (which were not recognised as statements *at all*, stranding the record
+after them, across 5 members), and orphaned continuations being reported as
+unmodelled JCL *operations* named `DSN=AWS.M2…`.
+
+### 4. The cross-check — 9 AGREE, 0 DISAGREE, and why that is a result
+
+Nine independently authored CardDemo copybooks each compute to exactly the
+length the job stream declares for the dataset holding them. One of the nine
+(`VBRCFILE`) agrees only after the 4-byte RDW adjustment: computed 80,
+`RECFM=VB`, declared `LRECL=84`. Two artifacts sharing no code and no author
+agreeing to the byte on nine records is evidence the layout engine computes
+IBM-dialect record lengths correctly on a corpus it was never fitted to.
+
+It is not evidence the check would catch a disagreement, so `DISAGREE` is
+fixtured: a deliberately mismatched pair (12 computed against `LRECL=107`
+declared) with tests asserting both numbers reach the report, that the conflict
+names both, that no tolerance band absorbs an off-by-one, and that `CrossCheck`
+carries **no resolving accessor at all** — no `record_length`, no `preferred`,
+no `resolved`. The moment one exists, some report renders it and the finding
+becomes one confident number.
+
+### 5. R12, measured rather than promised
+
+`tests/test_discovery_reads_no_data.py` runs the entire WP-2.4 pipeline in a
+subprocess under a `sys.addaudithook`, over a tree containing four decoy
+datasets (an EBCDIC dump, a `.dat` extract, a VSAM export, an unload). None may
+appear in the recorded opens. An audit hook sees the event whichever module
+raised it, including one reached transitively through `src.assessment.intake`,
+so it is not defeatable by a string trick or an indirect import.
+
+Two converse controls, because the strong assertion is trivially satisfiable by
+a pipeline that does nothing: the run must have produced real output (DD
+statements, file records, lineage edges, DDL tables), and it must have opened
+the source artifacts. A third negative control runs the same probe with a decoy
+read added and requires the hook to report it — a hook that silently recorded
+nothing would make R12 look measured while measuring nothing.
+
+### 6. `ddl-loads` — and the shortcut it must never take
+
+15 tables from the sealed corpus, 16 statements, executed against a live
+PostgreSQL 16.13. Then `information_schema.columns` is queried and reconciled
+against the mapping table: 122 columns claimed, 122 observed, 122 reconciled,
+0 mismatches.
+
+Loading proves the DDL is syntactically valid. Only the `information_schema`
+query proves PostgreSQL agrees with what we said we generated. Verifying by
+re-reading the strings the generator produced would be the WP-2.2 §0
+circularity in a new place, and it is the one shortcut that would make this
+gate decorative while leaving it green.
+
+**Proven to bite.** With the rendered DDL sabotaged to execute `CHAR(99)` while
+continuing to claim `CHAR(1)`, the tool exits 1 on the reconciliation:
+
+```
+GATE FAILED (reconcile): d09_conditions_d09_conditions.d09_status:
+  claimed CHAR(1) (character_maximum_length=1),
+  PostgreSQL reports character_maximum_length=99
+```
+
+`ddl-loads` is a JOB, not a pytest test, deliberately. A test needing a live
+PostgreSQL would skip on every developer machine, drift `EXPECTED_SKIPS`, and
+be green-by-skip on the runner — the exact failure `tests/toolchain.py` exists
+to close.
+
+### 7. Measured triple
+
+```
+$ RELIAN_REQUIRE_COBC=1 pytest -q -rs
+→ 1065 passed, 10 skipped, 0 failed
+```
+
+Net **+213** on 852, attributed by collection rather than by hand:
+
+| File | Δ |
+|---|---|
+| `tests/test_discovery_jcl.py` | +48 |
+| `tests/test_discovery_files.py` | +41 |
+| `tests/test_discovery_lineage.py` | +30 |
+| `tests/test_discovery_ddl.py` | +53 |
+| `tests/test_discovery_reads_no_data.py` | +37 |
+| `tests/test_discovery_is_compiler_free.py` | +4 |
+
+The `+4` is not new intent: D15's per-module AST scan is parametrised over
+`src/discovery/*.py`, and the package gained four modules. No existing test was
+changed, renamed, deleted or deselected.
+
+**The skip count is unchanged at 10**, and still entirely
+`tests/assessment/test_cross_check.py`. Nothing added in this work package
+skips conditionally.
+
+### 8. What this work package does not resolve
+
+* **IBM Enterprise COBOL equivalence** — still unmeasured, still disclosed.
+  Nine agreeing record lengths are evidence about lengths, not about every byte
+  of every field.
+* **Lineage completeness** — six categories of flow are structurally invisible
+  and are named in the output: dynamic allocation, GDG relative references,
+  TSO-driven datasets, unparsed utilities, CICS/IMS resource access, and
+  programs outside the scanned tree.
+* **`DCB=` referbacks** (`DCB=(*.SORTIN)`) — recorded and deliberately not
+  followed. The attributes live in another DD, and copying them would present
+  an inference as a declaration.
+* **Whether a copybook describes the bytes on the volume** — not determinable
+  from source. This tool never opens a volume to find out, and that is the
+  point of D34.
