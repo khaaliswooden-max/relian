@@ -29,7 +29,6 @@ from pathlib import Path
 
 import pytest
 
-from src.discovery import ddl
 from src.discovery.ddl import (
     MAPPING_RULES,
     MAPPING_RULES_BY_ID,

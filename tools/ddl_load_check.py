@@ -206,7 +206,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             cursor.execute(
                 f'DROP SCHEMA IF EXISTS "{args.schema}" CASCADE'
             )
-            print(f"--- executing against PostgreSQL ---")
+            print("--- executing against PostgreSQL ---")
             for statement in statements:
                 try:
                     cursor.execute(statement)

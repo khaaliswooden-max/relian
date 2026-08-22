@@ -71,9 +71,9 @@ an interruption is inventing operands.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field as _dc_field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 # --------------------------------------------------------------------------
 # Card geometry

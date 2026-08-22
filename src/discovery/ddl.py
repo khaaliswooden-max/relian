@@ -63,7 +63,7 @@ and COBOL text.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field as _dc_field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional, Sequence, Tuple
 

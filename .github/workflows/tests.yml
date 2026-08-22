@@ -793,7 +793,12 @@ jobs:
         # connection refused, which reads as a DDL defect rather than a
         # scheduling one.
         options: >-
-          --health-cmd "pg_isready -U relian"
+          # -d names the database explicitly. Without it pg_isready connects to
+          # a database named after the user, which does not exist, and the
+          # container log fills with `FATAL: database "relian" does not exist`
+          # on a job that is passing. A green run whose log reads as broken
+          # costs the next reader time for no reason.
+          --health-cmd "pg_isready -U relian -d relian_ddl"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10

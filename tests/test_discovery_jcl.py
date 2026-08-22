@@ -29,7 +29,6 @@ CardDemo measurement is a dry run, recorded in docs/dryruns/carddemo_jcl/.
 from __future__ import annotations
 
 import re
-import textwrap
 from pathlib import Path
 
 import pytest

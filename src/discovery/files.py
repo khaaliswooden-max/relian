@@ -64,7 +64,7 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 from src.assessment.intake import SKIP_DIRS, read_source
 
-from .copybook import COL_INDICATOR, COL_TEXT_END, CodeLine, Resolution, code_lines
+from .copybook import CodeLine, Resolution, code_lines
 from .jcl import DDStatement, Evidence, JclInventory, RDW_BYTES
 from .layout import Layout, LayoutStatus, compute, compute_text
 
