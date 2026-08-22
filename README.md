@@ -6,6 +6,20 @@ Relian is an in-development platform for AI-assisted, verifiable migration of
 legacy code (initial path: COBOL → Java). It is developed by Zuup Innovation
 Lab / Visionblox LLC.
 
+## Architecture and build state
+
+**https://khaaliswooden-max.github.io/relian/** — two tabs, rebuilt and
+republished on every push to `main`:
+
+- **Build Atlas** — system architecture, the production cycle, and the build
+  timeline with a movable position flag
+- **Technical Summary** — the same ground in prose, with the provenance ledger
+
+Every number on both pages is declared in `site/figures.json` with a Trutina
+grade and a basis, and every figure that can be recomputed from this repository
+**is** recomputed on each build; the build fails rather than publishing a page
+that disagrees with the tree. See `docs/architecture/README.md`.
+
 ## What exists today (measured, not projected)
 
 | Component | State |

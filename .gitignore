@@ -32,3 +32,8 @@ junit.xml
 .pytest_cache/
 .mypy_cache/
 .antlr/
+
+# Generated site output. Built by tools/build_site.py, published by
+# .github/workflows/pages.yml. Never committed -- a generated file in the tree
+# is a generated file that drifts from its generator.
+_site/

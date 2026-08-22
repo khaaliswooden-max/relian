@@ -1,389 +1,7 @@
 <title>Relian Build Atlas</title>
 <meta name="description" content="Relian — system architecture, production cycle, and build timeline with a movable position flag.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
-
-<style>
-/* ============================================================
-   RELIAN BUILD ATLAS
-   Palette: Visionblox brand — ink navy, paper, seal teal,
-   signal amber, slate. Amber is reserved for one thing only:
-   the position flag.
-   Type: IBM Plex superfamily — Sans (structure), Mono (every
-   measured value), Serif (the state record). Mono is semantic
-   here: if it is set in mono, a process produced it.
-   ============================================================ */
-
-:root {
-  --paper:        #F5F5F0;
-  --surface:      #FFFFFF;
-  --surface-2:    #ECEDE6;
-  --sunk:         #E3E5DD;
-  --ink:          #141B31;
-  --ink-2:        #3D4763;
-  --ink-3:        #6C7794;
-  --rule:         #D2D5CA;
-  --rule-strong:  #B4B9AC;
-
-  --seal:         #1E8672;
-  --seal-soft:    #E0F0EB;
-  --seal-line:    #9FCFC2;
-  --signal:       #C08A00;
-  --signal-pure:  #F7B801;
-  --signal-soft:  #FBF0D2;
-  --slate:        #8892A4;
-  --brick:        #A8462F;
-  --brick-soft:   #F6E4DE;
-
-  --shadow:       0 1px 2px rgba(20,27,49,.06), 0 8px 24px -14px rgba(20,27,49,.28);
-  --shadow-lift:  0 2px 4px rgba(20,27,49,.08), 0 18px 44px -20px rgba(20,27,49,.40);
-
-  --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
-
-  --measure: 66ch;
-  --gutter: clamp(20px, 4vw, 56px);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper:       #0C1122;
-    --surface:     #141B31;
-    --surface-2:   #1B2440;
-    --sunk:        #0A0F1E;
-    --ink:         #EDEFF5;
-    --ink-2:       #B6BECF;
-    --ink-3:       #8892A4;
-    --rule:        #2A3350;
-    --rule-strong: #3C476A;
-
-    --seal:        #45C4AA;
-    --seal-soft:   #10312C;
-    --seal-line:   #2C6B5F;
-    --signal:      #F7B801;
-    --signal-pure: #F7B801;
-    --signal-soft: #33270A;
-    --slate:       #7C869B;
-    --brick:       #E08066;
-    --brick-soft:  #34160F;
-
-    --shadow:      0 1px 2px rgba(0,0,0,.5), 0 10px 30px -16px rgba(0,0,0,.8);
-    --shadow-lift: 0 2px 6px rgba(0,0,0,.55), 0 22px 54px -22px rgba(0,0,0,.9);
-  }
-}
-
-:root[data-theme="dark"] {
-  --paper:       #0C1122;
-  --surface:     #141B31;
-  --surface-2:   #1B2440;
-  --sunk:        #0A0F1E;
-  --ink:         #EDEFF5;
-  --ink-2:       #B6BECF;
-  --ink-3:       #8892A4;
-  --rule:        #2A3350;
-  --rule-strong: #3C476A;
-
-  --seal:        #45C4AA;
-  --seal-soft:   #10312C;
-  --seal-line:   #2C6B5F;
-  --signal:      #F7B801;
-  --signal-pure: #F7B801;
-  --signal-soft: #33270A;
-  --slate:       #7C869B;
-  --brick:       #E08066;
-  --brick-soft:  #34160F;
-
-  --shadow:      0 1px 2px rgba(0,0,0,.5), 0 10px 30px -16px rgba(0,0,0,.8);
-  --shadow-lift: 0 2px 6px rgba(0,0,0,.55), 0 22px 54px -22px rgba(0,0,0,.9);
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 16px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-.wrap { max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
-.narrow { max-width: var(--measure); }
-
-h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; margin: 0; font-weight: 600; letter-spacing: -0.015em; }
-p { margin: 0; }
-
-/* --- shared atoms ------------------------------------------------ */
-
-.eyebrow {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-.num {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-  color: var(--seal);
-  white-space: nowrap;
-}
-.num-null { font-family: var(--mono); color: var(--slate); font-style: normal; white-space: nowrap; }
-code, .mono { font-family: var(--mono); font-size: .88em; }
-
-.chip {
-  display: inline-flex; align-items: center; gap: .45em;
-  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
-  letter-spacing: .1em; text-transform: uppercase;
-  padding: .32em .62em; border-radius: 3px;
-  border: 1px solid transparent; white-space: nowrap;
-}
-.chip-measured { color: var(--seal); background: var(--seal-soft); border-color: var(--seal-line); }
-.chip-sealed   { color: var(--seal); background: transparent; border-color: var(--seal-line); }
-.chip-here     { color: #3A2A00; background: var(--signal-pure); border-color: var(--signal-pure); font-weight: 600; }
-.chip-none     { color: var(--slate); background: transparent; border-color: var(--rule-strong); }
-.chip-refuse   { color: var(--brick); background: var(--brick-soft); border-color: var(--brick); }
-
-hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
-
-/* --- masthead ---------------------------------------------------- */
-
-.masthead {
-  border-bottom: 1px solid var(--rule);
-  background: var(--surface);
-  padding: clamp(36px, 6vw, 72px) 0 0;
-}
-.mast-top { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: baseline; justify-content: space-between; }
-.mast-title { font-size: clamp(34px, 5.6vw, 60px); letter-spacing: -0.03em; font-weight: 700; }
-.mast-title em { font-style: normal; color: var(--seal); }
-.mast-sub {
-  font-family: var(--serif); font-size: clamp(16px, 1.7vw, 19px);
-  color: var(--ink-2); max-width: 60ch; margin-top: 14px;
-}
-.mast-warn {
-  margin-top: 26px; padding: 12px 16px;
-  border-left: 3px solid var(--brick);
-  background: var(--brick-soft);
-  font-family: var(--mono); font-size: 12.5px; line-height: 1.55; color: var(--ink);
-}
-
-.readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; margin-top: 36px; border-top: 1px solid var(--rule); }
-.readout > div { padding: 18px 20px 20px 0; border-right: 1px solid var(--rule); }
-.readout > div:last-child { border-right: 0; }
-.readout dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; }
-.readout dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: clamp(20px, 2.4vw, 26px); font-weight: 500; color: var(--ink); letter-spacing: -0.02em; }
-.readout dd.is-seal { color: var(--seal); }
-.readout dd.is-zero { color: var(--slate); }
-.readout dd small { display: block; font-family: var(--sans); font-size: 11.5px; font-weight: 400; letter-spacing: 0; color: var(--ink-3); margin-top: 5px; line-height: 1.4; }
-
-/* --- plates ------------------------------------------------------ */
-
-.plate { padding: clamp(56px, 8vw, 104px) 0; border-bottom: 1px solid var(--rule); }
-.plate:nth-of-type(even) { background: var(--surface); }
-.plate-head { display: flex; gap: clamp(16px, 3vw, 40px); align-items: flex-start; margin-bottom: clamp(32px, 4vw, 52px); }
-.plate-numeral {
-  font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: .14em;
-  color: var(--seal); border: 1px solid var(--seal-line); border-radius: 3px;
-  padding: .4em .6em; flex: none; margin-top: 6px;
-}
-.plate-title { font-size: clamp(24px, 3.4vw, 36px); letter-spacing: -0.025em; }
-.plate-lede { font-family: var(--serif); font-size: clamp(15.5px, 1.6vw, 18px); color: var(--ink-2); max-width: var(--measure); margin-top: 12px; }
-
-figure { margin: 0; }
-figure svg { display: block; width: 100%; height: auto; }
-.figframe {
-  background: var(--surface-2); border: 1px solid var(--rule); border-radius: 6px;
-  padding: clamp(14px, 2.4vw, 30px); overflow-x: auto;
-}
-.plate:nth-of-type(even) .figframe { background: var(--sunk); }
-figcaption { font-family: var(--serif); font-size: 14.5px; color: var(--ink-2); margin-top: 16px; max-width: var(--measure); }
-figcaption b { font-family: var(--sans); font-weight: 600; color: var(--ink); }
-
-/* --- the rail and the flag --------------------------------------- */
-
-.rail-scroll { overflow-x: auto; padding: 88px 0 8px; margin: 0 calc(var(--gutter) * -1); padding-left: var(--gutter); padding-right: var(--gutter); }
-.rail {
-  list-style: none; margin: 0; padding: 0;
-  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(148px, 1fr);
-  min-width: 940px; position: relative;
-}
-.rail::before {
-  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--rule-strong);
-}
-
-.stop { position: relative; padding: 0 10px 0 0; }
-.stop-btn {
-  appearance: none; -webkit-appearance: none;
-  display: block; width: 100%; text-align: left;
-  background: none; border: 0; padding: 22px 8px 16px 0;
-  cursor: pointer; color: inherit; font: inherit;
-  border-top: 2px solid transparent; margin-top: -2px;
-  transition: border-color .28s ease, opacity .28s ease;
-}
-.stop-btn:focus-visible { outline: 2px solid var(--seal); outline-offset: 3px; border-radius: 3px; }
-
-.stop-dot {
-  position: absolute; top: -6px; left: 0; width: 11px; height: 11px; border-radius: 50%;
-  background: var(--paper); border: 2px solid var(--rule-strong);
-  transition: background .28s ease, border-color .28s ease, transform .28s ease;
-}
-.plate:nth-of-type(even) .stop-dot { background: var(--surface); }
-
-.stop-id { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; color: var(--ink-3); display: block; }
-.stop-name { font-size: 13.5px; font-weight: 600; line-height: 1.3; margin-top: 7px; display: block; letter-spacing: -0.01em; }
-.stop-when { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); margin-top: 6px; display: block; font-variant-numeric: tabular-nums; }
-
-/* state: done */
-.stop[data-state="done"] .stop-dot { background: var(--seal); border-color: var(--seal); }
-.stop[data-state="done"] .stop-btn { border-top-color: var(--seal); }
-
-/* state: current — the one place amber is spent */
-.stop[data-state="current"] .stop-dot { background: var(--signal-pure); border-color: var(--signal-pure); transform: scale(1.35); }
-.stop[data-state="current"] .stop-btn { border-top-color: var(--signal-pure); }
-.stop[data-state="current"] .stop-name { color: var(--ink); }
-
-/* state: future */
-.stop[data-state="future"] .stop-btn { opacity: .5; }
-.stop[data-state="future"] .stop-name { font-weight: 500; }
-
-.stop-btn:hover .stop-name { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
-
-/* the flag itself */
-.flag {
-  position: absolute; left: -3px; bottom: calc(100% + 4px);
-  width: 74px; pointer-events: none;
-  opacity: 0; transform: translateY(10px) scale(.9); transform-origin: 4px 100%;
-  transition: opacity .34s ease, transform .34s cubic-bezier(.2,1.5,.4,1);
-}
-.stop[data-state="current"] .flag { opacity: 1; transform: translateY(0) scale(1); }
-.flag-here {
-  font-family: var(--mono); font-size: 9.5px; font-weight: 600; letter-spacing: .14em;
-  fill: var(--ink);
-}
-@media (prefers-reduced-motion: reduce) {
-  .flag, .stop-dot, .stop-btn { transition: none; }
-}
-
-/* phase bands under the rail */
-.bands { display: grid; grid-auto-flow: column; min-width: 940px; margin-top: 4px; }
-.band { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
-  border-top: 1px solid var(--rule); padding: 8px 10px 0 0; }
-.band span { display: block; border-left: 2px solid var(--rule-strong); padding-left: 8px; }
-.band[data-done="true"] span { border-left-color: var(--seal); color: var(--seal); }
-
-/* --- state panel -------------------------------------------------- */
-
-.panel-zone { margin-top: clamp(28px, 4vw, 44px); }
-.panel {
-  display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: clamp(24px, 4vw, 52px);
-  border: 1px solid var(--rule); border-top: 3px solid var(--seal);
-  border-radius: 6px; background: var(--surface); box-shadow: var(--shadow);
-  padding: clamp(22px, 3.2vw, 38px);
-}
-.plate:nth-of-type(even) .panel { background: var(--sunk); }
-.panel[data-status="here"]  { border-top-color: var(--signal-pure); }
-.panel[data-status="none"]  { border-top-color: var(--rule-strong); }
-.panel[hidden] { display: none; }
-
-.panel-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
-.panel h3 { font-size: clamp(20px, 2.6vw, 27px); letter-spacing: -0.025em; }
-.panel-body { font-family: var(--serif); font-size: 16.5px; line-height: 1.68; color: var(--ink-2); margin-top: 16px; display: grid; gap: 14px; max-width: 62ch; }
-.panel-body strong { font-family: var(--sans); font-weight: 600; color: var(--ink); }
-.panel-body em { font-style: italic; }
-
-.panel-side { display: grid; gap: 18px; align-content: start; }
-.side-block { border-left: 2px solid var(--rule); padding-left: 14px; }
-.side-block.is-seal { border-left-color: var(--seal-line); }
-.side-block.is-none { border-left-color: var(--rule-strong); }
-.side-block h4 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
-.side-block ul { margin: 9px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
-.side-block li { font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
-.side-block li::before { content: "—"; color: var(--rule-strong); margin-right: .5em; font-family: var(--mono); }
-
-.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 22px; }
-.controls p { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); line-height: 1.5; }
-.btn {
-  appearance: none; font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
-  padding: .62em 1em; border-radius: 3px; border: 1px solid var(--rule-strong);
-  background: transparent; color: var(--ink-2); cursor: pointer;
-  transition: border-color .18s ease, color .18s ease, background .18s ease;
-}
-.btn:hover { border-color: var(--seal); color: var(--seal); }
-.btn:focus-visible { outline: 2px solid var(--seal); outline-offset: 2px; }
-.btn[data-role="save"] { border-color: var(--signal-pure); color: var(--signal); }
-.btn[data-role="save"]:hover { background: var(--signal-soft); }
-.btn[hidden] { display: none; }
-.save-note { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
-
-/* --- provenance table --------------------------------------------- */
-
-.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
-.plate:nth-of-type(even) .tablewrap { background: var(--sunk); }
-table { border-collapse: collapse; width: 100%; min-width: 720px; }
-caption { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); padding: 0 0 12px; }
-th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; font-size: 13.5px; line-height: 1.5; }
-thead th { font-family: var(--mono); font-size: 10.5px; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; background: var(--surface-2); }
-.plate:nth-of-type(even) thead th { background: var(--surface); }
-tbody tr:last-child td { border-bottom: 0; }
-td.v { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ink); }
-td.src { color: var(--ink-3); font-size: 12.5px; }
-td.src code { font-size: 11.5px; }
-
-.grade { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; padding: .25em .5em; border-radius: 2px; border: 1px solid; white-space: nowrap; }
-.g-verified { color: var(--seal); border-color: var(--seal-line); }
-.g-plausible { color: var(--signal); border-color: var(--signal); }
-.g-none { color: var(--slate); border-color: var(--rule-strong); }
-
-/* --- footer ------------------------------------------------------- */
-
-footer { padding: clamp(40px, 6vw, 72px) 0; }
-.foot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 28px; }
-.foot-grid h4 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; margin-bottom: 10px; }
-.foot-grid p, .foot-grid li { font-size: 13px; line-height: 1.6; color: var(--ink-2); }
-.foot-grid ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
-.colophon { margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 11px; color: var(--ink-3); line-height: 1.7; }
-
-@media (max-width: 900px) {
-  .panel { grid-template-columns: 1fr; }
-  .readout > div { border-right: 0; border-bottom: 1px solid var(--rule); padding-right: 0; }
-  .plate-head { flex-direction: column; gap: 14px; }
-}
-</style>
-
-<style>
-/* diagram vocabulary — shared by all three plates */
-.d-box       { fill: var(--surface); stroke: var(--rule-strong); stroke-width: 1; }
-.plate:nth-of-type(even) .d-box { fill: var(--surface); }
-.d-sunk      { fill: var(--surface-2); stroke: var(--rule); stroke-width: 1; }
-.plate:nth-of-type(even) .d-sunk { fill: var(--surface-2); }
-.d-seal      { fill: var(--seal-soft); stroke: var(--seal); stroke-width: 1.25; }
-.d-brick     { fill: var(--brick-soft); stroke: var(--brick); stroke-width: 1.25; }
-.d-zone      { fill: none; stroke: var(--seal); stroke-width: 1.25; stroke-dasharray: 7 5; }
-.d-zone-q    { fill: none; stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 4; }
-.d-t         { fill: var(--ink); font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
-.d-t-sm      { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-weight: 600; }
-.d-s         { fill: var(--ink-3); font-family: var(--mono); font-size: 10.5px; }
-.d-s2        { fill: var(--ink-2); font-family: var(--sans); font-size: 11.5px; }
-.d-zonelab   { fill: var(--seal); font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .13em; }
-.d-mutelab   { fill: var(--ink-3); font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: .13em; }
-.d-bricklab  { fill: var(--brick); font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .13em; }
-.d-num       { fill: var(--seal); font-family: var(--mono); font-size: 11px; font-weight: 500; }
-.d-line      { stroke: var(--rule-strong); stroke-width: 1.5; fill: none; }
-.d-line-seal { stroke: var(--seal); stroke-width: 1.5; fill: none; }
-.d-line-dash { stroke: var(--rule-strong); stroke-width: 1.25; fill: none; stroke-dasharray: 4 4; }
-.d-alab      { fill: var(--ink-2); font-family: var(--mono); font-size: 10px; }
-.d-head      { fill: var(--rule-strong); }
-.d-head-seal { fill: var(--seal); }
-</style>
-
+{{style}}
+{{nav}}
 <header class="masthead">
   <div class="wrap">
     <div class="mast-top">
@@ -391,7 +9,7 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
         <p class="eyebrow">Zuup Innovation Lab · Visionblox LLC · internal technical brief</p>
         <h1 class="mast-title">Relian <em>Build Atlas</em></h1>
       </div>
-      <p class="eyebrow" style="text-align:right">Compiled 2026-08-22<br>HEAD 179fe59 · main</p>
+      <p class="eyebrow" style="text-align:right">Compiled {{fig:head_date}}<br>HEAD <span style="text-transform:none">{{fig:head_sha}}</span> · main</p>
     </div>
     <p class="mast-sub">Three plates: how the system is put together, what a production run
       actually does to a customer's code, and exactly where the build stands today. The
@@ -405,27 +23,27 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
     <dl class="readout">
       <div>
         <dt>Held-out BER · C1</dt>
-        <dd class="is-seal">1.0000<small>425 / 425 vectors, RELIAN-BENCH v1.2</small></dd>
+        <dd class="is-seal">{{fig:ber_heldout}}<small>{{fig:ber_matched}} vectors, RELIAN-BENCH {{fig:bench_version}}</small></dd>
       </div>
       <div>
         <dt>Build rate</dt>
-        <dd class="is-seal">1.0000<small>7 of 7 programs compile</small></dd>
+        <dd class="is-seal">{{fig:build_rate}}<small>{{fig:bench_programs}} of {{fig:bench_programs}} programs compile</small></dd>
       </div>
       <div>
         <dt>Branch coverage</dt>
-        <dd class="is-seal">0.8854<small>JaCoCo 0.8.12 · bar is 0.80</small></dd>
+        <dd class="is-seal">{{fig:branch_coverage}}<small>JaCoCo 0.8.12 · bar is {{fig:coverage_bar}}</small></dd>
       </div>
       <div>
         <dt>Layout round-trip</dt>
-        <dd class="is-seal">186/186<small>vs sealed oracle, tolerance zero</small></dd>
+        <dd class="is-seal">{{fig:layout_roundtrip}}<small>vs sealed oracle, tolerance zero</small></dd>
       </div>
       <div>
         <dt>Test suite</dt>
-        <dd>852<small>passed · 10 skipped · 0 failed</small></dd>
+        <dd>{{fig:suite_passed}}<small>passed · {{fig:suite_skipped}} skipped · {{fig:suite_failed}} failed</small></dd>
       </div>
       <div>
         <dt>Migrations delivered</dt>
-        <dd class="is-zero">0<small>and no attestation is real yet</small></dd>
+        <dd class="is-zero">{{fig:migrations}}<small>and no attestation is real yet</small></dd>
       </div>
     </dl>
   </div>
@@ -551,17 +169,17 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
           <text x="816" y="112" class="d-mutelab">VERIFICATION SUBSTRATE — CI ONLY, R3</text>
           <line x1="816" y1="124" x2="1140" y2="124" stroke="var(--rule)"/>
 
-          <text x="816" y="148" class="d-t-sm">RELIAN-BENCH v1.2 · sealed</text>
-          <text x="816" y="167" class="d-s">7 COBOL programs</text>
-          <text x="816" y="183" class="d-num">425 held-out · 89 public vectors</text>
-          <text x="816" y="201" class="d-s">bar: BER ≥ 0.95 · build 1.00 · branch ≥ 0.80</text>
+          <text x="816" y="148" class="d-t-sm">RELIAN-BENCH {{fig:bench_version}} · sealed</text>
+          <text x="816" y="167" class="d-s">{{fig:bench_programs}} COBOL programs</text>
+          <text x="816" y="183" class="d-num">{{fig:heldout_vectors}} held-out · {{fig:public_vectors}} public vectors</text>
+          <text x="816" y="201" class="d-s">bar: BER ≥ {{fig:ber_bar}} · build {{fig:build_bar}} · branch ≥ {{fig:coverage_bar}}</text>
 
-          <text x="816" y="234" class="d-t-sm">RELIAN-DISCOVERY-BENCH v0.1 · sealed</text>
-          <text x="816" y="253" class="d-s">15 copybooks · 124 elementary fields</text>
-          <text x="816" y="269" class="d-num">170 probe rows · oracle from GnuCOBOL</text>
+          <text x="816" y="234" class="d-t-sm">RELIAN-DISCOVERY-BENCH {{fig:disc_version}} · sealed</text>
+          <text x="816" y="253" class="d-s">{{fig:disc_copybooks}} copybooks · {{fig:disc_fields}} elementary fields</text>
+          <text x="816" y="269" class="d-num">{{fig:disc_probes}} probe rows · oracle from GnuCOBOL</text>
 
           <line x1="816" y1="292" x2="1140" y2="292" stroke="var(--rule)"/>
-          <text x="816" y="313" class="d-s">Ed25519 seal key 233bb4406e2de606</text>
+          <text x="816" y="313" class="d-s">Ed25519 seal key {{fig:seal_fingerprint}}</text>
           <text x="816" y="333" class="d-s2">Held-out vectors are not in this repository</text>
           <text x="816" y="350" class="d-s2">and are never read by an agent. Scored on</text>
           <text x="816" y="367" class="d-s2">main only — a score returned on every push</text>
@@ -575,7 +193,7 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
           <text x="816" y="448" class="d-mutelab">OPERATOR CUSTODY — R4</text>
           <line x1="816" y1="460" x2="1140" y2="460" stroke="var(--rule)"/>
           <text x="816" y="482" class="d-t-sm">tools/countersign.py</text>
-          <text x="816" y="501" class="d-s">Visionblox release key 91e3a404155ba4dd</text>
+          <text x="816" y="501" class="d-s">Visionblox release key {{fig:release_fingerprint}}</text>
           <text x="816" y="518" class="d-s">passphrase via getpass only — never argv,</text>
           <text x="816" y="534" class="d-s">never env, never logged. The key never enters</text>
           <text x="816" y="547" class="d-s">this repo, CI, or an agent session.</text>
@@ -689,9 +307,9 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
           <rect x="852" y="70" width="140" height="126" rx="4" class="d-seal"/>
           <text x="864" y="92" class="d-s">06</text>
           <text x="864" y="112" class="d-t">Gate</text>
-          <text x="864" y="132" class="d-s2">BER ≥ 0.95</text>
-          <text x="864" y="148" class="d-s2">build = 1.00</text>
-          <text x="864" y="164" class="d-s2">branch ≥ 0.80</text>
+          <text x="864" y="132" class="d-s2">BER ≥ {{fig:ber_bar}}</text>
+          <text x="864" y="148" class="d-s2">build = {{fig:build_bar}}</text>
+          <text x="864" y="164" class="d-s2">branch ≥ {{fig:coverage_bar}}</text>
           <text x="864" y="180" class="d-s2">— all measured.</text>
 
           <rect x="1018" y="70" width="140" height="126" rx="4" class="d-box"/>
@@ -750,8 +368,8 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
 
           <!-- measured strip -->
           <text x="22" y="448" class="d-mutelab">MEASURED, NOT PROJECTED</text>
-          <text x="22" y="470" class="d-s2">Assessment over AWS CardDemo — 44 programs, 329 files — completed in <tspan class="d-num">4.61 s</tspan>.  ·  Full demo (assess, transpile, build both, execute both) over 7 programs</text>
-          <text x="22" y="488" class="d-s2">and <tspan class="d-num">89 inputs</tspan> in roughly <tspan class="d-num">15 s</tspan>, with 100% stdout-and-exit-code equivalence.  ·  Engagement duration and cost are deliberately absent: no engagement has been run.</text>
+          <text x="22" y="470" class="d-s2">Assessment over AWS CardDemo — {{fig:carddemo_programs}} programs, {{fig:carddemo_files}} files — completed in <tspan class="d-num">{{fig:carddemo_seconds}} s</tspan>.  ·  Full demo (assess, transpile, build both, execute both) over {{fig:demo_programs}} programs</text>
+          <text x="22" y="488" class="d-s2">and <tspan class="d-num">{{fig:demo_inputs}} inputs</tspan> in roughly <tspan class="d-num">{{fig:demo_seconds}} s</tspan>, with 100% stdout-and-exit-code equivalence.  ·  Engagement duration and cost are deliberately absent: no engagement has been run.</text>
         </svg>
       </div>
       <figcaption><b>Three of seven stations can end the run.</b> Nothing on this plate produces a
@@ -785,7 +403,7 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
     </div>
 
     <div class="rail-scroll">
-      <ol class="rail" id="rail" data-current="s8">
+      <ol class="rail" id="rail" data-current="{{position}}">
 
         <li class="stop" data-id="s1" data-state="done">
           <svg class="flag" viewBox="0 0 110 70" aria-hidden="true"><path d="M4,68 L4,4" stroke="var(--signal-pure)" stroke-width="2.5" stroke-linecap="round"/><circle cx="4" cy="68" r="3.5" fill="var(--signal-pure)"/><path d="M6,4 H104 L94,16 L104,28 H6 Z" fill="var(--signal-pure)"/><text x="13" y="20" class="flag-here" fill="#3A2A00">WE ARE HERE</text></svg>
@@ -879,7 +497,7 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
         <h3>The benchmark was sealed before the solution existed</h3>
         <div class="panel-body">
           <p>RELIAN-BENCH's success criteria were committed and Ed25519-signed <em>before</em> any transform work was scored against them. That ordering is the whole point: a bar you can move after seeing the result is not a bar.</p>
-          <p>Version 1.2 seals 29 files under payload <span class="num">a8695c2c…</span>, key fingerprint <span class="num">233bb440…</span> — seven COBOL programs, <span class="num">425</span> held-out vectors and <span class="num">89</span> public ones. The thresholds live in the ledger, not in a README: held-out BER ≥ 0.95, build rate 1.00, JaCoCo branch coverage ≥ 0.80.</p>
+          <p>Version {{fig:bench_version}} seals {{fig:bench_files}} files under payload <span class="num">{{fig:bench_payload}}…</span>, key fingerprint <span class="num">{{fig:seal_fingerprint}}</span> — {{fig:bench_programs}} COBOL programs, <span class="num">{{fig:heldout_vectors}}</span> held-out vectors and <span class="num">{{fig:public_vectors}}</span> public ones. The thresholds live in the ledger, not in a README: held-out BER ≥ {{fig:ber_bar}}, build rate {{fig:build_bar}}, JaCoCo branch coverage ≥ {{fig:coverage_bar}}.</p>
           <p><strong>The held-out vectors are not in this repository</strong> and are never read by an agent. They are scored in CI on <code>main</code> only — because a score returned on every push is a feedback channel, and a feedback channel is something you can fit against one commit at a time without ever intending to.</p>
         </div>
       </div>
@@ -894,14 +512,14 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
         <div class="panel-meta"><span class="chip chip-measured">Measured</span><span class="eyebrow">Phase 0 · stop 02 · 2026-08-16 → 08-17</span></div>
         <h3>The deterministic transpiler clears its own bar</h3>
         <div class="panel-body">
-          <p>C1 is the pipeline's transform core and there is no model anywhere in that path. At the moment v1.2 was sealed, C1 was <em>red on it</em>: BER <span class="num">0.7176</span>, building 6 of 7 programs. That red is the receipt that the criteria came first.</p>
-          <p>WP-1.5.4 and WP-1.5.5 closed it. Measured in CI on PR #15 at commit <code>8c676e9</code>: <span class="num">425 of 425</span> held-out vectors match across all seven programs, build rate <span class="num">1.0000</span>, JaCoCo branch coverage <span class="num">0.8854</span> against a bar of 0.80.</p>
+          <p>C1 is the pipeline's transform core and there is no model anywhere in that path. At the moment {{fig:bench_version}} was sealed, C1 was <em>red on it</em>: BER <span class="num">{{fig:c1_seal_ber}}</span>, building {{fig:c1_seal_build}} programs. That red is the receipt that the criteria came first.</p>
+          <p>WP-1.5.4 and WP-1.5.5 closed it. Measured in CI on PR #15 at commit <code>8c676e9</code>: <span class="num">{{fig:ber_matched}}</span> held-out vectors match across all {{fig:bench_programs}} programs, build rate <span class="num">{{fig:build_rate}}</span>, JaCoCo branch coverage <span class="num">{{fig:branch_coverage}}</span> against a bar of {{fig:coverage_bar}}.</p>
           <p><strong>Scope, stated rather than implied.</strong> The supported subset is COBOL-85: COMP-3 arithmetic, EVALUATE, PERFORM VARYING, OCCURS/SEARCH, INSPECT, edited pictures, VALUE, and CONTINUE/GOBACK/EXIT PROGRAM. Numeric business logic is emitted as BigDecimal with explicit COBOL rounding — ROUNDED is HALF_UP, an unrounded COMPUTE is DOWN.</p>
         </div>
       </div>
       <div class="panel-side">
         <div class="side-block is-seal"><h4>Stands on this</h4><ul><li>Behavioral equivalence on the sealed corpus, held-out</li><li>Reproducibility — a second pass emits identical bytes</li></ul></div>
-        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>CICS, VSAM, JCL, embedded SQL, or copybooks in the transform path</li><li>IBM Enterprise COBOL — the oracle is GnuCOBOL 3.1.2.0</li></ul></div>
+        <div class="side-block is-none"><h4>Does not stand on this</h4><ul><li>CICS, VSAM, JCL, embedded SQL, or copybooks in the transform path</li><li>IBM Enterprise COBOL — the oracle is {{fig:disc_oracle}}</li></ul></div>
       </div>
     </section>
 
@@ -960,7 +578,7 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
         <h3>A second benchmark, sealed before the code it judges</h3>
         <div class="panel-body">
           <p>R7 is bench-first: nothing is "supported" until a sealed benchmark covers it, and the bench commit must predate the merge. So the copybook work was gated on a benchmark that did not yet exist, and building it came first.</p>
-          <p>RELIAN-DISCOVERY-BENCH v0.1 — <span class="num">15</span> copybooks, <span class="num">124</span> elementary fields, <span class="num">170</span> probe rows, 16 variants, 9 conditions and 6 gap rows — has its oracle layouts generated by GnuCOBOL 3.1.2.0 and was sealed under the same benchmark key on 2026-08-21. CI enforces the ledger on every run, and <code>discovery-bench/</code> became frozen the moment the tag existed.</p>
+          <p>RELIAN-DISCOVERY-BENCH {{fig:disc_version}} — <span class="num">{{fig:disc_copybooks}}</span> copybooks, <span class="num">{{fig:disc_fields}}</span> elementary fields, <span class="num">{{fig:disc_probes}}</span> probe rows, {{fig:disc_variants}} variants, {{fig:disc_conditions}} conditions and {{fig:disc_gaps}} gap rows — has its oracle layouts generated by {{fig:disc_oracle}} and was sealed under the same benchmark key on 2026-08-21. CI enforces the ledger on every run, and <code>discovery-bench/</code> became frozen the moment the tag existed.</p>
         </div>
       </div>
       <div class="panel-side">
@@ -975,7 +593,7 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
         <h3>Copybook resolver and static layout engine</h3>
         <div class="panel-body">
           <p><code>src/discovery/copybook.py</code> resolves the COPY fan-in graph and reports the missing-copybook table. <code>layout.py</code> computes static record layouts: offsets, lengths, SYNC padding, REDEFINES, OCCURS DEPENDING ON, RENAMES.</p>
-          <p>Round-trip against the sealed oracle: <span class="num">186 of 186</span>, tolerance zero. Not "within a byte" — identical.</p>
+          <p>Round-trip against the sealed oracle: <span class="num">{{fig:layout_roundtrip}}</span>, tolerance zero. Not "within a byte" — identical.</p>
           <p><strong>Gaps compare by projection, not by label.</strong> A padding byte cannot be renamed into agreement with the oracle, which is the obvious way a layout engine passes a test it should fail. Two limitations are reported by the tool rather than absorbed by it, and <span class="num-null">None</span> never silently becomes zero.</p>
         </div>
       </div>
@@ -987,13 +605,13 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
 
     <section class="panel" data-for="s8" data-status="here">
       <div>
-        <div class="panel-meta"><span class="chip chip-here">We are here</span><span class="chip chip-measured">Measured</span><span class="eyebrow">Phase 2 · stop 08 · 2026-08-21 · HEAD 179fe59</span></div>
+        <div class="panel-meta"><span class="chip chip-here">We are here</span><span class="chip chip-measured">Measured</span><span class="eyebrow">Phase 2 · stop 08 · {{fig:head_date}} · HEAD {{fig:head_sha}}</span></div>
         <h3>The signed Data Discovery report</h3>
         <div class="panel-body">
           <p><code>python3 -m src.discovery.cli report build</code> emits a canonical <code>report.json</code>, a Markdown rendering that names the JSON as authoritative, a manifest of digests, and an Ed25519 instance signature over that manifest. <strong>If a signing key cannot be obtained it writes nothing</strong> — an unsigned artifact that looks signed is worse than no artifact at all.</p>
-          <p>Custody is split across two keys so that rotating or compromising one cannot put the other's claims in question. The benchmark seal key <span class="num">233bb440…</span> signs ledgers and never a customer deliverable; the Visionblox release key <span class="num">91e3a404…</span> countersigns reports and never a benchmark. The countersigning tool refuses the benchmark fingerprint outright.</p>
+          <p>Custody is split across two keys so that rotating or compromising one cannot put the other's claims in question. The benchmark seal key <span class="num">{{fig:seal_fingerprint}}</span> signs ledgers and never a customer deliverable; the Visionblox release key <span class="num">{{fig:release_fingerprint}}</span> countersigns reports and never a benchmark. The countersigning tool refuses the benchmark fingerprint outright.</p>
           <p>Exactly one line crosses the customer perimeter: manifest hash, report id, instance fingerprint. <strong>Three digests, no content.</strong> Recipients check the result with <code>verify_report.py --pin-fingerprint</code>, which has four independently-failing layers and prints its own SHA-256 before it says anything else. The pin has no default, because without one a report re-signed under any key at all passes every internally-consistent check.</p>
-          <p><em>Stated because it is true and would be easy to leave out:</em> no countersignature has ever been issued. Both dry runs read VALID AND UNATTESTED. Suite at this commit: <span class="num">852 passed</span>, 10 skipped, 0 failed.</p>
+          <p><em>Stated because it is true and would be easy to leave out:</em> no countersignature has ever been issued. Both dry runs read VALID AND UNATTESTED. Suite at this commit: <span class="num">{{fig:suite_passed}} passed</span>, {{fig:suite_skipped}} skipped, {{fig:suite_failed}} failed.</p>
         </div>
       </div>
       <div class="panel-side">
@@ -1038,8 +656,8 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
         <h3>Corpus v2 and the scope extension it gates</h3>
         <div class="panel-body">
           <p>"Migrates COBOL" is licensed today only for the subset the sealed corpus exercises. Extending it is a benchmark action before it is a grammar action: corpus v2 harvests third-party COBOL, seals it, and only then may CICS, VSAM, JCL, embedded SQL or copybooks-in-transform be attempted. Each construct pair earns the word "supported" by clearing held-out CI, and the bench commit must predate the grammar merge.</p>
-          <p><strong>The distance is already measured, and it is large.</strong> Across three real-world corpora the assessment engine found <span class="num">2,190</span> unsupported occurrences, and six constructs account for roughly 70% of everything blocking migration: EXIT (368), EXEC (306), CONTINUE (271), WRITE (224), GO TO (186), CALL (183). The cheapest third of that backlog is dispatch-table work with no new semantics.</p>
-          <p>Construct coverage on those corpora — AWS CardDemo <span class="num">0.8511</span>, the OMP course corpus <span class="num">0.6945</span>, GnuCOBOL's own tests <span class="num">0.5968</span> — is graded PLAUSIBLE, not VERIFIED, for a specific reason: <em>not one</em> third-party program parsed cleanly under the then-bundled grammar, so all three were analysed through the token-scan fallback. The grammar was replaced at WP-2.0 and these figures have not been re-measured since.</p>
+          <p><strong>The distance is already measured, and it is large.</strong> Across three real-world corpora the assessment engine found <span class="num">{{fig:demand_total}}</span> unsupported occurrences, and six constructs account for roughly 70% of everything blocking migration: EXIT ({{fig:demand_exit}}), EXEC ({{fig:demand_exec}}), CONTINUE ({{fig:demand_continue}}), WRITE ({{fig:demand_write}}), GO TO ({{fig:demand_goto}}), CALL ({{fig:demand_call}}). The cheapest third of that backlog is dispatch-table work with no new semantics.</p>
+          <p>Construct coverage on those corpora — AWS CardDemo <span class="num">{{fig:cov_carddemo}}</span>, the OMP course corpus <span class="num">{{fig:cov_omp}}</span>, GnuCOBOL's own tests <span class="num">{{fig:cov_gnucobol}}</span> — is graded PLAUSIBLE, not VERIFIED, for a specific reason: <em>not one</em> third-party program parsed cleanly under the then-bundled grammar, so all three were analysed through the token-scan fallback. The grammar was replaced at WP-2.0 and these figures have not been re-measured since.</p>
         </div>
       </div>
       <div class="panel-side">
@@ -1064,7 +682,7 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
     <div class="controls">
       <button class="btn" type="button" id="btn-prev">← Previous stop</button>
       <button class="btn" type="button" id="btn-next">Next stop →</button>
-      <button class="btn" type="button" id="btn-reset">Reset to 08</button>
+      <button class="btn" type="button" id="btn-reset">Reset to {{position_num}}</button>
       <button class="btn" data-role="save" type="button" id="btn-save" hidden>Save this position for everyone</button>
       <span class="save-note" id="save-note"></span>
     </div>
@@ -1093,21 +711,21 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
           <tr><th scope="col">Figure</th><th scope="col">Value</th><th scope="col">Grade</th><th scope="col">Basis</th></tr>
         </thead>
         <tbody>
-          <tr><td>Held-out BER, C1 on RELIAN-BENCH v1.2</td><td class="v">1.0000 (425/425)</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">CI job 95240930271, PR #15 @ <code>8c676e9</code>, 2026-08-16 · <code>docs/PHASE1_LOG.md</code></td></tr>
-          <tr><td>Build rate, same run</td><td class="v">1.0000 (7/7)</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">same CI run; threshold <code>build_rate_min</code> 1.0</td></tr>
-          <tr><td>Branch coverage, same run</td><td class="v">0.8854</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">JaCoCo 0.8.12, the ledger's required coverage tool; bar 0.80</td></tr>
-          <tr><td>C1 baseline at v1.2 sealing</td><td class="v">BER 0.7176 · build 6/7</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>bench/LEDGER_relian-bench-v1.2.json</code> → <code>baselines_recorded</code>; the pre-implementation red</td></tr>
-          <tr><td>RELIAN-BENCH v1.2 seal</td><td class="v">29 files · a8695c2c… · fp 233bb440…</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">Ed25519 over the manifest; <code>tools/verify_manifest.py --pin-fingerprint</code> checks it every CI run</td></tr>
-          <tr><td>Vector counts, v1.2</td><td class="v">425 held-out · 89 public</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">ledger <code>vector_counts</code>, summed across 7 programs</td></tr>
-          <tr><td>RELIAN-DISCOVERY-BENCH v0.1 corpus</td><td class="v">15 · 124 · 170</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">ledger <code>corpus_counts</code>: copybooks, elementary fields, probe rows. Sealed 2026-08-21</td></tr>
-          <tr><td>Layout engine round-trip</td><td class="v">186/186, tolerance 0</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>docs/PHASE2_LOG.md</code> WP-2.2 §2, against the sealed oracle</td></tr>
-          <tr><td>Test suite</td><td class="v">852 passed · 10 skipped · 0 failed</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">CI gate asserts this exact triple, not "no failures" · <code>.github/workflows/tests.yml</code></td></tr>
-          <tr><td>Demo — both-sides execution</td><td class="v">89 inputs · 7 programs · 100%</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>python3 -m demo</code>, ~15 s; equivalence requires identical stdout and exit code · <code>demo/README.md</code></td></tr>
-          <tr><td>Assessment wall time, AWS CardDemo</td><td class="v">4.61 s · 44 programs · 329 files</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">WP-1.9 dry run, zero intervention · <code>docs/dryruns/</code></td></tr>
-          <tr><td>Construct coverage, third-party corpora</td><td class="v">0.8511 · 0.6945 · 0.5968</td><td><span class="grade g-plausible">PLAUSIBLE</span></td><td class="src">CardDemo / OMP course / GnuCOBOL. <strong>Every one analysed via the token-scan fallback</strong> — no third-party program parsed cleanly under the then-bundled grammar. Grammar replaced at WP-2.0; not re-measured since</td></tr>
-          <tr><td>Unsupported-construct demand signal</td><td class="v">2,190 occurrences</td><td><span class="grade g-plausible">PLAUSIBLE</span></td><td class="src">Same three corpora, same token-scan caveat. EXIT 368 · EXEC 306 · CONTINUE 271 · WRITE 224 · GO TO 186 · CALL 183</td></tr>
-          <tr><td>Countersigned reports issued</td><td class="v">0</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">Both dry runs read VALID AND UNATTESTED; the flow is proven only under a stand-in key generated inside a test</td></tr>
-          <tr><td>Completed customer migrations</td><td class="v">0</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">No engagement has been run. Stated in <code>README.md</code></td></tr>
+          <tr><td>Held-out BER, C1 on RELIAN-BENCH {{fig:bench_version}}</td><td class="v">{{fig:ber_heldout}} ({{fig:ber_matched}})</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">CI job 95240930271, PR #15 @ <code>8c676e9</code>, 2026-08-16 · <code>docs/PHASE1_LOG.md</code></td></tr>
+          <tr><td>Build rate, same run</td><td class="v">{{fig:build_rate}} ({{fig:bench_programs}}/{{fig:bench_programs}})</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">same CI run; threshold <code>build_rate_min</code> 1.0</td></tr>
+          <tr><td>Branch coverage, same run</td><td class="v">{{fig:branch_coverage}}</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">JaCoCo 0.8.12, the ledger's required coverage tool; bar {{fig:coverage_bar}}</td></tr>
+          <tr><td>C1 baseline at {{fig:bench_version}} sealing</td><td class="v">BER {{fig:c1_seal_ber}} · build {{fig:c1_seal_build}}</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>bench/LEDGER_{{fig:bench_tag}}.json</code> → <code>baselines_recorded</code>; the pre-implementation red</td></tr>
+          <tr><td>RELIAN-BENCH {{fig:bench_version}} seal</td><td class="v">{{fig:bench_files}} files · {{fig:bench_payload}}… · fp {{fig:seal_fingerprint}}</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">Ed25519 over the manifest; <code>tools/verify_manifest.py --pin-fingerprint</code> checks it every CI run</td></tr>
+          <tr><td>Vector counts, {{fig:bench_version}}</td><td class="v">{{fig:heldout_vectors}} held-out · {{fig:public_vectors}} public</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">ledger <code>vector_counts</code>, summed across 7 programs</td></tr>
+          <tr><td>RELIAN-DISCOVERY-BENCH {{fig:disc_version}} corpus</td><td class="v">{{fig:disc_copybooks}} · {{fig:disc_fields}} · {{fig:disc_probes}}</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>discovery-bench/LEDGER_{{fig:disc_tag}}.json</code> → <code>corpus_counts</code>: copybooks, elementary fields, probe rows. Sealed 2026-08-21</td></tr>
+          <tr><td>Layout engine round-trip</td><td class="v">{{fig:layout_roundtrip}}, tolerance 0</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>docs/PHASE2_LOG.md</code> WP-2.2 §2, against the sealed oracle</td></tr>
+          <tr><td>Test suite</td><td class="v">{{fig:suite_passed}} passed · {{fig:suite_skipped}} skipped · {{fig:suite_failed}} failed</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">CI gate asserts this exact triple, not "no failures" · <code>.github/workflows/tests.yml</code></td></tr>
+          <tr><td>Demo — both-sides execution</td><td class="v">{{fig:demo_inputs}} inputs · {{fig:demo_programs}} programs · 100%</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src"><code>python3 -m demo</code>, ~{{fig:demo_seconds}} s; equivalence requires identical stdout and exit code · <code>demo/README.md</code></td></tr>
+          <tr><td>Assessment wall time, AWS CardDemo</td><td class="v">{{fig:carddemo_seconds}} s · {{fig:carddemo_programs}} programs · {{fig:carddemo_files}} files</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">WP-1.9 dry run, zero intervention · <code>docs/dryruns/</code></td></tr>
+          <tr><td>Construct coverage, third-party corpora</td><td class="v">{{fig:cov_carddemo}} · {{fig:cov_omp}} · {{fig:cov_gnucobol}}</td><td><span class="grade g-plausible">PLAUSIBLE</span></td><td class="src">CardDemo / OMP course / GnuCOBOL. <strong>Every one analysed via the token-scan fallback</strong> — no third-party program parsed cleanly under the then-bundled grammar. Grammar replaced at WP-2.0; not re-measured since</td></tr>
+          <tr><td>Unsupported-construct demand signal</td><td class="v">{{fig:demand_total}} occurrences</td><td><span class="grade g-plausible">PLAUSIBLE</span></td><td class="src">Same three corpora, same token-scan caveat. EXIT {{fig:demand_exit}} · EXEC {{fig:demand_exec}} · CONTINUE {{fig:demand_continue}} · WRITE {{fig:demand_write}} · GO TO {{fig:demand_goto}} · CALL {{fig:demand_call}}</td></tr>
+          <tr><td>Countersigned reports issued</td><td class="v">{{fig:countersignatures}}</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">Both dry runs read VALID AND UNATTESTED; the flow is proven only under a stand-in key generated inside a test</td></tr>
+          <tr><td>Completed customer migrations</td><td class="v">{{fig:migrations}}</td><td><span class="grade g-verified">VERIFIED</span></td><td class="src">No engagement has been run. Stated in <code>README.md</code></td></tr>
           <tr><td>Risk score · test coverage · generated tests</td><td class="v">None · None · 0</td><td><span class="grade g-none">NOT MEASURED</span></td><td class="src">None by construction after WP-2.0.-3 / -2, not by configuration · <code>src/core/orchestrator.py</code></td></tr>
           <tr><td>Engagement duration, cost, or effort</td><td class="v">—</td><td><span class="grade g-none">NO BASIS</span></td><td class="src">Deliberately absent. No engagement has been run, so any figure here would be an invention</td></tr>
         </tbody>
@@ -1146,7 +764,7 @@ footer { padding: clamp(40px, 6vw, 72px) 0; }
     </div>
     <p class="colophon">
       Relian™ — Legacy Refactoring Substrate. © 2025–2026 Zuup, LLC / Visionblox LLC. Proprietary.<br>
-      Compiled 2026-08-22 against <code>main</code> at <code>179fe59</code>. Figures re-read from the
+      Compiled {{fig:head_date}} against <code>main</code> at <code>{{fig:head_sha}}</code>. Figures re-read from the
       repository at compile time; nothing on this page is transcribed from an earlier deck.<br>
       Held-out benchmark vectors are neither reproduced nor referenced here (R3). No private key
       material appears on this page (R4).
