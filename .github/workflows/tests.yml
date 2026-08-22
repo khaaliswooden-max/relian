@@ -792,19 +792,38 @@ jobs:
         # Without the health check the job races the container and fails on
         # connection refused, which reads as a DDL defect rather than a
         # scheduling one.
+        #
+        # The health command is EXACTLY the one proven green in run 44
+        # (https://github.com/khaaliswooden-max/relian/actions/runs/32542445394).
+        # It probes with no `-d`, so pg_isready connects to a database named
+        # after the USER, which does not exist, and the service-container log
+        # carries two `FATAL: database "relian" does not exist` lines on a job
+        # that is passing. That is noise, not a fault: pg_isready reports
+        # "accepting connections" because the server answered, which is the
+        # only thing this check needs to establish.
+        #
+        # Adding `-d relian_ddl` would quiet those two lines and is very likely
+        # correct, but it is UNVERIFIED here -- this container has no Docker
+        # daemon, so it could not be exercised before being pushed at a gate.
+        # A cosmetic change to a gate, shipped unmeasured, is the trade this
+        # repository does not make. Left as it is, deliberately.
+        #
+        # NOTHING BUT DOCKER ARGUMENTS MAY GO INSIDE `options:`. It is a YAML
+        # FOLDED scalar (`>-`), so every line below is joined with spaces and
+        # handed to `docker create` verbatim -- a `#` comment in there is not a
+        # comment, it is an argument. Measured: run 45 put these five comment
+        # lines inside the block and `docker create` rejected the whole thing
+        # with `invalid reference format` before the container ever started.
+        # Hence the explanation lives out here.
         options: >-
-          # -d names the database explicitly. Without it pg_isready connects to
-          # a database named after the user, which does not exist, and the
-          # container log fills with `FATAL: database "relian" does not exist`
-          # on a job that is passing. A green run whose log reads as broken
-          # costs the next reader time for no reason.
-          --health-cmd "pg_isready -U relian -d relian_ddl"
+          --health-cmd "pg_isready -U relian"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
 
     steps:
       - uses: actions/checkout@v4
+        id: checkout
 
       - name: Pin the interpreter
         uses: actions/setup-python@v5
@@ -838,7 +857,14 @@ jobs:
       - name: Confirm nothing under discovery-bench/ was modified
         # Rule 4: the corpus is frozen. This job READS fifteen copybooks and
         # must write nothing back into the sealed tree.
-        if: always()
+        #
+        # Conditioned on the checkout rather than on `always()` alone. When the
+        # service container failed to start in run 45, checkout was skipped and
+        # this step still ran, reporting `fatal: not a git repository` -- a
+        # second, misleading error on top of the real one. The guard must fire
+        # whenever there is a tree to check and stay quiet when there is not.
+        if: always() && steps.checkout.outcome == 'success'
+
         run: |
           echo "--- git status --short -- discovery-bench/ ---"
           git status --short -- discovery-bench/
