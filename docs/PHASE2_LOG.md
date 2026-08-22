@@ -4033,6 +4033,19 @@ through `COPY`: `FdEntry.record_names` is empty in that case, so the row read
 `record: (unnamed)`. Four of the thirteen agreements are `COPY`-supplied, so a
 third of the strongest evidence the tool produces could not say what it was
 about. `_record_name` now falls back to the computed layout's group. +2 tests.
+### 6. Measured triple
+
+```
+$ RELIAN_REQUIRE_COBC=1 pytest -q -rs
+→ 1067 passed, 10 skipped, 0 failed
+```
+
+Net **+2** on 1065, both in `tests/test_discovery_files.py`: the `COPY`-supplied
+record-naming case and its converse (a `DISAGREE`'s conflict text must name the
+record rather than say `(unnamed)`).
+
+---
+
 ## 2026-08-22 · Site · The published site, and a gate so its numbers cannot go stale
 
 - **HEAD at start:** `d6760e7` (`docs(README): four capability rows overstated
@@ -4145,16 +4158,15 @@ respectively, one current stop and one visible panel in every case.
 
 ### 6. Measured triple
 
-```
-$ RELIAN_REQUIRE_COBC=1 pytest -q -rs
-→ 1067 passed, 10 skipped, 0 failed
-```
+Measured twice: once on this branch before merging `main`, and again after
+WP-2.4/2.4a came in, because a delta transcribed across a merge is a delta
+nobody measured.
 
-Net **+2** on 1065, both in `tests/test_discovery_files.py`: the `COPY`-supplied
-record-naming case and its converse (a `DISAGREE`'s conflict text must name the
-record rather than say `(unnamed)`).
+```
+$ python3 -m pytest -q -o addopts="" --ignore=tests/test_site_build.py
+→ 1 failed, 1048 passed, 28 skipped        # this branch, without the new file
 $ python3 -m pytest -q -o addopts=""
-→ 1 failed, 863 passed, 28 skipped
+→ 1 failed, 1078 passed, 28 skipped        # with it
 ```
 
 **This is not the sealed triple, and the difference is environmental, not a
@@ -4163,10 +4175,14 @@ skip on the toolchain guard and `tests/test_seal.py::test_the_discovery_seal_
 config_is_buildable_and_records_what_it_should` fails with *"the toolchain probe
 could not answer for cobc"* — the sealer refusing to sign a record whose
 toolchain it cannot name, which is the designed behaviour. The same container
-measured `833 passed, 28 skipped, 1 failed` before this work, so the delta is an
-exact **+30 passes with the skip and failure counts unmoved**.
+measured `833 passed, 28 skipped, 1 failed` before this work and `1048` after the
+merge, so the delta is an exact **+30 passes with the skip and failure counts
+unmoved**, on both bases.
 
-`EXPECTED_PASSES` therefore moves 852 → 882, attributed in the workflow's own
+The container reads 1048 where `main` reads 1067 — a gap of nineteen, the same
+`cobc`/`javac` gap WP-2.4 §0 records (683/28/1 against a real 702/10/0 is that
+same nineteen). The gate is therefore set from `main`'s complete-toolchain figure
+plus the measured delta: **1067 + 30 = 1097**, attributed in the workflow's own
 comment block. Nothing in `tests/test_site_build.py` carries a `skipif`: the
 builder is standard library only and reads committed JSON, so it has no
 toolchain to be missing. CI on a pinned environment is the measurement that
@@ -4181,7 +4197,35 @@ $ git status --short -- bench/ discovery-bench/ transpiler/ src/
 
 No transform code was touched, so BER cannot have moved.
 
-### 7. What this does NOT license
+### 7. `main` moved under this work, and only half of it was caught by a gate
+
+WP-2.4 and WP-2.4a merged (PR #32) while this was being built.
+
+`EXPECTED_PASSES` went 852 → 1067 on `main`. Merging it in, the next build
+refused on its own:
+
+```
+BUILD REFUSED -- the site disagrees with the repository:
+  * suite_passed: declared '882' but suite_passed recomputes to '1097'
+```
+
+**The more consequential change, no gate caught.** WP-2.4 built stop 09, which
+the Atlas described as NOT BUILT — so the page was one merge away from
+publishing a false "not built" about work that had shipped. The drift gate
+checks numbers; it does not check whether a milestone's prose still describes
+reality, and it should not be trusted to. That was caught by reading `main`'s
+log before opening the pull request, which is a human step and remains one.
+
+Worth stating plainly because it bounds what this session built: the gate
+narrows the staleness surface, it does not close it.
+
+Stop 09 is now MEASURED and carries what actually shipped — `jcl.py`,
+`files.py`, `lineage.py`, `ddl.py`, the CardDemo cross-check at 13 / 0 / 41 /
+194, and the dry-run defect the `NO_LAYOUT` breakdown exposed — together with
+what did **not**: the dictionary rendering, for which no module exists. The
+position flag moves to s9.
+
+### 8. What this does NOT license
 
 - **No new claim reaches the site.** Every figure on it already existed in this
   repository or in a recorded run; the build only stops them decaying. The two
