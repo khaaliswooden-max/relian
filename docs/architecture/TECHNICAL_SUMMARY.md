@@ -254,10 +254,12 @@ The cheapest third of that backlog is dispatch-table work with no new semantics.
   corpora were analysed through the `token_scan` fallback. The grammar was replaced at
   WP-2.0 and these figures **have not been re-measured since** — re-running the dry runs
   is cheap and would either confirm or correct them.
-- **`README.md` is stale in one row.** Its capability table still lists "LLM semantic
-  analysis — working when API keys present; informational only". That stage was deleted
-  under R6 at WP-2.0.-2 and the orchestrator says so in a comment where the call used to
-  be. The README row overstates what is present and should be corrected.
+- **`README.md` capability table — corrected 2026-08-22.** Four rows had gone stale
+  against the WP-2.0.-2 / WP-2.0.-3 removals: "LLM semantic analysis — working when API
+  keys present" (the stage was deleted under R6), test generation and risk scoring (both
+  described as pending integration or training when the code paths were deleted), and the
+  orchestrator's stage count. All four now state the removals, and the risk row names the
+  product that *does* exist — `src/assessment/risk.py`, graded PLAUSIBLE as a policy.
 - **The transpiler's oracle is GnuCOBOL**, so equivalence is equivalence against
   GnuCOBOL. Any claim about mainframe behaviour requires an IBM oracle that does not
   exist here.
