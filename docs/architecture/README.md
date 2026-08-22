@@ -20,6 +20,19 @@ here as files. They are published as a two-tab site:
 | `tools/build_site.py` | The builder — standard library only |
 | `.github/workflows/pages.yml` | Builds and deploys on every push to `main` |
 
+## One-time setup (required before the first deploy)
+
+Pages must be switched on by a repository admin, once:
+
+> **Settings → Pages → Build and deployment → Source: _GitHub Actions_**
+
+This cannot be done from the workflow. `pages: write` authorises *deploying* to
+an existing Pages site; *creating* one is a repository-administration call and
+`GITHUB_TOKEN` is not an administrator. Until the switch is flipped the `pages`
+job fails with `Get Pages site failed. Error: Not Found` — deliberately, rather
+than skipping, because a deploy job that quietly no-ops is a site that silently
+stops updating.
+
 ## Build it locally
 
 ```bash

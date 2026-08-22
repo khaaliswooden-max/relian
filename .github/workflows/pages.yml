@@ -51,12 +51,31 @@ jobs:
       - name: Build the site
         run: python3 tools/build_site.py --out _site
 
-      # enablement: true turns Pages on for the repository the first time this
-      # runs, so the site does not need a manual visit to Settings before its
-      # first deploy.
+      # ONE-TIME MANUAL STEP, and it cannot be automated from here.
+      #
+      # This step read `enablement: true` on the first run, on the belief that
+      # it would turn Pages on for the repository. It does not, and the first
+      # deploy after PR #33 failed on exactly that:
+      #
+      #     Get Pages site failed. Error: Not Found
+      #     Create Pages site failed. Error: Resource not accessible by
+      #     integration
+      #
+      # `pages: write` authorises DEPLOYING to an existing Pages site. CREATING
+      # one is a repository-administration call, and GITHUB_TOKEN is not an
+      # administrator no matter what the workflow's permissions block asks for.
+      # `enablement: true` therefore turns a missing-prerequisite into a
+      # permissions error that reads like a bug in this file, which is worse
+      # than the plain "Not Found" it replaces. It is removed.
+      #
+      # Pages must be switched on once, by a repository admin:
+      #   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+      # After that this job needs no further attention.
+      #
+      # It is deliberately left to FAIL until then rather than skipping: a
+      # deploy job that quietly no-ops is a site that silently stops updating,
+      # which is the failure this whole surface exists to prevent.
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

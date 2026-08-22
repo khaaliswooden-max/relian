@@ -4238,3 +4238,63 @@ position flag moves to s9.
   now a link someone can send rather than a file someone must find. That was a
   deliberate choice, made in the knowledge that a page which omitted them would
   be the more comfortable and less honest artifact.
+
+---
+
+## 2026-08-22 · Site · The first Pages deploy failed, and why `enablement` cannot work
+
+- **HEAD:** `97039a1` (merge of PR #33)
+- **Run:** [pages #1](https://github.com/khaaliswooden-max/relian/actions/runs/32566506619), `failure` after 11 s
+
+### 1. What happened
+
+The `pages` workflow fired on the merge of PR #33 and failed. **The build was
+not the problem** — it is the line immediately above the error:
+
+```
+built _site/index.html and summary.html (55 figures, position s9)
+##[warning]Get Pages site failed. Error: Not Found
+##[error]Create Pages site failed. Error: Resource not accessible by integration
+```
+
+Every figure resolved, no drift, both pages rendered. The job then died trying
+to *create* the Pages site.
+
+### 2. The mistake, stated plainly
+
+`actions/configure-pages@v5` was given `enablement: true`, on the belief —
+recorded in PR #33's own description — that this would turn Pages on for the
+repository and spare anyone a visit to Settings. That belief was wrong.
+
+`pages: write` authorises **deploying** to a Pages site that already exists.
+**Creating** one is a repository-administration call, and `GITHUB_TOKEN` is not
+an administrator regardless of what the workflow's `permissions:` block asks
+for. No combination of workflow permissions grants it; it needs a human with
+admin rights, or an admin PAT the repository does not hold and should not.
+
+### 3. Why `enablement: true` is removed rather than kept
+
+It does not merely fail to help — it makes the diagnosis worse. Without it the
+job stops at `Get Pages site failed. Error: Not Found`, which names the missing
+prerequisite. With it, the job stops at `Resource not accessible by
+integration`, which reads like a permissions bug in the workflow file and sends
+the next reader to fix `permissions:` — where there is nothing to fix.
+
+### 4. What is NOT changed, and why
+
+The job is left to **fail** until Pages is switched on, not to skip. A deploy
+job that quietly no-ops is a site that silently stops updating, which is the
+exact failure the whole surface was built to prevent. A red tick that names its
+prerequisite is the correct behaviour here.
+
+### 5. The remaining step, which is not automatable
+
+    Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+
+Operator action, once. Documented in `docs/architecture/README.md` rather than
+left in a commit message. After it, `pages` needs no further attention.
+
+### 6. Measured
+
+No test changed and no figure moved: `python3 tools/build_site.py --check` →
+`OK -- 55 figures, 55 referenced, no drift`. `EXPECTED_PASSES` stays 1097.
