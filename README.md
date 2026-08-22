@@ -8,17 +8,18 @@ Lab / Visionblox LLC.
 
 ## Architecture and build state
 
-**https://khaaliswooden-max.github.io/relian/** — two tabs, rebuilt and
-republished on every push to `main`:
+**https://khaaliswooden-max.github.io/relian/** — two tabs, republished on every
+push to `main` that touches it:
 
 - **Build Atlas** — system architecture, the production cycle, and the build
   timeline with a movable position flag
 - **Technical Summary** — the same ground in prose, with the provenance ledger
 
-Every number on both pages is declared in `site/figures.json` with a Trutina
-grade and a basis, and every figure that can be recomputed from this repository
-**is** recomputed on each build; the build fails rather than publishing a page
-that disagrees with the tree. See `docs/architecture/README.md`.
+It is **one self-contained HTML file** — `docs/architecture/relian-architecture.html`
+— that you can also open from disk, email, or project. Both tabs live inside it, so
+the summary is there with JavaScript off and when printed. Every figure on it carries
+a Trutina grade and a basis in the provenance appendix. See
+`docs/architecture/README.md`.
 
 ## What exists today (measured, not projected)
 

@@ -4298,3 +4298,74 @@ left in a commit message. After it, `pages` needs no further attention.
 
 No test changed and no figure moved: `python3 tools/build_site.py --check` →
 `OK -- 55 figures, 55 referenced, no drift`. `EXPECTED_PASSES` stays 1097.
+
+---
+
+## 2026-08-22 · Site · Reverted to one self-contained file; the generator is removed
+
+- **HEAD at start:** `ba58123` (merge of PR #34)
+- **Correction requested by the operator**, not found by a gate.
+
+### 1. What was asked for, and what was delivered instead
+
+The request was: the existing `relian-architecture.html`, with a technical summary
+tab, published as a GitHub Page, updating as the build progresses.
+
+What was built was a static-site generator — `site/figures.json`, four template and
+partial files, `tools/build_site.py`, a drift gate, 30 tests and a CI gate bump — which
+emitted two linked pages. The rendered output was close to right. **The deliverable was
+not.** `docs/architecture/relian-architecture.html` was deleted, `TECHNICAL_SUMMARY.md`
+was turned into a template carrying `{{fig:…}}` placeholders, and the one artifact the
+operator had approved stopped being a file anyone could open.
+
+Recorded because the failure is worth naming precisely: the drift gate was a real
+improvement to a problem this repository genuinely has, and it was still the wrong
+thing to build, because nobody asked for it and it cost the artifact that was asked
+for. Scope taken unasked is not free even when the work is good.
+
+### 2. What the file is now
+
+One self-contained `docs/architecture/relian-architecture.html`: doctype, head, both
+styles, all fourteen SVGs, both tab panels and one script, in a single document with no
+sibling files and no external asset but Google Fonts. The tabs are `role="tablist"`
+buttons that swap two `role="tabpanel"` divs in place.
+
+Both panels are **real HTML in the file**, so the summary is present with scripting
+disabled and under `@media print` — it is switched, not fetched. Verified: with
+JavaScript off the summary text is in the DOM.
+
+### 3. A real defect found on the way, and fixed
+
+The deployed page had **no doctype**. It was authored as an Artifact fragment — the
+Artifact tool supplies the `<!doctype html><html><head>` skeleton at publish time — and
+that same fragment was then served raw by Pages, so the live site rendered in **quirks
+mode** (`document.compatMode === "BackCompat"`). It happened to look correct, which is
+the reason it survived a screenshot review. The file now carries a full document
+skeleton and measures `CSS1Compat`.
+
+### 4. Removed
+
+`site/` (six files), `tools/build_site.py`, `tests/test_site_build.py`.
+`.github/workflows/pages.yml` is now a copy-and-publish job with no build step.
+`TECHNICAL_SUMMARY.md` is a readable document again, its placeholders resolved to the
+values they held at `ba58123`.
+
+**What is lost, stated rather than glossed:** the figures no longer recompute from the
+ledgers and the CI gate, so a re-seal or a gate change will not turn the build red — the
+Atlas is hand-edited and can go stale exactly the way `README.md` did. `TECHNICAL_
+SUMMARY.md` and the Atlas's summary tab are now two copies of the same text with nothing
+enforcing that they agree. Both are written down in `docs/architecture/README.md` so the
+next editor meets them.
+
+### 5. Measured
+
+```
+$ python3 -m pytest -q -o addopts=""
+→ 1 failed, 1048 passed, 28 skipped
+```
+
+`1048` is exactly the figure this container measured before the site tests existed, so
+the −30 is clean. `EXPECTED_PASSES` returns 1067 → the inverse of the +30 it went up by.
+The one failure is the absent `cobc`, unchanged and environmental.
+
+Scope: `git status --short -- bench/ discovery-bench/ transpiler/ src/` is empty.
