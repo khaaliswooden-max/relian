@@ -28,7 +28,11 @@ one attribute in the file:
 ```
 
 Change it, and change the matching `data-state` on the stops, the visible panel, and the
-phase bands. Then push — Pages redeploys on the next push that touches the file.
+phase bands. Four more things carry the position and none of them is derived from
+`data-current`, so all four move by hand or they contradict it: the `data-status="here"`
+attribute and the `chip-here` badge on the panel that is current, and the `← we are here`
+marker in both `TECHNICAL_SUMMARY.md` and the Atlas's summary tab. Then push — Pages
+redeploys on the next push that touches the file.
 
 ## Keeping the two in step
 
@@ -37,11 +41,14 @@ first, then mirror the change into the `#panel-summary` section of the HTML. The
 copies and nothing enforces that they agree, so a change to one is not finished until it
 is in the other.
 
-## One-time Pages setup
+## One-time Pages setup — done 2026-08-22
 
 > **Settings → Pages → Build and deployment → Source: _GitHub Actions_**
 
-Repository admin, once. This cannot be done from the workflow: `pages: write` authorises
-*deploying* to an existing Pages site, while *creating* one is a repository-administration
-call and `GITHUB_TOKEN` is not an administrator. Until the switch is flipped the `pages`
-job fails with `Get Pages site failed. Error: Not Found`.
+Repository admin, once, and it has been done: the site serves at the URL above and the
+`pages` workflow has been green on `main` since `f100c87`. Kept here because it is the
+prerequisite anyone forking or re-creating this repository will hit. It cannot be done
+from the workflow: `pages: write` authorises *deploying* to an existing Pages site, while
+*creating* one is a repository-administration call and `GITHUB_TOKEN` is not an
+administrator. Until the switch is flipped the `pages` job fails with `Get Pages site
+failed. Error: Not Found`.

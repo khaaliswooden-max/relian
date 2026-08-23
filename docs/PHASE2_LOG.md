@@ -4369,3 +4369,205 @@ the −30 is clean. `EXPECTED_PASSES` returns 1067 → the inverse of the +30 it
 The one failure is the absent `cobc`, unchanged and environmental.
 
 Scope: `git status --short -- bench/ discovery-bench/ transpiler/ src/` is empty.
+
+---
+
+## 2026-08-23 · Docs · The Atlas published a suite figure the gate does not assert
+
+- **HEAD at start:** `f100c87`
+- **Found by a status re-measurement, not by a gate** — which is the point of §1 below.
+
+### 1. The drift, and why nothing caught it
+
+`30c818d` removed the thirty site tests and returned `EXPECTED_PASSES` to `1067`. Its
+own commit message says so. What it did not do was carry that number into the two
+documents that publish it, so `docs/architecture/TECHNICAL_SUMMARY.md` and
+`docs/architecture/relian-architecture.html` went on stating **1097 passed** in six
+places — including the §7 provenance ledger, where the figure is graded VERIFIED and its
+basis reads "`.github/workflows/tests.yml` asserts this exact triple." The gate asserts
+1067. A VERIFIED grade pointing at a basis that contradicts it is the exact failure R9
+exists to prevent, and it was live on the public page for a day.
+
+This is the second time the same class of defect has been recorded here: the site
+generator built at `56a3059` existed to make figures recompute from the ledgers, and
+removing it was still correct, but the trade was written down at the time — "the Atlas is
+hand-edited and can go stale exactly the way `README.md` did" — and it went stale within
+one commit. The trade is not being re-litigated. It is being noted that the predicted
+cost arrived immediately.
+
+Measured on this tree, no code changed:
+
+```
+$ python3 -m pytest -q -o addopts=""
+→ 1067 passed, 10 skipped, 0 failed
+```
+
+### 2. Two position markers, one position
+
+`#rail[data-current]` is `s9` and the rail's own `data-state` attributes are correct, but
+four things that also carry the position are not derived from it, and stop 08 still held
+all four: `data-status="here"` and the `chip-here` badge on its panel, and `← we are
+here` in the Markdown and in the Atlas's summary tab. Stop 09 — the actual position — had
+none of the first two. Moved. `docs/architecture/README.md` now lists all four, because
+"change `data-current`" was the instruction and it was not sufficient.
+
+### 3. Stop 08's figure is no longer pinned to a commit
+
+The panel read "Suite at this commit: 1097 passed" under an eyebrow stamped `HEAD
+ba58123`. At `ba58123` that was true; the site tests still existed. Rewriting the number
+to 1067 under that stamp would have made it false, so the sentence now names the gate
+rather than a commit — "the triple the CI gate asserts is 1067 passed" — and the stale
+HEAD pin is dropped. A figure that tracks a moving gate should not advertise a frozen
+commit.
+
+### 4. One item closed
+
+`docs/architecture/README.md` carried **One-time Pages setup** as a standing instruction.
+It has been done: the site serves at `https://khaaliswooden-max.github.io/relian/`,
+byte-identical to the committed file, and `pages` has been green on `main` since
+`f100c87`. The section is retitled and the prerequisite kept for anyone re-creating the
+repository.
+
+### 5. Not fixed here, and still open
+
+The demo (`demo/`) has not been touched since `6e9dfa6` (2026-08-17) and imports nothing
+from `src/discovery/`, so stops 07 through 09 — copybook resolver, layout engine, file
+inventory, lineage, DDL, the signed report — are absent from it. It passes: 89 inputs, 7
+programs, equivalence 1.0000, 2 designed refusals, exit 0 at `f100c87`. It is green and
+it is behind.
+
+Scope: docs only. `git status --short -- bench/ discovery-bench/ transpiler/ src/ tests/`
+is empty.
+
+---
+
+## 2026-08-23 · Demo · The discovery pipeline reaches the walkthrough
+
+- **HEAD at start:** `e8ca30a`
+- Closes the item the previous entry left open under §5.
+
+### 1. What was wrong
+
+`demo/` had not been touched since `6e9dfa6` (2026-08-17) and imported exactly
+two things from the product: `src.assessment` and `transpiler.c1_rulebased`.
+Between that commit and this one, WP-2.0 through WP-2.4 shipped a copybook
+resolver, a layout engine, a file inventory, a lineage graph, a target-schema
+generator and a signed report — **none of which the demo could show.** Anyone
+who ran `python3 -m demo` to see what Relian does saw a Phase 1 product while
+the build stood at Phase 3 stop 9.
+
+That is not a cosmetic gap. The demo is the artifact that gets run in front of
+someone, and behavioural equivalence answers a question nobody asks first. The
+question a migration is actually scoped on is *what is in this estate, and what
+does the data look like*, and the six modules that answer it were invisible.
+
+### 2. What the track does
+
+Seven stages over `examples/demo` — chosen because the transform corpus cannot
+exercise any of this: it is flat programs with no `COPY`, no `SELECT` and no
+JCL, while the Meridian tree has three copybooks, a job stream and a program
+that declares four files.
+
+Measured this run, and every figure recomputed rather than stored:
+
+```
+resolve      : 3 copybook(s) resolved, 0 missing; 8 files, 4 COPY edges
+oracle x-ck  : 1.0000 (22/22 offset+length comparisons, tolerance zero)
+file inv.    : 6 files across 1/5 programs with FILE-CONTROL, 12 DD statements
+               LRECL: 1 agree, 0 disagree, 3 no LRECL, 2 no layout
+lineage      : 4 edges across 4 datasets
+target DDL   : 3 tables (3 COMPLETE), 16 columns, lint clean
+signed report: VALID AND UNATTESTED — FILES/MANIFEST/INSTANCE PASS,
+               COUNTERSIGNATURE ABSENT
+```
+
+### 3. The one that carries weight
+
+Stage 3 is why this is evidence rather than a feature tour. The layout engine
+computes offsets **from source text and never invokes a compiler** — asserted by
+an AST walk in `tests/test_discovery_is_compiler_free.py` — and the oracle it is
+compared against is nothing but GnuCOBOL 3.1.2.0's own byte layout, sealed and
+signed before the engine existed. The two artifacts agree *because* they share
+no code and no process.
+
+Three sources of a false green were closed explicitly:
+
+1. **No oracle row is read until the seal verifies.** All three layers plus the
+   pinned signer and the pinned manifest hash, the same discipline
+   `tests/test_layout_roundtrip.py` uses. A fallback that read `oracle.json`
+   anyway and noted the seal problem in passing would make a *tampered* oracle
+   produce a green cross-check — worse than no cross-check.
+2. **A copybook the oracle does not cover is `not_covered`,** never a pass. The
+   alternative is a denominator that quietly shrinks until any engine looks
+   perfect.
+3. **A copybook whose bytes drifted from the sealed corpus is not compared at
+   all.** Agreement between two different files is not agreement. The three
+   Meridian copybooks are byte-identical to the sealed corpus copies today, and
+   the digest check is what keeps that true rather than assumed.
+
+### 4. Findings are not failures
+
+`NO_LRECL`, `NO_LAYOUT` and `DISAGREE` are discoveries about the estate — the
+product working. If they reached the exit status, the demo would be red over any
+realistic tree and the signal would be worthless. What does reach it is a layout
+contradicting the sealed oracle, a seal that will not verify, a drifted
+copybook, DDL failing its own lint or its reconciliation, or a report the
+shipped verifier rejects. `DiscoveryResult.failures()` is the only path to a
+non-zero exit and it says which of those it found.
+
+### 5. Two zeros that were refused
+
+**The DDL stage does not claim a schema loads because it generated one.**
+Without `RELIAN_DDL_DSN` the execution sub-stage reports `NOT MEASURED` with the
+reason; with a DSN pointing at an unreachable server it reports `NOT MEASURED`
+with the connection error. `statements_executed` and `columns_reconciled` are
+`None`, never 0 — a 0-with-no-problems reads as a clean load to anyone skimming.
+Both paths were exercised, and so was the positive one: a local PostgreSQL
+16.13 executed 4 statements and reconciled 16 columns against
+`information_schema`.
+
+**The verifier's four layers keep their own three-state word.** The
+countersignature layer is `ABSENT`, not `FAIL`. Collapsing that to a boolean
+would turn the correct and expected state of every report Relian has ever
+produced into a red row.
+
+### 6. A defect found while wiring it, and one found in a test
+
+The first draft read the verifier's layers with the wrong keys (`name`/`ok`
+against a `to_dict` that emits `layer`/`verdict`), so every passing layer
+rendered as `ok: false`. It was caught by looking at the output rather than by a
+test, which is worth recording: a demo that prints a wrong verdict is exactly
+the failure mode this repository exists to eliminate.
+
+The mismatch test then passed for the wrong reason. It perturbed the first
+copybook in the oracle, which is one of the twelve D-series files the demo tree
+does not contain, so nothing was compared and nothing went red. It now perturbs
+a copybook the run actually compares, and asserts that a moved offset reaches
+`failures()`.
+
+### 7. Also corrected here
+
+The evidence page's scope note said the demo touches no JCL and no copybooks.
+With this track that is false — discovery reads both, statically — so the note
+now distinguishes the transform subset from the discovery path instead of
+contradicting the section above it.
+
+### 8. Measured
+
+```
+$ python3 -m pytest -q -o addopts=""
+→ 1095 passed, 10 skipped, 0 failed          (+28, tests/demo/test_demo_discovery.py)
+
+$ python3 -m demo
+→ exit 0; portfolio equivalence 1.0000 (89 inputs, 7 programs);
+  discovery 22/22 vs the sealed oracle; report VALID AND UNATTESTED
+
+$ RELIAN_DDL_DSN=… python3 -m demo --discovery-only
+→ 4 statement(s) executed, 16 column(s) reconciled (PostgreSQL 16.13)
+```
+
+`EXPECTED_PASSES` moves 1067 → 1095, and the Atlas and Technical Summary carry
+the new triple, the new ledger rows and the stop-9 note.
+
+Scope: `git status --short -- bench/ discovery-bench/ transpiler/ src/` is empty.
+The track imports `src/discovery/` and `tools/` and changes neither.

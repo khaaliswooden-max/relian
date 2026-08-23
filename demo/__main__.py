@@ -3,12 +3,21 @@
     python3 -m demo                      # everything
     python3 -m demo --case P01 --case CUSTUPD
     python3 -m demo --inputs 3           # fewer inputs per program, faster
+    python3 -m demo --discovery-only     # the estate, without the migration
     python3 -m demo --html out/relian.html
 
-Runs the shipped assessment engine and the shipped transpiler over real COBOL,
-builds both the original and the migration, executes them against each other,
-and reports what was measured. Offline: nothing here opens a socket or calls a
-model (R6, R12 — customer source never leaves the perimeter).
+Two tracks, both over real COBOL and both measured in the run that prints them.
+
+**Transform** runs the shipped assessment engine and the shipped transpiler,
+builds the original and the migration, and executes them against each other.
+
+**Discovery** runs the shipped copybook resolver, layout engine, file inventory,
+lineage graph, target-schema generator and signed-report surface over a tree
+with copybooks and a job stream — the question a migration is actually scoped
+on, which behavioural equivalence cannot answer.
+
+Offline: nothing here opens a socket or calls a model, and no dataset is
+opened (R6, R12 — customer source never leaves the perimeter).
 """
 
 from __future__ import annotations
@@ -21,6 +30,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from . import cases as cases_mod
+from . import discovery as discovery_mod
 from . import oracle, pipeline, report
 from .pipeline import (
     BUILD_FAILED,
@@ -67,15 +77,23 @@ def _fmt_measured(m, digits: int = 4) -> str:
     return "not measured" if m is None else f"{m.value:.{digits}f} [{m.grade}]"
 
 
-def _banner(st: Style, run_oracle: oracle.OracleInfo, n_cases: int) -> None:
+def _banner(st: Style, run_oracle: oracle.OracleInfo, n_cases: int, *,
+            transform: bool = True, discovery: bool = True) -> None:
     print()
     print(st.bold("  RELIAN — verifiable COBOL→Java migration"))
-    print(st.dim("  assess → transpile → build both → execute both → compare"))
+    if transform:
+        print(st.dim("  transform : assess → transpile → build both → execute both "
+                     "→ compare"))
+    if discovery:
+        print(st.dim("  discovery : resolve → layout → sealed oracle → file inventory "
+                     "→ lineage → DDL → signed report"))
     print()
-    print(f"  legacy oracle    : {run_oracle.label}"
-          if run_oracle.available else
-          st.yellow("  legacy oracle    : NOT AVAILABLE — equivalence cannot be measured"))
-    print(f"  programs         : {n_cases}")
+    if transform:
+        print(f"  legacy oracle    : {run_oracle.label}"
+              if run_oracle.available else
+              st.yellow("  legacy oracle    : NOT AVAILABLE — equivalence cannot "
+                        "be measured"))
+        print(f"  programs         : {n_cases}")
     print(st.dim("  every number below was produced by an execution in this run;"))
     print(st.dim("  anything not measured is reported as such, never estimated."))
     print()
@@ -163,6 +181,123 @@ def _print_case(st: Style, r: CaseResult) -> None:
     print()
 
 
+def _print_discovery(st: Style, d: "discovery_mod.DiscoveryResult") -> None:
+    """The discovery track, printed in the order the stages ran."""
+    print(st.bold("  ── discovery ───────────────────────────────────────────"))
+    print(st.dim(f"  tree: {d.root} — copybooks, COBOL and JCL. No dataset is opened."))
+    print()
+
+    r = d.resolve
+    if r.status != discovery_mod.MEASURED:
+        print(st.yellow(f"  resolve      : NOT MEASURED — {r.reason}"))
+        print()
+        return
+    missing = (st.red(f"{len(r.unresolved)} missing ({', '.join(r.unresolved)})")
+               if r.unresolved else "0 missing")
+    print(f"  {st.dim('resolve      :')} {len(r.resolved)} copybook(s) resolved, "
+          f"{missing}")
+    print(st.dim(f"      {r.files_scanned} file(s) scanned, {r.copy_edges} COPY edge(s), "
+                 f"{r.cycles} cycle(s)"))
+
+    for row in d.layouts:
+        print(st.dim(f"      layout {row.copybook:<10} {row.record:<22} "
+                     f"{row.status:<9} {row.fields} field(s), "
+                     f"{'—' if row.group_length is None else str(row.group_length) + ' bytes'}"))
+
+    o = d.oracle
+    if o.status == discovery_mod.NOT_MEASURED:
+        print(st.yellow(f"  oracle x-ck  : NOT MEASURED — {o.reason}"))
+    elif o.status == discovery_mod.FAILED:
+        print(st.red(f"  oracle x-ck  : FAILED — {o.reason}"))
+        for line in o.mismatches[:5]:
+            print(st.red(f"      {line}"))
+        for line in o.digest_mismatches[:5]:
+            print(st.red(f"      {line}"))
+    else:
+        rate = f"{o.agreement.value:.4f}"
+        painted = st.green(rate) if o.agreement.value == 1.0 else st.red(rate)
+        print(f"  {st.dim('oracle x-ck  :')} {painted} "
+              f"{st.dim(f'({o.agreed}/{o.comparisons} offset+length comparisons, tolerance zero)')}")
+        print(st.dim(f"      vs RELIAN-DISCOVERY-BENCH v0.1, seal verified "
+                     f"({', '.join(o.seal_layers)}), signer "
+                     f"{discovery_mod.BENCH_FINGERPRINT}"))
+        print(st.dim("      the engine reads source text and never invokes a "
+                     "compiler; the oracle is a compiler's own byte layout."))
+    if o.not_covered:
+        print(st.dim(f"      not covered by the bench, so not compared: "
+                     f"{', '.join(o.not_covered)}"))
+
+    inv = d.inventory
+    counts = inv.outcomes
+    print(f"  {st.dim('file inv.    :')} {len(inv.rows)} file(s) across "
+          f"{inv.programs_with_file_control}/{inv.programs_scanned} program(s) "
+          f"with FILE-CONTROL, {inv.jcl_members} JCL member(s), "
+          f"{inv.dd_statements} DD statement(s)")
+    agree, disagree = counts.get("AGREE", 0), counts.get("DISAGREE", 0)
+    print(st.dim(f"      LRECL x-check: {agree} agree, ")
+          + (st.red(f"{disagree} DISAGREE") if disagree else st.dim("0 disagree"))
+          + st.dim(f", {counts.get('NO_LRECL', 0)} no LRECL declared, "
+                   f"{counts.get('NO_LAYOUT', 0)} no resolvable layout"))
+    for row in inv.rows:
+        if row.outcome == "DISAGREE":
+            print(st.red(f"      {row.program}/{row.file_name}: computed "
+                         f"{row.computed_length} vs declared LRECL {row.declared_lrecl}"))
+    print(st.dim(f"      {len(inv.findings)} finding(s) — a finding is a discovery "
+                 f"about the estate, not a fault in Relian."))
+
+    ln = d.lineage
+    print(f"  {st.dim('lineage      :')} {len(ln.edges)} edge(s) across "
+          f"{len(ln.datasets)} dataset(s)")
+    for program, direction, dataset in ln.edges:
+        print(st.dim(f"      {program} {direction:<8} {dataset}"))
+    if ln.coverage_statement:
+        print(st.dim(f"      bound: {ln.coverage_statement}"))
+
+    dd = d.ddl
+    print(f"  {st.dim('target DDL   :')} {dd.tables} table(s) "
+          f"({dd.tables_complete} COMPLETE, {dd.tables_partial} PARTIAL), "
+          f"{dd.columns} column(s), lint "
+          + (st.green("clean") if not dd.lint_problems
+             else st.red(f"{len(dd.lint_problems)} violation(s)")))
+    if dd.executed_status == discovery_mod.MEASURED:
+        line = (f"      executed: {dd.statements_executed} statement(s), "
+                f"{dd.columns_reconciled} column(s) reconciled against "
+                f"information_schema")
+        print(st.dim(line) if not dd.execution_problems else st.red(line))
+        for problem in dd.execution_problems:
+            print(st.red(f"      {problem}"))
+    else:
+        print(st.yellow(f"      execution: NOT MEASURED — {dd.executed_reason}"))
+
+    rep = d.report
+    if rep.status != discovery_mod.MEASURED:
+        print(st.red(f"  signed report: {rep.status} — {rep.reason}"))
+    else:
+        print(f"  {st.dim('signed report:')} {', '.join(rep.artifacts)}")
+        print(st.dim(f"      report_id {rep.report_id}  instance "
+                     f"{rep.instance_fingerprint}"))
+        for layer, verdict, _detail in rep.verify_layers:
+            paint = (st.green if verdict == "PASS"
+                     else st.yellow if verdict == "ABSENT" else st.red)
+            print(st.dim(f"      verify {layer:<17} ") + paint(verdict))
+        status_paint = (st.green if rep.verify_status == "VALID AND ATTESTED"
+                        else st.yellow if rep.verify_status == "VALID AND UNATTESTED"
+                        else st.red)
+        print(f"      {st.dim('status:')} {status_paint(rep.verify_status)} "
+              + st.dim(f"(verifier {rep.verifier_sha256[:16]}…, pinned to release "
+                       f"key {discovery_mod.RELEASE_FINGERPRINT})"))
+        if rep.report_reproducible is True:
+            print(st.dim("      reproducible: a second build over the same tree "
+                         "produced byte-identical report.json"))
+        elif rep.report_reproducible is False:
+            print(st.red("      NOT reproducible: a second build produced "
+                         "different report.json bytes"))
+        print(st.dim(f"      perimeter: {rep.countersign_request}"))
+        print(st.dim("      that one line is everything that would cross the "
+                     "perimeter — three digests, no source."))
+    print()
+
+
 def _print_summary(st: Style, run: RunResult) -> None:
     print(st.bold("  ── summary ─────────────────────────────────────────────"))
     by_verdict = {}
@@ -214,18 +349,36 @@ def main(argv: Optional[List[str]] = None) -> int:
     ap.add_argument("--workdir", type=Path, default=None,
                     help="where to put generated Java and binaries "
                          "(default: a temporary directory)")
+    ap.add_argument("--discovery-root", type=Path, default=None, metavar="PATH",
+                    help="the tree the discovery track runs over (default: "
+                         f"{discovery_mod._label(discovery_mod.DEFAULT_ROOT)})")
+    ap.add_argument("--skip-discovery", action="store_true",
+                    help="run only the transform track")
+    ap.add_argument("--discovery-only", action="store_true",
+                    help="run only the discovery track")
     ap.add_argument("--no-color", action="store_true")
     args = ap.parse_args(argv)
 
-    st = Style(enabled=sys.stdout.isatty() and not args.no_color)
-    selected = cases_mod.select(args.case, limit=args.inputs)
-    if not selected:
-        print(f"no cases matched {args.case!r}", file=sys.stderr)
+    if args.skip_discovery and args.discovery_only:
+        print("--skip-discovery and --discovery-only are mutually exclusive",
+              file=sys.stderr)
         return 2
 
+    st = Style(enabled=sys.stdout.isatty() and not args.no_color)
+    run_transform = not args.discovery_only
+    run_discovery = not args.skip_discovery
+
+    selected = []
+    if run_transform:
+        selected = cases_mod.select(args.case, limit=args.inputs)
+        if not selected:
+            print(f"no cases matched {args.case!r}", file=sys.stderr)
+            return 2
+
     info = oracle.detect()
-    _banner(st, info, len(selected))
-    if not info.available:
+    _banner(st, info, len(selected), transform=run_transform,
+            discovery=run_discovery)
+    if run_transform and not info.available:
         print(st.yellow(
             "  GnuCOBOL is not installed, so the legacy side cannot be executed.\n"
             "  The demo will still assess, transpile and build — and will report\n"
@@ -240,17 +393,31 @@ def main(argv: Optional[List[str]] = None) -> int:
         tmp = tempfile.TemporaryDirectory(prefix="relian-demo-")
         workdir = Path(tmp.name)
 
+    run = None
+    disc = None
     try:
-        run = pipeline.run(selected, workdir, on_case_done=lambda r: _print_case(st, r))
-        _print_summary(st, run)
+        if run_transform:
+            run = pipeline.run(selected, workdir,
+                               on_case_done=lambda r: _print_case(st, r))
+            _print_summary(st, run)
+
+        if run_discovery:
+            disc = discovery_mod.run(
+                args.discovery_root or discovery_mod.DEFAULT_ROOT,
+                workdir / "discovery",
+            )
+            _print_discovery(st, disc)
+
+        payload = run.to_dict() if run is not None else {}
+        payload["discovery"] = disc.to_dict() if disc is not None else None
 
         if args.json:
             args.json.parent.mkdir(parents=True, exist_ok=True)
-            args.json.write_text(json.dumps(run.to_dict(), indent=2, sort_keys=True) + "\n")
+            args.json.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
             print(f"  json  : {args.json}")
         if args.html:
             args.html.parent.mkdir(parents=True, exist_ok=True)
-            args.html.write_text(report.render_html(run))
+            args.html.write_text(report.render_html(run, disc))
             print(f"  html  : {args.html}")
         if args.json or args.html:
             print()
@@ -268,11 +435,19 @@ def main(argv: Optional[List[str]] = None) -> int:
     # execution outage — both sides built and then every input failed to run.
     # That reaches NOT_MEASURED, but it is a fault, not the supported offline
     # mode (no GnuCOBOL at all), which stays 0.
-    bad = [c for c in run.cases
+    #
+    # The discovery track contributes the same way, and with the same
+    # distinction: a copybook the job stream contradicts is a FINDING — the
+    # product working — while a layout that disagrees with the sealed oracle,
+    # DDL that fails its own lint, or a report the shipped verifier rejects are
+    # defects. Only the second kind reaches the exit status. See
+    # DiscoveryResult.failures().
+    bad = [c for c in (run.cases if run is not None else [])
            if c.verdict in (DIVERGENCE_MEASURED, BUILD_FAILED, GAMING_TRIPPED,
                             INCOMPLETE_MEASUREMENT)
            or c.execution_outage]
-    return 1 if bad else 0
+    discovery_failures = disc.failures() if disc is not None else []
+    return 1 if (bad or discovery_failures) else 0
 
 
 if __name__ == "__main__":

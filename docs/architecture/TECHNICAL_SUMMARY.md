@@ -179,7 +179,7 @@ of record is the `data-current` attribute on `#rail` in that file.
    predecessor and surfaced as a misattributed error. The dispatch-table refactor was
    gated on bytes — all five generated Java files regenerated SHA-256-identical.
 
-### Phase 2 — discovery · complete → **current position** (2026-08-20/21)
+### Phase 2 — discovery · complete (2026-08-20/21)
 
 5. **Fabricated limbs removed**, environment pinned, CI switched to asserting the exact
    test triple rather than "no failures".
@@ -187,10 +187,10 @@ of record is the `data-current` attribute on `#rail` in that file.
 7. **Copybook resolver + layout engine** — 186 / 186 against the sealed oracle, tolerance
    zero. Gaps compare by projection rather than by label, so a padding byte cannot be
    renamed into agreement.
-8. **The signed Data Discovery report** ← *we are here.* Canonical `report.json`, a
-   Markdown rendering that names the JSON as authoritative, a manifest, and an Ed25519
-   instance signature. If a key cannot be obtained the command writes nothing. Suite:
-   1097 passed, 10 skipped, 0 failed.
+8. **The signed Data Discovery report.** Canonical `report.json`, a Markdown rendering
+   that names the JSON as authoritative, a manifest, and an Ed25519 instance signature.
+   If a key cannot be obtained the command writes nothing. The triple the CI gate
+   asserts is 1095 passed, 10 skipped, 0 failed.
 
 ### Phase 3 — delivery · current position (2026-08-22)
 
@@ -206,6 +206,15 @@ of record is the `data-current` attribute on `#rail` in that file.
    itself — it had run without the copybook resolver — and the superseded figures are
    kept and accounted for rather than deleted. **The dictionary rendering did not ship**
    and no module for it exists.
+
+   **The demo carries stops 5–9 as of 2026-08-23.** Until then `demo/` imported
+   nothing from `src/discovery/` and had not been touched since WP-1.x, so the
+   walkthrough showed a Phase 1 product while the build stood here. `python3 -m
+   demo --discovery-only` now runs the resolver, layout engine, file inventory,
+   lineage graph, DDL generator and signed-report surface over a committed
+   synthetic tree, and cross-checks its own layouts against the sealed oracle:
+   22 / 22 offset-and-length comparisons, tolerance zero, seal verified across
+   all three layers before a row is read.
 10. **First countersigned report.** The flow is proven only under a stand-in key
     generated inside a test. Two things gate it: `visionblox-release-key-v1.pub` —
     public material, the one artifact still missing — reaching the repository so the
@@ -272,6 +281,10 @@ The cheapest third of that backlog is dispatch-table work with no new semantics.
   described as pending integration or training when the code paths were deleted), and the
   orchestrator's stage count. All four now state the removals, and the risk row names the
   product that *does* exist — `src/assessment/risk.py`, graded PLAUSIBLE as a policy.
+- **The demo's discovery tree is synthetic.** `examples/demo` is hand-written
+  demonstration code. Its inventory and lineage figures describe that tree and
+  nothing else; no customer estate has been discovered, so there is no measured
+  figure for what discovery finds in one.
 - **The transpiler's oracle is GnuCOBOL 3.1.2.0**, so equivalence is equivalence against
   GnuCOBOL. Any claim about mainframe behaviour requires an IBM oracle that does not
   exist here.
@@ -290,8 +303,11 @@ The cheapest third of that backlog is dispatch-table work with no new semantics.
 | Vector counts | 425 held-out, 89 public | VERIFIED | ledger `vector_counts`, summed over 7 programs |
 | Discovery-bench corpus | 15 / 124 / 170 | VERIFIED | discovery ledger `corpus_counts` |
 | Layout round-trip | 186 / 186, tolerance 0 | VERIFIED | `docs/PHASE2_LOG.md` WP-2.2 §2 |
-| Test suite | 1097 passed, 10 skipped, 0 failed | VERIFIED | `.github/workflows/tests.yml` asserts this exact triple |
-| Demo, both-sides execution | 89 inputs, 7 programs, 100% | VERIFIED | `python3 -m demo`, ~15 s · `demo/README.md` |
+| Test suite | 1095 passed, 10 skipped, 0 failed | VERIFIED | `.github/workflows/tests.yml` asserts this exact triple |
+| Demo, both-sides execution | 89 inputs, 7 programs, 100% | VERIFIED | `python3 -m demo --skip-discovery` · `demo/README.md` |
+| Demo, discovery vs sealed oracle | 22 / 22, tolerance 0 | VERIFIED | `python3 -m demo --discovery-only`, seal verified under signer `233bb4406e2de606` |
+| Demo, LRECL cross-check | 1 agree / 0 disagree / 3 no LRECL / 2 no layout | VERIFIED | same run, over `examples/demo` — a synthetic tree, so a finding about it is not a finding about any estate |
+| Demo, generated DDL executed | — | NOT MEASURED | needs `RELIAN_DDL_DSN`; unset, the stage says so rather than reporting a clean load |
 | CardDemo assessment wall time | 4.61 s over 44 programs / 329 files | VERIFIED | WP-1.9 dry run, zero intervention |
 | Construct coverage, third-party | 0.8511 / 0.6945 / 0.5968 | **PLAUSIBLE** | CardDemo / OMP / GnuCOBOL — all via `token_scan` fallback; not re-measured since the WP-2.0 grammar swap |
 | Unsupported-construct demand signal | 2,190 occurrences | **PLAUSIBLE** | same three corpora, same caveat |

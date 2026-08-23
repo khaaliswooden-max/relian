@@ -262,7 +262,166 @@ def _gate_html(c: CaseResult) -> str:
     return (f'<div class="gate {cls}"><b>{title}</b>{_e(c.attestation_reason)}</div>')
 
 
-def render_html(run: RunResult) -> str:
+def _discovery_html(d) -> str:
+    """The discovery track. Every row is a value the run computed."""
+    if d is None:
+        return ""
+
+    from . import discovery as dm                            # noqa: PLC0415
+
+    o = d.oracle
+    if o.status == dm.MEASURED:
+        oracle_tile = _tile(
+            "Layouts vs sealed oracle", f"{o.agreement.value:.4f}",
+            f"{o.agreed}/{o.comparisons} offset+length comparisons, tolerance "
+            f"zero — {_e(o.agreement.provenance)}")
+    elif o.status == dm.FAILED:
+        oracle_tile = _tile("Layouts vs sealed oracle", "FAILED", _e(o.reason))
+    else:
+        oracle_tile = _tile("Layouts vs sealed oracle", "not measured",
+                            _e(o.reason))
+
+    counts = d.inventory.outcomes
+    tiles = [
+        _tile("Copybooks resolved", f"{len(d.resolve.resolved)}",
+              f"{len(d.resolve.unresolved)} unresolved; "
+              f"{d.resolve.copy_edges} COPY edge(s) over "
+              f"{d.resolve.files_scanned} file(s)"),
+        oracle_tile,
+        _tile("Record length vs declared LRECL",
+              f"{counts.get('AGREE', 0)}/{sum(counts.values())}",
+              f"{counts.get('DISAGREE', 0)} disagree, "
+              f"{counts.get('NO_LRECL', 0)} no LRECL declared, "
+              f"{counts.get('NO_LAYOUT', 0)} no resolvable layout"),
+        _tile("Program→dataset edges", f"{len(d.lineage.edges)}",
+              f"across {len(d.lineage.datasets)} dataset(s); this graph is not "
+              f"offered as complete"),
+        _tile("Target-schema tables", f"{d.ddl.tables}",
+              f"{d.ddl.columns} column(s); lint "
+              + ("clean" if not d.ddl.lint_problems
+                 else f"{len(d.ddl.lint_problems)} violation(s)")
+              + ("; executed against PostgreSQL in this run"
+                 if d.ddl.executed_status == dm.MEASURED
+                 else "; not executed — see below")),
+        _tile("Signed report",
+              _e(d.report.verify_status or d.report.status),
+              "verified by the shipped recipient-side tool, pinned to release "
+              f"key {dm.RELEASE_FINGERPRINT}"),
+    ]
+
+    layout_rows = "".join(
+        f"<tr><td class=\"mono\">{_e(r.copybook)}</td>"
+        f"<td class=\"mono\">{_e(r.record)}</td><td>{_e(r.status)}</td>"
+        f"<td>{_e(r.fields)}</td>"
+        f"<td>{'—' if r.group_length is None else _e(r.group_length)}</td></tr>"
+        for r in d.layouts
+    )
+    inv_rows = "".join(
+        f"<tr><td class=\"mono\">{_e(r.program)}</td>"
+        f"<td class=\"mono\">{_e(r.file_name)}</td>"
+        f"<td class=\"mono\">{_e(r.ddname)}</td>"
+        f"<td class=\"mono\">{_e(r.dataset)}</td><td>{_e(r.outcome)}</td>"
+        f"<td>{'—' if r.computed_length is None else _e(r.computed_length)}</td>"
+        f"<td>{'—' if r.declared_lrecl is None else _e(r.declared_lrecl)}</td></tr>"
+        for r in d.inventory.rows
+    )
+    edge_rows = "".join(
+        f"<tr><td class=\"mono\">{_e(p)}</td><td>{_e(direction)}</td>"
+        f"<td class=\"mono\">{_e(ds)}</td></tr>"
+        for p, direction, ds in d.lineage.edges
+    )
+    findings = "".join(
+        f"<li><b>{_e(kind)}</b> — {_e(detail)}</li>"
+        for kind, detail in d.inventory.findings
+    )
+
+    execution = (
+        "<p class=\"note\"><b>Target schema.</b> "
+        + (f"Executed against PostgreSQL in this run: "
+           f"{_e(d.ddl.statements_executed)} statement(s), "
+           f"{_e(d.ddl.columns_reconciled)} column(s) reconciled against "
+           f"<span class=\"mono\">information_schema</span>."
+           if d.ddl.executed_status == dm.MEASURED
+           else f"<b>Not executed.</b> {_e(d.ddl.executed_reason)}")
+        + "</p>"
+    )
+
+    return f"""
+<h2>Discovery — the estate</h2>
+<p class="sub">The same run, over <span class="mono">{_e(d.root)}</span>:
+copybooks, COBOL and a job stream. Nothing here opens a dataset and nothing here
+invokes a compiler — the layouts are computed from source text and then checked
+against a compiler's own byte layout, sealed before the engine existed.</p>
+
+<div class="tiles">{"".join(tiles)}</div>
+
+<h3>Record layouts</h3>
+<div class="scroll"><table>
+<tr><th>Copybook</th><th>Record</th><th>Status</th><th>Fields</th><th>Bytes</th></tr>
+{layout_rows}</table></div>
+
+<h3>File inventory — SELECT ∪ FD ∪ DD</h3>
+<div class="scroll"><table>
+<tr><th>Program</th><th>File</th><th>DD</th><th>Dataset</th><th>Outcome</th>
+<th>Computed</th><th>Declared LRECL</th></tr>
+{inv_rows}</table></div>
+<p class="note">Both numbers are shown and neither is resolved into the other. A
+copybook that does not describe the data is the most expensive thing to discover
+during a migration and the cheapest to discover before one.</p>
+
+<h3>Data lineage</h3>
+<div class="scroll"><table>
+<tr><th>Program</th><th>Direction</th><th>Dataset</th></tr>
+{edge_rows}</table></div>
+<p class="note">{_e(d.lineage.coverage_statement)}</p>
+
+<h3>Findings</h3>
+<ul class="note">{findings or "<li>none</li>"}</ul>
+<p class="note">A finding is a discovery about the estate, not a fault in Relian.
+None of these affects the exit status; a layout that disagreed with the sealed
+oracle would.</p>
+
+{execution}
+<p class="note"><b>Signed report.</b> The run wrote
+<span class="mono">{_e(", ".join(d.report.artifacts))}</span>, then verified them
+with the shipped recipient-side tool
+(<span class="mono">{_e((d.report.verifier_sha256 or "")[:16])}…</span>):
+<b>{_e(d.report.verify_status)}</b>. Exactly one line would cross the customer
+perimeter — <span class="mono">{_e(d.report.countersign_request)}</span> — which
+is three digests and no source. No countersignature has ever been issued, and
+this demo ships no simulated one.</p>
+"""
+
+
+def _discovery_only_html(discovery) -> str:
+    """`--discovery-only`: the estate, with no transform claim on the page."""
+    body = _discovery_html(discovery)
+    if not body:
+        body = ("<p class=\"note\">Neither track ran, so this page states "
+                "nothing.</p>")
+    return f"""<title>Relian Discovery Evidence</title>
+<style>{_CSS}</style>
+<div class="wrap">
+<h1>Relian — discovery evidence</h1>
+<p class="sub">The discovery track only. No migration was attempted and no
+equivalence is claimed on this page.</p>
+{body}
+<footer>
+Generated by <span class="mono">python3 -m demo --discovery-only</span> from the
+Relian repository. Every number carries its provenance and a Trutina grade;
+anything unmeasured is reported as unmeasured. &copy; 2025–2026 Zuup, LLC /
+Visionblox LLC.
+</footer>
+</div>
+"""
+
+
+def render_html(run: Optional[RunResult], discovery=None) -> str:
+    """The evidence page. ``run`` may be ``None`` when only the discovery track
+    was asked for — the transform sections are then absent rather than rendered
+    empty, because a zeroed equivalence tile is a measurement nobody took."""
+    if run is None:
+        return _discovery_only_html(discovery)
     pb = run.portfolio_ber()
     by = {}
     for c in run.cases:
@@ -303,6 +462,7 @@ def render_html(run: RunResult) -> str:
                    else "<b>not available</b> — equivalence could not be measured")
 
     cases_html = "".join(_case_html(c) for c in run.cases)
+    discovery_html = _discovery_html(discovery)
 
     return f"""<title>Relian Migration Evidence</title>
 <style>{_CSS}</style>
@@ -321,8 +481,9 @@ process that ran while this page was generated.</p>
 
 <div class="tiles">{"".join(tiles)}</div>
 
-<h2>Per-program results</h2>
+<h2>Per-program results — transform</h2>
 {cases_html}
+{discovery_html}
 
 <h2>How to read this</h2>
 <p class="note">
@@ -345,9 +506,12 @@ demo ships no simulated attestation, badge, or transaction hash.
 </p>
 <p class="note">
 <b>Scope.</b> These results cover the programs listed above and the COBOL-85
-subset they exercise. They are not a claim about arbitrary COBOL. No CICS,
-VSAM, JCL, copybooks, or embedded SQL. Held-out benchmark vectors are scored
-only in CI and are not touched by this demo.
+subset they exercise. They are not a claim about arbitrary COBOL. The
+<em>transform</em> path does not support CICS, VSAM, JCL, copybooks or embedded
+SQL, and does not claim to. The <em>discovery</em> path does read copybooks and
+JCL — that is what it is for — and reads them statically, without opening a
+dataset or invoking a compiler. Held-out benchmark vectors are scored only in
+CI and are not touched by this demo.
 </p>
 
 <footer>
