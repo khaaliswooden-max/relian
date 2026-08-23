@@ -1,8 +1,8 @@
 # Relian demo — end-to-end, measured, offline
 
 ```bash
-apt-get install -y gnucobol          # transform: the legacy oracle
-pip install antlr4-python3-runtime   # transform: the COBOL parser
+apt-get install -y gnucobol          # transform: the legacy oracle (+ a JDK)
+pip install antlr4-python3-runtime   # transform: VERIFIED coverage grades
 pip install cryptography             # discovery: Ed25519 (see "Prerequisites")
 
 python3 -m demo                      # both tracks
@@ -27,7 +27,7 @@ could not measure.
 | Missing | Effect |
 |---|---|
 | `gnucobol` | The legacy side cannot be executed. Equivalence reports `NOT MEASURED`; assess, transpile and build still run. |
-| `antlr4-python3-runtime` | The demo will not start — the assessment engine imports the parser at module load. |
+| `antlr4-python3-runtime` | The demo still runs and still measures equivalence. The assessment falls back to `token_scan`, so its C1 coverage ratio is graded **PLAUSIBLE** instead of VERIFIED — the figure is still computed, with a weaker basis, and says so. |
 | `cryptography` | Ed25519 is unavailable, so the sealed-oracle cross-check and the signed report both report `NOT MEASURED`. The seal is **not** reported as bad: it could not be checked at all, which is a different finding. |
 | a PostgreSQL DSN | The generated schema is not executed; see [Executing the generated DDL](#executing-the-generated-ddl). |
 
@@ -205,11 +205,11 @@ The transform track still assesses, transpiles and builds — and reports
 equivalence as `NOT MEASURED` rather than assuming it. It will never substitute
 a stored expectation for an execution that did not happen.
 
-**The discovery track needs neither GnuCOBOL nor a JDK.** It is compiler-free by
-construction, so `python3 -m demo --discovery-only` runs in full on a machine
-with nothing but Python — which is also the point: the product has to run inside
-a customer perimeter, and an engine that needs a compiler is not shippable
-there.
+**The discovery track needs neither GnuCOBOL nor a JDK, and no parser either.**
+It is compiler-free by construction, so `python3 -m demo --discovery-only` runs
+in full on a machine with nothing but Python and `cryptography` — measured, not
+assumed. That is also the point: the product has to run inside a customer
+perimeter, and an engine that needs a compiler is not shippable there.
 
 ## Reading the numbers
 
