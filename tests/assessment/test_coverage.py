@@ -275,3 +275,180 @@ def test_scope_terminator_on_its_own_line_is_not_a_paragraph():
         "           STOP RUN.\n"
     )
     assert scan_source(src).paragraph_names() == ("MAIN-PARA",)
+
+
+# --------------------------------------------------------------------------
+# Comment entries (IDENTIFICATION DIVISION free text)
+# --------------------------------------------------------------------------
+
+
+def fixed(*code_lines: str) -> str:
+    """Assemble fixed-format source: 6 blank sequence columns + indicator + code."""
+    return "".join(f"      {line}\n" for line in code_lines)
+
+
+ID_HEAD = (" IDENTIFICATION DIVISION.", " PROGRAM-ID. CE.")
+TAIL = (
+    " DATA DIVISION.",
+    " WORKING-STORAGE SECTION.",
+    " 01 WS-N PIC 9(3).",
+    " PROCEDURE DIVISION.",
+    " MAIN-PARA.",
+    "     MOVE 1 TO WS-N",
+    "     STOP RUN.",
+)
+
+
+def parse_errors_for(src: str):
+    from src.assessment.coverage import _antlr_parse
+
+    _tree, errors, _mod = _antlr_parse(scan_source(src).antlr_source())
+    return errors
+
+
+def test_author_comment_entry_parses_cleanly():
+    """`AUTHOR.` free text is prose, not syntax — it must not fail the parse.
+
+    Before comment-entry tagging this single line demoted an otherwise clean
+    program from antlr_tree/VERIFIED to token_scan/PLAUSIBLE.
+    """
+    assert parse_errors_for(fixed(*ID_HEAD, " AUTHOR. MERIDIAN-MUD-DP.", *TAIL)) == ()
+
+
+def test_every_comment_entry_paragraph_parses_cleanly():
+    src = fixed(
+        *ID_HEAD,
+        " AUTHOR. A-DEPARTMENT.",
+        " INSTALLATION. SOME-DATA-CENTRE.",
+        " DATE-WRITTEN. 1987-04-12.",
+        " DATE-COMPILED. 2026-08-23.",
+        " SECURITY. NONE.",
+        *TAIL,
+    )
+    assert parse_errors_for(src) == ()
+
+
+def test_comment_entry_continues_across_area_b_lines():
+    """A comment entry runs on while its text stays in Area B (columns 12+)."""
+    src = fixed(
+        *ID_HEAD,
+        " AUTHOR. FIRST LINE OF PROSE.",
+        "     CONTINUED PROSE, STILL THE COMMENT ENTRY.",
+        "     AND MORE. WITH. PERIODS. AND 12345 DIGITS.",
+        *TAIL,
+    )
+    assert parse_errors_for(src) == ()
+
+
+def test_a_paragraph_in_area_a_ends_the_comment_entry():
+    """Area A is the standard's own boundary, so the next header is still seen."""
+    src = fixed(*ID_HEAD, " AUTHOR. PROSE.", " SECURITY. MORE PROSE.", *TAIL)
+    assert parse_errors_for(src) == ()
+
+    scanned = scan_source(src)
+    tagged = scanned.antlr_source().splitlines()
+    # The SECURITY header keeps its own line and is not swallowed as prose.
+    assert any(l.lstrip().upper().startswith("SECURITY.") for l in tagged)
+
+
+def test_program_id_is_never_tagged():
+    """PROGRAM-ID's body is a real program name, not a comment entry."""
+    scanned = scan_source(fixed(*ID_HEAD, *TAIL))
+    program_id_line = [l for l in scanned.antlr_source().splitlines() if "PROGRAM-ID" in l]
+    assert program_id_line and "*>CE" not in program_id_line[0]
+
+
+def test_tagging_preserves_line_numbers():
+    """One output line per input line, so diagnostics point at the real file."""
+    src = fixed(*ID_HEAD, " AUTHOR. PROSE.", "     CONTINUED.", *TAIL)
+    assert len(scan_source(src).antlr_source().splitlines()) == len(src.splitlines())
+
+
+def test_tagging_does_not_reach_outside_the_identification_division():
+    """A PROCEDURE DIVISION paragraph named AUTHOR-something stays code."""
+    src = fixed(
+        *ID_HEAD,
+        " DATA DIVISION.",
+        " WORKING-STORAGE SECTION.",
+        " 01 WS-N PIC 9(3).",
+        " PROCEDURE DIVISION.",
+        " AUTHOR-CHECK.",
+        "     MOVE 1 TO WS-N",
+        "     STOP RUN.",
+    )
+    tagged = scan_source(src).antlr_source()
+    assert "*>CE" not in tagged
+    assert parse_errors_for(src) == ()
+
+
+def test_free_format_tags_only_the_paragraph_line():
+    """No reference areas in free format, so the entry cannot be tracked past
+    its own line. Under-tagging costs a fallback; over-tagging would hide code.
+    """
+    free = (
+        "IDENTIFICATION DIVISION.\n"
+        "PROGRAM-ID. FREE.\n"
+        "AUTHOR. SOMEONE.\n"
+        "SPILLED PROSE ON ITS OWN LINE.\n"
+    )
+    lines = scan_source(free).antlr_source().splitlines()
+    assert lines[2].endswith("*>CE SOMEONE.")
+    assert "*>CE" not in lines[3]
+
+
+def test_a_genuine_syntax_error_is_still_reported():
+    """Tagging must not launder broken source into a clean parse."""
+    assert parse_errors_for(read_source(FIXTURES / "BROKEN.cbl")) != ()
+
+
+# --------------------------------------------------------------------------
+# Two-stage (SLL then LL) parsing
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("name", ["FULLSUP.cbl", "PARTIAL.cbl", "BROKEN.cbl", "HEAVY.cbl"])
+def test_two_stage_parse_agrees_with_full_ll(name):
+    """The SLL fast path must not change any verdict the LL parse would give.
+
+    SLL is an approximation that either agrees with LL or errors, and on error
+    `_antlr_parse` re-parses with LL — so the errors it reports must be exactly
+    LL's errors, for clean and broken sources alike.
+    """
+    import antlr4
+    from antlr4.atn.PredictionMode import PredictionMode
+    from antlr4.error.ErrorListener import ErrorListener
+
+    from src.assessment.coverage import _antlr_parse, _normalise_parse_error
+    from src.parsers.antlr.cobol.Cobol85Lexer import Cobol85Lexer
+    from src.parsers.antlr.cobol.Cobol85Parser import Cobol85Parser
+
+    source = scan_source(read_source(FIXTURES / name)).antlr_source()
+
+    class Collect(ErrorListener):
+        def __init__(self):
+            self.errors = []
+
+        def syntaxError(self, recognizer, offending, line, column, msg, e):  # noqa: N802
+            if len(self.errors) < 50:
+                self.errors.append(f"line {line}:{column} {_normalise_parse_error(msg)}")
+
+    collector = Collect()
+    lexer = Cobol85Lexer(antlr4.InputStream(source))
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(collector)
+    ll_parser = Cobol85Parser(antlr4.CommonTokenStream(lexer))
+    ll_parser.removeErrorListeners()
+    ll_parser.addErrorListener(collector)
+    ll_parser._interp.predictionMode = PredictionMode.LL
+    ll_parser.startRule()
+
+    _tree, staged_errors, _mod = _antlr_parse(source)
+    assert list(staged_errors) == collector.errors
+
+
+def test_parse_is_memoised_but_still_deterministic(records):
+    """The cache is an optimisation, never a source of drift."""
+    src = read_source(FIXTURES / "FULLSUP.cbl")
+    first = analyze(records["FULLSUP.cbl"], src).to_dict()
+    second = analyze(records["FULLSUP.cbl"], src).to_dict()
+    assert first == second
