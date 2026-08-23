@@ -4,13 +4,20 @@
 apt-get install -y gnucobol          # the legacy oracle (see "Without GnuCOBOL")
 pip install antlr4-python3-runtime
 
-python3 -m demo                      # everything, ~15s
+python3 -m demo                      # both tracks
 python3 -m demo --inputs 3           # faster
 python3 -m demo --case P01 --case CUSTUPD
+python3 -m demo --discovery-only     # the estate, without the migration
+python3 -m demo --skip-discovery     # the migration, without the estate
 python3 -m demo --html out/relian.html --json out/run.json
 ```
 
-## What it does
+Two tracks. **Transform** answers *does the migration behave like the
+original*. **Discovery** answers the question a migration is actually scoped
+on — *what is in this estate, and what does the data look like* — which
+behavioural equivalence cannot answer at all.
+
+## Track 1 — transform
 
 For each COBOL program, in one run:
 
@@ -26,9 +33,10 @@ For each COBOL program, in one run:
 Nothing is stubbed. The demo imports the real engine; if the transpiler
 regresses, the demo goes red.
 
-## What it proves
+### What track 1 proves
 
-Measured on the committed corpus in a single run (`python3 -m demo`):
+Measured on the committed corpus in a single run (`python3 -m demo
+--skip-discovery`):
 
 - **89 inputs executed on both sides**, across 7 programs, with 100% behavioral
   equivalence on stdout and exit code.
@@ -40,13 +48,94 @@ Measured on the committed corpus in a single run (`python3 -m demo`):
 
 Re-run it and the numbers regenerate from scratch. They are not stored.
 
+## Track 2 — discovery
+
+Seven stages over `examples/demo` — a synthetic municipal-utility batch suite
+with copybooks, a job stream and a program that actually declares files. The
+transform corpus cannot exercise this: it is flat programs with no `COPY`, no
+`SELECT` and no JCL.
+
+| Stage | What actually happens |
+|---|---|
+| **Resolve** | `src/discovery/copybook.py` walks the `COPY` fan-in and builds the missing-copybook table. |
+| **Layout** | `src/discovery/layout.py` computes byte offsets and lengths **from source text alone** — no compiler is invoked, and `tests/test_discovery_is_compiler_free.py` walks the package's AST to assert it. |
+| **Oracle** | Those layouts are compared against RELIAN-DISCOVERY-BENCH v0.1's *sealed* answer key, which is GnuCOBOL 3.1.2.0's own byte layout. All three seal layers and the signer are verified **before a single row is read**. |
+| **Inventory** | `SELECT` ∪ `FD` ∪ the job stream's `DD`, joined on DD name, with the computed record length cross-checked against the declared `LRECL`. |
+| **Lineage** | Program→dataset edges from `OPEN` modes, printed next to the bound on their own coverage. |
+| **DDL** | A PostgreSQL target schema against the published mapping table — executed against a real server when one is reachable, `NOT MEASURED` when not. |
+| **Report** | The canonical `report.json`, its manifest and an Ed25519 instance signature — then the *recipient's* verifier is run against the result. |
+
+Measured on the committed tree in a single run (`python3 -m demo
+--discovery-only`):
+
+- **3 copybooks resolved, 0 missing**, 4 `COPY` edges over 8 files.
+- **22 / 22 offset-and-length comparisons** against the sealed oracle,
+  tolerance zero, seal verified across all three layers under signer
+  `233bb4406e2de606`.
+- **6 files inventoried** across 1 of 5 programs with a `FILE-CONTROL`
+  paragraph, 12 `DD` statements in 1 job stream: 1 record length agrees with
+  its declared `LRECL`, 0 disagree, 3 datasets declare no `LRECL` and 2 have no
+  resolvable layout.
+- **4 program→dataset edges** across 4 datasets, with the coverage statement
+  that refuses to call the graph complete.
+- **3 target tables, 16 columns, lint clean.**
+- A **signed report** that the shipped recipient-side verifier reads as
+  `VALID AND UNATTESTED` — three of four layers `PASS`, the countersignature
+  `ABSENT`, which is the correct answer and not a caveat.
+
+Two things the discovery track proves that are easy to skip past:
+
+**The oracle cross-check is not the tool grading itself.** The layout engine
+reads source text and never invokes a compiler; the oracle is nothing but a
+compiler's own byte layout, sealed and signed before the engine that is graded
+against it existed. The two artifacts agree *because* they share no code and no
+process. A copybook the oracle does not cover is reported as not covered — it
+never lands in the numerator.
+
+**Findings are not failures.** `NO_LRECL`, `NO_LAYOUT` and even `DISAGREE` are
+discoveries about the estate, and a demo that went red on them would be red over
+any realistic tree. What *does* reach the exit status is a layout that
+contradicts the sealed oracle, a seal that will not verify, DDL that fails its
+own lint, or a report the shipped verifier rejects.
+
+### Executing the generated DDL
+
+Generating a schema is not evidence that it loads, so the demo will not say it
+loads unless it watched that happen:
+
+```bash
+RELIAN_DDL_DSN=postgresql://relian:relian@localhost:5432/relian_ddl \
+  python3 -m demo --discovery-only
+```
+
+With a reachable server the stage executes the schema and reconciles every
+column against `information_schema`. Without one — or with one that refuses the
+connection — it reports `NOT MEASURED` and names the reason. It never reports
+zero errors for a run that did not happen.
+
+### What discovery does not touch
+
+No dataset is opened. The whole track runs on source text, and
+`tests/test_discovery_reads_no_data.py` runs the pipeline under an audit hook
+with decoy datasets present to prove it (R12). The instance signing key is
+created inside the demo's own workdir, never in `~/.relian`.
+
 ## What it does not prove
 
 - **This is not the benchmark.** Held-out vectors are scored only in CI and are
   never touched here. The demo uses PUBLIC vector *inputs* only, and takes the
-  correct answer from executing the COBOL, not from the vector file.
-- **It is not a claim about arbitrary COBOL.** It covers the COBOL-85 subset
-  these programs exercise. No CICS, VSAM, JCL, copybooks, or embedded SQL.
+  correct answer from executing the COBOL, not from the vector file. The
+  discovery track reads the sealed oracle to *check itself* against it; it
+  scores nothing and writes nothing back.
+- **It is not a claim about arbitrary COBOL.** The transform track covers the
+  COBOL-85 subset these programs exercise: no CICS, VSAM, JCL, copybooks or
+  embedded SQL. The discovery track *does* read copybooks and JCL — statically,
+  which is what it is for — and its layout claim is scoped to GnuCOBOL 3.1.2.0
+  on the fifteen-copybook sealed corpus. IBM Enterprise COBOL equivalence is
+  unmeasured.
+- **The discovery tree is synthetic.** `examples/demo` is hand-written
+  demonstration code, not a customer estate and not derived from one. Nothing
+  in it is a claim about how a real estate would score.
 - **Nothing is signed.** The attestation gate reports a decision. Signing keys
   are operator-custody only (R4) and this demo ships no simulated attestation,
   badge, or transaction hash (R5).
@@ -91,9 +180,15 @@ counted as migratable and were not. See [`docs/dryruns/README.md`](../docs/dryru
 
 ## Without GnuCOBOL
 
-The demo still assesses, transpiles and builds — and reports equivalence as
-`NOT MEASURED` rather than assuming it. It will never substitute a stored
-expectation for an execution that did not happen.
+The transform track still assesses, transpiles and builds — and reports
+equivalence as `NOT MEASURED` rather than assuming it. It will never substitute
+a stored expectation for an execution that did not happen.
+
+**The discovery track needs neither GnuCOBOL nor a JDK.** It is compiler-free by
+construction, so `python3 -m demo --discovery-only` runs in full on a machine
+with nothing but Python — which is also the point: the product has to run inside
+a customer perimeter, and an engine that needs a compiler is not shippable
+there.
 
 ## Reading the numbers
 
@@ -114,6 +209,15 @@ zero, an average, or a default.
 
 ## Exit status
 
-`0` when nothing that was supposed to be equivalent diverged. Refusals and the
+`0` when nothing that was supposed to be equivalent diverged and nothing in the
+discovery track contradicted a sealed artifact. Refusals and the
 deliberately-included crash case do not affect it — they are what the demo came
-to show.
+to show. Neither do discovery *findings*: a dataset with no declared `LRECL` is
+the tool working.
+
+Non-zero means one of these, all of them defects rather than discoveries:
+
+| Track | Condition |
+|---|---|
+| transform | a divergence, a build failure, an anti-gaming trip, or an input that failed to run on a machine that had both toolchains |
+| discovery | a layout contradicting the sealed oracle, a seal that will not verify, a copybook whose bytes drifted from the sealed corpus, DDL failing its own lint or its reconciliation, or a report the shipped verifier rejects |

@@ -451,7 +451,21 @@ env:
   # and the tests that gave that generator its teeth go with it. Net -30, the
   # exact inverse of the +30 they arrived as. Nothing else changed, and no
   # test outside that one file was touched.
-  EXPECTED_PASSES: "1067"
+  #
+  # Demo discovery track (2026-08-23): 1067 -> 1095. `demo/discovery.py` puts
+  # the WP-2.1..2.4 modules -- copybook resolver, layout engine, sealed-oracle
+  # cross-check, file inventory, lineage, target-schema DDL and the signed
+  # report -- into the walkthrough, which until now showed a Phase 1 product
+  # while the build stood at Phase 3. +28 in tests/demo/test_demo_discovery.py.
+  # Most of them break something deliberately: a corrupted seal must stop every
+  # oracle row from being read, a copybook whose bytes drifted from the sealed
+  # corpus must not be compared at all, a perturbed offset must reach the
+  # process exit status, and a schema that was generated and never executed
+  # must report NOT MEASURED rather than a clean load. One uses
+  # `importorskip("psycopg2")`; psycopg2-binary is pinned in requirements.lock
+  # and installed by this job, so it does not skip here -- if it ever does,
+  # EXPECTED_SKIPS is the gate that will say so.
+  EXPECTED_PASSES: "1095"
 
 jobs:
   parser-regen:
