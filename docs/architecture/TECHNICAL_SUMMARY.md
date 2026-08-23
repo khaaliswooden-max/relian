@@ -179,7 +179,7 @@ of record is the `data-current` attribute on `#rail` in that file.
    predecessor and surfaced as a misattributed error. The dispatch-table refactor was
    gated on bytes — all five generated Java files regenerated SHA-256-identical.
 
-### Phase 2 — discovery · complete → **current position** (2026-08-20/21)
+### Phase 2 — discovery · complete (2026-08-20/21)
 
 5. **Fabricated limbs removed**, environment pinned, CI switched to asserting the exact
    test triple rather than "no failures".
@@ -187,10 +187,10 @@ of record is the `data-current` attribute on `#rail` in that file.
 7. **Copybook resolver + layout engine** — 186 / 186 against the sealed oracle, tolerance
    zero. Gaps compare by projection rather than by label, so a padding byte cannot be
    renamed into agreement.
-8. **The signed Data Discovery report** ← *we are here.* Canonical `report.json`, a
-   Markdown rendering that names the JSON as authoritative, a manifest, and an Ed25519
-   instance signature. If a key cannot be obtained the command writes nothing. Suite:
-   1097 passed, 10 skipped, 0 failed.
+8. **The signed Data Discovery report.** Canonical `report.json`, a Markdown rendering
+   that names the JSON as authoritative, a manifest, and an Ed25519 instance signature.
+   If a key cannot be obtained the command writes nothing. The triple the CI gate
+   asserts is 1067 passed, 10 skipped, 0 failed.
 
 ### Phase 3 — delivery · current position (2026-08-22)
 
@@ -290,7 +290,7 @@ The cheapest third of that backlog is dispatch-table work with no new semantics.
 | Vector counts | 425 held-out, 89 public | VERIFIED | ledger `vector_counts`, summed over 7 programs |
 | Discovery-bench corpus | 15 / 124 / 170 | VERIFIED | discovery ledger `corpus_counts` |
 | Layout round-trip | 186 / 186, tolerance 0 | VERIFIED | `docs/PHASE2_LOG.md` WP-2.2 §2 |
-| Test suite | 1097 passed, 10 skipped, 0 failed | VERIFIED | `.github/workflows/tests.yml` asserts this exact triple |
+| Test suite | 1067 passed, 10 skipped, 0 failed | VERIFIED | `.github/workflows/tests.yml` asserts this exact triple |
 | Demo, both-sides execution | 89 inputs, 7 programs, 100% | VERIFIED | `python3 -m demo`, ~15 s · `demo/README.md` |
 | CardDemo assessment wall time | 4.61 s over 44 programs / 329 files | VERIFIED | WP-1.9 dry run, zero intervention |
 | Construct coverage, third-party | 0.8511 / 0.6945 / 0.5968 | **PLAUSIBLE** | CardDemo / OMP / GnuCOBOL — all via `token_scan` fallback; not re-measured since the WP-2.0 grammar swap |

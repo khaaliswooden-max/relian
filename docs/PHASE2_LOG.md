@@ -4369,3 +4369,72 @@ the −30 is clean. `EXPECTED_PASSES` returns 1067 → the inverse of the +30 it
 The one failure is the absent `cobc`, unchanged and environmental.
 
 Scope: `git status --short -- bench/ discovery-bench/ transpiler/ src/` is empty.
+
+---
+
+## 2026-08-23 · Docs · The Atlas published a suite figure the gate does not assert
+
+- **HEAD at start:** `f100c87`
+- **Found by a status re-measurement, not by a gate** — which is the point of §1 below.
+
+### 1. The drift, and why nothing caught it
+
+`30c818d` removed the thirty site tests and returned `EXPECTED_PASSES` to `1067`. Its
+own commit message says so. What it did not do was carry that number into the two
+documents that publish it, so `docs/architecture/TECHNICAL_SUMMARY.md` and
+`docs/architecture/relian-architecture.html` went on stating **1097 passed** in six
+places — including the §7 provenance ledger, where the figure is graded VERIFIED and its
+basis reads "`.github/workflows/tests.yml` asserts this exact triple." The gate asserts
+1067. A VERIFIED grade pointing at a basis that contradicts it is the exact failure R9
+exists to prevent, and it was live on the public page for a day.
+
+This is the second time the same class of defect has been recorded here: the site
+generator built at `56a3059` existed to make figures recompute from the ledgers, and
+removing it was still correct, but the trade was written down at the time — "the Atlas is
+hand-edited and can go stale exactly the way `README.md` did" — and it went stale within
+one commit. The trade is not being re-litigated. It is being noted that the predicted
+cost arrived immediately.
+
+Measured on this tree, no code changed:
+
+```
+$ python3 -m pytest -q -o addopts=""
+→ 1067 passed, 10 skipped, 0 failed
+```
+
+### 2. Two position markers, one position
+
+`#rail[data-current]` is `s9` and the rail's own `data-state` attributes are correct, but
+four things that also carry the position are not derived from it, and stop 08 still held
+all four: `data-status="here"` and the `chip-here` badge on its panel, and `← we are
+here` in the Markdown and in the Atlas's summary tab. Stop 09 — the actual position — had
+none of the first two. Moved. `docs/architecture/README.md` now lists all four, because
+"change `data-current`" was the instruction and it was not sufficient.
+
+### 3. Stop 08's figure is no longer pinned to a commit
+
+The panel read "Suite at this commit: 1097 passed" under an eyebrow stamped `HEAD
+ba58123`. At `ba58123` that was true; the site tests still existed. Rewriting the number
+to 1067 under that stamp would have made it false, so the sentence now names the gate
+rather than a commit — "the triple the CI gate asserts is 1067 passed" — and the stale
+HEAD pin is dropped. A figure that tracks a moving gate should not advertise a frozen
+commit.
+
+### 4. One item closed
+
+`docs/architecture/README.md` carried **One-time Pages setup** as a standing instruction.
+It has been done: the site serves at `https://khaaliswooden-max.github.io/relian/`,
+byte-identical to the committed file, and `pages` has been green on `main` since
+`f100c87`. The section is retitled and the prerequisite kept for anyone re-creating the
+repository.
+
+### 5. Not fixed here, and still open
+
+The demo (`demo/`) has not been touched since `6e9dfa6` (2026-08-17) and imports nothing
+from `src/discovery/`, so stops 07 through 09 — copybook resolver, layout engine, file
+inventory, lineage, DDL, the signed report — are absent from it. It passes: 89 inputs, 7
+programs, equivalence 1.0000, 2 designed refusals, exit 0 at `f100c87`. It is green and
+it is behind.
+
+Scope: docs only. `git status --short -- bench/ discovery-bench/ transpiler/ src/ tests/`
+is empty.
