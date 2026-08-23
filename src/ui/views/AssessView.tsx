@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { api } from '../api';
 import { GradeTag, Spinner, StatTile } from '../components';
-import type { AssessmentResult, Measured, ProgramAssessment, RiskTier } from '../types';
+import type {
+    AssessmentResult,
+    Measured,
+    PlainSummary,
+    ProgramAssessment,
+    RiskTier,
+} from '../types';
 
 // Coverage ratios arrive as a 0..1 fraction; the UI shows a percentage. A null
 // ratio renders "Not measured" — never back-filled (R1).
@@ -12,6 +18,150 @@ function pct(m: Measured | null | undefined): number | null {
 
 function TierBadge({ tier }: { tier: RiskTier }): JSX.Element {
     return <span className={`badge badge-${tier.toLowerCase()}`}>{tier}</span>;
+}
+
+// The section 0 prose is written by the report writer, in Markdown. Only two
+// inline forms occur in it — **strong** and `code` — so they are rendered here
+// rather than by pulling in a Markdown parser for two cases. Anything else is
+// shown verbatim, which is the safe direction: an unrendered marker is visible
+// and gets fixed, a swallowed one is not.
+const INLINE_MARKDOWN = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+
+function RichText({ text }: { text: string }): JSX.Element {
+    return (
+        <>
+            {text.split(INLINE_MARKDOWN).map((part, i) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                    return <strong key={i}>{part.slice(2, -2)}</strong>;
+                }
+                if (part.startsWith('`') && part.endsWith('`')) {
+                    return <code key={i}>{part.slice(1, -1)}</code>;
+                }
+                return <span key={i}>{part}</span>;
+            })}
+        </>
+    );
+}
+
+/**
+ * Section 0 of the report — the same findings in plain language.
+ *
+ * Every string and every figure comes from `plain_summary` on the API, which is
+ * `report.plain_summary()`: the one source the CLI's Markdown and DOCX render
+ * too. This component lays it out and computes nothing — no ratio, no total, no
+ * rounding. If a figure is wrong here it is wrong in the report as well, which
+ * is the point.
+ */
+function PlainSummaryCard({ summary }: { summary: PlainSummary }): JSX.Element {
+    return (
+        <div className="card">
+            <h2>{summary.title}</h2>
+            <div className="card-sub">
+                <RichText text={summary.intro} /> The section names it points at are the
+                report's, from <code>python3 -m src.assessment.cli</code>; the cards below
+                are this tab's view of the same run.
+            </div>
+
+            <p>
+                <RichText text={summary.scope} />
+            </p>
+
+            {summary.where_we_stand && (
+                <>
+                    <p>
+                        <RichText text={summary.where_we_stand.heading} />{' '}
+                        <GradeTag grade={summary.where_we_stand.grade} />
+                    </p>
+                    <div className="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Group</th>
+                                    <th>Programs</th>
+                                    <th>Which ones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {summary.where_we_stand.groups.map((g) => (
+                                    <tr key={g.tier}>
+                                        <td>
+                                            {g.label} <TierBadge tier={g.tier} />
+                                            <div className="muted" style={{ fontSize: '0.72rem' }}>
+                                                {g.explanation}
+                                            </div>
+                                        </td>
+                                        <td className="num">{g.programs}</td>
+                                        <td>
+                                            {g.program_ids.map((id) => (
+                                                <div key={id}>
+                                                    <code>{id}</code>
+                                                </div>
+                                            ))}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="muted" style={{ fontSize: '0.72rem', marginTop: '0.35rem' }}>
+                        {summary.where_we_stand.provenance}
+                    </div>
+                </>
+            )}
+
+            {summary.in_the_way && (
+                <>
+                    <p style={{ marginTop: '1rem' }}>
+                        <RichText text={summary.in_the_way.heading} />
+                    </p>
+                    {summary.in_the_way.constructs.length > 0 && (
+                        <ul>
+                            {summary.in_the_way.constructs.map((c) => (
+                                <li key={c.construct}>
+                                    <strong>{c.construct}</strong>
+                                    {c.gloss ? ` — ${c.gloss}.` : ' —'} Appears {c.count} time(s).
+                                </li>
+                            ))}
+                            {summary.in_the_way.omitted > 0 && (
+                                <li className="muted">
+                                    …and {summary.in_the_way.omitted} further construct(s), all
+                                    listed under <strong>Unsupported constructs</strong> below.
+                                </li>
+                            )}
+                        </ul>
+                    )}
+                </>
+            )}
+
+            {summary.how_much && (
+                <>
+                    <p style={{ marginTop: '1rem' }}>
+                        <RichText text={summary.how_much.heading} />
+                    </p>
+                    <div className="stat-grid">
+                        {summary.how_much.rows.map((row) => (
+                            <StatTile
+                                key={row.label}
+                                title={row.label}
+                                value={row.measured ? row.measured.value : null}
+                                grade={row.measured ? row.measured.grade : undefined}
+                                foot={row.measured ? row.measured.provenance : 'Not measured'}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {summary.limits && (
+                <div className="callout callout-info" style={{ marginTop: '1rem' }}>
+                    <span className="callout-icon">ℹ️</span>
+                    <div>
+                        <RichText text={summary.limits} />
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 }
 
 export function AssessView(): JSX.Element {
@@ -54,7 +204,7 @@ export function AssessView(): JSX.Element {
             <div className="card">
                 <div className="card-sub">
                     The corpus is arranged in three tiers so a single run shows the whole honesty
-                    spectrum — a clean in-subset migration (LOW), partial coverage (MED), and a
+                    spectrum — a clean in-subset migration (LOW), partial coverage (HIGH), and a
                     principled refusal (BLOCKED) — instead of only the happy path.
                 </div>
                 <div className="btn-row">
@@ -92,6 +242,10 @@ export function AssessView(): JSX.Element {
 
             {b && result && (
                 <>
+                    {result.plain_summary && (
+                        <PlainSummaryCard summary={result.plain_summary} />
+                    )}
+
                     <div className="card">
                         <h2>
                             Portfolio <GradeTag grade="PLAUSIBLE" />

@@ -254,3 +254,121 @@ def test_an_unglossed_construct_renders_without_a_guessed_explanation():
 
     row = TEMPLATES["plain_blocker_row_plain"].format(construct="ZZZZ", count=1)
     assert row.strip() == "- **ZZZZ** — appears 1 time(s)."
+
+
+# --------------------------------------------------------------------------
+# The structured form — what the API serves and the Markdown renders
+# --------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def demo_summary():
+    from src.assessment.report import plain_summary
+
+    bundle, by_construct = cli_mod.assess_tree(DEMO)
+    return plain_summary(bundle, DEMO.as_posix(), by_construct)
+
+
+def test_plain_summary_is_json_serialisable(demo_summary):
+    """It crosses an HTTP boundary, so it may hold no Python-only objects."""
+    import json
+
+    assert json.loads(json.dumps(demo_summary)) == demo_summary
+
+
+def test_measured_values_travel_with_grade_and_provenance(demo_summary):
+    """A number reaching the UI carries its own evidence, or it is absent (R9)."""
+    for row in demo_summary["how_much"]["rows"]:
+        measured = row["measured"]
+        if measured is None:
+            continue
+        assert set(measured) == {"value", "grade", "provenance"}
+        assert measured["grade"] in ("VERIFIED", "PLAUSIBLE", "SPECULATIVE")
+        assert measured["provenance"].strip()
+
+
+def test_groups_carry_the_tier_its_label_and_its_programs(demo_summary):
+    groups = demo_summary["where_we_stand"]["groups"]
+    assert groups, "no tier groups were built"
+    for group in groups:
+        assert group["tier"] in TIER_IN_PLAIN_WORDS
+        label, explanation = TIER_IN_PLAIN_WORDS[group["tier"]]
+        assert group["label"] == label
+        assert group["explanation"] == explanation
+        assert group["programs"] == len(group["program_ids"])
+
+
+def test_program_ids_are_never_truncated_in_the_data(demo_summary):
+    """Each surface discloses its own truncation, so the data carries them all."""
+    total = sum(len(g["program_ids"]) for g in demo_summary["where_we_stand"]["groups"])
+    bundle, _by_construct = cli_mod.assess_tree(DEMO)
+    assert total == len(bundle.programs)
+
+
+def test_an_omitted_construct_count_accompanies_the_short_list(demo_summary):
+    """The construct list *is* cut, so the number dropped travels with it."""
+    from src.assessment.report import _CONSTRUCTS_SHOWN
+
+    bundle, by_construct = cli_mod.assess_tree(DEMO)
+    in_the_way = demo_summary["in_the_way"]
+    assert len(in_the_way["constructs"]) == min(_CONSTRUCTS_SHOWN, len(by_construct))
+    assert in_the_way["omitted"] == len(by_construct) - len(in_the_way["constructs"])
+
+
+def test_an_unglossed_construct_carries_a_null_gloss_not_a_guess(demo_summary):
+    for item in demo_summary["in_the_way"]["constructs"]:
+        assert item["gloss"] is None or isinstance(item["gloss"], str)
+        if item["gloss"] is not None:
+            assert item["gloss"] == CONSTRUCT_IN_PLAIN_WORDS[item["construct"].upper()]
+
+
+def test_an_empty_corpus_returns_nulls_rather_than_empty_blocks(tmp_path):
+    from src.assessment.report import plain_summary
+
+    (tmp_path / "notes.txt").write_text("no cobol here\n", encoding="utf-8")
+    bundle, by_construct = cli_mod.assess_tree(tmp_path)
+    summary = plain_summary(bundle, tmp_path.as_posix(), by_construct)
+
+    assert "No COBOL programs were found" in summary["scope"]
+    for key in ("where_we_stand", "in_the_way", "how_much", "limits"):
+        assert summary[key] is None, f"{key} should be absent, not an empty block"
+
+
+# --------------------------------------------------------------------------
+# The Markdown shows everything the data carries — neither surface drifts
+# --------------------------------------------------------------------------
+
+
+def test_markdown_renders_every_figure_the_structure_carries(demo_rendered, demo_summary):
+    """Whatever the API serves, the report says too — and the reverse."""
+    plain = _section(demo_rendered, "0")
+
+    for key in ("intro", "scope"):
+        assert demo_summary[key] in plain
+
+    for group in demo_summary["where_we_stand"]["groups"]:
+        assert group["label"] in plain
+        assert group["explanation"] in plain
+        for program_id in group["program_ids"]:
+            assert program_id in plain, f"{program_id} is in the data but not the report"
+
+    for item in demo_summary["in_the_way"]["constructs"]:
+        assert f"**{item['construct']}**" in plain
+        assert f"Appears {item['count']} time" in plain or \
+            f"appears {item['count']} time" in plain
+    if demo_summary["in_the_way"]["omitted"]:
+        assert f"and {demo_summary['in_the_way']['omitted']} further construct" in plain
+
+    for row in demo_summary["how_much"]["rows"]:
+        assert row["label"] in plain
+        if row["measured"] is not None:
+            assert str(row["measured"]["value"]) in plain
+
+    assert demo_summary["limits"] in plain
+
+
+def test_the_structure_grade_is_the_one_the_markdown_prints(demo_rendered, demo_summary):
+    plain = _section(demo_rendered, "0")
+    stands = demo_summary["where_we_stand"]
+    assert f"**Grade:** {stands['grade']}" in plain
+    assert stands["provenance"] in plain

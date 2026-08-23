@@ -37,7 +37,7 @@ import hashlib
 import platform
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from . import complexity as complexity_mod
 from . import coverage as coverage_mod
@@ -47,6 +47,7 @@ from .models import (
     Measured,
     ProgramAssessment,
     canonical_json,
+    measured_to_dict,
 )
 from .risk import programs_by_tier, rule_table, tier_counts
 from .supported import (
@@ -332,82 +333,167 @@ def tool_versions() -> Tuple[Tuple[str, str], ...]:
 # --------------------------------------------------------------------------
 
 
+PLAIN_TITLE = "What this means"
+
+# Labels for the two line counts section 0 restates from the migration-scope
+# section. Only the wording differs; the Measured objects are the same ones.
+_EFFORT_LABELS = (
+    ("Lines the converter handles today", "quotable_loc"),
+    ("Lines needing new converter capability first", "grammar_expansion_loc"),
+)
+
+
+def plain_summary(bundle: AssessmentBundle, root_label: str,
+                  scope_by_construct: Sequence[Tuple[str, int]] = ()) -> Dict[str, Any]:
+    """The plain-language layer as data, for every surface that renders it.
+
+    This is the single source of section 0. :func:`render_plain_summary` formats
+    it as Markdown and the API returns it as JSON for the Assess tab, so the two
+    cannot drift into saying different things about the same run — the wording,
+    the glosses and the figures are decided here, once.
+
+    Nothing here is presentation. Program names are returned in full and
+    unformatted, so each surface can lay them out and disclose its own
+    truncation. Constructs are the exception: the list is cut to
+    ``_CONSTRUCTS_SHOWN`` *with the number dropped carried alongside*, because
+    both surfaces should show the same short list and both must say what they
+    left out.
+
+    Every figure is one already rendered in a graded section — restated, never
+    recomputed. ``Measured`` values are passed through whole so the grade and
+    provenance travel with the number (R1, R9).
+    """
+    t = TEMPLATES
+    summary: Dict[str, Any] = {
+        "title": PLAIN_TITLE,
+        "intro": t["plain_intro"].strip(),
+        "where_we_stand": None,
+        "in_the_way": None,
+        "how_much": None,
+        "limits": None,
+    }
+
+    programs = bundle.programs
+    if not programs:
+        summary["scope"] = t["plain_scope_empty"].format(root=root_label).strip()
+        return summary
+
+    summary["scope"] = t["plain_scope"].format(
+        programs=len(programs), root=root_label,
+        files=len(bundle.inventory.records)).strip()
+
+    findings = [p.risk for p in programs]
+    counts = tier_counts(findings)
+    by_tier = programs_by_tier(findings)
+    summary["where_we_stand"] = {
+        "heading": t["plain_verdict_head"].strip(),
+        "grade": "PLAUSIBLE",
+        "provenance": (
+            "each count is the number of programs the RISK_RULES policy "
+            "(appendix C) placed in that tier, restated from the Risk tiers "
+            "section; the measurements the policy reads are VERIFIED"
+        ),
+        "groups": [
+            {
+                "tier": tier,
+                "label": TIER_IN_PLAIN_WORDS[tier][0],
+                "explanation": TIER_IN_PLAIN_WORDS[tier][1],
+                "programs": counts[tier],
+                "program_ids": list(by_tier.get(tier, ())),
+            }
+            for tier in _TIER_ORDER
+            if counts.get(tier, 0)
+        ],
+    }
+
+    if not scope_by_construct:
+        summary["in_the_way"] = {
+            "heading": t["plain_blockers_none"].strip(),
+            "constructs": [],
+            "omitted": 0,
+        }
+    else:
+        summary["in_the_way"] = {
+            "heading": t["plain_blockers_head"].strip(),
+            "constructs": [
+                {
+                    "construct": construct,
+                    "gloss": CONSTRUCT_IN_PLAIN_WORDS.get(construct.upper()),
+                    "count": count,
+                }
+                for construct, count in scope_by_construct[:_CONSTRUCTS_SHOWN]
+            ],
+            "omitted": max(0, len(scope_by_construct) - _CONSTRUCTS_SHOWN),
+        }
+
+    summary["how_much"] = {
+        "heading": t["plain_effort_head"].strip(),
+        "rows": [
+            {"label": label, "measured": measured_to_dict(getattr(bundle, attr))}
+            for label, attr in _EFFORT_LABELS
+        ],
+    }
+    summary["limits"] = t["plain_limits"].strip()
+    return summary
+
+
 def render_plain_summary(bundle: AssessmentBundle, root_label: str,
                          scope_by_construct: Sequence[Tuple[str, int]] = ()) -> str:
     """Section 0 — the findings below, in ordinary words.
 
-    Translation only. Each figure is one already rendered in a graded section,
-    restated; nothing is derived, projected, or rounded into a new claim. The
-    two numeric tables carry the grade of the section they restate — the tier
-    counts are PLAUSIBLE because a tier is a policy, and the line counts are
-    PLAUSIBLE or VERIFIED exactly as their source measurement is.
+    Markdown formatting of :func:`plain_summary`, which decides what it says.
+    The two numeric tables carry the grade of the section they restate — the
+    tier counts are PLAUSIBLE because a tier is a policy, and the line counts
+    are PLAUSIBLE or VERIFIED exactly as their source measurement is.
     """
     t = TEMPLATES
-    out: List[str] = [t["h1"].format(n=0, title="What this means"), t["para"].format(
-        text=t["plain_intro"].rstrip("\n"))]
+    data = plain_summary(bundle, root_label, scope_by_construct)
+    out: List[str] = [
+        t["h1"].format(n=0, title=data["title"]),
+        t["para"].format(text=data["intro"]),
+        t["para"].format(text=data["scope"]),
+    ]
 
-    programs = bundle.programs
-    if not programs:
-        out.append(t["para"].format(
-            text=t["plain_scope_empty"].format(root=root_label).rstrip("\n")))
+    stands = data["where_we_stand"]
+    if stands is None:                      # no programs; scope said so already
         return "".join(out)
 
-    out.append(t["para"].format(text=t["plain_scope"].format(
-        programs=len(programs), root=root_label,
-        files=len(bundle.inventory.records)).rstrip("\n")))
-
-    # Where the code stands — the risk tiers, said plainly.
-    findings = [p.risk for p in programs]
-    counts = tier_counts(findings)
-    by_tier = programs_by_tier(findings)
-    out.append(t["para"].format(text=t["plain_verdict_head"].rstrip("\n")))
-    out.append(_grade_line(
-        "PLAUSIBLE",
-        "each count is the number of programs the RISK_RULES policy (appendix C) "
-        "placed in that tier, restated from the Risk tiers section; the "
-        "measurements the policy reads are VERIFIED",
-    ))
-    present = [tier for tier in _TIER_ORDER if counts.get(tier, 0)]
+    out.append(t["para"].format(text=stands["heading"]))
+    out.append(_grade_line(stands["grade"], stands["provenance"]))
     out.append(_table(
         ("Group", "Programs", "Which ones"),
         [
-            [TIER_IN_PLAIN_WORDS[tier][0], counts[tier], _name_list(by_tier.get(tier, ()))]
-            for tier in present
+            [g["label"], g["programs"], _name_list(g["program_ids"])]
+            for g in stands["groups"]
         ],
     ))
     # The explanations sit under the table rather than inside it: a cell holding
     # a paragraph is a table nobody reads.
-    for tier in present:
-        label, explanation = TIER_IN_PLAIN_WORDS[tier]
-        out.append(t["plain_tier_note"].format(label=label, explanation=explanation))
+    for group in stands["groups"]:
+        out.append(t["plain_tier_note"].format(
+            label=group["label"], explanation=group["explanation"]))
     out.append("\n")
 
-    # What stands in the way — the unsupported constructs, glossed.
-    if not scope_by_construct:
-        out.append(t["para"].format(text=t["plain_blockers_none"].rstrip("\n")))
-    else:
-        out.append(t["para"].format(text=t["plain_blockers_head"].rstrip("\n")))
-        for construct, count in scope_by_construct[:_CONSTRUCTS_SHOWN]:
-            gloss = CONSTRUCT_IN_PLAIN_WORDS.get(construct.upper())
-            key = "plain_blocker_row" if gloss else "plain_blocker_row_plain"
-            out.append(t[key].format(construct=construct, gloss=gloss, count=count))
-        remaining = len(scope_by_construct) - _CONSTRUCTS_SHOWN
-        if remaining > 0:
-            out.append(t["plain_blockers_more"].format(count=remaining))
+    blockers = data["in_the_way"]
+    out.append(t["para"].format(text=blockers["heading"]))
+    for item in blockers["constructs"]:
+        key = "plain_blocker_row" if item["gloss"] else "plain_blocker_row_plain"
+        out.append(t[key].format(
+            construct=item["construct"], gloss=item["gloss"], count=item["count"]))
+    if blockers["omitted"]:
+        out.append(t["plain_blockers_more"].format(count=blockers["omitted"]))
+    if blockers["constructs"]:
         out.append("\n")
 
-    # How much of the code this affects — the same two line counts as section 9.
-    out.append(t["para"].format(text=t["plain_effort_head"].rstrip("\n")))
+    how_much = data["how_much"]
+    out.append(t["para"].format(text=how_much["heading"]))
     out.append(_table(
         ("Measure", *GRADE_COLUMNS),
-        [
-            _m_row("Lines the converter handles today", bundle.quotable_loc),
-            _m_row("Lines needing new converter capability first",
-                   bundle.grammar_expansion_loc),
-        ],
+        [_m_row(row["label"], getattr(bundle, attr))
+         for row, (_label, attr) in zip(how_much["rows"], _EFFORT_LABELS)],
     ))
 
-    out.append(t["para"].format(text=t["plain_limits"].rstrip("\n")))
+    out.append(t["para"].format(text=data["limits"]))
     return "".join(out)
 
 

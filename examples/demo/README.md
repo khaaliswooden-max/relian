@@ -85,13 +85,20 @@ corpus measurements match the CLI's byte for byte; the hash itself embeds
 `tool_versions` (invocation, Python, platform), so it equals the CLI's only when
 produced in the same runtime — the manifest hash, taken over the source bytes,
 matches regardless. The **Assess (demo)** tab in the UI (`src/ui/views/AssessView.tsx`)
-renders the portfolio coverage, per-program risk tiers (LOW → HIGH → BLOCKED),
-and the ranked unsupported-construct inventory, each figure carrying its Trutina
-grade. The UI shows the technical view only — section 0 is rendered by the
-report writer, and the endpoint returns the measured bundle rather than the
-rendered report, so the plain-language layer is currently reachable through the
-CLI's Markdown and DOCX output and not through the tab. Start both services and
-open the tab:
+opens with the same plain-language section 0 and then renders the portfolio
+coverage, per-program risk tiers (LOW → HIGH → BLOCKED), and the ranked
+unsupported-construct inventory, each figure carrying its Trutina grade.
+
+Section 0 is served, not re-implemented. The endpoint returns a `plain_summary`
+object built by `report.plain_summary()` — the single source the CLI's Markdown
+and DOCX render from — so the tab and the report cannot describe the same run
+differently, and the tier labels, construct glosses and figures are decided in
+one place. `tests/test_api_assess.py` asserts the endpoint's copy equals the
+report writer's, and that it stays out of the hashed bundle: `report_hash` is
+over the measurements alone, so report prose cannot move it. Because section 0
+names *report* sections, the tab says so above it.
+
+Start both services and open the tab:
 
 ```bash
 uvicorn src.api.main:app          # API on :8000
