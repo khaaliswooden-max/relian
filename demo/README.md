@@ -1,8 +1,9 @@
 # Relian demo — end-to-end, measured, offline
 
 ```bash
-apt-get install -y gnucobol          # the legacy oracle (see "Without GnuCOBOL")
-pip install antlr4-python3-runtime
+apt-get install -y gnucobol          # transform: the legacy oracle
+pip install antlr4-python3-runtime   # transform: the COBOL parser
+pip install cryptography             # discovery: Ed25519 (see "Prerequisites")
 
 python3 -m demo                      # both tracks
 python3 -m demo --inputs 3           # faster
@@ -16,6 +17,26 @@ Two tracks. **Transform** answers *does the migration behave like the
 original*. **Discovery** answers the question a migration is actually scoped
 on — *what is in this estate, and what does the data look like* — which
 behavioural equivalence cannot answer at all.
+
+## Prerequisites, and what happens without each
+
+Every one of these is optional in the sense that the demo still runs without
+it. None of them is optional in the sense that the demo will guess at what it
+could not measure.
+
+| Missing | Effect |
+|---|---|
+| `gnucobol` | The legacy side cannot be executed. Equivalence reports `NOT MEASURED`; assess, transpile and build still run. |
+| `antlr4-python3-runtime` | The demo will not start — the assessment engine imports the parser at module load. |
+| `cryptography` | Ed25519 is unavailable, so the sealed-oracle cross-check and the signed report both report `NOT MEASURED`. The seal is **not** reported as bad: it could not be checked at all, which is a different finding. |
+| a PostgreSQL DSN | The generated schema is not executed; see [Executing the generated DDL](#executing-the-generated-ddl). |
+
+`cryptography` is deliberately **not** in `[project.dependencies]` —
+`pyproject.toml` keeps it in the `dev` extra, because verifying a benchmark
+seal is a CI and third-party-audit activity rather than part of the transform
+path a customer perimeter installs. The discovery track needs it anyway, so on
+a runtime-only install it is legitimately absent and the demo says so instead
+of crashing. `pip install -e ".[dev]"` also supplies it.
 
 ## Track 1 — transform
 

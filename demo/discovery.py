@@ -129,6 +129,35 @@ def _measured_to_dict(m: Optional[Measured]) -> Optional[Dict[str, Any]]:
     return m.to_dict() if m is not None else None
 
 
+def signing_backend() -> Optional[str]:
+    """``None`` when Ed25519 is available, else why it is not.
+
+    ``cryptography`` is deliberately absent from ``[project.dependencies]``:
+    pyproject keeps it in the ``dev`` extra because verifying a benchmark seal
+    is a CI and third-party-audit activity, not part of the transform path a
+    customer perimeter installs. The discovery track needs it anyway — the seal
+    check and the instance signature both do — so on a machine that installed
+    only the runtime deps it is legitimately missing, and that has to be a
+    reported state rather than a traceback.
+
+    Probed here, once, ahead of the two stages that need it, so that neither
+    has to catch ``ImportError`` around a large call and risk swallowing an
+    unrelated one raised deeper in.
+    """
+    try:
+        import cryptography                                     # noqa: F401,PLC0415
+        from cryptography.hazmat.primitives.asymmetric import (  # noqa: F401,PLC0415
+            ed25519,
+        )
+    except Exception as exc:                                    # noqa: BLE001
+        return (
+            f"{type(exc).__name__}: {exc}. Ed25519 comes from `cryptography`, "
+            f"which is not in [project.dependencies] by design — install it "
+            f"with `pip install cryptography` (or `pip install -e \".[dev]\"`)"
+        )
+    return None
+
+
 def _label(path: Path) -> str:
     """Repo-relative posix form where possible (R8), absolute otherwise.
 
@@ -554,6 +583,21 @@ def _run_oracle_check(root: Path, resolution: Any,
     compiler's own byte layout, so agreement here is two independent artifacts
     reaching the same numbers — not a tool grading itself.
     """
+    # A seal that failed to verify and a seal nobody could check are different
+    # findings, and reporting the second as the first accuses the benchmark of
+    # something no one established. Probe first, and say which one this is.
+    unavailable = signing_backend()
+    if unavailable is not None:
+        return OracleCheck(
+            status=NOT_MEASURED,
+            seal_ok=False,
+            reason=(
+                "the discovery-bench seal could not be CHECKED, so no oracle "
+                "row was read. This is not a statement that the seal is bad — "
+                f"the verifier could not run: {unavailable}"
+            ),
+        )
+
     from tools.verify_manifest import verify                   # noqa: PLC0415
 
     seal = verify(
@@ -829,6 +873,16 @@ def _build_report(root: Path, out_dir: Path, home: Path) -> Tuple[int, str]:
 
 
 def _run_report(root: Path, workdir: Path) -> ReportStage:
+    unavailable = signing_backend()
+    if unavailable is not None:
+        return ReportStage(
+            status=NOT_MEASURED,
+            reason=(
+                "no report was built: signing is not optional here, and Relian "
+                f"does not emit an unsigned report. {unavailable}"
+            ),
+        )
+
     from src.discovery.cli import main as discovery_main       # noqa: PLC0415
     from tools.verify_report import verify as verify_report    # noqa: PLC0415
 

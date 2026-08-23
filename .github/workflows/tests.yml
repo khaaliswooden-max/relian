@@ -465,7 +465,19 @@ env:
   # `importorskip("psycopg2")`; psycopg2-binary is pinned in requirements.lock
   # and installed by this job, so it does not skip here -- if it ever does,
   # EXPECTED_SKIPS is the gate that will say so.
-  EXPECTED_PASSES: "1095"
+  #
+  # Demo discovery, Ed25519-absent path (2026-08-23): 1095 -> 1100. `python3 -m
+  # demo` following demo/README.md's own quickstart raised an unhandled
+  # ImportError and exited 1: `cryptography` is deliberately outside
+  # [project.dependencies] (pyproject keeps it in `dev`, because verifying a
+  # seal is a CI/audit activity rather than part of the transform path a
+  # customer perimeter installs), and the discovery track made it a runtime
+  # requirement of the default command without noticing. CI never caught it
+  # because this job installs the dev extra. +5 covering the degraded path: no
+  # crash, both dependent stages NOT MEASURED, an uncheckable seal not reported
+  # as a bad seal, no false entry in the exit status, and the probe's positive
+  # case so a dependency-less runner fails loudly here instead of scattering.
+  EXPECTED_PASSES: "1100"
 
 jobs:
   parser-regen:
