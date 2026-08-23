@@ -4571,3 +4571,101 @@ the new triple, the new ledger rows and the stop-9 note.
 
 Scope: `git status --short -- bench/ discovery-bench/ transpiler/ src/` is empty.
 The track imports `src/discovery/` and `tools/` and changes neither.
+
+---
+
+## 2026-08-23 · Demo · The documented quickstart crashed the run it documents
+
+- **HEAD at start:** `3603d36`
+- Found by re-reading the run instructions after the merge, not by a gate.
+
+### 1. The defect
+
+`demo/README.md`'s quickstart listed two prerequisites — `gnucobol` and
+`antlr4-python3-runtime`. A machine with exactly those got an **unhandled
+`ImportError` and exit 1** from `python3 -m demo`.
+
+The discovery track needs `cryptography` for the seal check and the instance
+signature. `pyproject.toml` deliberately keeps it out of
+`[project.dependencies]`, and says why in a comment: verifying a benchmark seal
+is a CI and third-party-audit activity, not part of the transform path a
+customer perimeter installs. The track made it a runtime requirement of the
+**default command** anyway. That is not a documentation slip — it quietly
+contradicted a dependency boundary the repository had drawn on purpose.
+
+Reproduced with the module hidden behind a shim:
+
+```
+File "src/discovery/signing.py", line 171, in load_or_create_instance_key
+    from cryptography.hazmat.primitives import serialization
+ImportError: no module named 'cryptography'
+→ exit 1
+```
+
+CI never saw it: the pytest job installs `.[dev]`, which supplies
+`cryptography`. The gate was green on a machine that could never reproduce the
+failure.
+
+### 2. The second defect, which was worse
+
+Before the crash, the oracle stage had already reported:
+
+```
+the discovery-bench seal did NOT verify, so no oracle row may be trusted.
+Failed layers: ['signature']
+```
+
+That reads as **an accusation against RELIAN-DISCOVERY-BENCH v0.1** — the seal
+is bad, escalate. The truth was that the verifier could not run. A seal that
+failed and a seal nobody could check are different findings, and reporting the
+second as the first points at a signed artifact for something nobody
+established. `verify()` reports a failed signature layer when its backend is
+missing, and the stage passed that through without asking why.
+
+### 3. What now happens
+
+`signing_backend()` probes once, ahead of both stages that need Ed25519, and
+returns the reason rather than a boolean. Probing beats catching `ImportError`
+around a large call, which would swallow an unrelated one raised deeper in.
+
+- **Oracle** → `NOT MEASURED`: *"the seal could not be CHECKED … This is not a
+  statement that the seal is bad — the verifier could not run: …"*
+- **Report** → `NOT MEASURED`: *"signing is not optional here, and Relian does
+  not emit an unsigned report."*
+- **Neither reaches `failures()`**, so the exit status stays 0. Same precedent
+  as an absent GnuCOBOL on the transform side: a stage that could not run is
+  reported, not counted as a defect.
+- The five stages that need no signing still run and still measure.
+- The console prints one loud block at the top of the section, the way the
+  transform track already does for a missing GnuCOBOL — two `NOT MEASURED`
+  lines further down are not something a demo operator should have to infer
+  from.
+
+A third defect surfaced while fixing these: the printer painted a
+`NOT_MEASURED` report **red** and printed the raw constant. Red is a defect
+colour and this is not a defect; it is yellow now, and reads `NOT MEASURED`.
+
+### 4. What was NOT changed
+
+`cryptography` was not moved into `[project.dependencies]`. The boundary
+pyproject draws is deliberate and documented, and the fix belongs on the side
+that violated it — the demo — not on the dependency policy. The README now
+states the trade instead of hiding it.
+
+### 5. Measured
+
+```
+$ python3 -m pytest -q -o addopts=""
+→ 1100 passed, 10 skipped, 0 failed          (+5)
+
+$ PYTHONPATH=<shim> python3 -m demo --discovery-only     # cryptography hidden
+→ exit 0; resolve/inventory/lineage/DDL measured; oracle and report NOT MEASURED
+
+$ python3 -m demo --discovery-only                        # cryptography present
+→ exit 0; oracle 22/22 vs the sealed oracle; report VALID AND UNATTESTED
+```
+
+`EXPECTED_PASSES` 1095 → 1100. The Atlas and Technical Summary carry the new
+triple.
+
+Scope: `git status --short -- bench/ discovery-bench/ transpiler/ src/` is empty.

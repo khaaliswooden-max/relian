@@ -190,7 +190,7 @@ of record is the `data-current` attribute on `#rail` in that file.
 8. **The signed Data Discovery report.** Canonical `report.json`, a Markdown rendering
    that names the JSON as authoritative, a manifest, and an Ed25519 instance signature.
    If a key cannot be obtained the command writes nothing. The triple the CI gate
-   asserts is 1095 passed, 10 skipped, 0 failed.
+   asserts is 1100 passed, 10 skipped, 0 failed.
 
 ### Phase 3 — delivery · current position (2026-08-22)
 
@@ -303,7 +303,7 @@ The cheapest third of that backlog is dispatch-table work with no new semantics.
 | Vector counts | 425 held-out, 89 public | VERIFIED | ledger `vector_counts`, summed over 7 programs |
 | Discovery-bench corpus | 15 / 124 / 170 | VERIFIED | discovery ledger `corpus_counts` |
 | Layout round-trip | 186 / 186, tolerance 0 | VERIFIED | `docs/PHASE2_LOG.md` WP-2.2 §2 |
-| Test suite | 1095 passed, 10 skipped, 0 failed | VERIFIED | `.github/workflows/tests.yml` asserts this exact triple |
+| Test suite | 1100 passed, 10 skipped, 0 failed | VERIFIED | `.github/workflows/tests.yml` asserts this exact triple |
 | Demo, both-sides execution | 89 inputs, 7 programs, 100% | VERIFIED | `python3 -m demo --skip-discovery` · `demo/README.md` |
 | Demo, discovery vs sealed oracle | 22 / 22, tolerance 0 | VERIFIED | `python3 -m demo --discovery-only`, seal verified under signer `233bb4406e2de606` |
 | Demo, LRECL cross-check | 1 agree / 0 disagree / 3 no LRECL / 2 no layout | VERIFIED | same run, over `examples/demo` — a synthetic tree, so a finding about it is not a finding about any estate |

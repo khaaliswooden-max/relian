@@ -359,6 +359,80 @@ def test_the_findings_are_byte_reproducible_and_the_manifest_says_it_is_not(
 
 
 # --------------------------------------------------------------------------
+# Ed25519 absent — the path the documented quickstart actually produced
+# --------------------------------------------------------------------------
+
+def _no_signing(monkeypatch) -> None:
+    """Make the probe report the backend missing, as a runtime-only install
+    would. Patching the probe rather than the import machinery keeps the test
+    about the contract — what the track does when signing is unavailable —
+    rather than about how the absence is detected."""
+    monkeypatch.setattr(
+        dm, "signing_backend",
+        lambda: "ImportError: No module named 'cryptography' (simulated)",
+    )
+
+
+def test_absent_signing_does_not_crash_the_track(monkeypatch, tmp_path) -> None:
+    """The defect this closes: `python3 -m demo` following the README's own
+    quickstart raised an unhandled ImportError and exited 1. `cryptography` is
+    deliberately outside [project.dependencies], so a runtime-only install
+    reaches this path legitimately and must be told, not crashed at."""
+    _no_signing(monkeypatch)
+    run = dm.run(dm.DEFAULT_ROOT, tmp_path / "work")
+
+    assert run.report.status == dm.NOT_MEASURED
+    assert run.oracle.status == dm.NOT_MEASURED
+    # Everything that does not need Ed25519 still ran and still measured.
+    assert run.resolve.status == dm.MEASURED
+    assert run.inventory.status == dm.MEASURED
+    assert run.lineage.status == dm.MEASURED
+    assert run.layouts
+
+
+def test_an_uncheckable_seal_is_not_reported_as_a_bad_seal(
+    monkeypatch, tmp_path
+) -> None:
+    """A seal that failed to verify and a seal nobody could check are different
+    findings. Reporting the second as the first accuses RELIAN-DISCOVERY-BENCH
+    of something no one established."""
+    _no_signing(monkeypatch)
+    run = dm.run(dm.DEFAULT_ROOT, tmp_path / "work")
+
+    reason = run.oracle.reason or ""
+    assert "could not be CHECKED" in reason
+    assert "not a statement that the seal is bad" in reason
+    assert run.oracle.status is not dm.FAILED
+    assert run.oracle.comparisons == 0
+    assert run.oracle.agreement is None
+
+
+def test_absent_signing_is_not_a_defect_in_the_exit_status(
+    monkeypatch, tmp_path
+) -> None:
+    """Same precedent as an absent GnuCOBOL on the transform side: a stage that
+    could not run is reported, not counted as a failure."""
+    _no_signing(monkeypatch)
+    run = dm.run(dm.DEFAULT_ROOT, tmp_path / "work")
+    assert run.failures() == []
+
+
+def test_the_unavailable_reason_names_the_remedy(monkeypatch, tmp_path) -> None:
+    """A reason a reader cannot act on wastes the honesty it bought."""
+    _no_signing(monkeypatch)
+    run = dm.run(dm.DEFAULT_ROOT, tmp_path / "work")
+    for reason in (run.oracle.reason or "", run.report.reason or ""):
+        assert "cryptography" in reason
+
+
+def test_signing_backend_reports_available_in_this_environment() -> None:
+    """The probe's positive case. If this fails the suite is running without a
+    dependency the discovery tests need, and the skip-count gate should say
+    so rather than every downstream assertion failing separately."""
+    assert dm.signing_backend() is None
+
+
+# --------------------------------------------------------------------------
 # The result object itself
 # --------------------------------------------------------------------------
 

@@ -187,6 +187,18 @@ def _print_discovery(st: Style, d: "discovery_mod.DiscoveryResult") -> None:
     print(st.dim(f"  tree: {d.root} — copybooks, COBOL and JCL. No dataset is opened."))
     print()
 
+    # The same courtesy the transform track pays to a missing GnuCOBOL: say it
+    # once, loudly, at the top — rather than leaving a reader to infer it from
+    # two NOT MEASURED lines further down.
+    missing = discovery_mod.signing_backend()
+    if missing is not None:
+        print(st.yellow(
+            "  Ed25519 is unavailable, so two stages did not run: the sealed-oracle\n"
+            "  cross-check and the signed report. They report NOT MEASURED rather\n"
+            "  than a verdict, and the seal is NOT being called bad — it could not\n"
+            "  be checked at all.\n"
+            "  Install with:  pip install cryptography\n"))
+
     r = d.resolve
     if r.status != discovery_mod.MEASURED:
         print(st.yellow(f"  resolve      : NOT MEASURED — {r.reason}"))
@@ -270,7 +282,12 @@ def _print_discovery(st: Style, d: "discovery_mod.DiscoveryResult") -> None:
         print(st.yellow(f"      execution: NOT MEASURED — {dd.executed_reason}"))
 
     rep = d.report
-    if rep.status != discovery_mod.MEASURED:
+    if rep.status == discovery_mod.NOT_MEASURED:
+        # Not a defect and not painted like one: a stage that could not run is
+        # yellow, the same as an absent GnuCOBOL on the transform side. Red is
+        # reserved for a report the shipped verifier actually rejected.
+        print(st.yellow(f"  signed report: NOT MEASURED — {rep.reason}"))
+    elif rep.status != discovery_mod.MEASURED:
         print(st.red(f"  signed report: {rep.status} — {rep.reason}"))
     else:
         print(f"  {st.dim('signed report:')} {', '.join(rep.artifacts)}")
