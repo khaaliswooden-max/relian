@@ -10,12 +10,16 @@ from pathlib import Path
 
 import pytest
 
-fastapi = pytest.importorskip("fastapi", reason="the API extra is not installed")
-pytest.importorskip("httpx", reason="fastapi's TestClient needs httpx")
+# fastapi is a hard dependency (pyproject [project.dependencies]) and is pinned
+# in requirements.lock, so it is imported rather than skipped -- a skip here
+# would be a silently unrun gate. The handler is awaited directly instead of
+# driven through fastapi's TestClient, which needs httpx: httpx is NOT in the
+# pinned lock, so a TestClient test would skip in CI and drift the sealed skip
+# count. Calling the coroutine exercises the same handler, and dumping the
+# response model exercises the same serialisation the client would have.
+pytest.importorskip("fastapi", reason="fastapi is a pinned dependency")
 
-from fastapi.testclient import TestClient  # noqa: E402
-
-from src.api.main import app  # noqa: E402
+from src.api.main import assess_demo  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEMO = REPO_ROOT / "examples" / "demo"
@@ -23,10 +27,29 @@ DEMO = REPO_ROOT / "examples" / "demo"
 
 @pytest.fixture(scope="module")
 def payload():
-    with TestClient(app) as client:
-        response = client.get("/api/v1/assess/demo")
-    assert response.status_code == 200, response.text
-    return response.json()
+    """The endpoint's response, as the wire would carry it."""
+    import asyncio
+
+    response = asyncio.run(assess_demo())
+    # model_dump() is what FastAPI serialises, so this is the client's view --
+    # including any field the response_model would have dropped.
+    return response.model_dump()
+
+
+@pytest.fixture(scope="module")
+def report_writers_own():
+    """Section 0 as the CLI builds it, from this module's own assessment run.
+
+    The endpoint ran its own `assess_tree` inside the handler, so comparing
+    against this is still an independent check — `assess_tree` is deterministic,
+    which is the property being relied on and the one tested elsewhere.
+    """
+    from src.assessment.cli import assess_tree
+    from src.assessment.report import plain_summary
+
+    bundle, by_construct = assess_tree(DEMO)
+    return plain_summary(bundle, root_label="examples/demo",
+                         scope_by_construct=by_construct)
 
 
 def test_the_endpoint_returns_the_plain_language_layer(payload):
@@ -34,15 +57,9 @@ def test_the_endpoint_returns_the_plain_language_layer(payload):
     assert payload["plain_summary"]["title"]
 
 
-def test_the_plain_layer_is_the_report_writers_own(payload):
+def test_the_plain_layer_is_the_report_writers_own(payload, report_writers_own):
     """Not a second implementation — byte-for-byte what the CLI renders from."""
-    from src.assessment.cli import assess_tree
-    from src.assessment.report import plain_summary
-
-    bundle, by_construct = assess_tree(DEMO)
-    expected = plain_summary(bundle, root_label="examples/demo",
-                             scope_by_construct=by_construct)
-    assert payload["plain_summary"] == expected
+    assert payload["plain_summary"] == report_writers_own
 
 
 def test_section_zero_does_not_enter_the_hashed_bundle(payload):

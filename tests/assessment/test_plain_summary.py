@@ -41,8 +41,20 @@ def rendered():
 
 
 @pytest.fixture(scope="module")
-def demo_rendered():
-    return _render(DEMO)
+def demo_assessment():
+    """One assessment of the demo corpus, shared by every test below.
+
+    A clean ANTLR parse costs seconds per program and `assess_tree` is
+    deterministic, so re-running it per test bought nothing but wall time.
+    """
+    return cli_mod.assess_tree(DEMO)
+
+
+@pytest.fixture(scope="module")
+def demo_rendered(demo_assessment):
+    bundle, by_construct = demo_assessment
+    return render_markdown(bundle, root_label=DEMO.as_posix(),
+                           scope_by_construct=by_construct)
 
 
 @pytest.fixture(scope="module")
@@ -262,10 +274,10 @@ def test_an_unglossed_construct_renders_without_a_guessed_explanation():
 
 
 @pytest.fixture(scope="module")
-def demo_summary():
+def demo_summary(demo_assessment):
     from src.assessment.report import plain_summary
 
-    bundle, by_construct = cli_mod.assess_tree(DEMO)
+    bundle, by_construct = demo_assessment
     return plain_summary(bundle, DEMO.as_posix(), by_construct)
 
 
@@ -298,18 +310,18 @@ def test_groups_carry_the_tier_its_label_and_its_programs(demo_summary):
         assert group["programs"] == len(group["program_ids"])
 
 
-def test_program_ids_are_never_truncated_in_the_data(demo_summary):
+def test_program_ids_are_never_truncated_in_the_data(demo_summary, demo_assessment):
     """Each surface discloses its own truncation, so the data carries them all."""
     total = sum(len(g["program_ids"]) for g in demo_summary["where_we_stand"]["groups"])
-    bundle, _by_construct = cli_mod.assess_tree(DEMO)
+    bundle, _by_construct = demo_assessment
     assert total == len(bundle.programs)
 
 
-def test_an_omitted_construct_count_accompanies_the_short_list(demo_summary):
+def test_an_omitted_construct_count_accompanies_the_short_list(demo_summary, demo_assessment):
     """The construct list *is* cut, so the number dropped travels with it."""
     from src.assessment.report import _CONSTRUCTS_SHOWN
 
-    bundle, by_construct = cli_mod.assess_tree(DEMO)
+    _bundle, by_construct = demo_assessment
     in_the_way = demo_summary["in_the_way"]
     assert len(in_the_way["constructs"]) == min(_CONSTRUCTS_SHOWN, len(by_construct))
     assert in_the_way["omitted"] == len(by_construct) - len(in_the_way["constructs"])
