@@ -35,3 +35,20 @@ junit.xml
 
 # Pages artifact staging, assembled by .github/workflows/pages.yml.
 _site/
+
+# Local signing material. R4 puts key custody with the operator and says keys
+# never enter this repository -- but nothing here enforced it. `keys/` turned up
+# as an untracked directory on a working machine with no rule covering it, which
+# left a stray `git add -A` as the only thing standing between a private key and
+# a public commit. Same reasoning as the gen_vectors.py guard above: the rule
+# exists because the file is present in the tree at the moment of temptation.
+keys/
+*.pem
+*.key
+
+# Assessment output. `python -m src.assessment.cli --out ./output/...` writes a
+# report here on every demo run. It is regenerable from the corpus, and each run
+# stamps its own report_hash over the tool versions that produced it, so a
+# committed copy would freeze one machine's measurement as though it were the
+# measurement.
+output/
