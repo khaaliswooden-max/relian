@@ -242,8 +242,35 @@ export function AssessView(): JSX.Element {
 
             {b && result && (
                 <>
-                    {result.plain_summary && (
+                    {result.plain_summary ? (
                         <PlainSummaryCard summary={result.plain_summary} />
+                    ) : (
+                        // Never render nothing here. An absent plain_summary used to
+                        // make this card vanish silently, which is indistinguishable
+                        // from the tab as it looked before section 0 existed -- so a
+                        // stale API served an older-looking demo and said nothing.
+                        // R2: state the absence rather than degrade quietly.
+                        <div className="callout callout-danger">
+                            <span className="callout-icon">⚠️</span>
+                            <div>
+                                <strong>Section 0 is missing from the API response.</strong>
+                                <div style={{ marginTop: '0.25rem' }}>
+                                    The assessment below is real, but the plain-language
+                                    summary was not returned, so it is not shown rather
+                                    than reconstructed here — this tab renders that
+                                    section, it does not compute it.
+                                </div>
+                                <div
+                                    className="muted"
+                                    style={{ marginTop: '0.25rem', fontSize: '0.82rem' }}
+                                >
+                                    The API is almost certainly running older code than
+                                    this page. Restart it from the repository root:{' '}
+                                    <code>python -m uvicorn src.api.main:app --port 8000</code>
+                                    , then run the assessment again.
+                                </div>
+                            </div>
+                        </div>
                     )}
 
                     <div className="card">
