@@ -41,13 +41,28 @@ Read-only and offline. From the repository root:
 python3 -m src.assessment.cli examples/demo --out ./output/demo-assess --no-docx
 ```
 
-The run assesses 5 programs across 9 manifest files and reports (measured, not
+The run assesses 5 programs across 14 manifest files and reports (measured, not
 projected): portfolio construct coverage, a per-program coverage map, the
 unsupported-construct inventory with source lines, the DATA DIVISION feature
 table (note COMP-3 and REDEFINES report as `accepted_ignored`, not
 `supported`), complexity, copybook fan-in, and a per-program risk tier spanning
-LOW → MED → BLOCKED. Every figure carries a Trutina grade and a provenance
+LOW → HIGH → BLOCKED. Every figure carries a Trutina grade and a provenance
 string; two runs over the same tree produce byte-identical output.
+
+The report opens with **section 0, "What this means"** — the same findings in
+plain language, for a reader who does not write COBOL. It restates and never
+infers: every figure in it is repeated from a graded section below, it names the
+section each came from, and it states plainly that the tool does not price the
+work, does not say how long it would take, and does not claim the converted
+programs behave like the originals. `tests/assessment/test_plain_summary.py`
+asserts that no number originates there.
+
+Three of the five programs (`MUBRATE`, `MUBPENL`, `MUBSURC`) measure **VERIFIED**
+— their coverage comes from a clean parse of the bundled COBOL-85 grammar.
+`MUBBILL` and `MUBPOST` fall back to the documented token scan and are graded
+**PLAUSIBLE**, because both use `COPY`, which the grammar leaves to a
+preprocessor this repo does not yet run. The report says so per program, in the
+`method=` field of each provenance string.
 
 ## Reproduce the tier-A transpiles
 
@@ -70,9 +85,20 @@ corpus measurements match the CLI's byte for byte; the hash itself embeds
 `tool_versions` (invocation, Python, platform), so it equals the CLI's only when
 produced in the same runtime — the manifest hash, taken over the source bytes,
 matches regardless. The **Assess (demo)** tab in the UI (`src/ui/views/AssessView.tsx`)
-renders the portfolio coverage, per-program risk tiers (LOW → MED → BLOCKED),
-and the ranked unsupported-construct inventory, each figure carrying its Trutina
-grade. Start both services and open the tab:
+opens with the same plain-language section 0 and then renders the portfolio
+coverage, per-program risk tiers (LOW → HIGH → BLOCKED), and the ranked
+unsupported-construct inventory, each figure carrying its Trutina grade.
+
+Section 0 is served, not re-implemented. The endpoint returns a `plain_summary`
+object built by `report.plain_summary()` — the single source the CLI's Markdown
+and DOCX render from — so the tab and the report cannot describe the same run
+differently, and the tier labels, construct glosses and figures are decided in
+one place. `tests/test_api_assess.py` asserts the endpoint's copy equals the
+report writer's, and that it stays out of the hashed bundle: `report_hash` is
+over the measurements alone, so report prose cannot move it. Because section 0
+names *report* sections, the tab says so above it.
+
+Start both services and open the tab:
 
 ```bash
 uvicorn src.api.main:app          # API on :8000

@@ -130,6 +130,14 @@ class AssessmentResponse(BaseModel):
     engine (src.assessment) — the same object the CLI serialises to
     assessment.json. Every number inside it already carries a Trutina grade
     and a provenance string; this endpoint adds no figures of its own.
+
+    `plain_summary` is section 0 of the rendered report — the same findings in
+    plain language — as data rather than Markdown. It comes from
+    `report.plain_summary()`, the single source the CLI's Markdown and DOCX
+    also render, so the tab and the report cannot drift into describing the
+    same run differently. It restates the bundle and computes nothing: every
+    figure in it is one already present above, and each `measured` value
+    carries its own grade and provenance.
     """
 
     root_label: str
@@ -138,6 +146,7 @@ class AssessmentResponse(BaseModel):
     programs_assessed: int
     manifest_files: int
     bundle: dict
+    plain_summary: dict
 
 
 class AttestationResponse(BaseModel):
@@ -332,6 +341,7 @@ async def assess_demo():
     # package (or its optional deps) is unavailable in a given environment.
     from src.assessment.cli import assess_tree
     from src.assessment.models import canonical_json
+    from src.assessment.report import plain_summary
 
     if not DEMO_CORPUS.is_dir():
         raise HTTPException(
@@ -339,7 +349,7 @@ async def assess_demo():
             detail=f"Demo corpus not found at {DEMO_CORPUS.as_posix()}",
         )
     try:
-        bundle, _by_construct = assess_tree(DEMO_CORPUS)
+        bundle, by_construct = assess_tree(DEMO_CORPUS)
     except Exception as e:  # pragma: no cover - surfaced to the client
         raise HTTPException(status_code=500, detail=f"Assessment failed: {e}")
 
@@ -361,6 +371,13 @@ async def assess_demo():
         programs_assessed=len(bundle.programs),
         manifest_files=len(bundle.inventory.records),
         bundle=payload,
+        # Built from the same bundle, but deliberately NOT folded into it: the
+        # hash above is over the bundle alone, and section 0 is a rendering of
+        # that bundle rather than a measurement in it. Adding it to the hashed
+        # payload would make the report hash depend on report prose.
+        plain_summary=plain_summary(
+            bundle, root_label="examples/demo", scope_by_construct=by_construct
+        ),
     )
 
 

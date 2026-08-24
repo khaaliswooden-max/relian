@@ -37,7 +37,7 @@ import hashlib
 import platform
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from . import complexity as complexity_mod
 from . import coverage as coverage_mod
@@ -47,6 +47,7 @@ from .models import (
     Measured,
     ProgramAssessment,
     canonical_json,
+    measured_to_dict,
 )
 from .risk import programs_by_tier, rule_table, tier_counts
 from .supported import (
@@ -74,9 +75,150 @@ TEMPLATES: Dict[str, str] = {
     "table_row": "| {cells} |\n",
     "code_block": "```\n{text}\n```\n\n",
     "no_data": "_Not measured — {reason}._\n\n",
+
+    # Section 0. Plain language, no jargon, and no number that is not restated
+    # from a measurement below.
+    "plain_intro": (
+        "This section says what the rest of the report found, in ordinary words. "
+        "It adds nothing: every figure here is repeated from a measured section "
+        "below, and the section it came from is named so you can check it.\n"
+    ),
+    "plain_scope": (
+        "**What was examined.** {programs} COBOL program(s) in `{root}`, out of "
+        "{files} file(s) found. Nothing was changed and nothing left this "
+        "machine — the assessment only reads. The exact list of files, with a "
+        "checksum for each, is under **Manifest**.\n"
+    ),
+    "plain_scope_empty": (
+        "**What was examined.** No COBOL programs were found in `{root}`, so "
+        "there is nothing to report below. **Manifest** lists the files that were "
+        "found.\n"
+    ),
+    "plain_verdict_head": (
+        "**Where the code stands.** Each program falls into one of four groups "
+        "(**Risk tiers** gives the tier for each program, and appendix C the "
+        "rules that decide it):\n"
+    ),
+    "plain_blockers_head": (
+        "**What stands in the way.** The COBOL features holding programs back, "
+        "most common first; the **Unsupported-construct inventory** has the "
+        "full list:\n"
+    ),
+    "plain_blockers_none": (
+        "**What stands in the way.** Nothing. Every statement in every program "
+        "assessed is one the converter already handles.\n"
+    ),
+    "plain_blocker_row": "- **{construct}** — {gloss}. Appears {count} time(s).\n",
+    "plain_blocker_row_plain": "- **{construct}** — appears {count} time(s).\n",
+    "plain_blockers_more": (
+        "- …and {count} further construct(s), all listed in the "
+        "**Unsupported-construct inventory**.\n"
+    ),
+    "plain_tier_note": "- **{label}** — {explanation}\n",
+    "plain_effort_head": "**How much of the code this affects.**\n",
+    "plain_limits": (
+        "**What this report does not tell you.** It does not say what the work "
+        "would cost or how long it would take, and it does not claim the "
+        "converted programs would behave the same as the originals — that is "
+        "measured separately, by the benchmark, not by this tool. Where a figure "
+        "below is graded PLAUSIBLE rather than VERIFIED, it was derived by the "
+        "documented token scan instead of a full parse of the program; "
+        "appendix D explains when that happens and what it costs.\n"
+    ),
 }
 
 GRADE_COLUMNS = ("Value", "Grade", "Provenance")
+
+# --------------------------------------------------------------------------
+# Plain-language layer (section 0)
+# --------------------------------------------------------------------------
+#
+# Section 0 exists because sections 1–9 answer a reader who already knows what
+# a construct is. It **translates** those findings and introduces nothing: every
+# figure in it is restated from a measurement rendered below, and no sentence
+# here may say anything the graded sections do not already say. That is the
+# whole discipline — a plain-language summary is the easiest place in a report
+# for an estimate to appear wearing the clothes of a finding (R1), so this layer
+# is allowed to rephrase and forbidden to infer.
+
+# One line per risk tier, saying what the tier means for the reader rather than
+# which rule fired. Each is a plain reading of the RISK_RULES entries that can
+# produce that tier — reproduced verbatim in appendix C, where the reader can
+# check this wording against the policy.
+TIER_IN_PLAIN_WORDS: Dict[str, Tuple[str, str]] = {
+    "LOW": (
+        "Ready to convert as it stands",
+        "Every statement in these is one the converter already handles, and "
+        "their logic is simple enough to follow end to end.",
+    ),
+    "MED": (
+        "Convertible, after a review",
+        "Something in these needs a person to look at it first — a statement "
+        "the converter does not handle, a call out to another program, or "
+        "logic tangled enough to be worth checking.",
+    ),
+    "HIGH": (
+        "Substantial work before converting",
+        "Either a large share of these sits outside what the converter "
+        "handles, or they embed another language (such as database or "
+        "transaction code) that has to be dealt with separately.",
+    ),
+    "BLOCKED": (
+        "Cannot be converted yet",
+        "Too much of the program is outside what the converter handles, or it "
+        "rewrites its own control flow while running — which cannot be worked "
+        "out from the source at all.",
+    ),
+}
+
+# What an unsupported COBOL construct *is*, for a reader who does not write
+# COBOL. Facts about the language, not claims about Relian — the counts beside
+# them are the measurements. A construct with no entry is shown without a gloss
+# rather than with a guessed one.
+CONSTRUCT_IN_PLAIN_WORDS: Dict[str, str] = {
+    "ALTER": "changes where a jump goes while the program is running",
+    "CALL": "hands control to a separate program",
+    "CANCEL": "unloads a separate program from memory",
+    "CLOSE": "finishes with a data file",
+    "DELETE": "removes a record from a data file",
+    "DIVIDE": "division written as its own statement",
+    "ENTRY": "declares an extra entry point into the program",
+    "EXEC": "embedded database or transaction-system code",
+    "GO": "jumps to another part of the program",
+    "MERGE": "merges sorted data files",
+    "MULTIPLY": "multiplication written as its own statement",
+    "OPEN": "makes a data file ready to use",
+    "READ": "reads a record from a data file",
+    "RELEASE": "hands a record to a sort",
+    "RETURN": "takes a record back from a sort",
+    "REWRITE": "replaces a record already in a data file",
+    "SORT": "sorts a data file",
+    "START": "positions a data file at a particular record",
+    "STRING": "joins pieces of text together",
+    "SUBTRACT": "subtraction written as its own statement",
+    "UNSTRING": "splits text into pieces",
+    "WRITE": "adds a record to a data file",
+}
+
+# How many programs to name inline before summarising the rest, and how many
+# constructs section 0 lists before deferring to the full inventory. Both
+# truncations are stated in the rendered text — a silent cap reads as
+# completeness.
+_NAMES_SHOWN = 4
+_CONSTRUCTS_SHOWN = 5
+
+# Tiers worst-first, so the reader meets the problems before the clean results.
+_TIER_ORDER = ("BLOCKED", "HIGH", "MED", "LOW")
+
+
+def _name_list(names: Sequence[str], limit: int = _NAMES_SHOWN) -> str:
+    """Program names for a table cell, with any truncation stated, not implied."""
+    if not names:
+        return "—"
+    if len(names) <= limit:
+        return ", ".join(f"`{n}`" for n in names)
+    shown = ", ".join(f"`{n}`" for n in names[:limit])
+    return f"{shown} + {len(names) - limit} more"
 
 # Vocabulary the report must never contain (R11): commercial commitments the
 # tool is not entitled to make.
@@ -191,6 +333,170 @@ def tool_versions() -> Tuple[Tuple[str, str], ...]:
 # --------------------------------------------------------------------------
 
 
+PLAIN_TITLE = "What this means"
+
+# Labels for the two line counts section 0 restates from the migration-scope
+# section. Only the wording differs; the Measured objects are the same ones.
+_EFFORT_LABELS = (
+    ("Lines the converter handles today", "quotable_loc"),
+    ("Lines needing new converter capability first", "grammar_expansion_loc"),
+)
+
+
+def plain_summary(bundle: AssessmentBundle, root_label: str,
+                  scope_by_construct: Sequence[Tuple[str, int]] = ()) -> Dict[str, Any]:
+    """The plain-language layer as data, for every surface that renders it.
+
+    This is the single source of section 0. :func:`render_plain_summary` formats
+    it as Markdown and the API returns it as JSON for the Assess tab, so the two
+    cannot drift into saying different things about the same run — the wording,
+    the glosses and the figures are decided here, once.
+
+    Nothing here is presentation. Program names are returned in full and
+    unformatted, so each surface can lay them out and disclose its own
+    truncation. Constructs are the exception: the list is cut to
+    ``_CONSTRUCTS_SHOWN`` *with the number dropped carried alongside*, because
+    both surfaces should show the same short list and both must say what they
+    left out.
+
+    Every figure is one already rendered in a graded section — restated, never
+    recomputed. ``Measured`` values are passed through whole so the grade and
+    provenance travel with the number (R1, R9).
+    """
+    t = TEMPLATES
+    summary: Dict[str, Any] = {
+        "title": PLAIN_TITLE,
+        "intro": t["plain_intro"].strip(),
+        "where_we_stand": None,
+        "in_the_way": None,
+        "how_much": None,
+        "limits": None,
+    }
+
+    programs = bundle.programs
+    if not programs:
+        summary["scope"] = t["plain_scope_empty"].format(root=root_label).strip()
+        return summary
+
+    summary["scope"] = t["plain_scope"].format(
+        programs=len(programs), root=root_label,
+        files=len(bundle.inventory.records)).strip()
+
+    findings = [p.risk for p in programs]
+    counts = tier_counts(findings)
+    by_tier = programs_by_tier(findings)
+    summary["where_we_stand"] = {
+        "heading": t["plain_verdict_head"].strip(),
+        "grade": "PLAUSIBLE",
+        "provenance": (
+            "each count is the number of programs the RISK_RULES policy "
+            "(appendix C) placed in that tier, restated from the Risk tiers "
+            "section; the measurements the policy reads are VERIFIED"
+        ),
+        "groups": [
+            {
+                "tier": tier,
+                "label": TIER_IN_PLAIN_WORDS[tier][0],
+                "explanation": TIER_IN_PLAIN_WORDS[tier][1],
+                "programs": counts[tier],
+                "program_ids": list(by_tier.get(tier, ())),
+            }
+            for tier in _TIER_ORDER
+            if counts.get(tier, 0)
+        ],
+    }
+
+    if not scope_by_construct:
+        summary["in_the_way"] = {
+            "heading": t["plain_blockers_none"].strip(),
+            "constructs": [],
+            "omitted": 0,
+        }
+    else:
+        summary["in_the_way"] = {
+            "heading": t["plain_blockers_head"].strip(),
+            "constructs": [
+                {
+                    "construct": construct,
+                    "gloss": CONSTRUCT_IN_PLAIN_WORDS.get(construct.upper()),
+                    "count": count,
+                }
+                for construct, count in scope_by_construct[:_CONSTRUCTS_SHOWN]
+            ],
+            "omitted": max(0, len(scope_by_construct) - _CONSTRUCTS_SHOWN),
+        }
+
+    summary["how_much"] = {
+        "heading": t["plain_effort_head"].strip(),
+        "rows": [
+            {"label": label, "measured": measured_to_dict(getattr(bundle, attr))}
+            for label, attr in _EFFORT_LABELS
+        ],
+    }
+    summary["limits"] = t["plain_limits"].strip()
+    return summary
+
+
+def render_plain_summary(bundle: AssessmentBundle, root_label: str,
+                         scope_by_construct: Sequence[Tuple[str, int]] = ()) -> str:
+    """Section 0 — the findings below, in ordinary words.
+
+    Markdown formatting of :func:`plain_summary`, which decides what it says.
+    The two numeric tables carry the grade of the section they restate — the
+    tier counts are PLAUSIBLE because a tier is a policy, and the line counts
+    are PLAUSIBLE or VERIFIED exactly as their source measurement is.
+    """
+    t = TEMPLATES
+    data = plain_summary(bundle, root_label, scope_by_construct)
+    out: List[str] = [
+        t["h1"].format(n=0, title=data["title"]),
+        t["para"].format(text=data["intro"]),
+        t["para"].format(text=data["scope"]),
+    ]
+
+    stands = data["where_we_stand"]
+    if stands is None:                      # no programs; scope said so already
+        return "".join(out)
+
+    out.append(t["para"].format(text=stands["heading"]))
+    out.append(_grade_line(stands["grade"], stands["provenance"]))
+    out.append(_table(
+        ("Group", "Programs", "Which ones"),
+        [
+            [g["label"], g["programs"], _name_list(g["program_ids"])]
+            for g in stands["groups"]
+        ],
+    ))
+    # The explanations sit under the table rather than inside it: a cell holding
+    # a paragraph is a table nobody reads.
+    for group in stands["groups"]:
+        out.append(t["plain_tier_note"].format(
+            label=group["label"], explanation=group["explanation"]))
+    out.append("\n")
+
+    blockers = data["in_the_way"]
+    out.append(t["para"].format(text=blockers["heading"]))
+    for item in blockers["constructs"]:
+        key = "plain_blocker_row" if item["gloss"] else "plain_blocker_row_plain"
+        out.append(t[key].format(
+            construct=item["construct"], gloss=item["gloss"], count=item["count"]))
+    if blockers["omitted"]:
+        out.append(t["plain_blockers_more"].format(count=blockers["omitted"]))
+    if blockers["constructs"]:
+        out.append("\n")
+
+    how_much = data["how_much"]
+    out.append(t["para"].format(text=how_much["heading"]))
+    out.append(_table(
+        ("Measure", *GRADE_COLUMNS),
+        [_m_row(row["label"], getattr(bundle, attr))
+         for row, (_label, attr) in zip(how_much["rows"], _EFFORT_LABELS)],
+    ))
+
+    out.append(t["para"].format(text=data["limits"]))
+    return "".join(out)
+
+
 def render_markdown(bundle: AssessmentBundle, root_label: str,
                     scope_by_construct: Sequence[Tuple[str, int]] = ()) -> str:
     t = TEMPLATES
@@ -202,6 +508,9 @@ def render_markdown(bundle: AssessmentBundle, root_label: str,
 
     cov = bundle.portfolio_coverage
     loc_totals = loc_mod.portfolio_totals([p.loc for p in bundle.programs])
+
+    # 0. What this means — plain language, for a reader who does not write COBOL.
+    out.append(render_plain_summary(bundle, root_label, scope_by_construct))
 
     # 1. Executive summary
     out.append(t["h1"].format(n=1, title="Executive summary"))

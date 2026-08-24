@@ -23,7 +23,10 @@ therefore obsolete, because real COBOL routinely is not COBOL-85:
   correctly.
 * **Comment entries.** The free text after ``AUTHOR.`` or ``INSTALLATION.`` is
   reachable only through a ``*>CE`` marker that upstream's preprocessor
-  inserts; this repo does not run that preprocessor.
+  inserts. :meth:`ScannedSource._tag_comment_entries` inserts it, so a
+  fixed-format comment entry no longer costs a program its clean parse. A
+  *free*-format entry spilling past its own line still does, deliberately —
+  free format has no Area A/B rule to say where the prose ends.
 * **COPY and REPLACE.** ``COPY`` is a lexer token in this grammar that no
   parser rule references — upstream consumes it in the separate
   ``Cobol85Preprocessor.g4``, vendored here but not yet run. A COPY-bearing
@@ -88,6 +91,7 @@ dispatch table. Nothing here maintains its own opinion of what C1 supports.
 
 from __future__ import annotations
 
+import functools
 import re
 from dataclasses import dataclass
 from typing import Dict, FrozenSet, List, Optional, Sequence, Tuple
@@ -125,6 +129,32 @@ _DIVISION_RE = re.compile(r"^\s*(IDENTIFICATION|ENVIRONMENT|DATA|PROCEDURE)\s+DI
 _PARAGRAPH_NAME_RE = re.compile(r"^\s*([A-Z0-9][A-Z0-9\-]*)\s*\.\s*$", re.I)
 _SECTION_RE = re.compile(r"^\s*([A-Z0-9][A-Z0-9\-]*)\s+SECTION\s*\.\s*$", re.I)
 _TOKEN_RE = re.compile(r"[A-Z0-9][A-Z0-9\-]*|\.")
+
+# The six IDENTIFICATION DIVISION paragraphs whose body is a *comment entry* —
+# free prose the compiler ignores. Exactly the set that `Cobol85.g4` gives a
+# `commentEntry?` tail (`authorParagraph` … `remarksParagraph`). PROGRAM-ID is
+# deliberately absent: its body is a real `programName`, and tagging it would
+# hide the program's own name from the parser.
+_COMMENT_ENTRY_PARAGRAPH_RE = re.compile(
+    r"^\s*(?:AUTHOR|INSTALLATION|DATE-WRITTEN|DATE-COMPILED|SECURITY|REMARKS)\s*\.", re.I
+)
+
+# `COMMENTENTRYTAG` in the vendored grammar. The lexer prefers it over the
+# plain `COMMENTTAG` ('*>') by longest match.
+_COMMENT_ENTRY_TAG = "*>CE"
+
+# Area A is columns 8–11; the code area starts at column 8, so Area A is its
+# first four characters.
+_AREA_A_WIDTH = 4
+
+
+def _starts_in_area_a(code_area: str) -> bool:
+    """Does this code area's text begin in Area A (columns 8–11)?
+
+    In fixed format that is what distinguishes a paragraph or division header
+    from a continued comment entry, which must sit in Area B.
+    """
+    return len(code_area) - len(code_area.lstrip()) < _AREA_A_WIDTH
 
 
 def word_re(pattern: str) -> re.Pattern:
@@ -263,6 +293,9 @@ class ScannedSource:
 
         In **free** format the whole line is code and there is no indicator
         column, so only the comment rule applies.
+
+        Finally, IDENTIFICATION DIVISION comment entries are tagged — see
+        :meth:`_tag_comment_entries`.
         """
         out: List[str] = []
         last_code: Optional[int] = None      # index in `out` of the last code line
@@ -277,7 +310,72 @@ class ScannedSource:
                 continue
             out.append(code)
             last_code = len(out) - 1
+        self._tag_comment_entries(out)
         return "\n".join(out)
+
+    def _tag_comment_entries(self, out: List[str]) -> None:
+        """Mark IDENTIFICATION DIVISION comment entries with ``*>CE``, in place.
+
+        The free text after ``AUTHOR.``, ``INSTALLATION.``, ``DATE-WRITTEN.``,
+        ``DATE-COMPILED.``, ``SECURITY.`` and ``REMARKS.`` is a *comment entry*:
+        prose, not syntax, and the compiler ignores it. ``Cobol85.g4`` reaches
+        it only through ``commentEntry : COMMENTENTRYLINE+`` where
+        ``COMMENTENTRYLINE : '*>CE' WS ~[\\r\\n]*`` — a tag that upstream's
+        ``Cobol85Preprocessor.g4`` inserts. Without it the parser reduces
+        ``AUTHOR DOT_FS`` with an empty ``commentEntry?``, then meets the
+        author's name where it expects ``EOF``. One syntax error is enough to
+        disqualify the whole tree, so a single ``AUTHOR.`` line silently
+        demotes an otherwise clean program from ``antlr_tree``/VERIFIED to
+        ``token_scan``/PLAUSIBLE. Comment entries are near-universal in real
+        mainframe COBOL, so this is not an edge case.
+
+        ``out`` is index-aligned with ``self.lines``: every input line emits
+        exactly one output line above, blanked ones included. Tagging preserves
+        that, so line numbers in parse diagnostics stay the customer's.
+
+        Where the entry ends is decided differently per format, and in both
+        cases the rule is chosen to **under**-tag rather than over-tag. Tagging
+        a line hides it from the parser, so a wrong tag would suppress a real
+        syntax error and report a fabricated clean parse — a false VERIFIED,
+        which R1 forbids. A missed tag only costs a fallback to ``token_scan``,
+        which is honest and already labelled.
+
+        **Fixed format.** COBOL-85 puts a paragraph header in Area A (columns
+        8–11) and continues a comment entry in Area B (columns 12–72). That is
+        the standard's own rule, not a heuristic, so the entry runs until the
+        next non-blank line whose text starts in Area A — i.e. within the first
+        four characters of the code area.
+
+        **Free format.** There are no reference areas, so no such rule exists.
+        Only the text on the paragraph's own line is tagged and the entry ends
+        there. A free-format comment entry spilling onto later lines therefore
+        still fails to parse and still falls back — deliberately, because the
+        alternative is guessing at where prose stops and code resumes.
+        """
+        in_entry = False
+        for idx, line in enumerate(self.lines):
+            if line.division != "IDENTIFICATION":
+                # The ID division is the only place a comment entry can occur,
+                # and it comes first, so the first line outside it ends the scan.
+                if line.division is not None:
+                    return
+                continue
+            text = out[idx]
+            if not text.strip():
+                # Blanked comment/debug lines and blank lines punctuate an entry
+                # without ending it; a comment line inside one is still a comment.
+                continue
+            m = _COMMENT_ENTRY_PARAGRAPH_RE.match(text)
+            if m:
+                rest = text[m.end():]
+                out[idx] = text[:m.end()] + (f" {_COMMENT_ENTRY_TAG}{rest}" if rest.strip() else "")
+                in_entry = self.source_format == "fixed"
+                continue
+            if in_entry:
+                if _starts_in_area_a(text):
+                    in_entry = False
+                else:
+                    out[idx] = f"{_COMMENT_ENTRY_TAG} {text.lstrip()}"
 
     def _code_area(self, line: "CodeLine") -> str:
         """Columns 8–72 with trailing spaces intact (see `antlr_source`)."""
@@ -437,10 +535,37 @@ def _normalise_parse_error(msg: str) -> str:
     return _EXPECTING_SET_RE.sub("expecting {...}", msg)
 
 
+@functools.lru_cache(maxsize=4)
 def _antlr_parse(source: str):
-    """Parse with the bundled ANTLR grammar. Returns (tree, errors)."""
+    """Parse with the bundled ANTLR grammar. Returns (tree, errors, parser_mod).
+
+    Memoised because two callers parse the same text: :func:`analyze` here and
+    ``loc._statement_hits``, back to back on each program. The parse is the
+    dominant cost of an assessment, so parsing twice doubled it for nothing.
+    The cache is keyed on the pre-passed source and both callers only *walk*
+    the tree, so a shared tree is the same tree either would have built — and
+    two runs still produce byte-identical output (R8). ``maxsize`` only has to
+    span one program's two calls; it is not a portfolio-wide store.
+
+    Two-stage, per the ANTLR reference recipe. Stage one predicts with **SLL**
+    and bails on the first error; stage two re-parses from scratch with the
+    default **LL** prediction and collects diagnostics. SLL is the cheaper
+    approximation and either agrees with LL or reports an error — it never
+    accepts input LL would reject — so every *clean* parse here is a parse LL
+    also accepts, and every *error* is LL's error, reported by LL. The grade
+    attached downstream is therefore unchanged by the optimisation; only the
+    cost of reaching it is.
+
+    The cost is the point. `Cobol85.g4` is a full COBOL-85 grammar and the
+    ANTLR Python runtime interprets its ATN, so full-LL prediction runs 1–5
+    seconds on a 200-line program — the dominant term in the whole assessment.
+    SLL brings a clean parse down to well under a second; only genuinely
+    unparseable files pay the LL price, and they pay it once.
+    """
     import antlr4
+    from antlr4.atn.PredictionMode import PredictionMode
     from antlr4.error.ErrorListener import ErrorListener
+    from antlr4.error.ErrorStrategy import BailErrorStrategy
 
     from src.parsers.antlr.cobol.Cobol85Lexer import Cobol85Lexer
     from src.parsers.antlr.cobol.Cobol85Parser import Cobol85Parser
@@ -453,18 +578,35 @@ def _antlr_parse(source: str):
             if len(self.errors) < 50:
                 self.errors.append(f"line {line}:{column} {_normalise_parse_error(msg)}")
 
-    collector = _Collect()
-    lexer = Cobol85Lexer(antlr4.InputStream(source))
-    lexer.removeErrorListeners()
-    lexer.addErrorListener(collector)
-    parser = Cobol85Parser(antlr4.CommonTokenStream(lexer))
-    parser.removeErrorListeners()
-    parser.addErrorListener(collector)
+    def _build(strategy, prediction_mode, listener):
+        lexer = Cobol85Lexer(antlr4.InputStream(source))
+        lexer.removeErrorListeners()
+        parser = Cobol85Parser(antlr4.CommonTokenStream(lexer))
+        parser.removeErrorListeners()
+        if listener is not None:
+            lexer.addErrorListener(listener)
+            parser.addErrorListener(listener)
+        if strategy is not None:
+            parser._errHandler = strategy
+        parser._interp.predictionMode = prediction_mode
+        return parser
+
     # `startRule: compilationUnit EOF` is the grammar's declared entry point.
     # Entering at `compilationUnit` instead would let a file whose tail the
     # grammar cannot parse report zero errors over its prefix and be graded
     # VERIFIED on a tree covering only part of the program.
-    tree = parser.startRule()
+    try:
+        # Stage one. No listener: a bailed SLL parse proves nothing about the
+        # source, so its diagnostics must not reach the report.
+        tree = _build(BailErrorStrategy(), PredictionMode.SLL, None).startRule()
+        return tree, (), Cobol85Parser
+    except Exception:
+        # Any failure — a bailed parse, or a lexer error surfacing through the
+        # bail strategy — is re-decided by the authoritative LL pass below.
+        pass
+
+    collector = _Collect()
+    tree = _build(None, PredictionMode.LL, collector).startRule()
     return tree, tuple(collector.errors), Cobol85Parser
 
 

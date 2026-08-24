@@ -143,6 +143,59 @@ export interface AssessmentBundle {
     notes: string[];
 }
 
+// ---------------------------------------------------------------------------
+// Section 0 — the plain-language layer, as data.
+//
+// Built by report.plain_summary() on the Python side, which is the single
+// source the CLI's Markdown and DOCX render too. The wording, the tier labels
+// and the construct glosses are decided there and carried here verbatim, so
+// the tab and the report cannot describe the same run differently. Nothing in
+// here is computed in the browser.
+//
+// The prose fields carry Markdown inline emphasis (**strong** and `code`),
+// because they are the report's own sentences; AssessView renders those two
+// forms and shows anything else verbatim.
+// ---------------------------------------------------------------------------
+
+export interface PlainGroup {
+    tier: RiskTier;
+    label: string;
+    explanation: string;
+    programs: number;
+    program_ids: string[];
+}
+
+// `gloss` is null for a construct with no plain-language entry — the row then
+// shows the count alone rather than a guessed explanation.
+export interface PlainConstruct {
+    construct: string;
+    gloss: string | null;
+    count: number;
+}
+
+export interface PlainSummary {
+    title: string;
+    intro: string;
+    scope: string;
+    // All four are null when no COBOL programs were found; `scope` says so.
+    where_we_stand: {
+        heading: string;
+        grade: Grade;
+        provenance: string;
+        groups: PlainGroup[];
+    } | null;
+    in_the_way: {
+        heading: string;
+        constructs: PlainConstruct[];
+        omitted: number;
+    } | null;
+    how_much: {
+        heading: string;
+        rows: { label: string; measured: Measured | null }[];
+    } | null;
+    limits: string | null;
+}
+
 export interface AssessmentResult {
     root_label: string;
     report_hash: string;
@@ -150,4 +203,5 @@ export interface AssessmentResult {
     programs_assessed: number;
     manifest_files: number;
     bundle: AssessmentBundle;
+    plain_summary: PlainSummary;
 }

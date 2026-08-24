@@ -4,7 +4,11 @@
 # held-out corpus. This job runs the ordinary suite against a PINNED
 # environment and asserts the result is exactly the sealed triple:
 #
-#     852 passed, 10 skipped, 0 failed
+#     $EXPECTED_PASSES passed, $EXPECTED_SKIPS skipped, 0 failed
+#
+# The numbers live in the `env:` block below and nowhere else. This line used to
+# repeat one of them and had drifted to 852 against an EXPECTED_PASSES of 1100 --
+# harmless, but a stale figure in the gate that exists to stop stale figures.
 #
 # WP-2.3.2, 2026-08-21: was 848. Net +4 -- review on PR #31 found that
 # verify_report.py named a check it did not perform (countersign.py records
@@ -477,7 +481,51 @@ env:
   # crash, both dependent stages NOT MEASURED, an uncheckable seal not reported
   # as a bad seal, no false entry in the exit status, and the probe's positive
   # case so a dependency-less runner fails loudly here instead of scattering.
-  EXPECTED_PASSES: "1100"
+  #
+  # Comment entries + section 0 (2026-08-24): 1100 -> 1149. Net +49, measured by
+  # collection against origin/main rather than counted by hand. Two pieces of
+  # work, one gate:
+  #
+  #   tests/assessment/test_coverage.py           +14
+  #       The ANTLR pre-pass never tagged IDENTIFICATION DIVISION comment
+  #       entries, so a single `AUTHOR.` line -- near-universal in real
+  #       mainframe COBOL -- demoted an otherwise clean program from
+  #       antlr_tree/VERIFIED to token_scan/PLAUSIBLE. 9 on the tagging: each
+  #       of the six comment-entry paragraphs, the Area A/B continuation rule
+  #       that ends an entry, PROGRAM-ID never being tagged (its body is a real
+  #       program name), line numbers surviving the pass, free format tagging
+  #       only its own line, and BROKEN.cbl still reporting its syntax errors
+  #       so tagging cannot launder broken source into a clean parse. 5 on the
+  #       two-stage SLL/LL parse that keeps the now-completing parse
+  #       affordable: 4 parametrised fixtures asserting the staged errors are
+  #       exactly full-LL's errors, and 1 that the parse cache does not drift.
+  #
+  #   tests/assessment/test_plain_summary.py      +27
+  #       Section 0, the plain-language layer, and the invariant that it
+  #       restates rather than infers. 12 on the rendered Markdown: every
+  #       number in it appears elsewhere in the report, its tier counts equal
+  #       the risk section's and its line counts the scope section's, both
+  #       truncations declare what they dropped, and an empty or
+  #       fully-supported corpus says so instead of rendering empty tables.
+  #       9 on the structured form the API serves: JSON-serialisable, measured
+  #       values carrying grade and provenance, program lists never truncated
+  #       in the data, an unglossed construct carrying null rather than a
+  #       guess. 6 on the two agreeing -- the Markdown shows every figure the
+  #       structure carries, at the grade the structure states.
+  #
+  #   tests/test_api_assess.py                     +8
+  #       The Assess tab's contract. The endpoint's plain_summary must equal
+  #       the report writer's (it is served, not re-implemented), must stay out
+  #       of the hashed bundle so report prose cannot move report_hash, and
+  #       must agree with the bundle it summarises on tier counts, program ids
+  #       and construct counts. R9 and R11 are asserted on this surface too.
+  #
+  #       It awaits the handler directly rather than driving fastapi's
+  #       TestClient. TestClient needs httpx, which is NOT in
+  #       requirements.lock, so that test would have skipped here -- drifting
+  #       EXPECTED_SKIPS and silently not running the gate at all. fastapi
+  #       itself is pinned, so the import is a hard one.
+  EXPECTED_PASSES: "1149"
 
 jobs:
   parser-regen:
