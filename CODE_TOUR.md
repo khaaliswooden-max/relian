@@ -125,6 +125,9 @@ transpiler and probes DATA DIVISION features by running real programs through
 it, resolving to `supported` / `accepted_ignored` / `unsupported` so that "it
 parses" is never reported as "it is supported".
 
+Both ideas are visible in one table in **Seeing it work** below, which runs this
+engine over the bundled demo corpus.
+
 ### 4. `src/core/orchestrator.py` — 579 lines
 
 The seven-stage state machine. Note that stages 2 and 4 are *removed, not
@@ -148,6 +151,81 @@ without trusting our source tree.
 
 `tools/seal.py` seals a benchmark. `tools/verify_manifest.py` proves the tree,
 not just the seal.
+
+## Seeing it work: `examples/demo/`
+
+Reading the assessment engine tells you how it decides. Running it over
+`examples/demo/` tells you what it decides, and is the fastest way to judge
+whether the honesty rules above are real or decorative.
+
+**The corpus.** `examples/demo/` is *Meridian Municipal Utility District* — a
+hand-written, synthetic COBOL-85 batch billing suite for a fictional water
+utility. 14 files: 5 programs (880 lines), 3 copybooks, a JCL job stream, and
+sample data. Synthetic, and not derived from any customer source or from the
+sealed benchmark corpus under `bench/`; `examples/demo/README.md` states that
+and the three tiers it is deliberately arranged in.
+
+Those tiers are the point. The set is built so that **one run lands on each of
+the outcomes the engine is designed to report**, rather than only the happy
+path:
+
+```bash
+python3 -m src.assessment.cli examples/demo --out ./output/demo-assess
+```
+
+| Program | Coverage | Method → grade | Tier |
+|---|---|---|---|
+| `MUBRATE` | 1.0000 | `antlr_tree` → VERIFIED | LOW |
+| `MUBPENL` | 1.0000 | `antlr_tree` → VERIFIED | LOW |
+| `MUBSURC` | 1.0000 | `antlr_tree` → VERIFIED | LOW |
+| `MUBBILL` | 0.7600 | `token_scan` → PLAUSIBLE | HIGH |
+| `MUBPOST` | 0.4528 | `token_scan` → PLAUSIBLE | BLOCKED |
+
+Read the `method` column before the coverage column. Three programs were
+*parsed*; two fell back to the documented token scan because they use `COPY`,
+which the vendored grammar leaves to a preprocessor pass this repository does
+not run. Same ratio, weaker basis, and the report says which it had per
+program — that is `coverage.py`'s central idea, visible in one table.
+
+`MUBPOST` assessing BLOCKED is a result, not a failure. So is the transpiler
+refusing it:
+
+```bash
+python3 examples/demo/run_demo.py
+```
+
+The three tier-A programs transpile, compile under `javac` and run on sample
+records. The other two **refuse** — `MUBPOST` naming the construct and the
+line (`unsupported COBOL construct 'OPEN' at source line 112`) rather than
+emitting a placeholder that would later be mistaken for a migration.
+
+**Section 0.** The rendered report opens with *"What this means"* — the same
+findings in plain language, for a reader who does not write COBOL. It groups
+the programs into four plainly-named buckets, glosses each unsupported
+construct in ordinary words (`GO` — jumps to another part of the program), and
+closes by stating what it does **not** tell you: not what the work costs, not
+how long, and no claim that converted programs behave like the originals —
+that is the benchmark's job, measured separately.
+
+The discipline is that section 0 **restates and never infers**. Every figure in
+it is repeated from a graded section below and names the section it came from;
+a plain-language summary is the easiest place in a report for an estimate to
+appear wearing the clothes of a finding, so this layer may rephrase and may not
+compute. `tests/assessment/test_plain_summary.py` asserts that no number
+originates there, that its tier counts equal the risk section's, and that both
+truncated lists say how many entries they dropped.
+
+It is built once, by `report.plain_summary()`, and rendered three ways —
+Markdown, DOCX, and JSON at `GET /api/v1/assess/demo` for the Assess tab. One
+source, so the report and the UI cannot describe the same run differently;
+`tests/test_api_assess.py` asserts the endpoint's copy equals the report
+writer's, and that it stays *outside* the hashed bundle so report prose cannot
+move `report_hash`.
+
+**On watching it run:** the whole assessment takes about twelve seconds and
+there is nothing to watch. The convincing demonstration is not a progress bar —
+it is editing a line of the COBOL and re-running, and seeing the numbers move.
+Two runs over an unchanged tree produce byte-identical JSON.
 
 ## What is **not** built
 
@@ -266,5 +344,8 @@ table; the commands are given so that you can.
 | 1,151 collected / 1,121 passed / 30 skipped / 1 failed | VERIFIED | Local run on 2026-08-25 in a container **without GnuCOBOL** — the condition is what produces the single failure, and it is stated with the figure above |
 | 1,149 passed, 10 skipped, 0 failed | VERIFIED | CI, with the full toolchain present: recorded in merge commit `2ba0274` and asserted mechanically as `EXPECTED_PASSES` / `EXPECTED_SKIPS` in `.github/workflows/tests.yml`, so a test that stops being collected fails the build rather than disappearing |
 | C1 BER 1.0000 (300/300), build 1.0000, branch coverage 0.8824 | VERIFIED | Held-out run recorded in commit `4bfa3a0`; thresholds sealed in `bench/LEDGER_relian-bench-v1.2.json` (Ed25519, fingerprint `233bb4406e2de606`) |
+| Demo corpus: 14 files, 5 programs, 880 lines | VERIFIED | `git ls-files 'examples/demo/**' \| wc -l` and `git ls-files 'examples/demo/src/*.cbl' \| xargs wc -l` at `ad2acca` |
+| Demo per-program coverage, method and tier | VERIFIED | One run of `python3 -m src.assessment.cli examples/demo` at `ad2acca`, read from `assessment.json`. Re-run it — the figures are the engine's, not this file's, and two runs over an unchanged tree are byte-identical |
+| ~12 seconds for the demo assessment | VERIFIED | `wall_seconds` reported by that same run (11.81). Wall time is machine-dependent; the figure is stated as an order of magnitude, not a benchmark |
 | Coverage ratio, VERIFIED vs PLAUSIBLE | — | Set by `src/assessment/coverage.py` per run, from whether the ANTLR parse succeeded or it fell back to a token scan |
 | Risk tier | PLAUSIBLE | A published deterministic policy is not a measurement. Its inputs are VERIFIED |
