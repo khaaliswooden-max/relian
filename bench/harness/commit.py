@@ -135,16 +135,22 @@ def sign(manifest: Dict, key_path: Path) -> Dict:
     )
     from cryptography.hazmat.primitives import serialization
 
-    if key_path.exists():
-        priv = serialization.load_pem_private_key(key_path.read_bytes(), password=None)
+    # 2026-09-08: the previous `else` branch generated a fresh Ed25519 key,
+    # wrote it unencrypted, and sealed with it when the expected key was
+    # absent -- silently substituting the signing identity of a contract
+    # deliverable. A missing key is a stop condition, not a fallback.
+    if not key_path.exists():
+        import sys as _sys
+        _sys.exit(f"REFUSING: {key_path} not found. RELIAN-BENCH is sealed with "
+                  f"relian-bench-v1 (raw32 fingerprint 233bb4406e2de606). "
+                  f"Restore the key; do not generate a new one.")
+    _raw = key_path.read_bytes()
+    if b"ENCRYPTED" in _raw.split(b"\n", 1)[0]:
+        import getpass as _getpass
+        _pw = _getpass.getpass(f"Passphrase for {key_path.name}: ").encode()
     else:
-        priv = Ed25519PrivateKey.generate()
-        key_path.parent.mkdir(parents=True, exist_ok=True)
-        key_path.write_bytes(priv.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption(),
-        ))
+        _pw = None
+    priv = serialization.load_pem_private_key(_raw, password=_pw)
     pub = priv.public_key().public_bytes(
         encoding=serialization.Encoding.Raw,
         format=serialization.PublicFormat.Raw,
