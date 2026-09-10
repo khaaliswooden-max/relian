@@ -89,7 +89,25 @@ env:
   # tests/assessment/test_cross_check.py, all ten conditional on fixture shape.
   # Enumerated and classified in docs/PHASE2_LOG.md §4. Change this number only
   # alongside that section.
-  EXPECTED_SKIPS: "10"
+  #
+  # WP-2.6, 2026-09-10: was 10. Net +3, all three in
+  # tests/test_verify_manifest.py and all three gated on the same file:
+  #
+  #   test_the_v1_3_seal_verifies_the_tree_on_all_three_layers
+  #   test_the_v1_3_seal_carries_v1_2s_baselines_and_thresholds
+  #   test_cli_exits_zero_on_the_v1_3_ledger
+  #
+  # RELIAN-BENCH v1.3 is sealed by the OPERATOR in a key session (R4); nothing
+  # in this repository signs. Until bench/LEDGER_relian-bench-v1.3.json exists
+  # there is no v1.3 ledger to verify, so these three skip with a named reason
+  # -- the same existence-gating pattern WP-2.1 used for the discovery ledger,
+  # and for the same reason: a commented-out test is invisible, whereas a
+  # skipped one appears in every run and says which of the two states it is in.
+  #
+  # These three are the ONLY skips in this suite that are expected to go away.
+  # TODO(WP-2.6-seal): after the ceremony they start running with no edit, and
+  # this number returns to 10 while EXPECTED_PASSES rises to 1187.
+  EXPECTED_SKIPS: "13"
 
   # WP-2.0.2 -- the pass count, which was prose until now.
   #
@@ -525,7 +543,66 @@ env:
   #       requirements.lock, so that test would have skipped here -- drifting
   #       EXPECTED_SKIPS and silently not running the gate at all. fastapi
   #       itself is pinned, so the import is a hard one.
-  EXPECTED_PASSES: "1149"
+  #
+  # WP-2.6, 2026-09-10: was 1149. Net +35.
+  #
+  # Read the arithmetic against the RED run this branch fixes, run
+  # 34428042255 on `main` at 153f40f, which measured:
+  #
+  #     1136 passed, 13 failed, 10 skipped, 1159 collected
+  #
+  # 1136 + 13 = 1149 = the previous EXPECTED_PASSES exactly, so nothing had
+  # stopped being collected: 13 tests flipped from pass to fail for one
+  # upstream reason (see below), and the gate was current. That mattered --
+  # had the sum come out below 1149, there would have been a second, hidden
+  # problem underneath the visible one.
+  #
+  # The 13 were all in two files and all one cause. `153f40f` removed
+  # `sign()`'s silent-keygen fallback from bench/harness/commit.py -- a correct
+  # fix to a real defect (WP-2.1 finding F-B) -- but bench/harness/ is an
+  # include dir of the v1.2 seal, so commit.py is a recorded entry INSIDE the
+  # manifest it produces and the tree stopped matching the seal.
+  # tests/test_verify_manifest.py proves each verifier layer fails
+  # INDEPENDENTLY, which a tree that is already red makes unstatable, so its 12
+  # layer-isolation tests went red together; the 13th was the negative control
+  # in tests/test_seal.py that had been pinning the fallback's existence and
+  # fired exactly as its own docstring predicted it would.
+  #
+  # The +32, attributed file by file:
+  #
+  #   tests/test_seal.py                          +34 collected, +34 passing
+  #       The pre-ceremony assertions, so the operator's key session has
+  #       nothing left to discover. 9 on the carry-forward that protects
+  #       `baselines_recorded` (the pre-solution floor, which commit.py
+  #       re-derives from the unsealed, mutable bench/results/) and
+  #       `thresholds` (the R10 merge gates bench.yml reads) -- byte-equality
+  #       against v1.2 on the canonical serialisation the manifest hash is
+  #       taken over, plus the MECHANISM, because re-deriving today happens to
+  #       agree and an equality assertion alone would pass for a recomputing
+  #       sealer. 7 on the include set and the declared absences: the walk
+  #       reproduces v1.2's file list exactly, exactly one file differs, and a
+  #       declared absence matching nothing recorded refuses to seal. 6 on the
+  #       passphrase-encrypted key, including a planted red proving the old
+  #       `password=None` loader would have failed at the ceremony, and an
+  #       assertion that the passphrase can reach the tool by no route but
+  #       getpass. 6 on the vector census: v1.3 omits `vector_counts`
+  #       deliberately (v1.2's block counts 425 held-out vectors and measuring
+  #       those means opening heldout.jsonl -- rule 1 / R3), the public counts
+  #       still match what v1.2 sealed, and the oracle compiler is now a
+  #       sealing condition. 3
+  #       repointing the negative control onto commit.py's NEW behaviour and
+  #       pinning seal.py's narrowed docstring. 2 on seal.toml staying outside
+  #       the seal it configures -- the trap commit.py fell into.
+  #
+  #   tests/test_verify_manifest.py                +4 collected, +1 passing
+  #       +3 of the 4 are the v1.3-gated clean-pass tests counted in
+  #       EXPECTED_SKIPS above. The +1 net passing is the rewrite of the
+  #       green-path section: three tests that asserted a clean 3/3 pass
+  #       against v1.2 became four that assert the measured truth instead --
+  #       one mismatch, on harness/commit.py, with payload and signature still
+  #       passing, and all 29 recorded entries accounted for. The incident is
+  #       now a regression test, and a SECOND mismatched file fails it.
+  EXPECTED_PASSES: "1184"
 
 jobs:
   parser-regen:
@@ -594,7 +671,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.lock
 
-      - name: Verify bench/ against LEDGER_relian-bench-v1.2.json
+      - name: Verify bench/ against LEDGER_relian-bench-v1.3.json
         # Three layers, each reported independently:
         #   TREE       every recorded file exists and hashes to its recorded
         #              sha256, AND the include set is re-walked so a file
@@ -603,29 +680,137 @@ jobs:
         #              CONSISTENTLY edited files[] that layer 1 would accept
         #   SIGNATURE  Ed25519 over manifest_hash()
         #
-        # --expect-absent names the two categories of recorded file this
-        # repository deliberately does not contain: the seven held-out vector
-        # files (rule 1 / R3, scoring-only and CI-only) and the vector
-        # generator (rule 6, generator + seed regenerate the held-out set).
-        # Both are in .gitignore for those reasons. They are reported as
-        # DECLARED ABSENT and are never counted as verified -- an unavailable
-        # file is not a checked one (R1) -- and their contents are not read.
-        # Measured on this ledger: 29 recorded, 21 verified here, 8 declared
-        # absent, 0 hash mismatches, 0 unrecorded files on disk.
+        # WP-2.6: WHY THIS POINTS AT v1.3, AND WHY IT SKIPS UNTIL IT EXISTS
+        # ------------------------------------------------------------------
+        # `153f40f` removed `sign()`'s silent-keygen fallback from
+        # `bench/harness/commit.py`. Correct fix, real defect (WP-2.1 F-B) --
+        # but `bench/harness/` is an include dir of the v1.2 seal, so
+        # `commit.py`'s own sha256 is a recorded entry in the manifest it
+        # produces. The tree stopped matching the seal, this step went red, and
+        # that is the verifier doing exactly the job WP-2.0.2 built it for.
+        # There is no such thing as a bugfix-only edit to a sealed file.
         #
-        # --key-fingerprint pins the signer. Without it the signature layer
+        # Verifying against v1.2 can never pass again, and it must not be made
+        # to: reverting `153f40f` would restore the seal and reinstate F-B. The
+        # remediation is the v1.3 re-seal, which is an OPERATOR key session
+        # (R4) -- nothing in this repository signs.
+        #
+        # So this step is GATED ON THE v1.3 LEDGER'S EXISTENCE and skips with a
+        # named reason until the ceremony lands it. Same pattern, and the same
+        # reasoning, as the discovery-bench step below: a commented-out step is
+        # invisible in the checks list, whereas this one appears on every run
+        # and says which of the two states it is in. The moment the operator
+        # commits the ledger it starts enforcing with no workflow edit -- so
+        # turning the gate on cannot be the thing somebody forgets to do.
+        #
+        # WHAT STILL HAS TEETH IN THE MEANTIME, so this is not green-by-skip:
+        # tests/test_verify_manifest.py asserts the CURRENT measured state on
+        # the real tree -- exactly one hash mismatch, on harness/commit.py,
+        # with payload and signature still passing. A second mismatched file,
+        # or a failing payload or signature layer, fails the `pytest` job.
+        # The claim is not suspended; it moved to where it can be stated
+        # truthfully.
+        #
+        # TODO(WP-2.6-seal): after the ceremony, replace the `if` with an
+        # unconditional run so a DELETED ledger fails instead of skipping.
+        # Until the ledger exists, that inversion would fail every run.
+        #
+        # --from-manifest reads include_rules and expected_absent out of the
+        # SIGNED payload, so the include set and the declared absences are the
+        # signer's claim rather than this workflow's. v1.2 could not be checked
+        # that way -- its format records neither, which is why the call below
+        # no longer needs the four arguments the v1.2 call did.
+        #
+        # Expected on v1.3: 29 recorded, 21 verified here, 8 declared absent
+        # (the seven held-out vector files, rule 1 / R3, and the vector
+        # generator, rule 6 -- both .gitignored, never counted as verified
+        # because an unavailable file is not a checked one (R1), and never
+        # read), 0 hash mismatches, 0 unrecorded files on disk.
+        #
+        # A v1.3 recording 21 rather than 29 was sealed in a public checkout
+        # and has silently dropped the held-out corpus from the benchmark's
+        # integrity claim. tools/seal.py refuses that at seal time
+        # (require_declared_absences_are_present) and the census check below
+        # refuses it here.
+        #
+        # --pin-fingerprint pins the signer. Without it the signature layer
         # verifies with the public key EMBEDDED IN THE MANIFEST, which proves
         # self-consistency but not authorship: a forged manifest re-signed with
         # an attacker's own key passes. The pin makes editing this workflow a
         # visible precondition of that attack.
         run: |
+          LEDGER=bench/LEDGER_relian-bench-v1.3.json
+          if [ ! -f "$LEDGER" ]; then
+            echo "SKIPPED (named reason): $LEDGER does not exist yet."
+            echo
+            echo "  TODO(WP-2.6-seal). RELIAN-BENCH v1.3 is sealed by the"
+            echo "  OPERATOR in a key session (R4); nothing in this repository"
+            echo "  signs. Until that happens there is no v1.3 ledger to check."
+            echo
+            echo "  The v1.2 ledger is deliberately NOT checked here instead."
+            echo "  It is known-stale by exactly one file -- harness/commit.py,"
+            echo "  edited by 153f40f to remove sign()'s silent-keygen"
+            echo "  fallback -- and bench/harness/ is inside the v1.2 seal."
+            echo "  Verifying against it would fail every run for a reason"
+            echo "  already understood, recorded and being remediated."
+            echo
+            echo "  This is NOT green-by-skip: the measured state of the tree"
+            echo "  against v1.2 is asserted in the pytest job by"
+            echo "  tests/test_verify_manifest.py -- one mismatch, on"
+            echo "  harness/commit.py, payload and signature passing. A second"
+            echo "  mismatch, or a broken manifest layer, fails there."
+            echo
+            echo "  v1.2 remains in the repository as the R7 provenance anchor"
+            echo "  whose committed_at predates the grammar merge. v1.3"
+            echo "  supersedes it for TREE INTEGRITY ONLY."
+            exit 0
+          fi
+          echo "--- v1.3 ledger present; verifying ---"
           python3 tools/verify_manifest.py \
-            --ledger bench/LEDGER_relian-bench-v1.2.json \
+            --ledger "$LEDGER" \
             --root bench \
-            --include-dirs corpus,harness \
-            --include-files SPEC.md \
-            --expect-absent '**/vectors/heldout.jsonl,harness/gen_vectors.py' \
-            --key-fingerprint 233bb4406e2de606
+            --from-manifest \
+            --pin-fingerprint 233bb4406e2de606 \
+            --json > bench-verify.json
+          python3 - <<'PY'
+          import json, sys
+          from pathlib import Path
+          report = json.loads(Path("bench-verify.json").read_text())
+          tree = next(l for l in report["layers"] if l["name"] == "tree")
+          detail = tree["detail"]
+          print(json.dumps(detail, indent=2, sort_keys=True)[:2000])
+          problems = []
+          if not report["ok"]:
+              problems.append(
+                  f"layers failed: "
+                  f"{[l['name'] for l in report['layers'] if not l['ok']]}")
+          # The census, checked rather than trusted. A v1.3 sealed without the
+          # private corpus present records 21 and declares 0 absent, which
+          # would otherwise pass every other check in this job.
+          if detail["recorded"] != 29:
+              problems.append(
+                  f"recorded is {detail['recorded']}, expected 29. A v1.3 "
+                  f"recording fewer was sealed in a perimeter that did not "
+                  f"hold the complete benchmark, and has silently shrunk what "
+                  f"the seal covers. Escalate rather than re-point this gate.")
+          if detail["declared_absent"] != 8:
+              problems.append(
+                  f"declared_absent is {detail['declared_absent']}, expected "
+                  f"8 -- the seven held-out vector files and the vector "
+                  f"generator.")
+          if detail["verified"] != detail["recorded"] - detail["declared_absent"]:
+              problems.append(
+                  f"verified {detail['verified']} != recorded "
+                  f"{detail['recorded']} - declared_absent "
+                  f"{detail['declared_absent']}")
+          if problems:
+              for problem in problems:
+                  print(f"GATE FAILED: {problem}")
+              sys.exit(1)
+          print(f"GATE MET: {detail['verified']}/{detail['recorded']} verified, "
+                f"{detail['declared_absent']} declared absent, "
+                f"{detail['hash_mismatches']} mismatches")
+          PY
 
       - name: Verify discovery-bench/ against its ledger
         # WP-2.1. RELIAN-DISCOVERY-BENCH v0.1 is sealed by the OPERATOR in a

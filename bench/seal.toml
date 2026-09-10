@@ -1,0 +1,171 @@
+# RELIAN-BENCH v1.3 -- sealing parameters (WP-2.6)
+#
+# WHAT THIS FILE IS
+# -----------------
+# The complete, reviewable input to the v1.3 ceremony. `tools/seal.py --config
+# bench/seal.toml --sign` reads it and produces
+# `bench/LEDGER_relian-bench-v1.3.json`. Nothing here signs; nothing here
+# touches a key. Custody is the operator's alone (R4).
+#
+# WHY THE SEALER IS `tools/seal.py` AND NOT `bench/harness/commit.py`
+# -------------------------------------------------------------------
+# Stated plainly because WP-2.6 §3.1d requires the choice to be on the record.
+#
+# `commit.py` hardcodes "1.2.0", "relian-bench-v1.2" and its own output
+# filename, so sealing v1.3 with it means editing it. `bench/harness/` is an
+# include dir of the seal, so `commit.py`'s own sha256 is a recorded entry in
+# the manifest it produces. Editing it to seal v1.3 changes that hash, which
+# changes payload_sha256, which changes manifest_sha256 -- so the v1.3 ledger
+# would be invalidated by the very edit that produced it, and the next commit
+# would need another re-seal. That is the loop this work package exists to
+# break, and it is what `153f40f` walked into: a correct one-line bugfix to
+# `commit.py` broke the v1.2 seal and turned `main` red.
+#
+# `tools/seal.py` is not sealed. It is a tool, not a benchmark artifact. It is
+# already parameterised, already refuses an absent key, and already refuses to
+# sign a manifest whose toolchain probe returned UNAVAILABLE -- which is what
+# closes the second §14 finding, the v1.2 ledger's permanent
+# `"javac": "UNAVAILABLE"` from a sealing machine with no JDK.
+#
+# NOTE THIS FILE IS ITSELF OUTSIDE THE SEAL. `include.dirs` is corpus and
+# harness; `include.files` is SPEC.md. `bench/seal.toml` sits at the bench
+# root and is in none of them, deliberately: a sealer configuration inside the
+# manifest it configures reproduces exactly the bug above. Pinned by
+# tests/test_seal.py::test_the_v1_3_seal_config_is_not_itself_inside_the_seal.
+#
+# PRECONDITIONS FOR THE CEREMONY (all operator-side, none delegable)
+# ------------------------------------------------------------------
+#   1. cobc, javac and java must all answer. seal.py refuses on UNAVAILABLE.
+#   2. The COMPLETE benchmark must be on the sealing machine -- including the
+#      seven held-out vector files and harness/gen_vectors.py, which live only
+#      in relian-bench-private. v1.2 records 29 files, 8 declared absent; a
+#      seal taken in a public checkout would record 21 and silently shrink the
+#      benchmark's integrity claim. seal.py now refuses that too
+#      (require_declared_absences_are_present).
+#   3. The signing key is passphrase-encrypted (re-wrapped 2026-09-08, still
+#      signing as 233bb4406e2de606). Expect a getpass prompt. The passphrase
+#      is never an argument, never an environment variable, never logged.
+
+[seal]
+name = "RELIAN-BENCH"
+version = "1.3.0"
+tag = "relian-bench-v1.3"
+
+# Relative to this file's directory (bench/).
+root = "."
+out = "LEDGER_relian-bench-v1.3.json"
+
+# The exact patch version of the compiler that builds the oracles. bench.yml
+# compiles every corpus program with `cobc -x program.cbl -o oracle`, so the
+# COBOL compiler is a first-class sealing condition rather than an incidental
+# environment detail: the oracle's behaviour is the ground truth the BER is
+# measured against. v1.2 recorded no such block; recording it is part of what
+# using the newer sealer buys.
+oracle_toolchain = ["cobc"]
+
+# The oracle-counts block seal.py supports for RELIAN-DISCOVERY-BENCH. This
+# benchmark has no generated oracle JSON, so it is deliberately unset rather
+# than pointed at something approximate; an absent block is honest, a guessed
+# one is not (R1).
+
+# --- vector_counts: DELIBERATELY UNSET. OPERATOR DECISION REQUIRED. ---------
+#
+# `vector_counts_glob` is supported by tools/seal.py (measure_vector_counts,
+# tested) and is left out here on purpose. Read this before setting it.
+#
+# v1.2 records a 14-key `vector_counts` block: a public AND a held-out count
+# per program, keyed relative to `corpus/`. The held-out half sums to 425,
+# which is the denominator of the published held-out BER. That is load-bearing
+# provenance: it is how anyone checks that the held-out split was not resized
+# between seals.
+#
+# Measuring the held-out half requires opening `heldout.jsonl`, which CLAUDE.md
+# rule 1 and R3 forbid to the agent that authored this file. So the choice was
+# between two bad options and a third:
+#
+#   * Glob `*.jsonl` -- would work on the operator's complete machine, but
+#     means writing code whose job is to read held-out vectors. Not authored.
+#   * Glob `public.jsonl` only -- emits a 7-key block where v1.2 has 14.
+#     Anyone diffing the two seals reads that as the held-out split having gone
+#     to zero. A partial block is worse than no block.
+#   * Omit it, and say why. ← this
+#
+# CONSEQUENCE, STATED PLAINLY: v1.3 will carry no `vector_counts`. v1.2 remains
+# the provenance anchor for the vector census, which is already its stated role
+# under R7 -- v1.3 supersedes it for TREE INTEGRITY ONLY. The corpus itself is
+# unchanged and provably so: verify_manifest reports zero mismatches under
+# `corpus/`, so every public vector file is byte-identical to the one v1.2
+# sealed.
+#
+# TO INCLUDE IT, the operator adds ONE line here before the ceremony -- no code
+# change -- having decided that a sealer reading held-out line counts on their
+# own machine is acceptable:
+#
+#     vector_counts_glob = "corpus/*/vectors/*.jsonl"
+#
+# That produces the 14-key block on a complete machine. Note the keys will be
+# root-relative (`corpus/P01_payroll/vectors/public.jsonl`) rather than v1.2's
+# corpus-relative form, matching every other path in the manifest, so the two
+# blocks are comparable by value but not by key.
+
+[include]
+# Byte-identical in effect to bench/harness/commit.py's INCLUDE_DIRS,
+# INCLUDE_FILES, EXCLUDE_SUFFIX, EXCLUDE_NAMES and EXCLUDE_BINARIES. commit.py
+# splits the last two -- EXCLUDE_NAMES is tested against every path PART and
+# EXCLUDE_BINARIES against the basename -- while seal.py tests exclude_names
+# against both, so the merged list below is equivalent for these five values.
+#
+# Verified, not asserted: walking bench/ with these rules reproduces exactly
+# the 21 files the v1.2 manifest records as present, with no extras and none
+# missing. Pinned by
+# tests/test_seal.py::test_the_v1_3_include_set_reproduces_the_v1_2_file_list.
+dirs = ["corpus", "harness"]
+files = ["SPEC.md"]
+exclude_suffix = [".pyc", ".o"]
+exclude_names = ["__pycache__", "_classes", "payroll01", "run"]
+
+# Recorded in the manifest, absent in the public perimeter that verifies it.
+# The seven held-out vector files are scoring-only and CI-only (rule 1, R3);
+# the vector generator is excluded because generator + seed + corpus
+# regenerates the held-out set (rule 6). Both are in .gitignore for those
+# reasons. Neither is ever read by this tool.
+expected_absent = [
+    "corpus/P01_payroll/vectors/heldout.jsonl",
+    "corpus/P02_interest/vectors/heldout.jsonl",
+    "corpus/P03_eligibility/vectors/heldout.jsonl",
+    "corpus/P04_taxtable/vectors/heldout.jsonl",
+    "corpus/P05_validate/vectors/heldout.jsonl",
+    "corpus/P06_valinit/vectors/heldout.jsonl",
+    "corpus/P07_exitflow/vectors/heldout.jsonl",
+    "harness/gen_vectors.py",
+]
+
+[carry_forward]
+# THE BLOCK THAT CAN SILENTLY DESTROY THE BENCHMARK (WP-2.6 U1/U2).
+#
+# `baselines_recorded` is the measured floor from BEFORE any solution work
+# (ZCS-6 Phase 4). commit.py re-derives it from bench/results/*.json at seal
+# time; that directory is unsealed, mutable, and has moved since v1.2 was
+# sealed. Re-deriving today would overwrite a pre-solution floor with a
+# post-solution number, and the resulting manifest would be internally
+# consistent, signature-valid, and worthless.
+#
+# `thresholds` is what bench.yml reads for the R10 merge gates -- BER >= 0.95,
+# build_rate 1.00, branch coverage >= 0.80. A changed key there moves what
+# passes, silently.
+#
+# Both are therefore COPIED, verbatim, out of the signed v1.2 ledger, whose own
+# Ed25519 signature is what makes the copy trustworthy. Byte-equality is
+# asserted before the ceremony, not after, by
+# tests/test_seal.py::test_v1_3_carries_v1_2_baselines_recorded_byte_identical
+# and ::test_v1_3_carries_v1_2_thresholds_byte_identical.
+from = "LEDGER_relian-bench-v1.2.json"
+keys = ["baselines_recorded", "thresholds"]
+
+[toolchain]
+# Every probe must answer. seal.py refuses to sign if any returns UNAVAILABLE
+# (difference 2) -- which is precisely how the v1.2 ledger came to carry
+# "javac": "UNAVAILABLE" permanently, on a sealing machine with no JDK.
+cobc = ["cobc", "--version"]
+javac = ["javac", "-version"]
+java = ["java", "-version"]

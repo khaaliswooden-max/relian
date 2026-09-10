@@ -75,15 +75,83 @@ jobs:
           java -version
           echo "RELIAN_COBC_VERSION=$(cobc --version | head -1)" >> "$GITHUB_ENV"
           echo "RELIAN_JAVAC_VERSION=$(javac -version 2>&1 | head -1)" >> "$GITHUB_ENV"
+      - name: Resolve the authoritative ledger
+        # WP-2.6. THIS FILE POINTS AT v1.3. Both steps below read $BENCH_LEDGER,
+        # which is resolved here once instead of being hardcoded twice.
+        #
+        # WHY ONE VARIABLE RATHER THAN TWO LITERALS. This workflow named
+        # `LEDGER_relian-bench-v1.2.json` in two separate steps. A re-seal that
+        # updated one and missed the other would verify a signature-valid v1.2
+        # ledger against a tree matching v1.3 -- a green gate proving nothing,
+        # which is green-by-skip with a signature on it. One assignment cannot
+        # go half-updated.
+        #
+        # WHY A NAMED PRE-CEREMONY FALLBACK, STATED PLAINLY RATHER THAN
+        # SILENTLY. v1.3 is sealed by the OPERATOR in a key session (R4);
+        # nothing here signs, so between this commit and the ceremony the v1.3
+        # ledger does not exist. The fallback to v1.2 in that window is
+        # DECLARED, LOGGED, and defensible on one specific ground: v1.3 carries
+        # v1.2's `thresholds` block forward BYTE-IDENTICALLY, so the R10 gates
+        # the scoring step reads are the same numbers either way. That is not
+        # an assumption -- tools/seal.py copies the block rather than
+        # recomputing it (load_carry_forward) and
+        # tests/test_seal.py::test_v1_3_carries_v1_2_thresholds_byte_identical
+        # asserts the copy before the ceremony.
+        #
+        # What the fallback does NOT do is verify the tree. That claim lives in
+        # tests.yml's bench-seal job, deliberately separate because this
+        # workflow copies heldout.jsonl into bench/corpus/*/vectors/ at run
+        # time and those files are `declared_absent` in the manifest --
+        # verification must never run after the fetch.
+        #
+        # TODO(WP-2.6-seal): after the ceremony, delete the fallback branch so
+        # an ABSENT v1.3 ledger fails instead of degrading. Until the ledger
+        # exists, that inversion would fail every run.
+        run: |
+          V13=bench/LEDGER_relian-bench-v1.3.json
+          V12=bench/LEDGER_relian-bench-v1.2.json
+          if [ -f "$V13" ]; then
+            echo "BENCH_LEDGER=$V13" >> "$GITHUB_ENV"
+            echo "using $V13 (v1.3, the authoritative seal)"
+          else
+            echo "BENCH_LEDGER=$V12" >> "$GITHUB_ENV"
+            echo "NAMED PRE-CEREMONY FALLBACK: $V13 does not exist yet."
+            echo "  TODO(WP-2.6-seal). v1.3 is sealed by the operator (R4)."
+            echo "  Falling back to $V12 for the SIGNATURE check and the R10"
+            echo "  thresholds only. v1.3 carries v1.2's thresholds forward"
+            echo "  byte-identically, asserted by tests/test_seal.py, so the"
+            echo "  gates this job enforces are unchanged by the fallback."
+            echo "  The TREE-matches-manifest claim is NOT made here and is"
+            echo "  not made by v1.2 either -- it is known-stale by exactly"
+            echo "  one file (harness/commit.py, edited by 153f40f). See"
+            echo "  tests.yml's bench-seal job."
+          fi
+
       - name: Verify committed ledger signature
+        # Proves the MANIFEST was not edited. It does not prove the TREE still
+        # matches the manifest -- change one byte under bench/corpus/ and this
+        # still passes perfectly, because the signature covers the manifest's
+        # bytes rather than the corpus's. That second claim is tests.yml's
+        # bench-seal job, and it is the claim WP-2.6 exists to restore.
         run: |
           pip install cryptography -q
           python3 - <<'PY'
-          import json, sys; sys.path.insert(0,'bench')
+          import json, os, sys; sys.path.insert(0,'bench')
           from harness.commit import verify
-          m = json.load(open('bench/LEDGER_relian-bench-v1.2.json'))
-          assert verify(m), 'LEDGER signature invalid — benchmark tampered'
-          print('ledger verified:', m['signature']['manifest_sha256'][:16])
+          path = os.environ['BENCH_LEDGER']
+          m = json.load(open(path))
+          assert verify(m), f'{path}: signature invalid — benchmark tampered'
+          # Pinned. `harness.commit.verify()` checks the signature against the
+          # public key EMBEDDED IN THE MANIFEST, which proves self-consistency
+          # and not authorship (T7): a forged manifest re-signed with an
+          # attacker's own key returns True. The fingerprint check is what
+          # makes editing this workflow a visible precondition of that.
+          fingerprint = m['signature']['key_fingerprint']
+          assert fingerprint == '233bb4406e2de606', (
+              f'{path} is signed by {fingerprint}, not the published '
+              f'RELIAN-BENCH key 233bb4406e2de606')
+          print(f'{path} verified:', m['signature']['manifest_sha256'][:16],
+                f"(tag {m.get('tag')}, signer {fingerprint})")
           PY
       - name: Fetch PRIVATE held-out vectors (deploy key)
         env:
@@ -164,7 +232,13 @@ jobs:
           from harness.runner import run_candidate
           from pathlib import Path
 
-          ledger = json.load(open('bench/LEDGER_relian-bench-v1.2.json'))
+          # WP-2.6: read from $BENCH_LEDGER, resolved once in the step
+          # above, so this and the signature check can never disagree about
+          # which seal governs. `thresholds` is byte-identical between v1.2 and
+          # v1.3 by construction (tools/seal.py carries the block forward
+          # rather than recomputing it), so the R10 gates below are the same
+          # numbers under either.
+          ledger = json.load(open(os.environ['BENCH_LEDGER']))
           thresholds = ledger['thresholds']
           mains = json.loads(Path('bench/harness/mains.json').read_text())
           out = Path('candidates/current')
