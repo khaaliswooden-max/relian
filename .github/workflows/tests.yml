@@ -90,24 +90,27 @@ env:
   # Enumerated and classified in docs/PHASE2_LOG.md §4. Change this number only
   # alongside that section.
   #
-  # WP-2.6, 2026-09-10: was 10. Net +3, all three in
-  # tests/test_verify_manifest.py and all three gated on the same file:
+  # WP-2.6.1, 2026-09-10: was 13. Net -3, and back to the ten fixture-shape
+  # skips this number exists to pin. The three that went away are exactly the
+  # three WP-2.6 added, all in tests/test_verify_manifest.py:
   #
-  #   test_the_v1_3_seal_verifies_the_tree_on_all_three_layers
-  #   test_the_v1_3_seal_carries_v1_2s_baselines_and_thresholds
-  #   test_cli_exits_zero_on_the_v1_3_ledger
+  #   test_the_v1_3_seal_verifies_the_tree_on_all_three_layers      skip -> pass
+  #   test_the_v1_3_seal_carries_v1_2s_baselines_and_thresholds     skip -> pass
+  #   test_cli_exits_zero_on_the_v1_3_ledger                        skip -> pass
   #
-  # RELIAN-BENCH v1.3 is sealed by the OPERATOR in a key session (R4); nothing
-  # in this repository signs. Until bench/LEDGER_relian-bench-v1.3.json exists
-  # there is no v1.3 ledger to verify, so these three skip with a named reason
-  # -- the same existence-gating pattern WP-2.1 used for the discovery ledger,
-  # and for the same reason: a commented-out test is invisible, whereas a
-  # skipped one appears in every run and says which of the two states it is in.
+  # They were gated on `needs_v13`, a skipif on the existence of
+  # bench/LEDGER_relian-bench-v1.3.json, because RELIAN-BENCH v1.3 is sealed by
+  # the OPERATOR in a key session (R4) and nothing in this repository signs.
+  # The ceremony ran on 2026-09-10 and the ledger is committed, so the gate can
+  # no longer fire -- a control that has stopped controlling -- and WP-2.6.1
+  # deleted it rather than leaving it standing. The three tests now run
+  # unconditionally, which is what makes the -3 permanent: with the skipif in
+  # place they would silently return to skipping if the ledger were deleted.
   #
-  # These three are the ONLY skips in this suite that are expected to go away.
-  # TODO(WP-2.6-seal): after the ceremony they start running with no edit, and
-  # this number returns to 10 while EXPECTED_PASSES rises to 1190.
-  EXPECTED_SKIPS: "13"
+  # MEASURED, not predicted: pytest -q with RELIAN_REQUIRE_COBC=1 reports
+  # 1190 passed, 10 skipped, 0 failed. Collection is 1200 before and after.
+  EXPECTED_SKIPS: "10"
+
 
   # WP-2.0.2 -- the pass count, which was prose until now.
   #
@@ -607,7 +610,50 @@ env:
   #       one mismatch, on harness/commit.py, with payload and signature still
   #       passing, and all 29 recorded entries accounted for. The incident is
   #       now a regression test, and a SECOND mismatched file fails it.
-  EXPECTED_PASSES: "1187"
+  # WP-2.6.1, 2026-09-10: was 1187. Net +3, and every one of them accounted
+  # for below. MEASURED on the reconciled tree with RELIAN_REQUIRE_COBC=1,
+  # not carried over from the pre-ceremony note that predicted it:
+  #
+  #   +3  the three `needs_v13` tests above, skip -> pass. The v1.3 ledger
+  #       exists, so they run; the skipif that gated them is deleted, so they
+  #       cannot go back to skipping without the deletion being noticed.
+  #
+  #   -4  stale-state scaffolding in tests/test_verify_manifest.py, deleted
+  #       because the state it asserted no longer exists:
+  #         test_the_v1_2_seal_is_stale_by_exactly_one_file_and_it_is_commit_py
+  #             bounded the re-seal's blast radius BEFORE the ceremony. v1.3
+  #             records the current commit.py, so there is no drift to bound.
+  #         test_the_manifest_itself_is_intact_which_is_why_this_is_a_re_seal
+  #             established that the tree moved and the manifest did not, i.e.
+  #             that re-sealing was the right remediation. That decision is
+  #             made and executed.
+  #         test_v12_census_accounts_for_all_29_recorded_entries
+  #             asserted the census as 20 verified + 1 moved + 8 absent.
+  #             Nothing is moved any more.
+  #         test_cli_exits_one_on_the_stale_v1_2_ledger_and_names_commit_py
+  #             asserted the CLI going RED on the real tree. It goes green.
+  #
+  #   +4  their post-ceremony replacements, same file, same claims restated
+  #       against the state that now holds:
+  #         test_the_v1_2_anchor_manifest_is_still_intact
+  #             v1.2 is retained under R7, so its payload and signature layers
+  #             are still asserted. Its tree layer deliberately is not: it is
+  #             superseded, not current.
+  #         test_the_two_ledgers_are_signed_by_the_same_custodian
+  #             one custody chain across the re-seal (R4), with the signer
+  #             DERIVED from public_key_hex on both ledgers. key_fingerprint
+  #             is an unsigned field and is cross-checked, never trusted.
+  #         test_census_accounts_for_all_29_recorded_entries
+  #             the same arithmetic identity against v1.3: 21 + 0 + 8 = 29.
+  #         test_cli_json_output_is_machine_readable_on_a_green_run
+  #             the --json SHAPE contract on a green verdict. Its red-verdict
+  #             twin was repointed at a sandbox mutation, so the red it needs
+  #             is manufactured by the test rather than borrowed from a tree
+  #             that happened to be stale.
+  #
+  # Net from the reconciliation itself is ZERO: four out, four in, collection
+  # 1200 either way. The +3 is the ceremony, not the edit.
+  EXPECTED_PASSES: "1190"
 
 jobs:
   parser-regen:
@@ -700,25 +746,17 @@ jobs:
         # remediation is the v1.3 re-seal, which is an OPERATOR key session
         # (R4) -- nothing in this repository signs.
         #
-        # So this step is GATED ON THE v1.3 LEDGER'S EXISTENCE and skips with a
-        # named reason until the ceremony lands it. Same pattern, and the same
-        # reasoning, as the discovery-bench step below: a commented-out step is
-        # invisible in the checks list, whereas this one appears on every run
-        # and says which of the two states it is in. The moment the operator
-        # commits the ledger it starts enforcing with no workflow edit -- so
-        # turning the gate on cannot be the thing somebody forgets to do.
+        # That remediation landed: the ceremony ran on 2026-09-10 and
+        # bench/LEDGER_relian-bench-v1.3.json is committed. Until then this
+        # step was GATED ON THAT LEDGER'S EXISTENCE and skipped with a named
+        # reason, because a claim that cannot be stated truthfully should not
+        # be stated at all.
         #
-        # WHAT STILL HAS TEETH IN THE MEANTIME, so this is not green-by-skip:
-        # tests/test_verify_manifest.py asserts the CURRENT measured state on
-        # the real tree -- exactly one hash mismatch, on harness/commit.py,
-        # with payload and signature still passing. A second mismatched file,
-        # or a failing payload or signature layer, fails the `pytest` job.
-        # The claim is not suspended; it moved to where it can be stated
-        # truthfully.
-        #
-        # TODO(WP-2.6-seal): after the ceremony, replace the `if` with an
-        # unconditional run so a DELETED ledger fails instead of skipping.
-        # Until the ledger exists, that inversion would fail every run.
+        # The gate is now DELETED rather than left in place. A conditional that
+        # can only be taken by the seal going MISSING is not a gate; it is a
+        # path on which a deleted ledger produces `exit 0` and a green tick --
+        # green-by-skip, in the one job whose entire purpose is provenance.
+        # Absence is a hard failure below.
         #
         # --from-manifest reads include_rules and expected_absent out of the
         # SIGNED payload, so the include set and the declared absences are the
@@ -746,29 +784,21 @@ jobs:
         run: |
           LEDGER=bench/LEDGER_relian-bench-v1.3.json
           if [ ! -f "$LEDGER" ]; then
-            echo "SKIPPED (named reason): $LEDGER does not exist yet."
+            echo "FAIL: $LEDGER is missing."
             echo
-            echo "  TODO(WP-2.6-seal). RELIAN-BENCH v1.3 is sealed by the"
-            echo "  OPERATOR in a key session (R4); nothing in this repository"
-            echo "  signs. Until that happens there is no v1.3 ledger to check."
+            echo "  RELIAN-BENCH v1.3 was sealed by the operator on 2026-09-10"
+            echo "  and records the tree as it now stands. Its absence means"
+            echo "  the seal was deleted or the checkout is incomplete."
             echo
-            echo "  The v1.2 ledger is deliberately NOT checked here instead."
-            echo "  It is known-stale by exactly one file -- harness/commit.py,"
-            echo "  edited by 153f40f to remove sign()'s silent-keygen"
-            echo "  fallback -- and bench/harness/ is inside the v1.2 seal."
-            echo "  Verifying against it would fail every run for a reason"
-            echo "  already understood, recorded and being remediated."
-            echo
-            echo "  This is NOT green-by-skip: the measured state of the tree"
-            echo "  against v1.2 is asserted in the pytest job by"
-            echo "  tests/test_verify_manifest.py -- one mismatch, on"
-            echo "  harness/commit.py, payload and signature passing. A second"
-            echo "  mismatch, or a broken manifest layer, fails there."
-            echo
-            echo "  v1.2 remains in the repository as the R7 provenance anchor"
-            echo "  whose committed_at predates the grammar merge. v1.3"
-            echo "  supersedes it for TREE INTEGRITY ONLY."
-            exit 0
+            echo "  This job does NOT fall back to v1.2. v1.2 remains in the"
+            echo "  repository as the R7 provenance anchor whose committed_at"
+            echo "  predates the grammar merge, and it is superseded for TREE"
+            echo "  INTEGRITY: it is stale by exactly one file"
+            echo "  (harness/commit.py, edited by 153f40f). Verifying against"
+            echo "  it would fail for a reason already remediated, and passing"
+            echo "  it off as this job's claim would be a green gate proving"
+            echo "  nothing."
+            exit 1
           fi
           echo "--- v1.3 ledger present; verifying ---"
           python3 tools/verify_manifest.py \

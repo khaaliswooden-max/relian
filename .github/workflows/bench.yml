@@ -86,46 +86,39 @@ jobs:
         # which is green-by-skip with a signature on it. One assignment cannot
         # go half-updated.
         #
-        # WHY A NAMED PRE-CEREMONY FALLBACK, STATED PLAINLY RATHER THAN
-        # SILENTLY. v1.3 is sealed by the OPERATOR in a key session (R4);
-        # nothing here signs, so between this commit and the ceremony the v1.3
-        # ledger does not exist. The fallback to v1.2 in that window is
-        # DECLARED, LOGGED, and defensible on one specific ground: v1.3 carries
-        # v1.2's `thresholds` block forward BYTE-IDENTICALLY, so the R10 gates
-        # the scoring step reads are the same numbers either way. That is not
-        # an assumption -- tools/seal.py copies the block rather than
-        # recomputing it (load_carry_forward) and
-        # tests/test_seal.py::test_v1_3_carries_v1_2_thresholds_byte_identical
-        # asserts the copy before the ceremony.
+        # WHY THERE IS NO LONGER A FALLBACK. Between the WP-2.6 pre-ceremony
+        # commit and the ceremony itself, this step degraded to v1.2 when the
+        # v1.3 ledger did not yet exist -- declared and logged, and defensible
+        # only because v1.3 carries v1.2's `thresholds` block forward
+        # byte-identically, so the R10 gates the scoring step reads were the
+        # same numbers either way.
         #
-        # What the fallback does NOT do is verify the tree. That claim lives in
+        # The ceremony ran on 2026-09-10 and the ledger is committed, so the
+        # fallback is DELETED rather than left standing. A branch that can only
+        # be reached by the v1.3 ledger going MISSING is not a fallback any
+        # more; it is a path on which a deleted seal silently downgrades the
+        # gate to a stale one. Absence is now a hard failure, which is the only
+        # honest reading of a missing seal.
+        #
+        # What this step does NOT do is verify the tree. That claim lives in
         # tests.yml's bench-seal job, deliberately separate because this
         # workflow copies heldout.jsonl into bench/corpus/*/vectors/ at run
         # time and those files are `declared_absent` in the manifest --
         # verification must never run after the fetch.
-        #
-        # TODO(WP-2.6-seal): after the ceremony, delete the fallback branch so
-        # an ABSENT v1.3 ledger fails instead of degrading. Until the ledger
-        # exists, that inversion would fail every run.
         run: |
           V13=bench/LEDGER_relian-bench-v1.3.json
-          V12=bench/LEDGER_relian-bench-v1.2.json
-          if [ -f "$V13" ]; then
-            echo "BENCH_LEDGER=$V13" >> "$GITHUB_ENV"
-            echo "using $V13 (v1.3, the authoritative seal)"
-          else
-            echo "BENCH_LEDGER=$V12" >> "$GITHUB_ENV"
-            echo "NAMED PRE-CEREMONY FALLBACK: $V13 does not exist yet."
-            echo "  TODO(WP-2.6-seal). v1.3 is sealed by the operator (R4)."
-            echo "  Falling back to $V12 for the SIGNATURE check and the R10"
-            echo "  thresholds only. v1.3 carries v1.2's thresholds forward"
-            echo "  byte-identically, asserted by tests/test_seal.py, so the"
-            echo "  gates this job enforces are unchanged by the fallback."
-            echo "  The TREE-matches-manifest claim is NOT made here and is"
-            echo "  not made by v1.2 either -- it is known-stale by exactly"
-            echo "  one file (harness/commit.py, edited by 153f40f). See"
-            echo "  tests.yml's bench-seal job."
+          if [ ! -f "$V13" ]; then
+            echo "FAIL: $V13 is missing."
+            echo "  RELIAN-BENCH v1.3 was sealed by the operator on 2026-09-10"
+            echo "  and is the authoritative seal. Its absence means the seal"
+            echo "  was deleted or the checkout is incomplete -- either way this"
+            echo "  job cannot make the claim it exists to make. It does NOT"
+            echo "  fall back to v1.2: v1.2 is the R7 provenance anchor, and"
+            echo "  its tree claim is superseded, not current."
+            exit 1
           fi
+          echo "BENCH_LEDGER=$V13" >> "$GITHUB_ENV"
+          echo "using $V13 (v1.3, the authoritative seal)"
 
       - name: Verify committed ledger signature
         # Proves the MANIFEST was not edited. It does not prove the TREE still

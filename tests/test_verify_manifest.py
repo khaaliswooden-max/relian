@@ -29,10 +29,18 @@ from tools.verify_manifest import (
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BENCH = REPO_ROOT / "bench"
-LEDGER_NAME = "LEDGER_relian-bench-v1.2.json"
+LEDGER_NAME = "LEDGER_relian-bench-v1.3.json"
 LEDGER = BENCH / LEDGER_NAME
 
-# The v1.2 include set, and the two categories of file the sealed manifest
+#: v1.2 stays in the repository as the R7 PROVENANCE ANCHOR. Its `committed_at`
+#: predates the grammar merge, and it is the only ledger carrying the held-out
+#: vector census: v1.3 records no `vector_counts`, because counting them means
+#: reading `heldout.jsonl`, which rule 1 forbids. v1.3 supersedes v1.2 for TREE
+#: INTEGRITY ONLY, which is why both are read here and neither is deleted.
+V12_LEDGER_NAME = "LEDGER_relian-bench-v1.2.json"
+V12_LEDGER = BENCH / V12_LEDGER_NAME
+
+# The include set, and the two categories of file the sealed manifest
 # records but this repository deliberately does not contain:
 #   * `**/vectors/heldout.jsonl` -- scoring-only, CI-only (rule 1 / R3)
 #   * `harness/gen_vectors.py`   -- generator + seed regenerate the held-out
@@ -43,81 +51,51 @@ EXPECT_ABSENT = ("**/vectors/heldout.jsonl", "harness/gen_vectors.py")
 INCLUDE_DIRS = ("corpus", "harness")
 INCLUDE_FILES = ("SPEC.md",)
 
-# Measured on the sealed v1.2 ledger, not assumed: 29 recorded entries, of
-# which 21 exist in this perimeter and 8 are the private files above. Pinned so
-# that a change to either number fails loudly.
-V12_RECORDED = 29
-V12_PRESENT_HERE = 21
-V12_DECLARED_ABSENT = 8
+# Measured on the sealed v1.3 ledger, not assumed: 29 recorded entries, of
+# which 21 exist in this perimeter and 8 are the private files above. The
+# re-seal moved one recorded HASH, not the file set, so v1.3's census is v1.2's
+# -- these are the benchmark's numbers rather than any one ledger's. Pinned so
+# that a change to any of them fails loudly.
+RECORDED = 29
+PRESENT_HERE = 21
+DECLARED_ABSENT = 8
 
-# --- WP-2.6: the one file the tree and the v1.2 seal now disagree about -----
+#: The sandbox is a whole copy of `bench/`, so post-re-seal its counts ARE the
+#: real ones: nothing is excluded from it any more. Kept as separate names
+#: because the sandbox tests assert against a deliberately MUTATED tree, and
+#: that role should not silently share a constant with the real-tree census.
+SANDBOX_VERIFIED = PRESENT_HERE
+SANDBOX_DECLARED_ABSENT = DECLARED_ABSENT
+
+# --- WP-2.6, reconciled 2026-09-10 -----------------------------------------
 #
 # `153f40f` removed `sign()`'s silent-keygen fallback from
-# `bench/harness/commit.py`. That was a correct fix to a real defect (WP-2.1
-# finding F-B). But `bench/harness/` is an include dir of the v1.2 seal, so
-# `commit.py`'s own sha256 is a recorded entry in the manifest it produces --
-# and the tree stopped matching the seal the moment it was edited. There is no
-# such thing as a bugfix-only edit to a sealed file.
+# `bench/harness/commit.py`, a file inside the include set of the seal it
+# produces. The tree stopped matching v1.2 the moment it was edited, and for
+# the interval between that edit and the ceremony this file carried scaffolding
+# -- an excluded path, a repaired sandbox baseline, and a skipif on the v1.3
+# ledger's existence -- so that the twelve layer-isolation proofs below could
+# still say "this mutation breaks the payload layer AND ONLY the payload layer"
+# against a baseline that matched its own ledger.
 #
-# Measured with tools/verify_manifest.py on this branch: exactly one hash
-# mismatch, zero missing, zero unrecorded. The remediation is the v1.3 re-seal
-# (WP-2.6), not a revert and not a second edit to commit.py.
-#
-# WHAT THAT MEANS FOR THIS FILE. Twelve tests here proved each verifier layer
-# fails INDEPENDENTLY -- "this mutation breaks the payload layer and only the
-# payload layer". A tree that is already failing destroys that isolation, so
-# all twelve went red together for one upstream reason.
-#
-# They are repaired by giving the sandbox a baseline that matches its ledger
-# again: `commit.py` is removed from the throwaway copy and declared absent, so
-# the verifier records it, does not hash it, and does not count it as verified
-# -- the same treatment the held-out vectors get, for the same reason (a file
-# this perimeter cannot check is not a checked file, R1). The real `bench/` is
-# never touched (rule 4); only the `shutil.copytree` copy under `tmp_path`.
-#
-# TODO(WP-2.6-seal): after the v1.3 ceremony, delete STALE_AGAINST_V12,
-# `_make_v12_consistent` and this block, point LEDGER_NAME at
-# LEDGER_relian-bench-v1.3.json, and restore SANDBOX_VERIFIED to 21. The
-# sandbox will match its ledger with no exclusion, because that is what the
-# re-seal is for.
-STALE_AGAINST_V12 = "harness/commit.py"
-SANDBOX_EXPECT_ABSENT = EXPECT_ABSENT + (STALE_AGAINST_V12,)
-
-#: Verified count in the repaired sandbox: 21 present, less the excluded one.
-SANDBOX_VERIFIED = V12_PRESENT_HERE - 1
-#: Declared absent there: the private eight, plus the excluded one.
-SANDBOX_DECLARED_ABSENT = V12_DECLARED_ABSENT + 1
-
-#: The v1.3 ledger does not exist until the operator's ceremony (R4). Tests
-#: that assert a CLEAN three-layer pass are gated on it rather than deleted,
-#: so they start enforcing the moment it lands with no edit to this file.
-V13_LEDGER = BENCH / "LEDGER_relian-bench-v1.3.json"
-needs_v13 = pytest.mark.skipif(
-    not V13_LEDGER.is_file(),
-    reason=(
-        "TODO(WP-2.6-seal): LEDGER_relian-bench-v1.3.json is not sealed yet. "
-        "The v1.2 seal is known-stale by exactly one file (harness/commit.py, "
-        "edited by 153f40f), so a clean 3/3 pass is not assertable until the "
-        "re-seal. This SKIPS with a named reason rather than asserting the "
-        "old green -- which would be green-by-skip with the skip hidden."
-    ),
-)
-
+# The v1.3 ceremony ran. The sandbox now matches its ledger with no exclusion,
+# which is what the re-seal was for, so all of that scaffolding is deleted
+# rather than commented out. The skipif is deleted with it: the ledger exists,
+# so a gate that can no longer fire is a control that has stopped controlling.
 
 def run(root, ledger=None, **overrides):
-    """Invoke the verifier with the v1.2 argument set, overridable per test.
+    """Invoke the verifier with the real argument set, overridable per test.
 
-    `expect_absent` defaults to the SANDBOX set, which excludes the one file
-    `153f40f` moved (see STALE_AGAINST_V12). Tests that assert against the real
-    `bench/` pass `expect_absent=EXPECT_ABSENT` explicitly, because declaring a
-    file absent while it is present is itself a finding there.
+    `expect_absent` is the real declared-absent set -- the held-out vectors and
+    the generator. There is no longer an excluded path on top of it: v1.3
+    records the tree as it stands, so the sandbox copy matches its own ledger.
     """
     kwargs = dict(
         ledger=ledger if ledger is not None else Path(root) / LEDGER_NAME,
         root=root,
         include_dirs=INCLUDE_DIRS,
         include_files=INCLUDE_FILES,
-        expect_absent=SANDBOX_EXPECT_ABSENT,
+        expect_absent=EXPECT_ABSENT,
     )
     kwargs.update(overrides)
     return verify(**kwargs)
@@ -133,27 +111,16 @@ def run_real(root=BENCH, ledger=None, **overrides):
     )
 
 
-def _make_v12_consistent(dest: Path) -> None:
-    """Remove the one file the tree and the v1.2 seal disagree about.
-
-    See STALE_AGAINST_V12. Removing it here, in a throwaway copy, plus
-    declaring it absent, restores the property every layer-isolation test in
-    this file depends on: a baseline that matches its own ledger. Without that,
-    "this mutation fails the payload layer AND ONLY the payload layer" cannot
-    be stated, because the tree layer is already red for an unrelated reason.
-
-    This is a REPAIR OF THE TEST BASELINE, not of the seal. The seal is
-    repaired by the v1.3 ceremony.
-    """
-    (dest / STALE_AGAINST_V12).unlink()
-
-
 @pytest.fixture
 def sandbox(tmp_path):
-    """A throwaway copy of `bench/`. The real tree is never mutated."""
+    """A throwaway copy of `bench/`. The real tree is never mutated (rule 4).
+
+    An unmodified copy verifies clean against its own ledger, which is the
+    property every layer-isolation test below depends on: a mutation can only
+    be blamed for the layer it breaks if nothing else was already broken.
+    """
     dest = tmp_path / "bench"
     shutil.copytree(BENCH, dest)
-    _make_v12_consistent(dest)
     return dest
 
 
@@ -213,98 +180,92 @@ def flip_one_byte(path: Path):
 # regression test.
 
 
-def test_the_v1_2_seal_is_stale_by_exactly_one_file_and_it_is_commit_py():
-    """Acceptance ①, from the verifier's side. The blast radius, asserted.
+def test_the_v1_2_anchor_manifest_is_still_intact():
+    """v1.2 is retained under R7, so its CUSTODY CHAIN is still asserted.
 
-    If a SECOND file ever appears here, the re-seal's scope is wider than
-    WP-2.6 was written for and it is a different work package. This assertion
-    is where that gets noticed instead of being absorbed into the re-seal.
+    Its tree layer no longer matches this repository and is not expected to:
+    `153f40f` edited `harness/commit.py`, and v1.3 -- not a re-seal of v1.2 --
+    is what records the tree as it now stands. What must remain true of the
+    anchor is that the anchor itself was never edited, so the payload and
+    signature layers are asserted here and the tree layer deliberately is not.
+
+    A failing payload or signature layer on v1.2 would mean the MANIFEST moved,
+    which is a tamper finding rather than superseded provenance.
     """
-    report = run_real()
-    assert not report.ok
-    assert report.failed_layers() == ["tree"], (
-        "only the tree claim is broken; if payload or signature fails too the "
-        "manifest itself was edited, which is a tamper finding, not a re-seal"
-    )
-
-    detail = report.layer("tree").detail
-    assert detail["hash_mismatches"] == 1
-    assert [entry["path"] for entry in detail["mismatched_paths"]] == [
-        STALE_AGAINST_V12
-    ]
-    assert detail["missing"] == 0
-    assert detail["unrecorded_on_disk"] == 0
-    assert detail["declared_absent"] == V12_DECLARED_ABSENT
-
-    # The recorded sha is the one 153f40f moved away from. Read from the
-    # ledger rather than transcribed, so the test cannot drift from the seal.
-    recorded = next(
-        entry["sha256"]
-        for entry in json.loads(LEDGER.read_text())["files"]
-        if entry["path"] == STALE_AGAINST_V12
-    )
-    mismatch = detail["mismatched_paths"][0]
-    assert mismatch["expected"] == recorded
-    assert mismatch["actual"] != recorded
-    assert mismatch["actual"] == hashlib.sha256(
-        (BENCH / STALE_AGAINST_V12).read_bytes()
-    ).hexdigest()
-
-
-def test_the_manifest_itself_is_intact_which_is_why_this_is_a_re_seal():
-    """The distinction that decides the remediation.
-
-    A failing TREE layer with passing PAYLOAD and SIGNATURE layers means the
-    tree moved -- an authorised edit that outran its seal. A failing payload or
-    signature layer would mean the MANIFEST moved, which is tampering and a
-    different response entirely. Re-sealing is correct only under the first
-    reading, so the first reading is asserted rather than assumed.
-    """
-    report = run_real()
+    report = run_real(ledger=V12_LEDGER)
     assert report.layer("payload").ok
     assert report.layer("signature").ok
     assert report.layer("signature").detail["signature_valid"] is True
 
 
-def test_v12_census_accounts_for_all_29_recorded_entries():
-    """Nothing appeared, nothing vanished: 20 verified + 1 moved + 8 absent."""
+def test_the_two_ledgers_are_signed_by_the_same_custodian():
+    """One custody chain across the re-seal (R4), DERIVED rather than read.
+
+    `key_fingerprint` is not what this trusts. `manifest_hash()` covers
+    `manifest minus signature`, so the whole signature block -- that field
+    included -- is UNSIGNED: an attacker who re-signs a forged ledger with
+    their own key can leave `key_fingerprint` reading 233bb4406e2de606 and a
+    string comparison accepts it. bench.yml derives the signer from
+    `public_key_hex` for exactly this reason, and so does this test.
+
+    The declared field is then cross-checked against the derived one, which is
+    different from being trusted: a manifest disagreeing with its own key is a
+    finding rather than a curiosity.
+    """
+    for path in (V12_LEDGER, LEDGER):
+        signature = json.loads(path.read_text())["signature"]
+        derived = hashlib.sha256(
+            bytes.fromhex(signature["public_key_hex"])
+        ).hexdigest()[:16]
+        assert derived == "233bb4406e2de606", (
+            f"{path.name} was signed by {derived}, not the published "
+            f"RELIAN-BENCH key -- the re-seal changed custodian"
+        )
+        assert signature["key_fingerprint"] == derived, (
+            f"{path.name} declares a key_fingerprint its public_key_hex does "
+            f"not hash to"
+        )
+
+
+def test_census_accounts_for_all_29_recorded_entries():
+    """Nothing appeared, nothing vanished: 21 verified + 0 moved + 8 absent."""
     detail = run_real().layer("tree").detail
-    assert detail["recorded"] == V12_RECORDED
-    assert detail["declared_absent"] == V12_DECLARED_ABSENT
+    assert detail["recorded"] == RECORDED
+    assert detail["declared_absent"] == DECLARED_ABSENT
     assert (
         detail["verified"] + detail["hash_mismatches"] + detail["declared_absent"]
         == detail["recorded"]
     )
     # The unverifiable eight are counted as absent, never folded into
     # `verified`. An unavailable file is not a checked one (R1).
-    assert detail["verified"] == V12_PRESENT_HERE - 1
+    assert detail["verified"] == PRESENT_HERE
 
 
 def test_pinning_the_real_signer_fingerprint_still_passes():
-    """The custody chain is unaffected by the stale tree.
+    """The custody pin holds on the real ledger, and nothing else is red.
 
-    The signature layer is scoped to the manifest's own bytes, so it passes and
-    the pin holds. Only the report as a whole is red, and only because of the
-    tree.
+    Before the ceremony this asserted `failed_layers() == ["tree"]` -- the pin
+    passing while the tree was stale. Post-re-seal the whole report is green,
+    so the assertion is the stronger one: pinning the real fingerprint does not
+    cost a layer.
     """
     report = run_real(key_fingerprint="233bb4406e2de606")
     signature = report.layer("signature")
     assert signature.ok
     assert signature.detail["signer_pinned"] is True
-    assert report.failed_layers() == ["tree"]
+    assert report.failed_layers() == []
+    assert report.ok
 
 
-@needs_v13
 def test_the_v1_3_seal_verifies_the_tree_on_all_three_layers():
-    """The post-ceremony green path. Skipped, with a reason, until it exists.
+    """The post-ceremony green path, now enforcing rather than gated.
 
-    Gated on the file rather than commented out, so it appears in every run and
-    says which of the two states it is in -- the same pattern WP-2.1 used for
-    the discovery ledger. The moment the operator commits the v1.3 ledger this
-    starts enforcing with no edit here.
+    This was skipped on the existence of the v1.3 ledger until the ceremony
+    ran. The ledger exists, so the gate is gone and this is the primary claim
+    the bench-seal job makes: the tree matches its seal on all three layers.
     """
     report = verify(
-        ledger=V13_LEDGER,
+        ledger=LEDGER,
         root=BENCH,
         from_manifest=True,
         key_fingerprint="233bb4406e2de606",
@@ -316,16 +277,15 @@ def test_the_v1_3_seal_verifies_the_tree_on_all_three_layers():
     assert detail["hash_mismatches"] == 0
     assert detail["missing"] == 0
     assert detail["unrecorded_on_disk"] == 0
-    assert detail["recorded"] == V12_RECORDED, (
+    assert detail["recorded"] == RECORDED, (
         "v1.3 must record the same 29 files v1.2 did. A v1.3 recording 21 was "
         "sealed in a public checkout and has silently dropped the held-out "
         "corpus from the benchmark's integrity claim."
     )
-    assert detail["declared_absent"] == V12_DECLARED_ABSENT
-    assert detail["verified"] == V12_PRESENT_HERE
+    assert detail["declared_absent"] == DECLARED_ABSENT
+    assert detail["verified"] == PRESENT_HERE
 
 
-@needs_v13
 def test_the_v1_3_seal_carries_v1_2s_baselines_and_thresholds(v12_and_v13):
     """Acceptance ② and ③, re-asserted on the SIGNED artifact after the fact.
 
@@ -343,9 +303,10 @@ def test_the_v1_3_seal_carries_v1_2s_baselines_and_thresholds(v12_and_v13):
 
 @pytest.fixture
 def v12_and_v13():
+    """The anchor and the current seal, in that order."""
     return (
+        json.loads(V12_LEDGER.read_text()),
         json.loads(LEDGER.read_text()),
-        json.loads(V13_LEDGER.read_text()),
     )
 
 
@@ -554,40 +515,26 @@ def test_absent_root_is_fatal_and_never_a_pass(tmp_path):
 
 # --- The command-line surface CI actually invokes --------------------------
 
-def test_cli_exits_one_on_the_stale_v1_2_ledger_and_names_commit_py(capsys):
+def test_cli_exits_zero_on_the_v1_3_ledger(capsys):
     """The exact invocation `tests.yml` runs, and the exact output it shows.
 
-    This asserted `code == 0` and "VERDICT: PASS (3/3 layers)" until `153f40f`.
-    It now asserts the failure, because the failure is the true state and a
-    gate that reports PASS on a tree that does not match its seal is the one
-    thing `verify_manifest.py` was built in WP-2.0.2 to prevent. It caught this
-    on the first push after the edit, which is the verifier working.
+    This asserted a FAILURE between `153f40f` and the v1.3 ceremony, because
+    the failure was the true state and a gate reporting PASS on a tree that
+    does not match its seal is the one thing `verify_manifest.py` was built in
+    WP-2.0.2 to prevent. The re-seal made the tree true again, so the green is
+    asserted once more -- earned this time rather than assumed.
     """
     code = main([
         "--ledger", str(LEDGER), "--root", str(BENCH),
-        "--include-dirs", "corpus,harness", "--include-files", "SPEC.md",
-        "--expect-absent", ",".join(EXPECT_ABSENT),
-    ])
-    assert code == 1
-    out = capsys.readouterr().out
-    assert "VERDICT: FAIL" in out
-    assert "failed: tree" in out
-    assert STALE_AGAINST_V12 in out
-    # Payload and signature are reported PASS in the same output, which is how
-    # the log distinguishes a moved tree from a tampered manifest.
-    assert "LAYER 2/3  PAYLOAD" in out
-    assert "LAYER 3/3  SIGNATURE" in out
-
-
-@needs_v13
-def test_cli_exits_zero_on_the_v1_3_ledger(capsys):
-    """The post-ceremony green path through the CLI. Gated, not deleted."""
-    code = main([
-        "--ledger", str(V13_LEDGER), "--root", str(BENCH),
         "--from-manifest", "--pin-fingerprint", "233bb4406e2de606",
     ])
     assert code == 0
-    assert "VERDICT: PASS (3/3 layers)" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "VERDICT: PASS (3/3 layers)" in out
+    # All three layers are reported by name in the same output, which is how
+    # the log shows the pass was three independent checks and not one.
+    assert "LAYER 2/3  PAYLOAD" in out
+    assert "LAYER 3/3  SIGNATURE" in out
 
 
 def test_cli_exits_one_and_names_the_failed_layer(sandbox, capsys):
@@ -604,14 +551,19 @@ def test_cli_exits_one_and_names_the_failed_layer(sandbox, capsys):
     assert "corpus/P03_eligibility/program.cbl" in out
 
 
-def test_cli_json_output_is_machine_readable(capsys):
+def test_cli_json_output_is_machine_readable(sandbox, capsys):
     """`--json` is what the discovery gate parses, so its SHAPE is the contract.
 
-    Asserted independently of the verdict: the shape must hold on a red run too,
-    or a failing gate cannot be read by the step that has to report it.
+    Asserted on a RED run, because a failing gate that cannot be parsed by the
+    step which has to report it is the case that matters. Before the ceremony
+    the red came from the real tree being stale against v1.2. Depending on that
+    would now mean depending on an accident, so the red is manufactured here:
+    one flipped byte in a throwaway copy, which is red for a reason this test
+    controls and will stay red for as long as the test wants it to.
     """
+    flip_one_byte(corpus_file(sandbox))
     code = main([
-        "--ledger", str(LEDGER), "--root", str(BENCH),
+        "--ledger", str(sandbox / LEDGER_NAME), "--root", str(sandbox),
         "--include-dirs", "corpus,harness", "--include-files", "SPEC.md",
         "--expect-absent", ",".join(EXPECT_ABSENT), "--json",
     ])
@@ -625,7 +577,27 @@ def test_cli_json_output_is_machine_readable(capsys):
     assert failed == ["tree"]
     detail = next(l for l in payload["layers"] if l["name"] == "tree")["detail"]
     assert detail["hash_mismatches"] == 1
-    assert detail["recorded"] == V12_RECORDED
+    assert detail["recorded"] == RECORDED
+
+
+def test_cli_json_output_is_machine_readable_on_a_green_run(capsys):
+    """The same contract on the real, GREEN tree: shape does not depend on verdict."""
+    code = main([
+        "--ledger", str(LEDGER), "--root", str(BENCH),
+        "--include-dirs", "corpus,harness", "--include-files", "SPEC.md",
+        "--expect-absent", ",".join(EXPECT_ABSENT), "--json",
+    ])
+    assert code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is True
+    assert [layer["name"] for layer in payload["layers"]] == [
+        "tree", "payload", "signature"
+    ]
+    detail = next(l for l in payload["layers"] if l["name"] == "tree")["detail"]
+    assert detail["hash_mismatches"] == 0
+    assert detail["recorded"] == RECORDED
+    assert detail["verified"] == PRESENT_HERE
+    assert detail["declared_absent"] == DECLARED_ABSENT
 
 
 # --- The verifier must not depend on the thing it verifies -----------------
