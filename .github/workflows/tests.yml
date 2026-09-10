@@ -640,8 +640,9 @@ env:
   #             are still asserted. Its tree layer deliberately is not: it is
   #             superseded, not current.
   #         test_the_two_ledgers_are_signed_by_the_same_custodian
-  #             one custody chain across the re-seal (R4), read from both
-  #             ledgers rather than transcribed.
+  #             one custody chain across the re-seal (R4), with the signer
+  #             DERIVED from public_key_hex on both ledgers. key_fingerprint
+  #             is an unsigned field and is cross-checked, never trusted.
   #         test_census_accounts_for_all_29_recorded_entries
   #             the same arithmetic identity against v1.3: 21 + 0 + 8 = 29.
   #         test_cli_json_output_is_machine_readable_on_a_green_run

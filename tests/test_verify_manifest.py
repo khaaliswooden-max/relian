@@ -199,12 +199,32 @@ def test_the_v1_2_anchor_manifest_is_still_intact():
 
 
 def test_the_two_ledgers_are_signed_by_the_same_custodian():
-    """One custody chain across the re-seal (R4). Read, not transcribed."""
-    fingerprints = {
-        json.loads(path.read_text())["signature"]["key_fingerprint"]
-        for path in (V12_LEDGER, LEDGER)
-    }
-    assert fingerprints == {"233bb4406e2de606"}
+    """One custody chain across the re-seal (R4), DERIVED rather than read.
+
+    `key_fingerprint` is not what this trusts. `manifest_hash()` covers
+    `manifest minus signature`, so the whole signature block -- that field
+    included -- is UNSIGNED: an attacker who re-signs a forged ledger with
+    their own key can leave `key_fingerprint` reading 233bb4406e2de606 and a
+    string comparison accepts it. bench.yml derives the signer from
+    `public_key_hex` for exactly this reason, and so does this test.
+
+    The declared field is then cross-checked against the derived one, which is
+    different from being trusted: a manifest disagreeing with its own key is a
+    finding rather than a curiosity.
+    """
+    for path in (V12_LEDGER, LEDGER):
+        signature = json.loads(path.read_text())["signature"]
+        derived = hashlib.sha256(
+            bytes.fromhex(signature["public_key_hex"])
+        ).hexdigest()[:16]
+        assert derived == "233bb4406e2de606", (
+            f"{path.name} was signed by {derived}, not the published "
+            f"RELIAN-BENCH key -- the re-seal changed custodian"
+        )
+        assert signature["key_fingerprint"] == derived, (
+            f"{path.name} declares a key_fingerprint its public_key_hex does "
+            f"not hash to"
+        )
 
 
 def test_census_accounts_for_all_29_recorded_entries():

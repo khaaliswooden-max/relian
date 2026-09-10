@@ -5243,7 +5243,7 @@ suite was run with `RELIAN_REQUIRE_COBC=1` and the numbers taken from it.
 | −1 | `test_v12_census_accounts_for_all_29_recorded_entries` | asserted 20 verified + 1 moved + 8 absent; nothing is moved |
 | −1 | `test_cli_exits_one_on_the_stale_v1_2_ledger_and_names_commit_py` | asserted the CLI going red on the real tree; it goes green |
 | +1 | `test_the_v1_2_anchor_manifest_is_still_intact` | the anchor's payload and signature layers, tree layer deliberately excluded |
-| +1 | `test_the_two_ledgers_are_signed_by_the_same_custodian` | one custody chain across the re-seal (R4), read from both ledgers |
+| +1 | `test_the_two_ledgers_are_signed_by_the_same_custodian` | one custody chain across the re-seal (R4), with the signer **derived** from `public_key_hex` on both ledgers. `manifest_hash()` covers *manifest minus signature*, so `key_fingerprint` is unsigned: it is cross-checked against the derived value, never trusted for the decision — the same discipline `bench.yml` applies |
 | +1 | `test_census_accounts_for_all_29_recorded_entries` | the same arithmetic identity against v1.3: 21 + 0 + 8 = 29 |
 | +1 | `test_cli_json_output_is_machine_readable_on_a_green_run` | the `--json` shape contract on a green verdict |
 
