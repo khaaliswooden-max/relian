@@ -62,7 +62,9 @@ ALLOWED_FORMS: Tuple[str, ...] = (
     "(projected)",
     "unmeasured",
     "not measured",
+    "not a measurement",
     "no measurement",
+    "no measurement was taken",
     "cannot be measured",
     "never measured",
 )
@@ -226,7 +228,15 @@ def render_sensitivity_blocks(report: SensitivityReport) -> List[Block]:
         "|---|---|---|---|---|---|---|---|",
     ]
     for f in report.elementary:
-        shift = f"{f.offset_delta:+d}" if f.offset_delta else "0"
+        # `None` is UNDETERMINED, not zero. A truthiness test collapses both
+        # to "0" and prints an UNKNOWN field -- one with no comparable address
+        # on either side -- as though it had been checked and found unshifted.
+        if f.offset_delta is None:
+            shift = "—"
+        elif f.offset_delta == 0:
+            shift = "0"
+        else:
+            shift = f"{f.offset_delta:+d}"
         projected.append(
             f"| {f.name} | {f.classification.value} "
             f"| {f.measured_offset if f.measured_offset is not None else '—'} "

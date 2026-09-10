@@ -222,9 +222,31 @@ def ingest(
         raise ValueError("no record could be parsed from the copybook")
 
     projected = {f.key: f for f in report.fields}
-    returned_rows = {
-        str(r.get("key") or r.get("name")): r for r in _rows_from(returned)
-    }
+
+    # Two indexes, because the two accepted schemas identify a row
+    # differently. IBMLAYOUT.cbl emits the engine's expanded `key`
+    # ("SM-ENTRY-CTR (1)"); the normalised MAP form documented in README.md
+    # supplies a bare `name` ("SM-ENTRY-CTR"), because a MAP listing reports a
+    # table member ONCE rather than per occurrence. Looking up only by key
+    # meant every MAP row for an OCCURS member went unmatched -- and those are
+    # exactly the rows IBM forces down the MAP path, since a COMP item inside
+    # a table cannot be reference-modified there.
+    rows = _rows_from(returned)
+    by_key = {str(r["key"]): r for r in rows if r.get("key")}
+    by_name: Dict[str, Dict[str, object]] = {}
+    for r in rows:
+        name = r.get("name")
+        if name and str(name) not in by_name:
+            by_name[str(name)] = r
+
+    def returned_for(field) -> Optional[Dict[str, object]]:
+        row = by_key.get(field.key)
+        if row is not None:
+            return row
+        # A member width from MAP applies to every occurrence of that member,
+        # so a name match is sound for the LENGTH comparison below even though
+        # the offsets differ per occurrence.
+        return by_name.get(field.name)
 
     # Group both sides by construct.
     # Grouped per construct, but compared PER FIELD and then aggregated. A
@@ -242,7 +264,7 @@ def ingest(
             # exercise.
             continue
         ck = construct_key(pf.picture, pf.usage)
-        row = returned_rows.get(key)
+        row = returned_for(pf)
         returned_length = row.get("length") if row is not None else None
         grouped.setdefault(ck, []).append(
             (key, pf.projected_length, returned_length)
@@ -293,22 +315,36 @@ def ingest(
             ))
             continue
 
-        if missing:
+        if not agreeing:
+            # NOTHING came back for this construct. That is absent evidence,
+            # so UNKNOWN.
             verdicts.append(ConstructVerdict(
                 ck, Verdict.UNKNOWN, fields,
                 next((p for _k, p, _r in rows if p is not None), None), None,
-                f"the returned run reports no row for {len(missing)} field(s) "
-                f"of this construct — most often because IBM rejected the "
-                f"reference-modified probe for a binary or packed field "
-                f"(see README.md)",
+                f"the returned run reports no row for any of the "
+                f"{len(rows)} field(s) of this construct — most often because "
+                f"IBM rejected the reference-modified probe for a binary or "
+                f"packed field (see README.md)",
             ))
             continue
 
+        # Some rows came back and every one of them agreed. Reporting UNKNOWN
+        # because a SIBLING row was absent would throw away real evidence: the
+        # rows that did come back were measured on the customer's compiler and
+        # they confirmed the rule. The incomplete coverage is stated instead of
+        # being converted into ignorance.
         k0, p0, r0 = agreeing[0]
-        verdicts.append(ConstructVerdict(
-            ck, Verdict.CONFIRM, fields, p0, r0,
+        coverage = (
             f"all {len(agreeing)} field(s) of this construct returned the "
-            f"projected width",
+            f"projected width"
+        )
+        if missing:
+            coverage += (
+                f"; {len(missing)} further field(s) returned no row and are "
+                f"neither confirmed nor contradicted"
+            )
+        verdicts.append(ConstructVerdict(
+            ck, Verdict.CONFIRM, fields, p0, r0, coverage,
         ))
 
     counts = {v.value: 0 for v in Verdict}

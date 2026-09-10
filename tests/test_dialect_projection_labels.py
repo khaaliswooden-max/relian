@@ -277,3 +277,140 @@ def test_the_measured_profile_does_not_mark_the_layout_a_projection() -> None:
     profiled = compute_text(text, profile=GNUCOBOL_3_1_2)[0].to_dict()
     assert profiled == default
     assert profiled["projection"] is None
+
+
+# --------------------------------------------------------------------------
+# Bugbot finding (Medium): a projected layout still asserted verification
+# --------------------------------------------------------------------------
+
+def test_a_projected_layout_carries_no_measured_claim_anywhere() -> None:
+    """Nulling ``verified_against`` was not enough.
+
+    ``limitations()`` still appended ``IBM_EQUIVALENCE_LIMITATION`` — which
+    quotes "Verified byte-for-byte against GnuCOBOL 3.1.2.0 … 186 of 186
+    comparisons at tolerance zero" — and ``summary()`` put that same text in
+    EVERY number's provenance. So the document contradicted its own
+    disclaimer one line further down, and each projected number carried a
+    measurement claim in the field designed to hold its provenance.
+    """
+    from src.discovery.layout import IBM_EQUIVALENCE_LIMITATION, compute_text
+    from src.discovery.dialects import IBM_ENTERPRISE_COBOL
+
+    document = compute_text(
+        (CORPUS / "D02_binary.cpy").read_text(encoding="utf-8"),
+        profile=IBM_ENTERPRISE_COBOL,
+    )[0].to_dict()
+
+    limitations = document["limitations"]
+    assert IBM_EQUIVALENCE_LIMITATION not in limitations
+    assert limitations[0].startswith("PROJECTION, NOT A MEASUREMENT")
+
+    provenances = [
+        m["provenance"] for m in document["summary"].values() if m is not None
+    ]
+    assert provenances, "no summary numbers to check"
+    blob = " ".join(limitations) + " " + " ".join(provenances)
+    for claim in (
+        "Verified byte-for-byte", "186 of 186", "at tolerance zero",
+    ):
+        assert claim not in blob, (
+            f"a projected layout still asserts {claim!r}; the numbers were "
+            f"never measured on any compiler"
+        )
+    for required in ("PROJECTION", "NOT MEASURED"):
+        assert required in blob
+
+
+def test_the_projected_limitations_pass_the_measurement_vocabulary_lint() -> None:
+    """The same discipline (7) applies to the Layout's own prose.
+
+    Every use of a measurement word in a projected layout's limitations and
+    provenance must be an explicit denial or the ``(measured)`` label — never
+    a bare adjective attached to a projected number.
+    """
+    from src.discovery.layout import compute_text
+    from src.discovery.dialects import IBM_ENTERPRISE_COBOL
+
+    document = compute_text(
+        (CORPUS / "D10_sync.cpy").read_text(encoding="utf-8"),
+        profile=IBM_ENTERPRISE_COBOL,
+    )[0].to_dict()
+    blob = " ".join(document["limitations"]) + " " + " ".join(
+        m["provenance"] for m in document["summary"].values() if m is not None
+    )
+    assert lint_projected_text(blob) == []
+
+
+def test_the_measured_layout_keeps_its_verification_claim() -> None:
+    """The fix must not strip the measured layout's own, TRUE claim."""
+    from src.discovery.layout import IBM_EQUIVALENCE_LIMITATION, compute_text
+
+    document = compute_text(
+        (CORPUS / "D02_binary.cpy").read_text(encoding="utf-8")
+    )[0].to_dict()
+    assert document["limitations"][0] == IBM_EQUIVALENCE_LIMITATION
+    assert "186 of 186" in document["summary"]["group_length"]["provenance"]
+
+
+# --------------------------------------------------------------------------
+# Bugbot finding (Medium): an undetermined shift rendered as zero
+# --------------------------------------------------------------------------
+
+def test_an_undetermined_shift_renders_as_undetermined_not_zero() -> None:
+    """``if f.offset_delta`` collapsed ``None`` and ``0`` to "0".
+
+    An UNKNOWN field has no comparable address on one side, so its shift is
+    UNDETERMINED. Printing "0" says it was checked and found unshifted — a
+    fabricated zero that survives every type check (D19/R1).
+    """
+    import dataclasses
+
+    from src.discovery.dialects.classify import Classification
+
+    report = analyse_path(FIXTURES / "UNSOURCED.cpy", GNUCOBOL, IBM)
+    assert report is not None
+    unknown = next(
+        f for f in report.elementary
+        if f.classification is Classification.UNKNOWN
+    )
+    # In the sealed corpus and the fixtures, an UNKNOWN field still gets an
+    # offset on both sides (U-FLOAT sits at 5 either way), so `offset_delta`
+    # is a real 0 there and no current input reaches the None branch. It
+    # becomes reachable the moment a profile lacks a rule the engine HAS --
+    # then the projection produces no row for the field and its address is
+    # undetermined on one side. So the row is built directly, because the
+    # defect is in the RENDERER and testing it needs the input that triggers
+    # it rather than the input we happen to have.
+    assert unknown.offset_delta == 0
+    undetermined = dataclasses.replace(
+        unknown, projected_offset=None, projected_length=None,
+    )
+    assert undetermined.offset_delta is None
+    patched = dataclasses.replace(
+        report,
+        fields=tuple(
+            undetermined if f.key == unknown.key else f for f in report.fields
+        ),
+    )
+
+    text = render_sensitivity_markdown(patched)
+    row = next(
+        line for line in text.splitlines()
+        if line.startswith("|") and undetermined.name in line
+    )
+    cells = [c.strip() for c in row.strip().strip("|").split("|")]
+    assert "—" in cells, f"undetermined shift not marked in {row!r}"
+    assert "0" not in cells, (
+        f"an undetermined shift was rendered as 0 in {row!r}"
+    )
+    # And a genuine zero must still print as 0, not be swept into "—".
+    invariant = next(
+        f for f in report.elementary
+        if f.classification is Classification.INVARIANT
+    )
+    assert invariant.offset_delta == 0
+    invariant_row = next(
+        line for line in render_sensitivity_markdown(report).splitlines()
+        if line.startswith("|") and invariant.name in line
+    )
+    assert "0" in [c.strip() for c in invariant_row.strip().strip("|").split("|")]

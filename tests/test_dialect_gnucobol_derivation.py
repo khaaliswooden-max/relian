@@ -224,3 +224,61 @@ def test_two_conflicting_widths_for_one_digit_count_are_an_accusation() -> None:
     rows[0]["listing"]["element_size"] += 3
     with pytest.raises(DerivationError, match="two different widths"):
         gnu._observations(oracle)
+
+
+# --------------------------------------------------------------------------
+# Bugbot finding (Low): the display half of the seal gate was tautological
+# --------------------------------------------------------------------------
+
+def test_the_display_gate_compares_two_independent_derivations() -> None:
+    """It used to compare a number with itself.
+
+    Display evidence was stored as ``{element_size: element_size}`` — key and
+    value both the MEASURED width — and then asserted equal. The display half
+    of the seal gate could not fail, so a disagreeing display rule would not
+    have stopped the build. A gate that cannot fail is not a gate.
+
+    The key is now what Relian's PICTURE expansion says the item DECLARES; the
+    value is what the oracle MEASURED. They agree across the corpus, which is
+    a passing check rather than an absent one.
+    """
+    observed = gnu._observations(
+        json.loads(gnu.ORACLE_PATH.read_text())
+    )
+    assert observed["display"], "no display evidence at all"
+    assert_engine_agrees_with_seal()
+
+
+def test_a_disagreeing_display_width_now_fails_the_gate() -> None:
+    """Planted red for the finding: a 4-character item measured at 7 bytes."""
+    synthetic = {
+        "copybooks": [{
+            "variants": [{
+                "fields": [{
+                    "elementary": True,
+                    "length": 7,
+                    "listing": {"picture": "X(04)", "element_size": 7},
+                }],
+            }],
+        }],
+    }
+    observed = gnu._observations(synthetic)
+    assert observed["display"] == {4: 7}, observed
+    positions, measured = next(iter(observed["display"].items()))
+    assert positions != measured, (
+        "declared and measured collapsed to the same value again; the gate is "
+        "tautological once more"
+    )
+
+
+def test_declared_positions_count_insertion_characters() -> None:
+    """The first version of this counter undercounted edited pictures.
+
+    ``XXBXXBXXXX`` declares eight ``X`` and occupies TEN bytes — the two ``B``
+    insertion characters are storage. A hand-rolled X/A counter reported 8 for
+    a 10-byte item, and the newly-meaningful gate correctly refused it. The
+    count now comes from the engine's own PICTURE expansion.
+    """
+    assert gnu._character_positions("X(04)") == 4
+    assert gnu._character_positions("XXBXXBXXXX") == 10
+    assert gnu._character_positions("XXX/XX/XXXX") == 11

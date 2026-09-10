@@ -304,10 +304,23 @@ class Layout:
         every consumer of a number rather than only a reader of this docstring.
         A grade with no stated basis is a grade with the units filed off.
         """
-        provenance = (
-            f"src.discovery.layout static computation over {self.origin}; "
-            f"{IBM_EQUIVALENCE_LIMITATION}"
-        )
+        # The provenance travels with every number, so on a projection it may
+        # not carry the MEASURED basis. It used to: the string embedded
+        # IBM_EQUIVALENCE_LIMITATION unconditionally, which put "Verified
+        # byte-for-byte against GnuCOBOL 3.1.2.0, 186 of 186" inside the
+        # provenance of numbers that were never measured (R1/R9).
+        if self.projection is None:
+            provenance = (
+                f"src.discovery.layout static computation over {self.origin}; "
+                f"{IBM_EQUIVALENCE_LIMITATION}"
+            )
+        else:
+            provenance = (
+                f"src.discovery.layout static computation over {self.origin}, "
+                f"PROJECTED under {self.projection} from its sourced rule "
+                f"table. NOT MEASURED: no compiler produced these numbers and "
+                f"no round-trip result applies to them."
+            )
         grade: Grade = LAYOUT_GRADE
         declared = sum(
             f.length for f in self.fields if f.in_tiling and f.length is not None
@@ -336,21 +349,25 @@ class Layout:
         ``NONE`` status appends its own reasons, so a caller that renders this
         tuple renders the whole caveat set rather than half of it.
 
-        On a PROJECTED layout the projection disclaimer comes FIRST, ahead of
-        even the IBM-equivalence limitation, because it changes what every
-        number below is: not "measured, and possibly different on IBM" but
-        "not measured at all".
+        A PROJECTED layout carries the projection disclaimer INSTEAD of the
+        IBM-equivalence limitation, not in front of it. The measured
+        limitation quotes "186 of 186 comparisons at tolerance zero" -- a
+        measurement of the GnuCOBOL layout. Appending it to a projection put
+        that sentence on a document whose numbers were never measured at all,
+        directly contradicting the disclaimer above it. Leading with the
+        disclaimer was not enough: a reader who scrolls one line further found
+        the word "Verified" attached to projected offsets.
         """
-        base = (IBM_EQUIVALENCE_LIMITATION,) + self.reasons
         if self.projection is None:
-            return base
+            return (IBM_EQUIVALENCE_LIMITATION,) + self.reasons
         return (
             f"PROJECTION, NOT A MEASUREMENT. Every offset and length in this "
             f"record is the layout implied by applying {self.projection}'s "
             f"sourced rule table to this parse. Relian has no IBM system; "
-            f"nothing here was measured on one. The measured layout is the "
-            f"one produced under the default dialect gnucobol-3.1.2.",
-        ) + base
+            f"no measurement was taken on one, and no round-trip result "
+            f"applies to it. The default dialect gnucobol-3.1.2 returns the "
+            f"layout (measured).",
+        ) + self.reasons
 
     def to_dict(self) -> Dict[str, object]:
         return {

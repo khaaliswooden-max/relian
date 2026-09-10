@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 from . import dialects
-from .copybook import resolve
+from .copybook import assemble, resolve
 from .layout import (
     COMPILER_BASIS,
     IBM_EQUIVALENCE_LIMITATION,
@@ -82,16 +82,43 @@ def _layout_command(args: argparse.Namespace) -> int:
     # shipping a projection as the primary deliverable). Asking for another
     # dialect ADDS a labelled sensitivity section; it never replaces the
     # records, and it never relabels them.
+    # The text the sensitivity analysis runs over. It must be the SAME parse
+    # the records above came from, which under `--root` means the assembled
+    # text -- nested COPY expanded and REPLACING applied -- not the file on
+    # disk. `--root` is the documented path for nested COPY, so omitting the
+    # projection there while still reporting `kind: projected` published a
+    # document that claimed a projection it did not contain.
+    sensitivity_text: Optional[str] = None
+    projection_unavailable: Optional[str] = None
+
     if args.root:
         resolution = resolve(Path(args.root))
-        layout = compute(path.stem.upper(), resolution, odo_value=args.odo)
+        name = path.stem.upper()
+        layout = compute(name, resolution, odo_value=args.odo)
         payload = [layout.to_dict()] if layout else []
+        if name not in resolution.records:
+            projection_unavailable = (
+                f"COPY {name} did not resolve under --root, so there is no "
+                f"parse to project from"
+            )
+        else:
+            assembly = assemble(name, resolution)
+            if assembly.complete:
+                sensitivity_text = assembly.text
+            else:
+                projection_unavailable = (
+                    f"the assembly of {name} is incomplete "
+                    f"(missing: {', '.join(assembly.missing) or 'none'}; "
+                    f"cyclic: {', '.join(assembly.cyclic) or 'none'}), so a "
+                    f"projection would rest on a partial record"
+                )
     else:
         text = path.read_text(encoding="utf-8", errors="replace")
         payload = [
             layout.to_dict()
             for layout in compute_text(text, odo_value=args.odo, origin=path.as_posix())
         ]
+        sensitivity_text = text
     # The limitation is emitted at the TOP of the document as well as on each
     # record. A caveat that only exists one level down is a caveat a reader can
     # scroll past without ever seeing (R9/R11).
@@ -109,8 +136,23 @@ def _layout_command(args: argparse.Namespace) -> int:
         "records": payload,
     }
 
-    if profile.projected and not args.root:
-        text = path.read_text(encoding="utf-8", errors="replace")
+    if profile.projected and sensitivity_text is None:
+        # R2: an absent projection is stated, never implied. The document must
+        # not report `kind: projected` and then carry no projection with no
+        # explanation -- a reader would take the absence for "no differences".
+        document["dialect"]["sensitivity_present"] = False
+        document["dialect"]["projection_unavailable"] = (
+            projection_unavailable or "no parse was available to project from"
+        )
+        document["limitations"] = list(document["limitations"]) + [
+            f"NO PROJECTION was produced for {profile.label}: "
+            f"{document['dialect']['projection_unavailable']}. The absence of "
+            f"a dialect_sensitivity section is NOT a finding that the record "
+            f"is dialect-invariant."
+        ]
+
+    if profile.projected and sensitivity_text is not None:
+        text = sensitivity_text
         sections = []
         problems: List[str] = []
         for record in compute_text(
@@ -150,6 +192,7 @@ def _layout_command(args: argparse.Namespace) -> int:
             return EXIT_REFUSED
 
         document["dialect_sensitivity"] = sections
+        document["dialect"]["sensitivity_present"] = True
         document["limitations"] = list(document["limitations"]) + [
             f"The {profile.label} figures in `dialect_sensitivity` are a "
             f"PROJECTION from sourced rules, not a measurement. Relian has no "

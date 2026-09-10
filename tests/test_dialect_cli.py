@@ -140,3 +140,57 @@ def test_the_registry_maps_the_measured_profile_onto_the_engine_default() -> Non
     assert dialects.DEFAULT_DIALECT == dialects.GNUCOBOL_3_1_2.id
     with pytest.raises(dialects.UnknownDialect):
         dialects.resolve("fujitsu")
+
+
+# --------------------------------------------------------------------------
+# Bugbot finding (High): --root dropped the projection while claiming one
+# --------------------------------------------------------------------------
+
+def test_the_root_path_produces_the_projection_it_claims(tmp_path, capsys) -> None:
+    """`--root` is the documented path for nested COPY.
+
+    It used to skip the sensitivity section entirely while the document still
+    reported `kind: projected` — a payload claiming a projection it did not
+    contain. The projection now runs over the ASSEMBLED text, which is the
+    same parse the records came from.
+    """
+    member = tmp_path / "D02BIN.cpy"
+    member.write_text(
+        (CORPUS / "D02_binary.cpy").read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    code, doc = _run(
+        ["layout", str(member), "--root", str(tmp_path),
+         "--dialect", "ibm-enterprise-cobol"], capsys,
+    )
+    assert code == 0
+    assert doc["dialect"]["sensitivity_present"] is True
+    assert "dialect_sensitivity" in doc
+    section = doc["dialect_sensitivity"][0]
+    assert section["counts"]["DIALECT_SENSITIVE"] == 2
+    assert (section["measured_record_length"], section["projected_record_length"]) \
+        == (38, 40)
+
+
+def test_an_unavailable_projection_is_stated_not_implied(tmp_path, capsys) -> None:
+    """R2. When there is genuinely no parse to project from, the absence is
+    named — because a reader takes a missing sensitivity section for "no
+    differences found", which is the opposite of the truth."""
+    member = tmp_path / "D02BIN.cpy"
+    member.write_text(
+        (CORPUS / "D02_binary.cpy").read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    code, doc = _run(
+        ["layout", str(member), "--root", str(empty),
+         "--dialect", "ibm-enterprise-cobol"], capsys,
+    )
+    assert doc["dialect"]["sensitivity_present"] is False
+    assert "did not resolve" in doc["dialect"]["projection_unavailable"]
+    assert "dialect_sensitivity" not in doc
+    assert any("NO PROJECTION was produced" in lim for lim in doc["limitations"])
+    assert any(
+        "NOT a finding that the record is dialect-invariant" in lim
+        for lim in doc["limitations"]
+    )
+    assert code == 0

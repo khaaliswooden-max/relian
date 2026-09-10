@@ -467,3 +467,103 @@ def test_an_unrecognised_schema_is_refused() -> None:
     text = (KIT / "SAMPLE.cpy").read_text(encoding="utf-8")
     with pytest.raises(ValueError, match="unrecognised schema"):
         ingest({"schema": "something-else", "fields": []}, text, _provenance())
+
+
+# --------------------------------------------------------------------------
+# Bugbot finding (High): the ingest missed name-keyed MAP rows
+# --------------------------------------------------------------------------
+
+def _normalised(rows: List[Dict[str, object]]) -> Dict[str, object]:
+    from ingest_verification import NORMALISED_SCHEMA
+
+    return {"schema": NORMALISED_SCHEMA, "fields": rows}
+
+
+def test_a_name_keyed_map_row_matches_every_occurrence_of_the_member() -> None:
+    """The realistic IBM path, and it was broken.
+
+    ``IBMLAYOUT.cbl`` emits the engine's expanded ``key`` ("SM-ENTRY-CTR (1)");
+    a MAP listing reports a table member ONCE, so the normalised form supplies
+    a bare ``name``. Looking up only by key left every MAP row for an OCCURS
+    member unmatched — and those are exactly the rows IBM forces down the MAP
+    path, since a COMP item inside a table cannot be reference-modified there.
+    A member width applies to every occurrence, so the name match is sound for
+    the length comparison.
+    """
+    text = (KIT / "SAMPLE.cpy").read_text(encoding="utf-8")
+    document = _normalised([
+        {"name": "SM-NAME", "offset": 1, "length": 10},
+        {"name": "SM-CTR-1", "offset": 11, "length": 2},
+        {"name": "SM-CTR-4", "offset": 13, "length": 2},
+        {"name": "SM-AMOUNT", "offset": 15, "length": 5},
+        # ONE row for a member that occurs four times.
+        {"name": "SM-ENTRY-CTR", "offset": 20, "length": 2},
+        {"name": "SM-ENTRY-CODE", "offset": 22, "length": 3},
+        {"name": "SM-SYNC-A", "offset": 40, "length": 4},
+    ])
+    result = ingest(document, text, _provenance())
+
+    binary_1_2 = next(
+        v for v in result["verdicts"] if v["construct"] == "COMP/1-2 digits"
+    )
+    assert binary_1_2["verdict"] == Verdict.CONFIRM.value, binary_1_2
+    assert len(binary_1_2["fields"]) == 5, (
+        "SM-CTR-1 plus four SM-ENTRY-CTR occurrences must all resolve from the "
+        "single name-keyed MAP row"
+    )
+    assert binary_1_2["returned_length"] == 2
+    assert result["counts"][Verdict.UNKNOWN.value] == 0, result["counts"]
+
+
+def test_partial_coverage_confirms_what_returned_and_says_what_did_not() -> None:
+    """A sibling row's absence must not erase the rows that did come back.
+
+    Marking the whole construct UNKNOWN because one field of it was missing
+    threw away real evidence: the rows that returned were measured on the
+    customer's compiler and they confirmed the rule. Incomplete coverage is
+    stated, not converted into ignorance.
+    """
+    text = (KIT / "SAMPLE.cpy").read_text(encoding="utf-8")
+    document = _normalised([
+        {"name": "SM-NAME", "offset": 1, "length": 10},
+        # SM-ENTRY-CODE deliberately absent, so DISPLAY is partially covered.
+    ])
+    result = ingest(document, text, _provenance())
+
+    display = next(v for v in result["verdicts"] if v["construct"] == "DISPLAY")
+    assert display["verdict"] == Verdict.CONFIRM.value
+    assert "neither confirmed nor contradicted" in display["detail"]
+    assert display["returned_length"] == 10
+
+
+def test_a_construct_with_no_returned_row_at_all_is_still_unknown() -> None:
+    """The distinction the previous test rests on: SOME evidence confirms,
+    NO evidence is unknown."""
+    text = (KIT / "SAMPLE.cpy").read_text(encoding="utf-8")
+    result = ingest(_normalised([
+        {"name": "SM-NAME", "offset": 1, "length": 10},
+    ]), text, _provenance())
+
+    for construct in ("COMP/1-2 digits", "COMP/3-4 digits", "COMP-3/9 digits"):
+        verdict = next(
+            v for v in result["verdicts"] if v["construct"] == construct
+        )
+        assert verdict["verdict"] == Verdict.UNKNOWN.value, verdict
+        assert "no row for any of" in verdict["detail"]
+    assert result["counts"][Verdict.CONTRADICT.value] == 0
+
+
+def test_a_map_row_that_disagrees_still_contradicts() -> None:
+    """The name fallback must not soften a real disagreement."""
+    text = (KIT / "SAMPLE.cpy").read_text(encoding="utf-8")
+    result = ingest(_normalised([
+        # IBM's sourced rule says a 1-digit COMP is a halfword; claim 1 byte.
+        {"name": "SM-CTR-1", "offset": 11, "length": 1},
+    ]), text, _provenance())
+
+    verdict = next(
+        v for v in result["verdicts"] if v["construct"] == "COMP/1-2 digits"
+    )
+    assert verdict["verdict"] == Verdict.CONTRADICT.value
+    assert (verdict["projected_length"], verdict["returned_length"]) == (2, 1)
+    assert len(result["rule_updates"]) == 1

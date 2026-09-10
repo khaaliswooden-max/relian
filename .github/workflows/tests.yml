@@ -671,7 +671,7 @@ env:
   #        "at import, not at use" is the whole claim: at use, the defect is
   #        already inside a report a customer is holding.
   #
-  #   +13  tests/test_dialect_gnucobol_derivation.py
+  #   +16  tests/test_dialect_gnucobol_derivation.py
   #        Acceptance (3). The GnuCOBOL widths are DERIVED from oracle.json,
   #        every band edge is a measured digit count (2, 4, 9, 18 -- none
   #        interpolated), and three planted reds prove a disagreeing hand-edit
@@ -698,7 +698,7 @@ env:
   #        once per occurrence (40 near-identical sentences buried the one
   #        number that mattered).
   #
-  #   +88  tests/test_dialect_projection_labels.py
+  #   +94  tests/test_dialect_projection_labels.py
   #        Acceptance (6) and (7). Every copybook's rendered section is linted
   #        (that is most of the count -- 15 corpus files plus 3 fixtures, three
   #        ways each), plus a planted red per unlabelled-column shape and one
@@ -724,14 +724,14 @@ env:
   #        the derived profile needs its own gate, since nothing else in the
   #        suite would notice if it disagreed.
   #
-  #    +7  tests/test_dialect_cli.py
+  #    +9  tests/test_dialect_cli.py
   #        The flag. The default is byte-identical spelled out or omitted, the
   #        `records` block stays measured under any dialect, and the CLI
   #        REFUSES (EXIT_REFUSED) rather than emit a projection whose labels
   #        did not lint -- the escalation trigger as an exit code, because the
   #        customer acts on offsets.
   #
-  #   +45  tests/test_verification_kit.py
+  #   +49  tests/test_verification_kit.py
   #        Acceptance (8) and (9). The kit is compiled with the pinned cobc,
   #        run, and graded against the sealed oracle on the SAME 186
   #        comparisons the engine is graded on -- a kit covering fewer rows
@@ -754,8 +754,52 @@ env:
   #        compiler from its own constant, pinned to the oracle by
   #        test_dialect_gnucobol_derivation.py -- NOT to loosen the guard.
   #
-  # 234 in new files + 6 from the parametrisation = 240. 1190 + 240 = 1430.
-  EXPECTED_PASSES: "1430"
+  # WP-2.7 review round: +15 over 1430, all of them regressions for defects
+  # Cursor Bugbot found on the PR and all five verified against the code
+  # before being fixed. Bot findings are bug reports, so they were reproduced
+  # rather than argued with -- and two of them were the SAME failure mode this
+  # work package exists to prevent, surviving in places the first pass missed:
+  #
+  #   +3  gnucobol_3_1_2.py -- the display half of assert_engine_agrees_with_seal
+  #       was TAUTOLOGICAL. Evidence was stored as {element_size: element_size}
+  #       and then asserted equal, so a disagreeing display rule could never
+  #       fail the build. The key is now what Relian's PICTURE expansion says
+  #       the item DECLARES and the value what the oracle MEASURED. Making it
+  #       real immediately caught a second defect in the first fix: a
+  #       hand-rolled X/A counter reported 8 for `XXBXXBXXXX`, which occupies
+  #       TEN bytes because insertion characters are storage.
+  #
+  #   +6  projection_labels -- (a) a projected Layout still asserted
+  #       verification. Nulling `verified_against` was not enough:
+  #       limitations() still appended IBM_EQUIVALENCE_LIMITATION, which quotes
+  #       "Verified byte-for-byte ... 186 of 186 at tolerance zero", and
+  #       summary() put that same text in EVERY projected number's provenance.
+  #       The document contradicted its own disclaimer one line down.
+  #       (b) an undetermined shift rendered as "0" -- `if f.offset_delta`
+  #       collapses None and 0, printing a field with no comparable address as
+  #       checked-and-unshifted. A fabricated zero (D19/R1). Two of the six are
+  #       the ALLOWED_FORMS parametrisation growing by the explicit-denial
+  #       phrasings a disclaimer needs.
+  #
+  #   +2  cli -- `--dialect ibm-enterprise-cobol` with `--root` built NO
+  #       sensitivity section while still reporting kind "projected": a payload
+  #       claiming a projection it did not contain, on the documented path for
+  #       nested COPY. The projection now runs over the ASSEMBLED text, and
+  #       where there genuinely is no parse to project from the omission is
+  #       STATED -- a missing section reads as "no differences found", which is
+  #       the opposite of the truth (R2).
+  #
+  #   +4  verification_kit -- the ingest looked rows up only by the engine's
+  #       expanded `key` ("SM-ENTRY-CTR (1)"), while a MAP listing reports a
+  #       table member ONCE and the normalised schema supplies a bare `name`.
+  #       Every MAP row for an OCCURS member went unmatched -- and those are
+  #       exactly the rows IBM forces down the MAP path, since a COMP item in
+  #       a table cannot be reference-modified there. Second half: one absent
+  #       sibling marked the whole construct UNKNOWN, discarding rows that had
+  #       been measured on the customer's compiler and had confirmed the rule.
+  #
+  # 249 in new files + 6 from the parametrisation = 255. 1190 + 255 = 1445.
+  EXPECTED_PASSES: "1445"
 
 jobs:
   parser-regen:

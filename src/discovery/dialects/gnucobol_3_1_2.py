@@ -92,6 +92,28 @@ def _split_picture(rendered: str) -> Tuple[str, Optional[str]]:
     return m.group("pic"), m.group("usage")
 
 
+def _character_positions(picture: str) -> int:
+    """Character positions an alphanumeric/alphabetic PICTURE declares.
+
+    Delegates to the engine's own PICTURE expansion rather than counting
+    ``X``/``A`` runs by hand. Insertion characters occupy storage --
+    ``XXBXXBXXXX`` declares eight ``X`` and occupies TEN bytes, and
+    ``XXX/XX/XXXX`` likewise -- so a hand-rolled counter undercounts every
+    alphanumeric-edited picture. Measured: the first version of this function
+    reported 8 for a 10-byte item and the seal gate correctly refused it.
+
+    Using the engine here does NOT make the comparison tautological. This side
+    is what Relian's parser says the PICTURE declares; the other side is what
+    ``cobc`` actually allocated. Two independent derivations that happen to
+    agree is a passing check, not an absent one -- which is exactly what the
+    original ``{element_size: element_size}`` form was not.
+    """
+    from ..layout import expand_picture, picture_size
+
+    symbols = expand_picture(picture)
+    return picture_size(symbols) if symbols else 0
+
+
 def _digits(picture: str) -> int:
     """Count 9-positions in ``picture``, expanding ``9(nn)`` repeats."""
     total = 0
@@ -132,7 +154,14 @@ def _observations(oracle: dict) -> Dict[str, Dict[int, int]]:
                     family, key = "packed", _digits(picture)
                 elif usage is None and picture.upper().startswith(("X", "A")):
                     # Character strings: the display rule's own evidence.
-                    family, key = "display", size
+                    #
+                    # The KEY must be the count of character positions the
+                    # PICTURE declares, and the VALUE the width the oracle
+                    # measured. Keying on `size` -- the measured width --
+                    # stored {size: size} and made the assertion below
+                    # `size != size`, so the display half of the seal gate
+                    # could never fail. A gate that cannot fail is not a gate.
+                    family, key = "display", _character_positions(picture)
                 else:
                     continue
                 if key <= 0:
@@ -231,13 +260,17 @@ def assert_engine_agrees_with_seal() -> None:
                 f"{measured} bytes but layout.packed_width says "
                 f"{packed_width(digits)}."
             )
-    # And for display, where the rule is one byte per character position.
-    for size, measured in derived["display_points"].items():
-        if size != measured:
+    # And for display, where the rule is one byte per character position. The
+    # left side is the count the PICTURE DECLARES; the right side is what the
+    # oracle MEASURED. Those are two different derivations, which is what
+    # makes the comparison capable of failing.
+    for positions, measured in derived["display_points"].items():
+        if positions != measured:
             raise DerivationError(
-                f"the sealed oracle measured a {size}-character display item "
-                f"at {measured} bytes; the display rule is one byte per "
-                f"character position."
+                f"the sealed oracle measured a display item declaring "
+                f"{positions} character position(s) at {measured} bytes; the "
+                f"display rule is one byte per character position, so it "
+                f"should occupy {positions}."
             )
 
 
