@@ -7,9 +7,12 @@
 2. NEVER assign a numeric value to `semantic_score`, `test_coverage`,
    `risk_score`, `validation_score`, `tests_passed/failed` except from an
    actual measurement executed in the same run. Unmeasured -> None.
-3. NEVER remove or weaken the `simulated` flag on attestations, the
-   measured-only gate before attestation, or the honesty guard in
-   `migration_intelligence.record_outcome`.
+3. NEVER remove or weaken the `simulated` flag on attestations, or the
+   measured-only gate before attestation. (The honesty guard formerly in
+   `migration_intelligence.record_outcome` went with `src/intelligence/`,
+   deleted in WP-2.0.-3 — see docs/R1_ML_DISPOSITION_2026-08.md. The
+   principle it enforced is now carried by tests/test_no_fabricated_metrics.py
+   and R1.)
 4. NEVER edit files under `bench/` (corpus, harness, LEDGER). NEVER edit files
    under `discovery-bench/` once the tag `relian-discovery-bench-v0.1` exists —
    before that tag it is authorable; after it, it is frozen identically to
