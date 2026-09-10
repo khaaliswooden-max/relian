@@ -106,7 +106,7 @@ env:
   #
   # These three are the ONLY skips in this suite that are expected to go away.
   # TODO(WP-2.6-seal): after the ceremony they start running with no edit, and
-  # this number returns to 10 while EXPECTED_PASSES rises to 1187.
+  # this number returns to 10 while EXPECTED_PASSES rises to 1190.
   EXPECTED_SKIPS: "13"
 
   # WP-2.0.2 -- the pass count, which was prose until now.
@@ -544,7 +544,7 @@ env:
   #       EXPECTED_SKIPS and silently not running the gate at all. fastapi
   #       itself is pinned, so the import is a hard one.
   #
-  # WP-2.6, 2026-09-10: was 1149. Net +35.
+  # WP-2.6, 2026-09-10: was 1149. Net +38.
   #
   # Read the arithmetic against the RED run this branch fixes, run
   # 34428042255 on `main` at 153f40f, which measured:
@@ -570,7 +570,7 @@ env:
   #
   # The +32, attributed file by file:
   #
-  #   tests/test_seal.py                          +34 collected, +34 passing
+  #   tests/test_seal.py                          +37 collected, +37 passing
   #       The pre-ceremony assertions, so the operator's key session has
   #       nothing left to discover. 9 on the carry-forward that protects
   #       `baselines_recorded` (the pre-solution floor, which commit.py
@@ -589,7 +589,12 @@ env:
   #       deliberately (v1.2's block counts 425 held-out vectors and measuring
   #       those means opening heldout.jsonl -- rule 1 / R3), the public counts
   #       still match what v1.2 sealed, and the oracle compiler is now a
-  #       sealing condition. 3
+  #       sealing condition. 3 on the signer pin in bench.yml, added after
+  #       Cursor Bugbot found the first version of it worthless: it compared
+  #       against `signature.key_fingerprint`, which `manifest_hash()` does
+  #       not cover, so a re-signed forgery keeping the published string
+  #       passed. One is a planted red proving the attack succeeds against
+  #       the naive check and fails against hashing `public_key_hex`. 3
   #       repointing the negative control onto commit.py's NEW behaviour and
   #       pinning seal.py's narrowed docstring. 2 on seal.toml staying outside
   #       the seal it configures -- the trap commit.py fell into.
@@ -602,7 +607,7 @@ env:
   #       one mismatch, on harness/commit.py, with payload and signature still
   #       passing, and all 29 recorded entries accounted for. The incident is
   #       now a regression test, and a SECOND mismatched file fails it.
-  EXPECTED_PASSES: "1184"
+  EXPECTED_PASSES: "1187"
 
 jobs:
   parser-regen:

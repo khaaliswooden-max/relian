@@ -1347,3 +1347,132 @@ def test_a_vector_glob_matching_nothing_refuses(tmp_path: Path):
 
 def test_no_vector_glob_means_no_block_rather_than_an_empty_one(tmp_path: Path):
     assert seal_module.measure_vector_counts(tmp_path, None) == {}
+
+
+# --- WP-2.6: the signer pin in bench.yml must be DERIVED, not read ----------
+#
+# Found by Cursor Bugbot on PR #45, verified, and fixed. The first version of
+# that pin read `signature.key_fingerprint` and was worthless. These two tests
+# are why it cannot silently become worthless again: one proves the hazard on
+# the primitive, the other pins the workflow that has to avoid it.
+
+BENCH_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "bench.yml"
+
+
+def test_a_declared_key_fingerprint_cannot_be_trusted(tmp_path: Path):
+    """The planted red. `key_fingerprint` is UNSIGNED and attacker-settable.
+
+    `manifest_hash()` is taken over `manifest` MINUS `signature`, so the whole
+    signature block -- `key_fingerprint` included -- is outside what the
+    signature commits to. An attacker forges a payload, re-signs with their own
+    key, and leaves `key_fingerprint` reading the published value. Both
+    `harness.commit.verify()` (which trusts the embedded public key) and any
+    string comparison against that field then pass.
+
+    So this test asserts the ATTACK SUCCEEDS against the naive check, and fails
+    against the derivation. If the two ever agreed, one of them stopped being
+    the thing it claims to be.
+
+    The attacker key is ephemeral and in memory. `bench/` is never written.
+    """
+    ledger = json.loads(
+        (REPO_ROOT / "bench" / "LEDGER_relian-bench-v1.2.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    published = seal_module.EXPECTED_KEY_FINGERPRINT
+
+    commit = _import_commit_py()
+
+    # Forge the block bench.yml's scoring step later enforces (R10).
+    ledger["thresholds"]["ber_heldout_min"] = 0.10
+
+    attacker = Ed25519PrivateKey.generate()
+    public = attacker.public_key().public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw,
+    )
+    digest = commit.manifest_hash(ledger)
+    ledger["signature"] = {
+        "alg": "Ed25519",
+        "manifest_sha256": digest,
+        "signature_hex": attacker.sign(digest.encode("utf-8")).hex(),
+        "public_key_hex": public.hex(),
+        # The lie. Unsigned, so it costs the attacker nothing.
+        "key_fingerprint": published,
+        "signed_at": ledger["signature"]["signed_at"],
+    }
+
+    import hashlib
+
+    real = hashlib.sha256(public).hexdigest()[:16]
+    assert real != published, "ephemeral key collided with the published one"
+
+    # 1. The embedded-key verifier is satisfied. This is T7.
+    assert commit.verify(ledger) is True
+
+    # 2. Reading the declared field ACCEPTS the forgery. The hazard is real.
+    assert ledger["signature"]["key_fingerprint"] == published
+
+    # 3. Deriving from the key the signature was verified WITH rejects it.
+    derived = hashlib.sha256(
+        bytes.fromhex(ledger["signature"]["public_key_hex"])
+    ).hexdigest()[:16]
+    assert derived == real
+    assert derived != published
+
+
+def test_bench_yml_derives_the_signer_and_never_reads_the_declared_field():
+    """The workflow's pin, asserted on the script CI actually runs.
+
+    Asserted on text rather than a parsed workflow because PyYAML is not in
+    `requirements.lock`, and the literal code of the step is what matters here
+    anyway.
+
+    `bench.yml` verifies with `harness.commit.verify()`, which lives inside the
+    sealed tree and cannot be edited (rule 4) and which trusts the manifest's
+    embedded key. The pin in the workflow is therefore the ONLY thing standing
+    between a re-signed forgery and the `thresholds` block the scoring step
+    enforces -- so it has to hash `public_key_hex`, not read a field the
+    signature does not cover.
+    """
+    text = BENCH_WORKFLOW.read_text(encoding="utf-8")
+
+    assert "sha256(bytes.fromhex(embedded)).hexdigest()[:16]" in text, (
+        "bench.yml must DERIVE the signer from public_key_hex; a comparison "
+        "against signature.key_fingerprint is a comparison against an "
+        "unsigned, attacker-settable string"
+    )
+    assert "assert signer == '233bb4406e2de606'" in text, (
+        "the derived signer must be pinned to the published fingerprint"
+    )
+    # The old, broken form must not come back.
+    assert "fingerprint = m['signature']['key_fingerprint']" not in text
+    assert "assert fingerprint == '233bb4406e2de606'" not in text
+    # The declared field may still be CROSS-CHECKED, which is different from
+    # being trusted -- a manifest disagreeing with its own key is a finding.
+    assert "assert declared == signer" in text
+
+
+def test_both_workflows_point_at_v1_3():
+    """Acceptance ④, and the reason it is one variable rather than two literals.
+
+    `bench.yml` named LEDGER_relian-bench-v1.2.json in two separate steps. A
+    re-seal updating one and missing the other verifies a signature-valid v1.2
+    ledger against a tree matching v1.3 -- a green gate proving nothing. One
+    assignment cannot go half-updated, so both consumers read $BENCH_LEDGER.
+    """
+    bench_yml = BENCH_WORKFLOW.read_text(encoding="utf-8")
+    tests_yml = (
+        REPO_ROOT / ".github" / "workflows" / "tests.yml"
+    ).read_text(encoding="utf-8")
+
+    assert "V13=bench/LEDGER_relian-bench-v1.3.json" in bench_yml
+    assert bench_yml.count("os.environ['BENCH_LEDGER']") == 2, (
+        "both the signature step and the scoring step must read the resolved "
+        "ledger, not a hardcoded filename"
+    )
+    assert "LEDGER=bench/LEDGER_relian-bench-v1.3.json" in tests_yml
+    assert "TODO(WP-2.6-seal)" in tests_yml, (
+        "the pre-ceremony skip must carry its marker"
+    )

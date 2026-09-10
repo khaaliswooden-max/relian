@@ -136,22 +136,55 @@ jobs:
         run: |
           pip install cryptography -q
           python3 - <<'PY'
-          import json, os, sys; sys.path.insert(0,'bench')
+          import hashlib, json, os, sys; sys.path.insert(0,'bench')
           from harness.commit import verify
           path = os.environ['BENCH_LEDGER']
           m = json.load(open(path))
           assert verify(m), f'{path}: signature invalid — benchmark tampered'
-          # Pinned. `harness.commit.verify()` checks the signature against the
-          # public key EMBEDDED IN THE MANIFEST, which proves self-consistency
-          # and not authorship (T7): a forged manifest re-signed with an
-          # attacker's own key returns True. The fingerprint check is what
-          # makes editing this workflow a visible precondition of that.
-          fingerprint = m['signature']['key_fingerprint']
-          assert fingerprint == '233bb4406e2de606', (
-              f'{path} is signed by {fingerprint}, not the published '
-              f'RELIAN-BENCH key 233bb4406e2de606')
+
+          # THE PIN, and why it is DERIVED rather than read.
+          #
+          # `harness.commit.verify()` checks the signature against the public
+          # key EMBEDDED IN THE MANIFEST, which proves self-consistency and
+          # not authorship (T7): a forged manifest re-signed with an
+          # attacker's own key returns True.
+          #
+          # The pin that closes that must therefore be computed from the key
+          # the signature was actually verified WITH. `key_fingerprint` is a
+          # self-declared string that cannot serve: `manifest_hash()` covers
+          # `manifest minus signature`, so the whole signature block --
+          # including that field -- is UNSIGNED. An attacker re-signs a forged
+          # ledger with their own key, leaves `key_fingerprint` reading
+          # 233bb4406e2de606, and both `verify()` and a string comparison pass.
+          #
+          # Measured on this branch, against a v1.2 ledger with
+          # ber_heldout_min forged to 0.10 and re-signed by an ephemeral key:
+          #     attacker's real fingerprint : 2ef44d775d91e0d6
+          #     declared key_fingerprint    : 233bb4406e2de606
+          #     harness.commit.verify()     : True
+          #     reading the declared field  : ACCEPTS the forgery
+          #     hashing public_key_hex      : REJECTS it
+          # A check that claims a property it does not have is worse than no
+          # check, so it is the derivation that is authoritative here.
+          embedded = m['signature']['public_key_hex']
+          signer = hashlib.sha256(bytes.fromhex(embedded)).hexdigest()[:16]
+          assert signer == '233bb4406e2de606', (
+              f'{path} was signed by {signer} (derived from public_key_hex), '
+              f'not the published RELIAN-BENCH key 233bb4406e2de606. The '
+              f'manifest declares key_fingerprint='
+              f'{m["signature"].get("key_fingerprint")!r}, which is an '
+              f'unsigned field and is not what this check trusts.')
+
+          # The declared field must AGREE with the derived one. It is not
+          # trusted for the decision above, but a manifest whose own metadata
+          # disagrees with its key is a finding rather than a curiosity.
+          declared = m['signature'].get('key_fingerprint')
+          assert declared == signer, (
+              f'{path} declares key_fingerprint={declared!r} but its '
+              f'public_key_hex hashes to {signer!r}')
           print(f'{path} verified:', m['signature']['manifest_sha256'][:16],
-                f"(tag {m.get('tag')}, signer {fingerprint})")
+                f"(tag {m.get('tag')}, signer {signer} derived from "
+                f"public_key_hex)")
           PY
       - name: Fetch PRIVATE held-out vectors (deploy key)
         env:

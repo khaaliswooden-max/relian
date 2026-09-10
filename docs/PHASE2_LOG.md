@@ -4992,6 +4992,51 @@ The discovery ledger is untouched and verified green throughout — 3/3 layers,
 21/21 verified, 0 declared absent, signer `233bb4406e2de606`. `tools/` is
 outside its include set, so changing `tools/seal.py` cannot move it.
 
+### 13a. A worthless pin, found by review and fixed
+
+Added on the first push, and wrong. `bench.yml`'s new signer pin read
+`m['signature']['key_fingerprint']` and compared it to the published value.
+Cursor Bugbot flagged it High on PR #45; it is right, and the finding is worth
+recording because the mistake is subtle and the class of it is one this project
+already has precedent for (WP-2.3.2: a verifier that claims a check it does not
+perform).
+
+`manifest_hash()` is taken over `manifest` MINUS `signature`. The whole
+signature block — `key_fingerprint` included — is therefore **outside what the
+signature commits to**, and costs an attacker nothing to set. Reproduced before
+fixing, on a v1.2 ledger with `ber_heldout_min` forged to `0.10` and re-signed
+with an ephemeral key:
+
+```
+attacker's real fingerprint : 2ef44d775d91e0d6
+declared key_fingerprint    : 233bb4406e2de606      ← the lie, unsigned
+harness.commit.verify()     : True                  ← trusts the embedded key (T7)
+reading the declared field  : ACCEPTS the forgery
+hashing public_key_hex      : REJECTS it
+```
+
+That is the exact T7 attack the pin's own comment claimed to close, and the
+forged `thresholds` is what the scoring step goes on to enforce. **A check that
+claims a property it does not have is worse than no check** — the previous
+`bench.yml` had no pin at all and was honestly unpinned.
+
+Fixed: the signer is derived by hashing `public_key_hex`, which is the key the
+signature was actually verified *with*. The declared field is still
+cross-checked — a manifest disagreeing with its own key is a finding — but it is
+not what the decision rests on. Verified by running the step's script verbatim:
+the real v1.2 ledger passes and reports `signer 233bb4406e2de606 derived from
+public_key_hex`; the forgery exits 1 naming the real signer.
+
+Two tests keep it fixed: a planted red asserting the attack still succeeds
+against the naive check and fails against the derivation, and an assertion on
+`bench.yml`'s own text that the broken form has not returned. They are text
+assertions rather than parsed-workflow ones because PyYAML is not in
+`requirements.lock`.
+
+`tools/seal.py` and `tools/verify_manifest.py` were never affected — both
+already derived. The defect was confined to the workflow line added in this
+package.
+
 ### 14. Measured
 
 Local environment matched to the `pytest` job's — CPython, GnuCOBOL 3.1.2.0,
@@ -5001,7 +5046,7 @@ the runner's.
 
 ```
 $ python3 -m pytest tests/ -q -rs
-→ 1184 passed, 13 skipped, 0 failed        (was 1136 passed, 13 failed, 10 skipped)
+→ 1187 passed, 13 skipped, 0 failed        (was 1136 passed, 13 failed, 10 skipped)
 
 $ python3 tools/verify_manifest.py --ledger bench/LEDGER_relian-bench-v1.2.json \
     --root bench --include-dirs corpus,harness --include-files SPEC.md \
@@ -5033,9 +5078,9 @@ baselines_recorded   byte-identical to v1.2: True   (231 bytes)
 thresholds           byte-identical to v1.2: True   (615 bytes)
 ```
 
-`EXPECTED_PASSES` 1149 → 1184, `EXPECTED_SKIPS` 10 → 13. The three new skips are
+`EXPECTED_PASSES` 1149 → 1187, `EXPECTED_SKIPS` 10 → 13. The three new skips are
 the only ones in the suite expected to disappear; after the ceremony they run
-and the numbers become 1187 / 10.
+and the numbers become 1190 / 10.
 
 Scope: `git status --short -- bench/` shows `bench/seal.toml` and nothing else.
 `git status --short -- discovery-bench/ transpiler/ src/` is empty.
