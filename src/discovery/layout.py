@@ -264,6 +264,19 @@ class Layout:
     variable_length: bool = False
     origin: str = "<text>"
     source_sha256: Optional[str] = None
+    #: WP-2.7 D36. ``None`` means this layout is the MEASURED one, verified
+    #: against GnuCOBOL 3.1.2.0. Otherwise it is the label of the dialect
+    #: profile whose sourced rules PROJECTED it, and every claim below is a
+    #: projection rather than a measurement.
+    #:
+    #: This lives on the Layout rather than only in the report because
+    #: ``to_dict()`` publishes ``verified_against``. On a projected layout that
+    #: field would be an untrue claim, and a caller serialising a Layout
+    #: directly -- bypassing the sensitivity report -- would emit projected
+    #: offsets labelled as verified. That is exactly the failure mode
+    #: acceptance (6) exists to prevent, so the marker has to travel with the
+    #: object, not with the renderer.
+    projection: Optional[str] = None
 
     # -- derived views ------------------------------------------------------
 
@@ -291,10 +304,23 @@ class Layout:
         every consumer of a number rather than only a reader of this docstring.
         A grade with no stated basis is a grade with the units filed off.
         """
-        provenance = (
-            f"src.discovery.layout static computation over {self.origin}; "
-            f"{IBM_EQUIVALENCE_LIMITATION}"
-        )
+        # The provenance travels with every number, so on a projection it may
+        # not carry the MEASURED basis. It used to: the string embedded
+        # IBM_EQUIVALENCE_LIMITATION unconditionally, which put "Verified
+        # byte-for-byte against GnuCOBOL 3.1.2.0, 186 of 186" inside the
+        # provenance of numbers that were never measured (R1/R9).
+        if self.projection is None:
+            provenance = (
+                f"src.discovery.layout static computation over {self.origin}; "
+                f"{IBM_EQUIVALENCE_LIMITATION}"
+            )
+        else:
+            provenance = (
+                f"src.discovery.layout static computation over {self.origin}, "
+                f"PROJECTED under {self.projection} from its sourced rule "
+                f"table. NOT MEASURED: no compiler produced these numbers and "
+                f"no round-trip result applies to them."
+            )
         grade: Grade = LAYOUT_GRADE
         declared = sum(
             f.length for f in self.fields if f.in_tiling and f.length is not None
@@ -322,8 +348,26 @@ class Layout:
         to every layout this engine produces, green or not. A ``PARTIAL`` or
         ``NONE`` status appends its own reasons, so a caller that renders this
         tuple renders the whole caveat set rather than half of it.
+
+        A PROJECTED layout carries the projection disclaimer INSTEAD of the
+        IBM-equivalence limitation, not in front of it. The measured
+        limitation quotes "186 of 186 comparisons at tolerance zero" -- a
+        measurement of the GnuCOBOL layout. Appending it to a projection put
+        that sentence on a document whose numbers were never measured at all,
+        directly contradicting the disclaimer above it. Leading with the
+        disclaimer was not enough: a reader who scrolls one line further found
+        the word "Verified" attached to projected offsets.
         """
-        return (IBM_EQUIVALENCE_LIMITATION,) + self.reasons
+        if self.projection is None:
+            return (IBM_EQUIVALENCE_LIMITATION,) + self.reasons
+        return (
+            f"PROJECTION, NOT A MEASUREMENT. Every offset and length in this "
+            f"record is the layout implied by applying {self.projection}'s "
+            f"sourced rule table to this parse. Relian has no IBM system; "
+            f"no measurement was taken on one, and no round-trip result "
+            f"applies to it. The default dialect gnucobol-3.1.2 returns the "
+            f"layout (measured).",
+        ) + self.reasons
 
     def to_dict(self) -> Dict[str, object]:
         return {
@@ -331,8 +375,16 @@ class Layout:
             "group_length": self.group_length,
             "status": self.status.value,
             "grade": LAYOUT_GRADE,
-            "verified_against": COMPILER_BASIS,
-            "benchmark": VERIFIED_AGAINST,
+            # A projected layout was verified against NOTHING, so the field
+            # says None rather than naming a compiler it never met.
+            "basis": "measured" if self.projection is None else "projected",
+            "projected_under": self.projection,
+            "verified_against": (
+                COMPILER_BASIS if self.projection is None else None
+            ),
+            "benchmark": (
+                VERIFIED_AGAINST if self.projection is None else None
+            ),
             "limitations": list(self.limitations()),
             "summary": {
                 key: (measured.to_dict() if measured is not None else None)
@@ -347,6 +399,7 @@ class Layout:
             "variable_length": self.variable_length,
             "origin": self.origin,
             "source_sha256": self.source_sha256,
+            "projection": self.projection,
         }
 
 
@@ -793,8 +846,17 @@ class _Row:
 
 
 class _Context:
-    def __init__(self, odo_value: Optional[int]) -> None:
+    def __init__(
+        self, odo_value: Optional[int], profile: object = None
+    ) -> None:
         self.odo_value = odo_value
+        #: WP-2.7. ``None`` is the MEASURED path: the widths and boundaries
+        #: this engine was verified against GnuCOBOL 3.1.2.0 with, unchanged.
+        #: A profile here makes the placement a PROJECTION under that
+        #: profile's sourced rules. Keeping ``None`` as its own case rather
+        #: than injecting a "gnucobol" profile is deliberate -- it means the
+        #: measured path cannot drift by construction, which is acceptance (1).
+        self.profile = profile
         self.rows: List[_Row] = []
         self.gaps: List[Gap] = []
         self.conditions: List[Condition] = []
@@ -830,23 +892,45 @@ def _elementary_size(entry: _Entry, usage: str, ctx: _Context) -> Tuple[Optional
     if symbols is None:
         return None, f"PICTURE {entry.picture!r} contains a symbol this engine does not model"
 
+    profile = ctx.profile
+
     if usage in BINARY_USAGES:
         digits = picture_digits(symbols)
-        width = binary_width(digits)
-        if width is None:
-            return None, (
+        if profile is None:
+            width = binary_width(digits)
+            reason = (
                 f"{usage} with {digits} digit positions is outside the 1-18 range "
                 f"the oracle measured"
             )
+        else:
+            outcome = profile.binary(digits)
+            width, reason = outcome.bytes_, (
+                f"{usage} with {digits} digit positions: {outcome.reason}"
+                if outcome.reason else
+                f"{profile.id} has no width rule for {usage}"
+            )
+        if width is None:
+            return None, reason
         return width, None
     if usage in PACKED_USAGES:
         digits = picture_digits(symbols)
-        width = packed_width(digits)
+        if profile is None:
+            width = packed_width(digits)
+        else:
+            width = profile.packed(digits).bytes_
         if width is None:
             return None, f"{usage} item {entry.name} has no digit positions"
         return width, None
 
     size = picture_size(symbols)
+    if profile is not None:
+        projected = profile.display(size)
+        if projected.bytes_ is None:
+            return None, (
+                f"{profile.id} has no display width rule for "
+                f"PICTURE {entry.picture!r}"
+            )
+        size = projected.bytes_
     if entry.sign_separate:
         size += 1
     if size <= 0:
@@ -1048,16 +1132,31 @@ def _sync_align(
             )
         return cursor, None
     size, _reason = _elementary_size(entry, usage, ctx)
-    if size is None or size not in SYNC_BOUNDARIES:
+    if size is None:
+        return cursor, None
+    if ctx.profile is None:
+        boundary = size if size in SYNC_BOUNDARIES else None
+    else:
+        # IBM keys m on the DIGIT COUNT, not on the width: an 18-digit COMP is
+        # 8 bytes wide but fullword-aligned. Passing both and letting the
+        # profile choose is what keeps that a sourced rule rather than an
+        # inference from GnuCOBOL's behaviour.
+        symbols = expand_picture(entry.picture) if entry.picture else None
+        digits = picture_digits(symbols) if symbols else 0
+        boundary = ctx.profile.sync_boundary(digits, size)
+    if boundary is None:
         return cursor, None
     zero_based = cursor - 1
-    remainder = zero_based % size
+    remainder = zero_based % boundary
     if remainder == 0:
         return cursor, None
-    slack = size - remainder
+    slack = boundary - remainder
     return cursor + slack, Gap(
         offset=cursor, length=slack, source="slack",
-        cause=f"SYNCHRONIZED alignment of {entry.name} to a {size}-byte boundary",
+        cause=(
+            f"SYNCHRONIZED alignment of {entry.name} to a {boundary}-byte "
+            f"boundary"
+        ),
     )
 
 
@@ -1171,9 +1270,14 @@ def _usage_map(entry: _Entry, inherited: Optional[str], out: Dict[int, str]) -> 
 
 
 def _layout_for_root(
-    root: _Entry, *, odo_value: Optional[int], origin: str, sha256: Optional[str]
+    root: _Entry,
+    *,
+    odo_value: Optional[int],
+    origin: str,
+    sha256: Optional[str],
+    profile: object = None,
 ) -> Layout:
-    ctx = _Context(odo_value)
+    ctx = _Context(odo_value, profile=profile)
     usage_map: Dict[int, str] = {}
     _usage_map(root, None, usage_map)
 
@@ -1215,6 +1319,15 @@ def _layout_for_root(
         variable_length=odo_object is not None,
         origin=origin,
         source_sha256=sha256,
+        # Only a PROJECTED profile marks the layout. The GnuCOBOL profile is
+        # measured and reproduces the default path byte for byte
+        # (tests/test_dialect_roundtrip_gate.py), so passing it must not change
+        # the document -- otherwise "the measured layout" would depend on how
+        # the caller happened to ask for it.
+        projection=(
+            getattr(profile, "label", None)
+            if getattr(profile, "projected", False) else None
+        ),
     )
 
 
@@ -1234,12 +1347,22 @@ def compute_text(
     odo_value: Optional[int] = None,
     origin: str = "<text>",
     fixed_format: bool = True,
+    profile: object = None,
 ) -> Tuple[Layout, ...]:
-    """Compute a :class:`Layout` for every ``01``/``77`` record in ``text``."""
+    """Compute a :class:`Layout` for every ``01``/``77`` record in ``text``.
+
+    ``profile`` is WP-2.7's dialect hook. ``None`` -- the default -- is the
+    MEASURED path, verified byte-for-byte against GnuCOBOL 3.1.2.0 on
+    RELIAN-DISCOVERY-BENCH v0.1. A profile makes the result a PROJECTION under
+    that profile's sourced rules, and everything downstream must label it as
+    one (D36).
+    """
     sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     roots = parse_entries(text, fixed_format=fixed_format)
     return tuple(
-        _layout_for_root(root, odo_value=odo_value, origin=origin, sha256=sha)
+        _layout_for_root(
+            root, odo_value=odo_value, origin=origin, sha256=sha, profile=profile
+        )
         for root in roots
     )
 
@@ -1250,6 +1373,7 @@ def compute(
     *,
     odo_value: Optional[int] = None,
     record: Optional[str] = None,
+    profile: object = None,
 ) -> Optional[Layout]:
     """Compute one record's layout from a path, or from a resolved member name.
 
@@ -1266,7 +1390,9 @@ def compute(
     if isinstance(source, (str, Path)) and resolution is None:
         path = Path(source)
         text = path.read_text(encoding="utf-8", errors="replace")
-        layouts = compute_text(text, odo_value=odo_value, origin=path.as_posix())
+        layouts = compute_text(
+            text, odo_value=odo_value, origin=path.as_posix(), profile=profile
+        )
     else:
         name = str(source).upper()
         assert resolution is not None
@@ -1294,7 +1420,7 @@ def compute(
                           reasons=reasons, origin=resolution.records[name].path)
         layouts = compute_text(
             assembly.text, odo_value=odo_value,
-            origin=resolution.records[name].path,
+            origin=resolution.records[name].path, profile=profile,
         )
 
     if not layouts:

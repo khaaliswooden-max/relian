@@ -653,7 +653,205 @@ env:
   #
   # Net from the reconciliation itself is ZERO: four out, four in, collection
   # 1200 either way. The +3 is the ceremony, not the edit.
-  EXPECTED_PASSES: "1190"
+  #
+  # WP-2.7, 2026-09-10: was 1190. Net +235, attributed file by file. The 1190
+  # was RE-MEASURED on the anchor (0ccb8fa) before a line was written rather
+  # than carried over from the last CI note, on cobc 3.1.2.0 -- the version
+  # the seal pins. WP-2.6.1's session ran GnuCOBOL 4.0 and watched two
+  # test_bench_oracle tests fail correctly; the tests were right and the
+  # environment was wrong, so the baseline is only a baseline on the pinned
+  # compiler. `apt-get install gnucobol` still yields it: `gnucobol` is a
+  # METAPACKAGE whose own "Version: 5" is its revision, not GnuCOBOL's, and it
+  # Depends: gnucobol3 -> 3.1.2. The version assertion above remains the guard.
+  #
+  #   +19  tests/test_dialect_profiles.py
+  #        The citation contract and acceptance (4)'s planted red. A
+  #        citation-less SOURCED rule raises while the module BODY executes --
+  #        the test imports a planted module and calls nothing in it, because
+  #        "at import, not at use" is the whole claim: at use, the defect is
+  #        already inside a report a customer is holding.
+  #
+  #   +16  tests/test_dialect_gnucobol_derivation.py
+  #        Acceptance (3). The GnuCOBOL widths are DERIVED from oracle.json,
+  #        every band edge is a measured digit count (2, 4, 9, 18 -- none
+  #        interpolated), and three planted reds prove a disagreeing hand-edit
+  #        fails. The third plants the WP-2.2 brief's original table, the one
+  #        measurement corrected: if that can pass, the seal has stopped being
+  #        the source of truth.
+  #
+  #   +44  tests/test_dialect_classification.py
+  #        Acceptance (2) and (5). Every field in the sealed corpus carries a
+  #        class; the corpus distribution is asserted as a number (127
+  #        INVARIANT / 3 DIALECT_SENSITIVE / 0 UNKNOWN over 130 rows), not
+  #        described. D02_binary's per-profile widths and the +2 downstream
+  #        shift, the OCCURS case where one byte becomes +40, and the SYNC
+  #        coupling where a ONE-byte width change costs TWO bytes because the
+  #        alignment boundary followed the width.
+  #
+  #        The last +2 pin the summary SENTENCE, after review found it stating
+  #        a varying shift as its maximum: "the 10 fields after D02-COMP-1
+  #        shift by +2" is wrong for D02-COMP-2, which shifts +1, and a reader
+  #        applying +2 to it lands one byte off -- the exact defect this work
+  #        package exists to prevent, so it may not appear in the summary
+  #        either. It now gives a range when the shifts vary and a single
+  #        number when they do not, and groups a table member once instead of
+  #        once per occurrence (40 near-identical sentences buried the one
+  #        number that mattered).
+  #
+  #   +94  tests/test_dialect_projection_labels.py
+  #        Acceptance (6) and (7). Every copybook's rendered section is linted
+  #        (that is most of the count -- 15 corpus files plus 3 fixtures, three
+  #        ways each), plus a planted red per unlabelled-column shape and one
+  #        negative control per measurement term and per inflection.
+  #
+  #        The last +3 close a hole found while reviewing the renderer, and
+  #        they are the reason the projection marker lives on Layout rather
+  #        than only in the report: Layout.to_dict() publishes
+  #        `verified_against`, so a caller serialising a PROJECTED Layout
+  #        directly -- bypassing the sensitivity report entirely -- emitted
+  #        projected offsets labelled as verified against GnuCOBOL 3.1.2.0.
+  #        A projected layout now reports basis "projected", verified_against
+  #        null, and the projection disclaimer FIRST in limitations(). The
+  #        measured path is untouched: the marker is keyed on the profile
+  #        being projected, so passing the (measured) GnuCOBOL profile still
+  #        produces a byte-identical document.
+  #
+  #   +18  tests/test_dialect_roundtrip_gate.py
+  #        Acceptance (1). The 186 comparisons re-run with the GnuCOBOL
+  #        profile passed EXPLICITLY, plus per-variant byte-identity against
+  #        the engine's default path. --dialect gnucobol-3.1.2 routes through
+  #        profile=None so the measured path cannot drift; that is exactly why
+  #        the derived profile needs its own gate, since nothing else in the
+  #        suite would notice if it disagreed.
+  #
+  #   +11  tests/test_dialect_cli.py
+  #        The flag. The default is byte-identical spelled out or omitted, the
+  #        `records` block stays measured under any dialect, and the CLI
+  #        REFUSES (EXIT_REFUSED) rather than emit a projection whose labels
+  #        did not lint -- the escalation trigger as an exit code, because the
+  #        customer acts on offsets.
+  #
+  #   +57  tests/test_verification_kit.py
+  #        Acceptance (8) and (9). The kit is compiled with the pinned cobc,
+  #        run, and graded against the sealed oracle on the SAME 186
+  #        comparisons the engine is graded on -- a kit covering fewer rows
+  #        would agree for the wrong reason. Plus: the shipped specimen is
+  #        asserted in sync with its generator, the generated program opens no
+  #        file, no emitted line overruns column 72, and the ingest reports
+  #        confirm/contradict/unknown with the compiler version and options
+  #        REQUIRED. These 45 need cobc and would SKIP without it; this job
+  #        installs it, so they do not, and EXPECTED_SKIPS stays 10.
+  #
+  #    +6  tests/test_discovery_is_compiler_free.py
+  #        No new test. `test_module_never_invokes_a_compiler` is parametrised
+  #        over every file in src/discovery/, and the package gained six:
+  #        dialects/{__init__,base,classify,gnucobol_3_1_2,
+  #        ibm_enterprise_cobol,render}.py. D15 therefore covers the dialect
+  #        layer automatically, and it bit during this work package: the
+  #        GnuCOBOL profile read oracle.json's `toolchain.cobc` to render its
+  #        provenance string, which put a compiler name in a non-docstring
+  #        literal. The fix was to stop reaching -- the profile names its
+  #        compiler from its own constant, pinned to the oracle by
+  #        test_dialect_gnucobol_derivation.py -- NOT to loosen the guard.
+  #
+  # WP-2.7 review round: +15 over 1430, all of them regressions for defects
+  # Cursor Bugbot found on the PR and all five verified against the code
+  # before being fixed. Bot findings are bug reports, so they were reproduced
+  # rather than argued with -- and two of them were the SAME failure mode this
+  # work package exists to prevent, surviving in places the first pass missed:
+  #
+  #   +3  gnucobol_3_1_2.py -- the display half of assert_engine_agrees_with_seal
+  #       was TAUTOLOGICAL. Evidence was stored as {element_size: element_size}
+  #       and then asserted equal, so a disagreeing display rule could never
+  #       fail the build. The key is now what Relian's PICTURE expansion says
+  #       the item DECLARES and the value what the oracle MEASURED. Making it
+  #       real immediately caught a second defect in the first fix: a
+  #       hand-rolled X/A counter reported 8 for `XXBXXBXXXX`, which occupies
+  #       TEN bytes because insertion characters are storage.
+  #
+  #   +6  projection_labels -- (a) a projected Layout still asserted
+  #       verification. Nulling `verified_against` was not enough:
+  #       limitations() still appended IBM_EQUIVALENCE_LIMITATION, which quotes
+  #       "Verified byte-for-byte ... 186 of 186 at tolerance zero", and
+  #       summary() put that same text in EVERY projected number's provenance.
+  #       The document contradicted its own disclaimer one line down.
+  #       (b) an undetermined shift rendered as "0" -- `if f.offset_delta`
+  #       collapses None and 0, printing a field with no comparable address as
+  #       checked-and-unshifted. A fabricated zero (D19/R1). Two of the six are
+  #       the ALLOWED_FORMS parametrisation growing by the explicit-denial
+  #       phrasings a disclaimer needs.
+  #
+  #   +2  cli -- `--dialect ibm-enterprise-cobol` with `--root` built NO
+  #       sensitivity section while still reporting kind "projected": a payload
+  #       claiming a projection it did not contain, on the documented path for
+  #       nested COPY. The projection now runs over the ASSEMBLED text, and
+  #       where there genuinely is no parse to project from the omission is
+  #       STATED -- a missing section reads as "no differences found", which is
+  #       the opposite of the truth (R2).
+  #
+  #   +4  verification_kit -- the ingest looked rows up only by the engine's
+  #       expanded `key` ("SM-ENTRY-CTR (1)"), while a MAP listing reports a
+  #       table member ONCE and the normalised schema supplies a bare `name`.
+  #       Every MAP row for an OCCURS member went unmatched -- and those are
+  #       exactly the rows IBM forces down the MAP path, since a COMP item in
+  #       a table cannot be reference-modified there. Second half: one absent
+  #       sibling marked the whole construct UNKNOWN, discarding rows that had
+  #       been measured on the customer's compiler and had confirmed the rule.
+  #
+  # WP-2.7 review round 2: +6 over 1445. Bugbot re-reviewed the fixes and
+  # found two more, both on code written in round 1 and both verified before
+  # being changed. Reviewing my own fixes as new code was the right call:
+  #
+  #   +2  cli -- `sensitivity_present` was set True whenever assembled text
+  #       existed, so a member with no 01/77 record emitted True beside an
+  #       EMPTY dialect_sensitivity. That is the exact payload round 1's guard
+  #       was added to stop, reached by a different route. It now keys on what
+  #       was PRODUCED, not on the input existing.
+  #
+  #   +4  verification_kit -- round 1's name fallback bound EVERY field of a
+  #       given name to the first returned row. Sound for repeated occurrences
+  #       of one OCCURS member; not sound where COBOL reuses a name for items
+  #       of different widths. Measured: `Q-CODE` as PIC X(02) under one group
+  #       and PIC X(06) under another produced CONTRADICT on DISPLAY with a
+  #       rule-table update proposing 6 -> 2, from a listing that was RIGHT.
+  #       Two causes: the name fallback, and a {key: field} dict that silently
+  #       dropped all but the last field where keys repeat. The fallback is now
+  #       eligible only where the name is unambiguous on BOTH sides, fields are
+  #       iterated as a list, and the ingest runs the same lint_sensitivity
+  #       gate the rendered path already had -- it had reached analyse_text
+  #       directly and skipped it. A verdict keyed on ambiguous identity is
+  #       worse than none, because it changes a rule that was correct.
+  #
+  # WP-2.7 review round 3: +4 over 1451. Bugbot raised two more; ONE was a
+  # real defect and one was NOT, and both are pinned:
+  #
+  #   +2  a returned-name clash blamed the COMPILER. Two returned rows for one
+  #       name are skipped by the matcher, and the construct then reported
+  #       "no row ... most often because IBM rejected the reference-modified
+  #       probe" -- but the listing DID contain the field. UNKNOWN was the
+  #       right verdict; the REASON was wrong, and the reason is the part a
+  #       customer acts on: it sends their mainframe team after a problem they
+  #       do not have (R2). `ambiguous_names` now records the returned-side
+  #       clash as well as the projected-width one, and the detail says
+  #       plainly that this is a matching limitation on OUR side. The
+  #       genuinely-absent case keeps the compiler explanation, asserted, since
+  #       that is the right pointer to the MAP path.
+  #
+  #   +2  FILLER was reported as breaking the round-2 refusal gate: anonymous
+  #       FILLER items supposedly share the key `FILLER`, so most customer
+  #       copybooks would be refused as ambiguous. NOT a defect. The engine
+  #       models FILLER as a `gap` row with source "filler", never as a
+  #       Field -- deliberate, because FILLER cannot be the receiving item of
+  #       a MOVE and so is not probeable. Two FILLERs of different widths
+  #       produce two gaps and ZERO FILLER fields. Verified on MUBBREC (the one
+  #       corpus file with FILLER) and on a synthetic record, and pinned both
+  #       ways: FILLER never reaches the projected rows, and no sealed-corpus
+  #       copybook produces a duplicate key. A later change that DID surface
+  #       FILLER as a field now fails here rather than silently starting to
+  #       refuse every customer's copybook.
+  #
+  # 259 in new files + 6 from the parametrisation = 265. 1190 + 265 = 1455.
+  EXPECTED_PASSES: "1455"
 
 jobs:
   parser-regen:
