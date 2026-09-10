@@ -653,7 +653,87 @@ env:
   #
   # Net from the reconciliation itself is ZERO: four out, four in, collection
   # 1200 either way. The +3 is the ceremony, not the edit.
-  EXPECTED_PASSES: "1190"
+  #
+  # WP-2.7, 2026-09-10: was 1190. Net +235, attributed file by file. The 1190
+  # was RE-MEASURED on the anchor (0ccb8fa) before a line was written rather
+  # than carried over from the last CI note, on cobc 3.1.2.0 -- the version
+  # the seal pins. WP-2.6.1's session ran GnuCOBOL 4.0 and watched two
+  # test_bench_oracle tests fail correctly; the tests were right and the
+  # environment was wrong, so the baseline is only a baseline on the pinned
+  # compiler. `apt-get install gnucobol` still yields it: `gnucobol` is a
+  # METAPACKAGE whose own "Version: 5" is its revision, not GnuCOBOL's, and it
+  # Depends: gnucobol3 -> 3.1.2. The version assertion above remains the guard.
+  #
+  #   +19  tests/test_dialect_profiles.py
+  #        The citation contract and acceptance (4)'s planted red. A
+  #        citation-less SOURCED rule raises while the module BODY executes --
+  #        the test imports a planted module and calls nothing in it, because
+  #        "at import, not at use" is the whole claim: at use, the defect is
+  #        already inside a report a customer is holding.
+  #
+  #   +13  tests/test_dialect_gnucobol_derivation.py
+  #        Acceptance (3). The GnuCOBOL widths are DERIVED from oracle.json,
+  #        every band edge is a measured digit count (2, 4, 9, 18 -- none
+  #        interpolated), and three planted reds prove a disagreeing hand-edit
+  #        fails. The third plants the WP-2.2 brief's original table, the one
+  #        measurement corrected: if that can pass, the seal has stopped being
+  #        the source of truth.
+  #
+  #   +42  tests/test_dialect_classification.py
+  #        Acceptance (2) and (5). Every field in the sealed corpus carries a
+  #        class; the corpus distribution is asserted as a number (127
+  #        INVARIANT / 3 DIALECT_SENSITIVE / 0 UNKNOWN over 130 rows), not
+  #        described. D02_binary's per-profile widths and the +2 downstream
+  #        shift, the OCCURS case where one byte becomes +40, and the SYNC
+  #        coupling where a ONE-byte width change costs TWO bytes because the
+  #        alignment boundary followed the width.
+  #
+  #   +85  tests/test_dialect_projection_labels.py
+  #        Acceptance (6) and (7). Every copybook's rendered section is linted
+  #        (that is most of the count -- 15 corpus files plus 3 fixtures, three
+  #        ways each), plus a planted red per unlabelled-column shape and one
+  #        negative control per measurement term and per inflection.
+  #
+  #   +18  tests/test_dialect_roundtrip_gate.py
+  #        Acceptance (1). The 186 comparisons re-run with the GnuCOBOL
+  #        profile passed EXPLICITLY, plus per-variant byte-identity against
+  #        the engine's default path. --dialect gnucobol-3.1.2 routes through
+  #        profile=None so the measured path cannot drift; that is exactly why
+  #        the derived profile needs its own gate, since nothing else in the
+  #        suite would notice if it disagreed.
+  #
+  #    +7  tests/test_dialect_cli.py
+  #        The flag. The default is byte-identical spelled out or omitted, the
+  #        `records` block stays measured under any dialect, and the CLI
+  #        REFUSES (EXIT_REFUSED) rather than emit a projection whose labels
+  #        did not lint -- the escalation trigger as an exit code, because the
+  #        customer acts on offsets.
+  #
+  #   +45  tests/test_verification_kit.py
+  #        Acceptance (8) and (9). The kit is compiled with the pinned cobc,
+  #        run, and graded against the sealed oracle on the SAME 186
+  #        comparisons the engine is graded on -- a kit covering fewer rows
+  #        would agree for the wrong reason. Plus: the shipped specimen is
+  #        asserted in sync with its generator, the generated program opens no
+  #        file, no emitted line overruns column 72, and the ingest reports
+  #        confirm/contradict/unknown with the compiler version and options
+  #        REQUIRED. These 45 need cobc and would SKIP without it; this job
+  #        installs it, so they do not, and EXPECTED_SKIPS stays 10.
+  #
+  #    +6  tests/test_discovery_is_compiler_free.py
+  #        No new test. `test_module_never_invokes_a_compiler` is parametrised
+  #        over every file in src/discovery/, and the package gained six:
+  #        dialects/{__init__,base,classify,gnucobol_3_1_2,
+  #        ibm_enterprise_cobol,render}.py. D15 therefore covers the dialect
+  #        layer automatically, and it bit during this work package: the
+  #        GnuCOBOL profile read oracle.json's `toolchain.cobc` to render its
+  #        provenance string, which put a compiler name in a non-docstring
+  #        literal. The fix was to stop reaching -- the profile names its
+  #        compiler from its own constant, pinned to the oracle by
+  #        test_dialect_gnucobol_derivation.py -- NOT to loosen the guard.
+  #
+  # 229 in new files + 6 from the parametrisation = 235. 1190 + 235 = 1425.
+  EXPECTED_PASSES: "1425"
 
 jobs:
   parser-regen:

@@ -31,8 +31,9 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
+from . import dialects
 from .copybook import resolve
 from .layout import (
     COMPILER_BASIS,
@@ -73,6 +74,14 @@ EXIT_REFUSED = 2
 
 def _layout_command(args: argparse.Namespace) -> int:
     path = Path(args.path)
+    profile = dialects.resolve(getattr(args, "dialect", dialects.DEFAULT_DIALECT))
+
+    # WP-2.7. The MEASURED layout is always what gets computed and always what
+    # is published as the layout: the deliverable is the measured layout and a
+    # projection is an annotation on it (D37, and the escalation trigger about
+    # shipping a projection as the primary deliverable). Asking for another
+    # dialect ADDS a labelled sensitivity section; it never replaces the
+    # records, and it never relabels them.
     if args.root:
         resolution = resolve(Path(args.root))
         layout = compute(path.stem.upper(), resolution, odo_value=args.odo)
@@ -86,17 +95,68 @@ def _layout_command(args: argparse.Namespace) -> int:
     # The limitation is emitted at the TOP of the document as well as on each
     # record. A caveat that only exists one level down is a caveat a reader can
     # scroll past without ever seeing (R9/R11).
-    print(json.dumps(
-        {
-            "source": path.as_posix(),
-            "grade": LAYOUT_GRADE,
-            "verified_against": COMPILER_BASIS,
-            "benchmark": VERIFIED_AGAINST,
-            "limitations": [IBM_EQUIVALENCE_LIMITATION],
-            "records": payload,
+    document = {
+        "source": path.as_posix(),
+        "grade": LAYOUT_GRADE,
+        "verified_against": COMPILER_BASIS,
+        "benchmark": VERIFIED_AGAINST,
+        "limitations": [IBM_EQUIVALENCE_LIMITATION],
+        "dialect": {
+            "requested": profile.id,
+            "kind": profile.kind.value,
+            "records_basis": "measured",
         },
-        indent=2, sort_keys=True,
-    ))
+        "records": payload,
+    }
+
+    if profile.projected and not args.root:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        sections = []
+        problems: List[str] = []
+        for record in compute_text(
+            text, odo_value=args.odo, origin=path.as_posix()
+        ):
+            report = dialects.analyse_text(
+                text, dialects.GNUCOBOL_3_1_2, profile,
+                odo_value=args.odo, origin=path.as_posix(), record=record.group,
+            )
+            if report is None:
+                continue
+            problems += [
+                f"{record.group}: {m}" for m in dialects.lint_sensitivity(report)
+            ]
+            blocks = dialects.render_sensitivity_blocks(report)
+            problems += [
+                f"{record.group}: {m}"
+                for m in dialects.lint_projection_render(blocks)
+            ]
+            sections.append(report.to_dict())
+
+        # The escalation trigger, mechanised: "a projection is about to be
+        # rendered without its label -- stop." A projection that cannot be
+        # labelled correctly does not ship, and the refusal names why. This is
+        # the highest-cost failure mode in the product because the customer
+        # acts on offsets, so it is an exit code rather than a warning.
+        if problems:
+            print(json.dumps({
+                "refused": True,
+                "reason": (
+                    "the projection could not be rendered with its labels "
+                    "intact; no dialect projection is emitted (WP-2.7 "
+                    "acceptance (6)/(7), D36)"
+                ),
+                "problems": problems,
+            }, indent=2, sort_keys=True))
+            return EXIT_REFUSED
+
+        document["dialect_sensitivity"] = sections
+        document["limitations"] = list(document["limitations"]) + [
+            f"The {profile.label} figures in `dialect_sensitivity` are a "
+            f"PROJECTION from sourced rules, not a measurement. Relian has no "
+            f"IBM system. The `records` above remain the measured layout."
+        ]
+
+    print(json.dumps(document, indent=2, sort_keys=True))
     return 0 if payload else 1
 
 
@@ -337,6 +397,15 @@ def build_parser() -> argparse.ArgumentParser:
     layout_p.add_argument("--root", help="resolve nested COPY against this tree")
     layout_p.add_argument("--odo", type=int, default=None,
                           help="OCCURS DEPENDING ON extent to compute at")
+    layout_p.add_argument(
+        "--dialect", choices=list(dialects.dialect_ids()),
+        default=dialects.DEFAULT_DIALECT,
+        help=(
+            "compiler dialect to report sensitivity against. The default "
+            "returns the MEASURED layout; any other profile adds a labelled "
+            "PROJECTION section computed from sourced rules (WP-2.7)"
+        ),
+    )
     layout_p.set_defaults(func=_layout_command)
 
     resolve_p = sub.add_parser("resolve", help="copybook fan-in and the missing table")

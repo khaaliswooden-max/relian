@@ -1,0 +1,222 @@
+"""WP-2.7 acceptance (6) and (7) — a projection cannot be dressed as a measurement.
+
+D36 names this the fabrication mode this repository has deleted four times, and
+says a projected offset presented as measured would be the most expensive
+instance yet, because a customer would load data with it. Two independent
+guards, because there are two independent ways to do it:
+
+**(6) The unlabelled column.** A projected offset and a measured offset are
+both integers. Put them side by side and nothing about the digits says which is
+which, so the header has to. Every column that names a quantity carries its
+basis, and the negative control below strips one to prove the lint bites.
+
+**(7) The borrowed adjective.** Even correctly separated columns can be
+narrated with the vocabulary of measurement. Inside a projected block the words
+*verified*, *measured* and *confirmed* (and their inflections) may appear ONLY
+as an explicit basis label -- the literal ``(measured)`` -- or as an explicit
+negation of measurement. Each term gets its own negative control, per
+acceptance (7).
+
+The rule is deliberately stricter than English requires. A lint that tried to
+work out which noun an adjective attaches to would be a parser with opinions,
+and it would pass the sentence that costs a customer a byte.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.discovery.dialects.classify import analyse_path                # noqa: E402
+from src.discovery.dialects.gnucobol_3_1_2 import PROFILE as GNUCOBOL   # noqa: E402
+from src.discovery.dialects.ibm_enterprise_cobol import PROFILE as IBM  # noqa: E402
+from src.discovery.dialects.render import (                             # noqa: E402
+    ALLOWED_FORMS,
+    Block,
+    BlockKind,
+    MEASUREMENT_VOCABULARY,
+    lint_projected_text,
+    lint_projection_render,
+    render_sensitivity_blocks,
+    render_sensitivity_markdown,
+)
+
+CORPUS = REPO_ROOT / "discovery-bench" / "corpus"
+FIXTURES = REPO_ROOT / "tests" / "fixtures" / "dialects"
+
+ALL_COPYBOOKS = sorted(p.name for p in CORPUS.glob("*.cpy")) + sorted(
+    p.name for p in FIXTURES.glob("*.cpy")
+)
+
+
+def _blocks(name: str):
+    path = (CORPUS / name) if (CORPUS / name).is_file() else (FIXTURES / name)
+    report = analyse_path(path, GNUCOBOL, IBM)
+    assert report is not None
+    return render_sensitivity_blocks(report)
+
+
+# --------------------------------------------------------------------------
+# The real artifact is clean
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("name", ALL_COPYBOOKS)
+def test_the_rendered_sensitivity_section_passes_both_lints(name: str) -> None:
+    assert lint_projection_render(_blocks(name)) == []
+
+
+@pytest.mark.parametrize("name", ALL_COPYBOOKS)
+def test_the_projected_block_announces_itself(name: str) -> None:
+    projected = [b for b in _blocks(name) if b.kind is BlockKind.PROJECTED]
+    assert projected, "nothing was rendered as a projection"
+    for b in projected:
+        assert "PROJECTION" in b.text
+        assert "UNMEASURED" in b.text
+
+
+def test_the_measured_layout_is_rendered_first_and_on_its_own_basis() -> None:
+    """D37 and the escalation trigger: the measured layout is the deliverable
+    and the projection is an annotation on it, so the ordering is asserted."""
+    blocks = _blocks("D02_binary.cpy")
+    assert [b.kind for b in blocks] == [BlockKind.MEASURED, BlockKind.PROJECTED]
+    assert "basis: measured" in blocks[0].text
+    assert "PROJECTION" not in blocks[0].text
+
+
+# --------------------------------------------------------------------------
+# Acceptance (6) — planted red: strip a column's basis
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    "header, note",
+    [
+        ("| Field | Offset | Length (projected) |", "measured side unlabelled"),
+        ("| Field | Offset (measured) | Length |", "projected side unlabelled"),
+        ("| Field | Offset | Length |", "neither side labelled"),
+        ("| Field | Width | Class |", "a quantity by another name"),
+    ],
+)
+def test_a_quantity_column_without_a_basis_fails_the_lint(header: str, note: str) -> None:
+    """Acceptance (6)'s planted red."""
+    block = Block(
+        BlockKind.PROJECTED,
+        "### Dialect sensitivity (PROJECTION under ibm-enterprise-cobol)\n"
+        "Equivalence is UNMEASURED.\n"
+        f"{header}\n|---|---|---|\n| WS-CTR | 1 | 2 |\n",
+    )
+    problems = lint_projection_render([block])
+    assert any("without a basis" in p for p in problems), (note, problems)
+
+
+def test_a_fully_labelled_table_passes() -> None:
+    block = Block(
+        BlockKind.PROJECTED,
+        "### Dialect sensitivity (PROJECTION under ibm-enterprise-cobol)\n"
+        "Equivalence is UNMEASURED.\n"
+        "| Field | Offset (measured) | Offset (projected) |\n"
+        "|---|---|---|\n| WS-CTR | 1 | 1 |\n",
+    )
+    assert lint_projection_render([block]) == []
+
+
+def test_the_serialised_form_labels_every_quantity_with_its_basis() -> None:
+    """(6) again, structurally. The JSON is what a downstream tool reads, and a
+    tool cannot see a column header."""
+    report = analyse_path(CORPUS / "D02_binary.cpy", GNUCOBOL, IBM)
+    payload = report.to_dict()
+    for row in payload["fields"]:
+        assert row["measured"]["basis"] == "measured"
+        assert row["projected"]["basis"] == "projected"
+    assert payload["measured_profile"]["kind"] == "measured"
+    assert payload["projected_profile"]["kind"] == "projected"
+    assert set(payload) >= {
+        "measured_record_length", "projected_record_length",
+        "record_length_delta",
+    }, "a record length that does not name its basis in the key"
+
+
+# --------------------------------------------------------------------------
+# Acceptance (7) — each term its own negative control
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("term", ["verified", "measured", "confirmed"])
+def test_each_measurement_term_is_caught_in_a_projected_context(term: str) -> None:
+    """Acceptance (7). Three terms, three controls — a lint exercised on one
+    term is a lint with two untested branches."""
+    block = Block(
+        BlockKind.PROJECTED,
+        "### Dialect sensitivity (PROJECTION under ibm-enterprise-cobol)\n"
+        "Equivalence is UNMEASURED.\n"
+        f"The IBM record length is {term} at 40 bytes.\n",
+    )
+    problems = lint_projection_render([block])
+    assert any(term in p for p in problems), problems
+
+
+@pytest.mark.parametrize("term", MEASUREMENT_VOCABULARY)
+def test_every_inflection_in_the_vocabulary_is_caught(term: str) -> None:
+    """A lint that catches "measured" and misses "measurement" teaches authors
+    which synonym slips through."""
+    found = lint_projected_text(f"The IBM offset is {term} against the manual.")
+    assert [t for t, _ in found] == [term], found
+
+
+@pytest.mark.parametrize("form", ALLOWED_FORMS)
+def test_the_allowed_label_and_negation_forms_are_permitted(form: str) -> None:
+    """(6) requires the literal ``(measured)`` label, so (7) must not ban it —
+    otherwise the two acceptance criteria contradict each other."""
+    assert lint_projected_text(f"Record length 38 {form} -> 40 (projected).") == []
+
+
+def test_a_measurement_word_is_not_excused_by_a_nearby_allowed_form() -> None:
+    """The allowed form covers its own span and nothing else."""
+    found = lint_projected_text(
+        "Record length 38 (measured) -> 40 (projected); the 40 is verified."
+    )
+    assert [t for t, _ in found] == ["verified"], found
+
+
+def test_unmeasured_is_not_reported_as_a_bare_measured() -> None:
+    """Word-boundary matching, asserted directly: the disclaimer this product
+    is required to print must not itself trip the lint."""
+    assert lint_projected_text("Equivalence with IBM is UNMEASURED.") == []
+
+
+def test_a_backticked_identifier_is_not_prose() -> None:
+    """``discovery-verify/IBMLAYOUT.cbl`` contains "verify" and says nothing
+    about any number's basis. Paths and flags are identifiers."""
+    assert lint_projected_text("Run `discovery-verify/IBMLAYOUT.cbl` now.") == []
+    assert lint_projected_text("Pass `--dialect` to verify nothing.") != [], (
+        "prose outside the code span must still be scanned"
+    )
+
+
+def test_the_vocabulary_is_permitted_in_a_measured_block() -> None:
+    """The lint is about *projected* context. The measured layout is entitled
+    to say it was measured — that is the whole point of the distinction."""
+    block = Block(
+        BlockKind.MEASURED,
+        "### Record layout (basis: measured)\n"
+        "Verified byte-for-byte against GnuCOBOL 3.1.2.0, 186 of 186.\n",
+    )
+    assert lint_projection_render([block]) == []
+
+
+@pytest.mark.parametrize("name", ALL_COPYBOOKS)
+def test_the_markdown_rendering_never_puts_a_bare_quantity_header_on_a_page(
+    name: str,
+) -> None:
+    """End to end over every copybook: the artifact a reader actually sees."""
+    path = (CORPUS / name) if (CORPUS / name).is_file() else (FIXTURES / name)
+    report = analyse_path(path, GNUCOBOL, IBM)
+    assert report is not None
+    text = render_sensitivity_markdown(report)
+    assert "Offset (measured)" in text and "Offset (projected)" in text
+    assert "| Offset |" not in text
+    assert "| Length |" not in text

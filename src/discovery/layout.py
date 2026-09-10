@@ -793,8 +793,17 @@ class _Row:
 
 
 class _Context:
-    def __init__(self, odo_value: Optional[int]) -> None:
+    def __init__(
+        self, odo_value: Optional[int], profile: object = None
+    ) -> None:
         self.odo_value = odo_value
+        #: WP-2.7. ``None`` is the MEASURED path: the widths and boundaries
+        #: this engine was verified against GnuCOBOL 3.1.2.0 with, unchanged.
+        #: A profile here makes the placement a PROJECTION under that
+        #: profile's sourced rules. Keeping ``None`` as its own case rather
+        #: than injecting a "gnucobol" profile is deliberate -- it means the
+        #: measured path cannot drift by construction, which is acceptance (1).
+        self.profile = profile
         self.rows: List[_Row] = []
         self.gaps: List[Gap] = []
         self.conditions: List[Condition] = []
@@ -830,23 +839,45 @@ def _elementary_size(entry: _Entry, usage: str, ctx: _Context) -> Tuple[Optional
     if symbols is None:
         return None, f"PICTURE {entry.picture!r} contains a symbol this engine does not model"
 
+    profile = ctx.profile
+
     if usage in BINARY_USAGES:
         digits = picture_digits(symbols)
-        width = binary_width(digits)
-        if width is None:
-            return None, (
+        if profile is None:
+            width = binary_width(digits)
+            reason = (
                 f"{usage} with {digits} digit positions is outside the 1-18 range "
                 f"the oracle measured"
             )
+        else:
+            outcome = profile.binary(digits)
+            width, reason = outcome.bytes_, (
+                f"{usage} with {digits} digit positions: {outcome.reason}"
+                if outcome.reason else
+                f"{profile.id} has no width rule for {usage}"
+            )
+        if width is None:
+            return None, reason
         return width, None
     if usage in PACKED_USAGES:
         digits = picture_digits(symbols)
-        width = packed_width(digits)
+        if profile is None:
+            width = packed_width(digits)
+        else:
+            width = profile.packed(digits).bytes_
         if width is None:
             return None, f"{usage} item {entry.name} has no digit positions"
         return width, None
 
     size = picture_size(symbols)
+    if profile is not None:
+        projected = profile.display(size)
+        if projected.bytes_ is None:
+            return None, (
+                f"{profile.id} has no display width rule for "
+                f"PICTURE {entry.picture!r}"
+            )
+        size = projected.bytes_
     if entry.sign_separate:
         size += 1
     if size <= 0:
@@ -1048,16 +1079,31 @@ def _sync_align(
             )
         return cursor, None
     size, _reason = _elementary_size(entry, usage, ctx)
-    if size is None or size not in SYNC_BOUNDARIES:
+    if size is None:
+        return cursor, None
+    if ctx.profile is None:
+        boundary = size if size in SYNC_BOUNDARIES else None
+    else:
+        # IBM keys m on the DIGIT COUNT, not on the width: an 18-digit COMP is
+        # 8 bytes wide but fullword-aligned. Passing both and letting the
+        # profile choose is what keeps that a sourced rule rather than an
+        # inference from GnuCOBOL's behaviour.
+        symbols = expand_picture(entry.picture) if entry.picture else None
+        digits = picture_digits(symbols) if symbols else 0
+        boundary = ctx.profile.sync_boundary(digits, size)
+    if boundary is None:
         return cursor, None
     zero_based = cursor - 1
-    remainder = zero_based % size
+    remainder = zero_based % boundary
     if remainder == 0:
         return cursor, None
-    slack = size - remainder
+    slack = boundary - remainder
     return cursor + slack, Gap(
         offset=cursor, length=slack, source="slack",
-        cause=f"SYNCHRONIZED alignment of {entry.name} to a {size}-byte boundary",
+        cause=(
+            f"SYNCHRONIZED alignment of {entry.name} to a {boundary}-byte "
+            f"boundary"
+        ),
     )
 
 
@@ -1171,9 +1217,14 @@ def _usage_map(entry: _Entry, inherited: Optional[str], out: Dict[int, str]) -> 
 
 
 def _layout_for_root(
-    root: _Entry, *, odo_value: Optional[int], origin: str, sha256: Optional[str]
+    root: _Entry,
+    *,
+    odo_value: Optional[int],
+    origin: str,
+    sha256: Optional[str],
+    profile: object = None,
 ) -> Layout:
-    ctx = _Context(odo_value)
+    ctx = _Context(odo_value, profile=profile)
     usage_map: Dict[int, str] = {}
     _usage_map(root, None, usage_map)
 
@@ -1234,12 +1285,22 @@ def compute_text(
     odo_value: Optional[int] = None,
     origin: str = "<text>",
     fixed_format: bool = True,
+    profile: object = None,
 ) -> Tuple[Layout, ...]:
-    """Compute a :class:`Layout` for every ``01``/``77`` record in ``text``."""
+    """Compute a :class:`Layout` for every ``01``/``77`` record in ``text``.
+
+    ``profile`` is WP-2.7's dialect hook. ``None`` -- the default -- is the
+    MEASURED path, verified byte-for-byte against GnuCOBOL 3.1.2.0 on
+    RELIAN-DISCOVERY-BENCH v0.1. A profile makes the result a PROJECTION under
+    that profile's sourced rules, and everything downstream must label it as
+    one (D36).
+    """
     sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     roots = parse_entries(text, fixed_format=fixed_format)
     return tuple(
-        _layout_for_root(root, odo_value=odo_value, origin=origin, sha256=sha)
+        _layout_for_root(
+            root, odo_value=odo_value, origin=origin, sha256=sha, profile=profile
+        )
         for root in roots
     )
 
@@ -1250,6 +1311,7 @@ def compute(
     *,
     odo_value: Optional[int] = None,
     record: Optional[str] = None,
+    profile: object = None,
 ) -> Optional[Layout]:
     """Compute one record's layout from a path, or from a resolved member name.
 
@@ -1266,7 +1328,9 @@ def compute(
     if isinstance(source, (str, Path)) and resolution is None:
         path = Path(source)
         text = path.read_text(encoding="utf-8", errors="replace")
-        layouts = compute_text(text, odo_value=odo_value, origin=path.as_posix())
+        layouts = compute_text(
+            text, odo_value=odo_value, origin=path.as_posix(), profile=profile
+        )
     else:
         name = str(source).upper()
         assert resolution is not None
@@ -1294,7 +1358,7 @@ def compute(
                           reasons=reasons, origin=resolution.records[name].path)
         layouts = compute_text(
             assembly.text, odo_value=odo_value,
-            origin=resolution.records[name].path,
+            origin=resolution.records[name].path, profile=profile,
         )
 
     if not layouts:
