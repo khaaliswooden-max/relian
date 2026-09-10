@@ -567,3 +567,113 @@ def test_a_map_row_that_disagrees_still_contradicts() -> None:
     assert verdict["verdict"] == Verdict.CONTRADICT.value
     assert (verdict["projected_length"], verdict["returned_length"]) == (2, 1)
     assert len(result["rule_updates"]) == 1
+
+
+# --------------------------------------------------------------------------
+# Bugbot round 2 (Medium): name matching collided on duplicate field names
+# --------------------------------------------------------------------------
+
+_QUALIFIED = """\
+      *================================================================*
+      * The same NAME under two groups, with DIFFERENT widths. Legal    *
+      * COBOL, referenced with OF/IN.                                  *
+      *================================================================*
+       01  QUAL-REC.
+           05  Q-OLD.
+               10  Q-CODE              PIC X(02).
+           05  Q-NEW.
+               10  Q-CODE              PIC X(06).
+"""
+
+
+def test_an_ambiguous_record_is_refused_rather_than_contradicted() -> None:
+    """A correctly transcribed listing must not accuse a correct rule.
+
+    Measured before the fix: ``Q-CODE`` declared ``PIC X(02)`` under one group
+    and ``PIC X(06)`` under another produced ``CONTRADICT`` on DISPLAY, with a
+    rule-table update proposing 6 -> 2 — from a listing that was RIGHT. Two
+    causes fed it: the name fallback bound both fields to the first returned
+    row, and a ``{key: field}`` dict silently dropped all but the last field
+    where keys repeat.
+
+    The rendered path already refused this via ``lint_sensitivity``; the
+    ingest reached ``analyse_text`` directly and skipped that gate. It no
+    longer does — a verdict keyed on ambiguous identity can change a rule that
+    was correct, which is worse than no verdict at all.
+    """
+    from ingest_verification import AmbiguousRecord
+
+    document = _normalised([
+        {"name": "Q-CODE", "offset": 1, "length": 2},
+        {"name": "Q-CODE", "offset": 3, "length": 6},
+    ])
+    with pytest.raises(AmbiguousRecord, match="field identity is not unique"):
+        ingest(document, _QUALIFIED, _provenance())
+
+
+def test_the_cli_refuses_an_ambiguous_record_with_a_named_reason(
+    tmp_path: Path, capsys,
+) -> None:
+    """Refusal reaches the operator as an exit code, not a traceback."""
+    from ingest_verification import main
+
+    copybook = tmp_path / "QUAL.cpy"
+    copybook.write_text(_QUALIFIED, encoding="utf-8")
+    returned = tmp_path / "returned.json"
+    returned.write_text(json.dumps(_normalised([
+        {"name": "Q-CODE", "offset": 1, "length": 2},
+        {"name": "Q-CODE", "offset": 3, "length": 6},
+    ])), encoding="utf-8")
+
+    code = main([
+        str(returned), "--copybook", str(copybook),
+        "--compiler-version", "IBM Enterprise COBOL for z/OS 6.3.0",
+        "--compiler-options", "LP(64),ARCH(12)",
+    ])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == 2
+    assert payload["refused"] is True
+    assert "field identity is not unique" in payload["reason"]
+
+
+def test_the_name_fallback_survives_the_case_it_exists_for() -> None:
+    """The conservative guard must not break the OCCURS member it was for."""
+    text = (KIT / "SAMPLE.cpy").read_text(encoding="utf-8")
+    result = ingest(_normalised([
+        {"name": "SM-NAME", "offset": 1, "length": 10},
+        {"name": "SM-CTR-1", "offset": 11, "length": 2},
+        {"name": "SM-CTR-4", "offset": 13, "length": 2},
+        {"name": "SM-AMOUNT", "offset": 15, "length": 5},
+        {"name": "SM-ENTRY-CTR", "offset": 20, "length": 2},
+        {"name": "SM-ENTRY-CODE", "offset": 22, "length": 3},
+        {"name": "SM-SYNC-A", "offset": 40, "length": 4},
+    ]), text, _provenance())
+
+    assert result["ambiguous_names"] == []
+    binary = next(
+        v for v in result["verdicts"] if v["construct"] == "COMP/1-2 digits"
+    )
+    assert binary["verdict"] == Verdict.CONFIRM.value
+    assert len(binary["fields"]) == 5
+    assert result["counts"][Verdict.CONTRADICT.value] == 0
+
+
+def test_a_repeated_name_in_the_returned_rows_is_not_matched_by_name() -> None:
+    """Two rows for one name is ambiguous on the RETURNED side.
+
+    Only a name carrying exactly one returned row is eligible, so this falls
+    through to "no row" and becomes UNKNOWN rather than binding to whichever
+    row happened to come first.
+    """
+    text = (KIT / "SAMPLE.cpy").read_text(encoding="utf-8")
+    result = ingest(_normalised([
+        {"name": "SM-CTR-1", "offset": 11, "length": 2},
+        {"name": "SM-CTR-1", "offset": 99, "length": 8},
+    ]), text, _provenance())
+
+    binary = next(
+        v for v in result["verdicts"] if v["construct"] == "COMP/1-2 digits"
+    )
+    assert binary["verdict"] == Verdict.UNKNOWN.value, binary
+    assert result["counts"][Verdict.CONTRADICT.value] == 0
+    assert result["rule_updates"] == []

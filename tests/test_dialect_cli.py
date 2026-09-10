@@ -194,3 +194,46 @@ def test_an_unavailable_projection_is_stated_not_implied(tmp_path, capsys) -> No
         for lim in doc["limitations"]
     )
     assert code == 0
+
+
+# --------------------------------------------------------------------------
+# Bugbot round 2 (Medium): an empty projection was marked present
+# --------------------------------------------------------------------------
+
+def test_a_record_less_copybook_does_not_claim_a_projection(
+    tmp_path, capsys,
+) -> None:
+    """``sensitivity_present`` keys on what was PRODUCED, not on the input.
+
+    It was set True whenever assembled text existed. A member with no 01/77
+    record therefore emitted `sensitivity_present: true` beside an EMPTY
+    `dialect_sensitivity` — the exact payload the guard was added to stop,
+    reached by a different route.
+    """
+    member = tmp_path / "NOREC.cpy"
+    member.write_text(
+        "      *================================================*\n"
+        "      * Comments only. No 01/77 record in this member.  *\n"
+        "      *================================================*\n",
+        encoding="utf-8",
+    )
+    code, doc = _run(
+        ["layout", str(member), "--dialect", "ibm-enterprise-cobol"], capsys,
+    )
+    assert doc["dialect"]["sensitivity_present"] is False
+    assert "no 01/77 record" in doc["dialect"]["projection_unavailable"]
+    assert "dialect_sensitivity" not in doc
+    assert any("NO PROJECTION was produced" in lim for lim in doc["limitations"])
+    # No record at all is still a failure of the command itself.
+    assert code == 1
+
+
+def test_a_real_record_still_reports_its_projection_present(capsys) -> None:
+    """The guard must not suppress the normal case."""
+    _code, doc = _run(
+        ["layout", str(CORPUS / "D02_binary.cpy"),
+         "--dialect", "ibm-enterprise-cobol"], capsys,
+    )
+    assert doc["dialect"]["sensitivity_present"] is True
+    assert "projection_unavailable" not in doc["dialect"]
+    assert len(doc["dialect_sensitivity"]) == 1

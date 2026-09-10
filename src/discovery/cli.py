@@ -136,6 +136,20 @@ def _layout_command(args: argparse.Namespace) -> int:
         "records": payload,
     }
 
+    if profile.projected and sensitivity_text is not None and not any(
+        compute_text(
+            sensitivity_text, odo_value=args.odo, origin=path.as_posix()
+        )
+    ):
+        # Assembled text exists but holds no 01/77 record, so there is nothing
+        # to project. Without this, `sensitivity_present` came back True beside
+        # an EMPTY `dialect_sensitivity` -- the exact payload this guard was
+        # added to stop, reached by a different route.
+        sensitivity_text = None
+        projection_unavailable = (
+            "no 01/77 record was found, so there is nothing to project"
+        )
+
     if profile.projected and sensitivity_text is None:
         # R2: an absent projection is stated, never implied. The document must
         # not report `kind: projected` and then carry no projection with no
@@ -192,7 +206,12 @@ def _layout_command(args: argparse.Namespace) -> int:
             return EXIT_REFUSED
 
         document["dialect_sensitivity"] = sections
-        document["dialect"]["sensitivity_present"] = True
+        # Keyed on what was actually produced, never on the input existing.
+        document["dialect"]["sensitivity_present"] = bool(sections)
+        if not sections:
+            document["dialect"]["projection_unavailable"] = (
+                "no record yielded a sensitivity report"
+            )
         document["limitations"] = list(document["limitations"]) + [
             f"The {profile.label} figures in `dialect_sensitivity` are a "
             f"PROJECTION from sourced rules, not a measurement. Relian has no "

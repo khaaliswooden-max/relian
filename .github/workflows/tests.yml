@@ -724,14 +724,14 @@ env:
   #        the derived profile needs its own gate, since nothing else in the
   #        suite would notice if it disagreed.
   #
-  #    +9  tests/test_dialect_cli.py
+  #   +11  tests/test_dialect_cli.py
   #        The flag. The default is byte-identical spelled out or omitted, the
   #        `records` block stays measured under any dialect, and the CLI
   #        REFUSES (EXIT_REFUSED) rather than emit a projection whose labels
   #        did not lint -- the escalation trigger as an exit code, because the
   #        customer acts on offsets.
   #
-  #   +49  tests/test_verification_kit.py
+  #   +53  tests/test_verification_kit.py
   #        Acceptance (8) and (9). The kit is compiled with the pinned cobc,
   #        run, and graded against the sealed oracle on the SAME 186
   #        comparisons the engine is graded on -- a kit covering fewer rows
@@ -798,8 +798,32 @@ env:
   #       sibling marked the whole construct UNKNOWN, discarding rows that had
   #       been measured on the customer's compiler and had confirmed the rule.
   #
-  # 249 in new files + 6 from the parametrisation = 255. 1190 + 255 = 1445.
-  EXPECTED_PASSES: "1445"
+  # WP-2.7 review round 2: +6 over 1445. Bugbot re-reviewed the fixes and
+  # found two more, both on code written in round 1 and both verified before
+  # being changed. Reviewing my own fixes as new code was the right call:
+  #
+  #   +2  cli -- `sensitivity_present` was set True whenever assembled text
+  #       existed, so a member with no 01/77 record emitted True beside an
+  #       EMPTY dialect_sensitivity. That is the exact payload round 1's guard
+  #       was added to stop, reached by a different route. It now keys on what
+  #       was PRODUCED, not on the input existing.
+  #
+  #   +4  verification_kit -- round 1's name fallback bound EVERY field of a
+  #       given name to the first returned row. Sound for repeated occurrences
+  #       of one OCCURS member; not sound where COBOL reuses a name for items
+  #       of different widths. Measured: `Q-CODE` as PIC X(02) under one group
+  #       and PIC X(06) under another produced CONTRADICT on DISPLAY with a
+  #       rule-table update proposing 6 -> 2, from a listing that was RIGHT.
+  #       Two causes: the name fallback, and a {key: field} dict that silently
+  #       dropped all but the last field where keys repeat. The fallback is now
+  #       eligible only where the name is unambiguous on BOTH sides, fields are
+  #       iterated as a list, and the ingest runs the same lint_sensitivity
+  #       gate the rendered path already had -- it had reached analyse_text
+  #       directly and skipped it. A verdict keyed on ambiguous identity is
+  #       worse than none, because it changes a rule that was correct.
+  #
+  # 255 in new files + 6 from the parametrisation = 261. 1190 + 261 = 1451.
+  EXPECTED_PASSES: "1451"
 
 jobs:
   parser-regen:

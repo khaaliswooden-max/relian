@@ -53,6 +53,7 @@ from src.discovery.dialects import (  # noqa: E402
     GNUCOBOL_3_1_2,
     IBM_ENTERPRISE_COBOL,
     analyse_text,
+    lint_sensitivity,
     resolve,
 )
 from src.discovery.dialects.classify import Classification  # noqa: E402
@@ -71,6 +72,23 @@ class Verdict(str, Enum):
     CONFIRM = "confirm"
     CONTRADICT = "contradict"
     UNKNOWN = "unknown"
+
+
+class AmbiguousRecord(ValueError):
+    """Field identity in this record is not unique, so no verdict is safe.
+
+    COBOL permits the same name under two groups (referenced with ``OF``/
+    ``IN``), and the engine's ``key`` does not always disambiguate them.
+    Measured: ``Q-CODE`` declared ``PIC X(02)`` under one group and
+    ``PIC X(06)`` under another produced a CONTRADICT -- and a rule-table
+    update proposal -- from a CORRECTLY transcribed listing. A contradiction
+    derived from ambiguous identity is worse than no verdict, because it
+    changes a rule that was right.
+
+    The rendered path already refuses this (``lint_sensitivity`` reports the
+    duplicate and the CLI exits ``EXIT_REFUSED``); the ingest reached
+    ``analyse_text`` directly and skipped that gate.
+    """
 
 
 class ProvenanceMissing(ValueError):
@@ -221,7 +239,17 @@ def ingest(
     if report is None:
         raise ValueError("no record could be parsed from the copybook")
 
-    projected = {f.key: f for f in report.fields}
+    # The same gate the rendered path applies. Duplicate field keys mean two
+    # distinct fields are indistinguishable, and every verdict below keys on
+    # identity.
+    problems = lint_sensitivity(report)
+    if problems:
+        raise AmbiguousRecord(
+            "the record cannot be ingested because field identity is not "
+            "unique: " + "; ".join(problems)
+        )
+
+    projected_fields = [f for f in report.fields if f.elementary]
 
     # Two indexes, because the two accepted schemas identify a row
     # differently. IBMLAYOUT.cbl emits the engine's expanded `key`
@@ -233,11 +261,47 @@ def ingest(
     # a table cannot be reference-modified there.
     rows = _rows_from(returned)
     by_key = {str(r["key"]): r for r in rows if r.get("key")}
+
+    # The name fallback is CONSERVATIVE, and deliberately so. Binding every
+    # field of a given name to the first returned row is sound ONLY for
+    # repeated occurrences of one OCCURS member -- the case a MAP listing
+    # reports once. It is NOT sound where COBOL reuses a name for items of
+    # different widths, and there it manufactures a CONTRADICT against a rule
+    # that was correct. So a name is eligible only when it is unambiguous on
+    # BOTH sides:
+    #
+    #   * exactly one returned row carries that name, and
+    #   * every projected field of that name shares one projected width, so a
+    #     single measured width is a meaningful comparison for all of them.
+    #
+    # Anything else is recorded as ambiguous and matched by nothing. Absent
+    # evidence becomes UNKNOWN downstream, which is the honest outcome.
+    name_row_counts: Dict[str, int] = {}
+    for r in rows:
+        name = r.get("name")
+        if name:
+            name_row_counts[str(name)] = name_row_counts.get(str(name), 0) + 1
+
+    projected_widths_by_name: Dict[str, set] = {}
+    for f in projected_fields:
+        projected_widths_by_name.setdefault(f.name, set()).add(f.projected_length)
+
+    ambiguous_names = sorted(
+        name for name, widths in projected_widths_by_name.items()
+        if len(widths) > 1 and name_row_counts.get(name, 0) > 0
+    )
+
     by_name: Dict[str, Dict[str, object]] = {}
     for r in rows:
         name = r.get("name")
-        if name and str(name) not in by_name:
-            by_name[str(name)] = r
+        if not name:
+            continue
+        key = str(name)
+        if name_row_counts.get(key, 0) != 1:
+            continue
+        if len(projected_widths_by_name.get(key, set())) > 1:
+            continue
+        by_name[key] = r
 
     def returned_for(field) -> Optional[Dict[str, object]]:
         row = by_key.get(field.key)
@@ -256,13 +320,15 @@ def ingest(
     # construct nobody checked. The comparison has to happen where the two
     # sides are actually commensurable, which is the field.
     grouped: Dict[str, List[Tuple[str, Optional[int], Optional[int]]]] = {}
-    for key, pf in projected.items():
-        if not pf.elementary:
-            # A group's length is the sum of its members plus any slack; it is
-            # not a construct with a width rule of its own, so folding it in
-            # would let one group confirm or contradict a rule it does not
-            # exercise.
-            continue
+    for pf in projected_fields:
+        # Iterated as a LIST, not a {key: field} dict: a dict silently drops
+        # every field but the last where keys repeat, which is how a 2-byte
+        # Q-CODE came to be compared against a 6-byte projection.
+        #
+        # Groups are excluded: a group's length is the sum of its members plus
+        # any slack, not a construct with a width rule of its own, so folding
+        # one in would let it confirm or contradict a rule it never exercises.
+        key = pf.key
         ck = construct_key(pf.picture, pf.usage)
         row = returned_for(pf)
         returned_length = row.get("length") if row is not None else None
@@ -357,6 +423,7 @@ def ingest(
         "dialect_projected": profile.id,
         "provenance": provenance.to_dict(),
         "counts": counts,
+        "ambiguous_names": ambiguous_names,
         "verdicts": [v.to_dict() for v in verdicts],
         "rule_updates": [u.to_dict() for u in updates],
         "note": (
@@ -394,13 +461,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         returned_by=args.returned_by,
         returned_at=args.returned_at,
     )
-    result = ingest(
-        json.loads(raw.decode("utf-8")),
-        Path(args.copybook).read_text(encoding="utf-8", errors="replace"),
-        provenance,
-        dialect=args.dialect,
-        odo_value=args.odo,
-    )
+    try:
+        result = ingest(
+            json.loads(raw.decode("utf-8")),
+            Path(args.copybook).read_text(encoding="utf-8", errors="replace"),
+            provenance,
+            dialect=args.dialect,
+            odo_value=args.odo,
+        )
+    except AmbiguousRecord as exc:
+        # Refused rather than answered. A verdict keyed on ambiguous identity
+        # can propose a rule-table change against a rule that was right.
+        print(json.dumps({
+            "schema": "relian-discovery-verify/ingest/v1",
+            "refused": True,
+            "reason": str(exc),
+        }, indent=2, sort_keys=True))
+        return 2
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result["counts"][Verdict.CONTRADICT.value] == 0 else 3
 
