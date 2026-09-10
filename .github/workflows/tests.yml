@@ -688,11 +688,23 @@ env:
   #        coupling where a ONE-byte width change costs TWO bytes because the
   #        alignment boundary followed the width.
   #
-  #   +85  tests/test_dialect_projection_labels.py
+  #   +88  tests/test_dialect_projection_labels.py
   #        Acceptance (6) and (7). Every copybook's rendered section is linted
   #        (that is most of the count -- 15 corpus files plus 3 fixtures, three
   #        ways each), plus a planted red per unlabelled-column shape and one
   #        negative control per measurement term and per inflection.
+  #
+  #        The last +3 close a hole found while reviewing the renderer, and
+  #        they are the reason the projection marker lives on Layout rather
+  #        than only in the report: Layout.to_dict() publishes
+  #        `verified_against`, so a caller serialising a PROJECTED Layout
+  #        directly -- bypassing the sensitivity report entirely -- emitted
+  #        projected offsets labelled as verified against GnuCOBOL 3.1.2.0.
+  #        A projected layout now reports basis "projected", verified_against
+  #        null, and the projection disclaimer FIRST in limitations(). The
+  #        measured path is untouched: the marker is keyed on the profile
+  #        being projected, so passing the (measured) GnuCOBOL profile still
+  #        produces a byte-identical document.
   #
   #   +18  tests/test_dialect_roundtrip_gate.py
   #        Acceptance (1). The 186 comparisons re-run with the GnuCOBOL
@@ -732,8 +744,8 @@ env:
   #        compiler from its own constant, pinned to the oracle by
   #        test_dialect_gnucobol_derivation.py -- NOT to loosen the guard.
   #
-  # 229 in new files + 6 from the parametrisation = 235. 1190 + 235 = 1425.
-  EXPECTED_PASSES: "1425"
+  # 232 in new files + 6 from the parametrisation = 238. 1190 + 238 = 1428.
+  EXPECTED_PASSES: "1428"
 
 jobs:
   parser-regen:

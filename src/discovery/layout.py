@@ -264,6 +264,19 @@ class Layout:
     variable_length: bool = False
     origin: str = "<text>"
     source_sha256: Optional[str] = None
+    #: WP-2.7 D36. ``None`` means this layout is the MEASURED one, verified
+    #: against GnuCOBOL 3.1.2.0. Otherwise it is the label of the dialect
+    #: profile whose sourced rules PROJECTED it, and every claim below is a
+    #: projection rather than a measurement.
+    #:
+    #: This lives on the Layout rather than only in the report because
+    #: ``to_dict()`` publishes ``verified_against``. On a projected layout that
+    #: field would be an untrue claim, and a caller serialising a Layout
+    #: directly -- bypassing the sensitivity report -- would emit projected
+    #: offsets labelled as verified. That is exactly the failure mode
+    #: acceptance (6) exists to prevent, so the marker has to travel with the
+    #: object, not with the renderer.
+    projection: Optional[str] = None
 
     # -- derived views ------------------------------------------------------
 
@@ -322,8 +335,22 @@ class Layout:
         to every layout this engine produces, green or not. A ``PARTIAL`` or
         ``NONE`` status appends its own reasons, so a caller that renders this
         tuple renders the whole caveat set rather than half of it.
+
+        On a PROJECTED layout the projection disclaimer comes FIRST, ahead of
+        even the IBM-equivalence limitation, because it changes what every
+        number below is: not "measured, and possibly different on IBM" but
+        "not measured at all".
         """
-        return (IBM_EQUIVALENCE_LIMITATION,) + self.reasons
+        base = (IBM_EQUIVALENCE_LIMITATION,) + self.reasons
+        if self.projection is None:
+            return base
+        return (
+            f"PROJECTION, NOT A MEASUREMENT. Every offset and length in this "
+            f"record is the layout implied by applying {self.projection}'s "
+            f"sourced rule table to this parse. Relian has no IBM system; "
+            f"nothing here was measured on one. The measured layout is the "
+            f"one produced under the default dialect gnucobol-3.1.2.",
+        ) + base
 
     def to_dict(self) -> Dict[str, object]:
         return {
@@ -331,8 +358,16 @@ class Layout:
             "group_length": self.group_length,
             "status": self.status.value,
             "grade": LAYOUT_GRADE,
-            "verified_against": COMPILER_BASIS,
-            "benchmark": VERIFIED_AGAINST,
+            # A projected layout was verified against NOTHING, so the field
+            # says None rather than naming a compiler it never met.
+            "basis": "measured" if self.projection is None else "projected",
+            "projected_under": self.projection,
+            "verified_against": (
+                COMPILER_BASIS if self.projection is None else None
+            ),
+            "benchmark": (
+                VERIFIED_AGAINST if self.projection is None else None
+            ),
             "limitations": list(self.limitations()),
             "summary": {
                 key: (measured.to_dict() if measured is not None else None)
@@ -347,6 +382,7 @@ class Layout:
             "variable_length": self.variable_length,
             "origin": self.origin,
             "source_sha256": self.source_sha256,
+            "projection": self.projection,
         }
 
 
@@ -1266,6 +1302,15 @@ def _layout_for_root(
         variable_length=odo_object is not None,
         origin=origin,
         source_sha256=sha256,
+        # Only a PROJECTED profile marks the layout. The GnuCOBOL profile is
+        # measured and reproduces the default path byte for byte
+        # (tests/test_dialect_roundtrip_gate.py), so passing it must not change
+        # the document -- otherwise "the measured layout" would depend on how
+        # the caller happened to ask for it.
+        projection=(
+            getattr(profile, "label", None)
+            if getattr(profile, "projected", False) else None
+        ),
     )
 
 

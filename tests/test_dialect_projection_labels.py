@@ -220,3 +220,60 @@ def test_the_markdown_rendering_never_puts_a_bare_quantity_header_on_a_page(
     assert "Offset (measured)" in text and "Offset (projected)" in text
     assert "| Offset |" not in text
     assert "| Length |" not in text
+
+
+# --------------------------------------------------------------------------
+# Acceptance (6) at the Layout level — the marker travels with the object
+# --------------------------------------------------------------------------
+
+def test_a_measured_layout_names_the_compiler_it_was_verified_against() -> None:
+    from src.discovery.layout import COMPILER_BASIS, compute_text
+
+    document = compute_text(
+        (CORPUS / "D02_binary.cpy").read_text(encoding="utf-8")
+    )[0].to_dict()
+    assert document["basis"] == "measured"
+    assert document["verified_against"] == COMPILER_BASIS
+    assert document["projection"] is None
+    assert document["projected_under"] is None
+
+
+def test_a_projected_layout_claims_no_compiler_and_says_so_first() -> None:
+    """The hole this closes: ``Layout.to_dict()`` publishes
+    ``verified_against``. A caller that serialises a projected Layout directly
+    -- bypassing the sensitivity report entirely -- would otherwise emit
+    projected offsets labelled as verified against GnuCOBOL. So the marker has
+    to live on the object, not on the renderer.
+    """
+    from src.discovery.layout import compute_text
+    from src.discovery.dialects import IBM_ENTERPRISE_COBOL
+
+    document = compute_text(
+        (CORPUS / "D02_binary.cpy").read_text(encoding="utf-8"),
+        profile=IBM_ENTERPRISE_COBOL,
+    )[0].to_dict()
+
+    assert document["basis"] == "projected"
+    assert document["verified_against"] is None, (
+        "a projected layout was verified against nothing; naming a compiler "
+        "here is the untrue claim acceptance (6) forbids"
+    )
+    assert document["benchmark"] is None
+    assert document["projected_under"] == IBM_ENTERPRISE_COBOL.label
+
+    # The projection disclaimer comes FIRST, ahead of the IBM-equivalence
+    # limitation, because it changes what every number below is.
+    assert document["limitations"][0].startswith("PROJECTION, NOT A MEASUREMENT")
+    assert "Relian has no IBM system" in document["limitations"][0]
+
+
+def test_the_measured_profile_does_not_mark_the_layout_a_projection() -> None:
+    """Otherwise "the measured layout" would depend on how the caller asked."""
+    from src.discovery.layout import compute_text
+    from src.discovery.dialects import GNUCOBOL_3_1_2
+
+    text = (CORPUS / "D10_sync.cpy").read_text(encoding="utf-8")
+    default = compute_text(text)[0].to_dict()
+    profiled = compute_text(text, profile=GNUCOBOL_3_1_2)[0].to_dict()
+    assert profiled == default
+    assert profiled["projection"] is None
