@@ -731,7 +731,7 @@ env:
   #        did not lint -- the escalation trigger as an exit code, because the
   #        customer acts on offsets.
   #
-  #   +53  tests/test_verification_kit.py
+  #   +57  tests/test_verification_kit.py
   #        Acceptance (8) and (9). The kit is compiled with the pinned cobc,
   #        run, and graded against the sealed oracle on the SAME 186
   #        comparisons the engine is graded on -- a kit covering fewer rows
@@ -822,8 +822,36 @@ env:
   #       directly and skipped it. A verdict keyed on ambiguous identity is
   #       worse than none, because it changes a rule that was correct.
   #
-  # 255 in new files + 6 from the parametrisation = 261. 1190 + 261 = 1451.
-  EXPECTED_PASSES: "1451"
+  # WP-2.7 review round 3: +4 over 1451. Bugbot raised two more; ONE was a
+  # real defect and one was NOT, and both are pinned:
+  #
+  #   +2  a returned-name clash blamed the COMPILER. Two returned rows for one
+  #       name are skipped by the matcher, and the construct then reported
+  #       "no row ... most often because IBM rejected the reference-modified
+  #       probe" -- but the listing DID contain the field. UNKNOWN was the
+  #       right verdict; the REASON was wrong, and the reason is the part a
+  #       customer acts on: it sends their mainframe team after a problem they
+  #       do not have (R2). `ambiguous_names` now records the returned-side
+  #       clash as well as the projected-width one, and the detail says
+  #       plainly that this is a matching limitation on OUR side. The
+  #       genuinely-absent case keeps the compiler explanation, asserted, since
+  #       that is the right pointer to the MAP path.
+  #
+  #   +2  FILLER was reported as breaking the round-2 refusal gate: anonymous
+  #       FILLER items supposedly share the key `FILLER`, so most customer
+  #       copybooks would be refused as ambiguous. NOT a defect. The engine
+  #       models FILLER as a `gap` row with source "filler", never as a
+  #       Field -- deliberate, because FILLER cannot be the receiving item of
+  #       a MOVE and so is not probeable. Two FILLERs of different widths
+  #       produce two gaps and ZERO FILLER fields. Verified on MUBBREC (the one
+  #       corpus file with FILLER) and on a synthetic record, and pinned both
+  #       ways: FILLER never reaches the projected rows, and no sealed-corpus
+  #       copybook produces a duplicate key. A later change that DID surface
+  #       FILLER as a field now fails here rather than silently starting to
+  #       refuse every customer's copybook.
+  #
+  # 259 in new files + 6 from the parametrisation = 265. 1190 + 265 = 1455.
+  EXPECTED_PASSES: "1455"
 
 jobs:
   parser-regen:

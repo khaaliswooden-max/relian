@@ -677,3 +677,118 @@ def test_a_repeated_name_in_the_returned_rows_is_not_matched_by_name() -> None:
     assert binary["verdict"] == Verdict.UNKNOWN.value, binary
     assert result["counts"][Verdict.CONTRADICT.value] == 0
     assert result["rule_updates"] == []
+
+
+# --------------------------------------------------------------------------
+# Bugbot round 3 (Medium): a returned-name clash blamed the compiler
+# --------------------------------------------------------------------------
+
+def test_a_returned_name_clash_names_the_real_cause_not_the_compiler() -> None:
+    """UNKNOWN is right; the REASON was wrong, and the reason is what is acted on.
+
+    Two returned rows for one name are skipped by the matcher. The construct
+    then reported "no row … most often because IBM rejected the
+    reference-modified probe" — but the listing DID contain the field. Blaming
+    the compiler for our own inability to match it sends the customer's
+    mainframe team after a problem they do not have (R2).
+    """
+    text = (KIT / "SAMPLE.cpy").read_text(encoding="utf-8")
+    result = ingest(_normalised([
+        {"name": "SM-CTR-1", "offset": 11, "length": 2},
+        {"name": "SM-CTR-1", "offset": 99, "length": 8},
+    ]), text, _provenance())
+
+    assert result["ambiguous_names"] == ["SM-CTR-1"], (
+        "a returned-side clash must be recorded; only the projected-width "
+        "case was, which hid this one entirely"
+    )
+    verdict = next(
+        v for v in result["verdicts"] if v["construct"] == "COMP/1-2 digits"
+    )
+    assert verdict["verdict"] == Verdict.UNKNOWN.value
+    assert "DOES contain SM-CTR-1" in verdict["detail"]
+    assert "NOT a compiler rejection" in verdict["detail"]
+    assert "IBM rejected" not in verdict["detail"]
+
+
+def test_a_genuinely_absent_row_keeps_the_compiler_explanation() -> None:
+    """The fix must not strip the explanation where it is the right one.
+
+    Nothing returned for the construct at all IS most often IBM refusing the
+    reference-modified probe, and that is the pointer to the MAP path.
+    """
+    text = (KIT / "SAMPLE.cpy").read_text(encoding="utf-8")
+    result = ingest(_normalised([
+        {"name": "SM-NAME", "offset": 1, "length": 10},
+    ]), text, _provenance())
+
+    assert result["ambiguous_names"] == []
+    verdict = next(
+        v for v in result["verdicts"] if v["construct"] == "COMP/1-2 digits"
+    )
+    assert verdict["verdict"] == Verdict.UNKNOWN.value
+    assert "IBM rejected the reference-modified probe" in verdict["detail"]
+
+
+# --------------------------------------------------------------------------
+# Bugbot round 3 (reported, NOT a defect): FILLER is a gap, not a field
+# --------------------------------------------------------------------------
+
+def test_filler_never_reaches_the_projected_rows_so_cannot_clash() -> None:
+    """Pinned because it was REPORTED as a defect and is not one.
+
+    The concern was that anonymous ``FILLER`` items share the key ``FILLER``,
+    so the ingest's ``lint_sensitivity`` gate would refuse most real
+    copybooks as ambiguous. It does not: the engine models FILLER as a
+    ``gap`` row with ``source: "filler"``, never as a ``Field``. That is
+    deliberate — FILLER cannot be the receiving item of a MOVE, so it is not
+    probeable, and it is recovered downstream by subtraction instead.
+
+    Two FILLERs of different widths therefore produce two gaps and ZERO
+    FILLER fields, no duplicate key arises, and the ingest is never refused
+    on their account. Asserted so that a later change which DID surface
+    FILLER as a field would fail here rather than silently start refusing
+    every customer's copybook.
+    """
+    from src.discovery.layout import compute_text
+
+    text = (
+        "       01  T-REC.\n"
+        "           05  T-A                     PIC X(02).\n"
+        "           05  FILLER                  PIC X(03).\n"
+        "           05  FILLER                  PIC X(04).\n"
+        "           05  T-B                     PIC X(05).\n"
+    )
+    layout = compute_text(text)[0]
+
+    assert [f.key for f in layout.fields] == ["T-REC", "T-A", "T-B"]
+    assert not any("FILLER" in f.name.upper() for f in layout.fields)
+    assert [(g.offset, g.length, g.source) for g in layout.gaps] == [
+        (3, 3, "filler"), (6, 4, "filler"),
+    ]
+
+    # End to end: the ingest accepts it and reports on the named fields.
+    result = ingest(_normalised([
+        {"name": "T-A", "offset": 1, "length": 2},
+        {"name": "T-B", "offset": 10, "length": 5},
+    ]), text, _provenance())
+    assert result["counts"][Verdict.CONFIRM.value] >= 1
+    assert result["ambiguous_names"] == []
+
+
+def test_no_sealed_corpus_copybook_produces_a_duplicate_field_key() -> None:
+    """The ingest's refusal gate must not fire on the sealed corpus.
+
+    MUBBREC contains FILLER, and it still yields no duplicate keys — so the
+    gate added in round 2 costs nothing on real input while still catching
+    the qualified-name case it was added for.
+    """
+    from src.discovery.dialects import analyse_path, lint_sensitivity
+    from src.discovery.dialects import GNUCOBOL_3_1_2, IBM_ENTERPRISE_COBOL
+
+    for name in sorted(p.name for p in CORPUS.glob("*.cpy")):
+        report = analyse_path(
+            CORPUS / name, GNUCOBOL_3_1_2, IBM_ENTERPRISE_COBOL
+        )
+        assert report is not None
+        assert lint_sensitivity(report) == [], name

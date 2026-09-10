@@ -286,10 +286,25 @@ def ingest(
     for f in projected_fields:
         projected_widths_by_name.setdefault(f.name, set()).add(f.projected_length)
 
-    ambiguous_names = sorted(
+    # BOTH reasons a name can be ineligible, and only for names the listing
+    # actually contained -- a name that simply was not returned is "no
+    # evidence", not "ambiguous".
+    #
+    # Recording only the projected-width case hid the other one: two returned
+    # rows for one name were skipped by the matcher and the construct then
+    # reported "no row ... most often because IBM rejected the
+    # reference-modified probe". The listing DID contain the field. Blaming
+    # the compiler for our own inability to match it sends the customer's
+    # mainframe team after a problem they do not have (R2).
+    ambiguous_by_projection = {
         name for name, widths in projected_widths_by_name.items()
         if len(widths) > 1 and name_row_counts.get(name, 0) > 0
-    )
+    }
+    ambiguous_by_return = {
+        name for name in projected_widths_by_name
+        if name_row_counts.get(name, 0) > 1
+    }
+    ambiguous_names = sorted(ambiguous_by_projection | ambiguous_by_return)
 
     by_name: Dict[str, Dict[str, object]] = {}
     for r in rows:
@@ -320,6 +335,7 @@ def ingest(
     # construct nobody checked. The comparison has to happen where the two
     # sides are actually commensurable, which is the field.
     grouped: Dict[str, List[Tuple[str, Optional[int], Optional[int]]]] = {}
+    construct_ambiguity: Dict[str, set] = {}
     for pf in projected_fields:
         # Iterated as a LIST, not a {key: field} dict: a dict silently drops
         # every field but the last where keys repeat, which is how a 2-byte
@@ -335,6 +351,8 @@ def ingest(
         grouped.setdefault(ck, []).append(
             (key, pf.projected_length, returned_length)
         )
+        if pf.name in ambiguous_by_projection or pf.name in ambiguous_by_return:
+            construct_ambiguity.setdefault(ck, set()).add(pf.name)
 
     verdicts: List[ConstructVerdict] = []
     updates: List[RuleUpdate] = []
@@ -382,15 +400,34 @@ def ingest(
             continue
 
         if not agreeing:
-            # NOTHING came back for this construct. That is absent evidence,
-            # so UNKNOWN.
+            # NOTHING usable came back for this construct: UNKNOWN either way,
+            # but the REASON differs and the reason is what the customer acts
+            # on. "IBM rejected the probe" sends their team to the MAP path;
+            # "we could not match your rows unambiguously" is ours to fix.
+            clashing = sorted(construct_ambiguity.get(ck, ()))
+            if clashing:
+                detail = (
+                    f"the returned run DOES contain "
+                    f"{', '.join(clashing)}, but the name could not be matched "
+                    f"unambiguously — either more than one returned row "
+                    f"carries it, or fields of that name have different "
+                    f"projected widths. Nothing is claimed rather than "
+                    f"guessing which row belongs to which field. This is a "
+                    f"matching limitation on our side, NOT a compiler "
+                    f"rejection: send rows keyed by the engine's `key` "
+                    f"(see README.md) to resolve it."
+                )
+            else:
+                detail = (
+                    f"the returned run reports no row for any of the "
+                    f"{len(rows)} field(s) of this construct — most often "
+                    f"because IBM rejected the reference-modified probe for a "
+                    f"binary or packed field (see README.md)"
+                )
             verdicts.append(ConstructVerdict(
                 ck, Verdict.UNKNOWN, fields,
                 next((p for _k, p, _r in rows if p is not None), None), None,
-                f"the returned run reports no row for any of the "
-                f"{len(rows)} field(s) of this construct — most often because "
-                f"IBM rejected the reference-modified probe for a binary or "
-                f"packed field (see README.md)",
+                detail,
             ))
             continue
 
