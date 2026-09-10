@@ -1473,6 +1473,39 @@ def test_both_workflows_point_at_v1_3():
         "ledger, not a hardcoded filename"
     )
     assert "LEDGER=bench/LEDGER_relian-bench-v1.3.json" in tests_yml
-    assert "TODO(WP-2.6-seal)" in tests_yml, (
-        "the pre-ceremony skip must carry its marker"
+
+    # Post-ceremony (2026-09-10). This asserted that tests.yml still carried
+    # the `TODO(WP-2.6-seal)` marker on its pre-ceremony skip. That skip is
+    # gone, so asserting the marker would now pass on any incidental mention of
+    # the string elsewhere in the file -- a control that has stopped
+    # controlling. The inversion is asserted instead: neither workflow may
+    # treat a MISSING v1.3 ledger as anything but a failure. A conditional that
+    # falls back to v1.2, or exits 0, turns a deleted seal into a green tick.
+    #
+    # Asserted on the guard itself rather than by grepping the file, so the
+    # workflow's PROSE may discuss the deleted fallback -- it has to, that is
+    # where the decision is recorded -- while its SHELL cannot take it.
+    for name, text, guard in (
+        ("bench.yml", bench_yml, 'if [ ! -f "$V13" ]; then'),
+        ("tests.yml", tests_yml, 'if [ ! -f "$LEDGER" ]; then'),
+    ):
+        assert guard in text, f"{name}: the missing-ledger guard is gone"
+        branch = text[text.index(guard) : text.index("\n          fi", text.index(guard))]
+        body = [
+            line.strip()
+            for line in branch.splitlines()
+            if line.strip() and not line.strip().startswith("#")
+        ]
+        assert any(line == "exit 1" for line in body), (
+            f"{name}: a missing v1.3 seal must fail the job, not skip it or "
+            f"degrade to the anchor"
+        )
+        assert not any(line == "exit 0" for line in body), (
+            f"{name}: a provenance job must not exit 0 on a missing seal"
+        )
+
+    assert "BENCH_LEDGER=$V12" not in bench_yml, (
+        "bench.yml must not fall back to the v1.2 anchor; its tree claim is "
+        "superseded, and degrading to it silently is a green gate proving "
+        "nothing"
     )

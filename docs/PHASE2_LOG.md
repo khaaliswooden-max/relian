@@ -5100,3 +5100,165 @@ Scope: `git status --short -- bench/` shows `bench/seal.toml` and nothing else.
    printed `key_fingerprint` is `233bb4406e2de606`; anything else, stop.
 6. Expected after sealing:
    `recorded 29 · verified 21 · declared_absent 8 · mismatches 0`.
+
+---
+
+## 2026-09-10 · WP-2.6.1 · The v1.3 ceremony, and reconciling what waited on it
+
+Append-only follow-on to WP-2.6. That entry recorded the work up *to* the
+operator's key session and stated plainly that nothing in it signed. The
+ceremony has now run, on `operator/bench-v1.3-seal`, and this entry records
+what it produced and what became removable because of it.
+
+### 1. The sealed artifact
+
+`bench/LEDGER_relian-bench-v1.3.json`, `RELIAN-BENCH 1.3.0`, tag
+`relian-bench-v1.3`, sealed at `2026-09-10T12:27:05Z`:
+
+```
+key_fingerprint  233bb4406e2de606
+manifest_sha256  58275b3a8fa88d9adc2b5e9ae38011dba7c48f16ffa56e14db928049bdd1c5f6
+payload_sha256   8002ce9794084784789ff877bcb330abd983b8988d093376621ac1bed17909d7
+file_count       29   (files[] length 29 — the two agree)
+```
+
+**The 29 / 8 split held.** The seal records 29 files, of which 21 exist in this
+perimeter and 8 are declared absent: the seven `**/vectors/heldout.jsonl` files
+(rule 1 / R3) and `harness/gen_vectors.py` (rule 6). This was the precondition
+WP-2.6 §15.2 handed to the ceremony and the failure it was most worried about —
+a v1.3 sealed in a public checkout would have recorded 21, silently dropping
+the held-out corpus from the benchmark's integrity claim. It recorded 29.
+
+**Carry-forward: byte-identical.** `baselines_recorded` and `thresholds` are
+byte-identical to v1.2's under canonical JSON, verified by comparison of both
+ledgers rather than by trusting `seal.py`'s `load_carry_forward`. The R10 merge
+gates and the pre-solution floor are the same numbers they were, so no
+threshold moved under cover of a re-seal.
+
+### 2. Verification, measured twice
+
+Locally, `tools/verify_manifest.py --from-manifest --pin-fingerprint
+233bb4406e2de606`:
+
+```
+LAYER 1/3  TREE       recorded 29 · verified 21 · hash_mismatches 0
+                      missing 0 · declared_absent 8
+                      declared_absent_but_present 0 · unrecorded_on_disk 0
+LAYER 2/3  PAYLOAD    recorded == recomputed
+LAYER 3/3  SIGNATURE  Ed25519 verifies · fingerprint 233bb4406e2de606
+VERDICT: PASS (3/3 layers)   exit 0
+```
+
+The one hash mismatch WP-2.6 §1 measured on `harness/commit.py` is gone,
+because v1.3 records the file as `153f40f` left it. On CI the `bench-seal` job
+passed on a clean runner in 19s. Two independent runs, same verdict.
+
+The discovery ledger is unaffected and re-verified green: 3/3 on
+`LEDGER_relian-discovery-bench-v0.1.json`, 21 walked, 0 declared absent.
+
+### 3. Why v1.2 stays in the repository
+
+**v1.3 supersedes v1.2 for TREE INTEGRITY ONLY.** v1.2 remains as the **R7
+provenance anchor**: its `committed_at` predates the grammar merge, which is
+the property R7 is about and which a 2026-09-10 seal cannot supply.
+
+v1.2 is also the anchor for the **vector census**, and that is a decision
+rather than an oversight. v1.3 carries **no `vector_counts` block at all**,
+because measuring the held-out census means reading `heldout.jsonl` — forbidden
+action 1, scoring-only and CI-only. A v1.3 counting only `public.jsonl` would
+emit 7 keys where v1.2 has 14, which anyone diffing the two ledgers would read
+as the held-out corpus having shrunk. So the figure is not re-derived: v1.2's
+recorded metadata carries it (**425 held-out, 89 public**, summed from the
+ledger's own 14-key block, not from the vectors), and the bench job reports
+`n_vectors 425` on every run. Asserted by
+`tests/test_seal.py::test_v1_2s_held_out_census_is_the_provenance_v1_3_defers_to`.
+
+Consequently the anchor's own integrity is still asserted rather than assumed —
+`test_the_v1_2_anchor_manifest_is_still_intact` checks v1.2's payload and
+signature layers, and deliberately **not** its tree layer, which is superseded.
+
+### 4. Retiring the controls that waited on the ledger
+
+Three existence gates existed only because the v1.3 ledger did not. All three
+are now deleted, not commented out. A conditional whose only reachable branch
+requires the seal to go **missing** is not a gate; it is a path on which a
+deleted seal produces a green tick.
+
+| Control | Was | Now |
+| --- | --- | --- |
+| `needs_v13` in `tests/test_verify_manifest.py` | `skipif` on the ledger's existence, gating 3 tests | deleted; the 3 run unconditionally |
+| `bench.yml` "Resolve the authoritative ledger" | fell back to v1.2 when v1.3 was absent | absent v1.3 → `exit 1`, no fallback |
+| `tests.yml` `bench-seal` | `exit 0` with a named reason when absent | absent v1.3 → `exit 1` |
+
+The `TODO(WP-2.6-seal)` block in `tests/test_verify_manifest.py` is gone, along
+with `STALE_AGAINST_V12`, `SANDBOX_EXPECT_ABSENT`, `_make_v12_consistent` and
+the explanatory block. `LEDGER_NAME` points at v1.3; `V12_LEDGER` is a named
+constant for the anchor. `SANDBOX_VERIFIED` is back to **21** and
+`SANDBOX_DECLARED_ABSENT` to **8**: the sandbox is a whole copy of `bench/`
+with nothing excluded, which restores the property the twelve layer-isolation
+proofs depend on — a mutation can only be blamed for the layer it breaks if
+nothing else was already broken.
+
+`tests/test_seal.py` needed exactly one change. Its assertion that `tests.yml`
+still carried the `TODO(WP-2.6-seal)` marker was itself stale-state: with the
+skip deleted, the assertion would have passed on any incidental mention of the
+string elsewhere in the file. It is inverted — both workflows are now asserted
+to `exit 1` on a missing v1.3 ledger, checked against the extracted guard body
+rather than by grepping the file, so the workflow's prose may discuss the
+deleted fallback while its shell cannot take it. Proven by planted red: setting
+`bench.yml`'s guard to `exit 0` fails the assertion; restoring it passes.
+
+Every other v1.2 reference in `tests/test_seal.py` is legitimately about v1.2
+as the provenance anchor and stays unchanged:
+
+| Line | Test | Why it stays |
+| --- | --- | --- |
+| 231 | `test_commit_py_is_still_the_file_this_whole_package_exists_because_of` | `harness/commit.py` is a recorded entry in the manifest it produces — the structural trap, still true of v1.3 |
+| 267 | `test_the_v1_2_ledger_still_carries_the_unavailable_this_prevents` | v1.2's permanent `"javac": "UNAVAILABLE"` is the precedent justifying `seal.py` difference 2 |
+| 395 | `test_v1_2_records_none_of_them_which_is_why_difference_4_exists` | v1.2 records no `include_rules` / `expected_absent` / `oracle_toolchain`; v1.3 records all three. The contrast *is* the test |
+| 446 | `test_from_manifest_refuses_a_manifest_that_does_not_self_describe` | load-bearing: v1.2 is the real non-self-describing manifest. Repointing this at v1.3 would silently invert it |
+| 696 | `test_the_published_fingerprint_is_the_one_this_repo_already_trusts` | the custody-chain anchor for `233bb4406e2de606` |
+| 740 | `V12_LEDGER` | the carry-forward source, the include-set comparison, and the held-out census all read it |
+| 1078, 1470, 1475 | v1.3 wiring assertions | forward assertions that now describe reality |
+
+### 5. The gate, measured rather than predicted
+
+WP-2.6 predicted 1190 / 10. That prediction is not what was committed: the
+suite was run with `RELIAN_REQUIRE_COBC=1` and the numbers taken from it.
+
+```
+1190 passed, 10 skipped, 0 failed        collection 1200
+```
+
+`EXPECTED_PASSES` 1187 → **1190**, `EXPECTED_SKIPS` 13 → **10**. Collection is
+1200 before and after, so nothing stopped being collected. Attribution:
+
+| Δ | Test | Reason |
+| --- | --- | --- |
+| skip→pass | `test_the_v1_3_seal_verifies_the_tree_on_all_three_layers` | ledger exists; `needs_v13` deleted |
+| skip→pass | `test_the_v1_3_seal_carries_v1_2s_baselines_and_thresholds` | ditto |
+| skip→pass | `test_cli_exits_zero_on_the_v1_3_ledger` | ditto |
+| −1 | `test_the_v1_2_seal_is_stale_by_exactly_one_file_and_it_is_commit_py` | bounded the re-seal's blast radius *before* the ceremony; v1.3 records the current `commit.py`, so there is no drift to bound |
+| −1 | `test_the_manifest_itself_is_intact_which_is_why_this_is_a_re_seal` | established that re-sealing was the right remediation; that decision is made and executed |
+| −1 | `test_v12_census_accounts_for_all_29_recorded_entries` | asserted 20 verified + 1 moved + 8 absent; nothing is moved |
+| −1 | `test_cli_exits_one_on_the_stale_v1_2_ledger_and_names_commit_py` | asserted the CLI going red on the real tree; it goes green |
+| +1 | `test_the_v1_2_anchor_manifest_is_still_intact` | the anchor's payload and signature layers, tree layer deliberately excluded |
+| +1 | `test_the_two_ledgers_are_signed_by_the_same_custodian` | one custody chain across the re-seal (R4), read from both ledgers |
+| +1 | `test_census_accounts_for_all_29_recorded_entries` | the same arithmetic identity against v1.3: 21 + 0 + 8 = 29 |
+| +1 | `test_cli_json_output_is_machine_readable_on_a_green_run` | the `--json` shape contract on a green verdict |
+
+Net from the reconciliation itself is **zero** — four out, four in. The **+3**
+is the ceremony, not the edit.
+
+One further repair, no count change: `test_cli_json_output_is_machine_readable`
+asserted the `--json` shape on a red run and got its red from the real tree
+being stale against v1.2. Depending on that would now mean depending on an
+accident, so it takes a `sandbox` fixture and flips one byte. The red it needs
+is manufactured by the test and stays red as long as the test wants it to.
+
+### 6. Held-out scoring
+
+Unmoved, and deliberately not re-run here: `bench.yml` scores on CI against the
+private vectors (R3). v1.3 carries v1.2's `thresholds` byte-identically, so the
+R10 gates the scoring step reads are the same numbers, and the seal change
+cannot move BER by construction.
