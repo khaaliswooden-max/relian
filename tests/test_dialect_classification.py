@@ -350,3 +350,62 @@ def test_no_corpus_field_is_unknown_and_that_is_a_measured_finding() -> None:
             f"{name} now has UNKNOWN fields: "
             f"{[f.key for f in report.unknown]}. An IBM rule was probably lost."
         )
+
+
+def test_the_headline_states_a_varying_shift_as_a_range_not_its_maximum() -> None:
+    """A summary that reports only the maximum shift is wrong for every field
+    that moves less than the maximum.
+
+    On D02_binary the fields after D02-COMP-1 do NOT all move by the same
+    amount: D02-COMP-2 shifts +1 (one field widened before it) and the nine
+    after it shift +2 (two did). "the 10 fields after it shift by +2" would put
+    a customer one byte off on exactly one field -- the failure mode this work
+    package exists to prevent, so it may not appear in the summary sentence
+    either.
+    """
+    report = report_for(CORPUS / "D02_binary.cpy")
+    by_key = {f.key: f for f in report.elementary}
+    assert by_key["D02-COMP-2"].offset_delta == 1
+    assert by_key["D02-COMP-4"].offset_delta == 2
+
+    headline = report.headline()
+    # After D02-COMP-1 the shifts VARY (+1 for D02-COMP-2, +2 for the nine
+    # after it), so that sentence must give the range.
+    assert (
+        "D02-COMP-1 widens 1 -> 2 bytes and the 10 field(s) after it shift "
+        "by +1 to +2, per field."
+    ) in headline, headline
+    assert "the 10 field(s) after it shift by +2." not in headline, (
+        "the headline reported the maximum shift as though all ten fields "
+        "moved by it"
+    )
+    # After D02-COMP-2 they do NOT vary -- all nine shift +2 -- so the single
+    # number is correct there and must not be dressed up as a range.
+    assert (
+        "D02-COMP-2 widens 1 -> 2 bytes and the 9 field(s) after it shift "
+        "by +2."
+    ) in headline, headline
+
+
+def test_a_table_member_is_summarised_once_not_once_per_occurrence() -> None:
+    """Inside an OCCURS every occurrence is its own sensitive field.
+
+    A sentence per row turns a 40-entry table into forty near-identical
+    sentences and buries the one number that matters -- what the record
+    actually grows by. So the headline groups by NAME and states the
+    occurrence count and the total.
+    """
+    report = report_for(FIXTURES / "OCCURSHIFT.cpy")
+    headline = report.headline()
+
+    assert headline.count("T-CTR widens") == 1, (
+        f"T-CTR is summarised {headline.count('T-CTR widens')} times; one per "
+        f"occurrence makes the sentence unreadable"
+    )
+    assert "in each of its 40 occurrences" in headline
+    assert "adding +40 bytes to the record" in headline
+    assert "Record length 163 (measured) -> 203 (projected), +40." in headline
+    assert len(headline) < 700, (
+        f"the headline is {len(headline)} characters; D37's deliverable is a "
+        f"sentence a migration planner can read"
+    )

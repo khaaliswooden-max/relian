@@ -679,7 +679,7 @@ env:
   #        measurement corrected: if that can pass, the seal has stopped being
   #        the source of truth.
   #
-  #   +42  tests/test_dialect_classification.py
+  #   +44  tests/test_dialect_classification.py
   #        Acceptance (2) and (5). Every field in the sealed corpus carries a
   #        class; the corpus distribution is asserted as a number (127
   #        INVARIANT / 3 DIALECT_SENSITIVE / 0 UNKNOWN over 130 rows), not
@@ -687,6 +687,16 @@ env:
   #        shift, the OCCURS case where one byte becomes +40, and the SYNC
   #        coupling where a ONE-byte width change costs TWO bytes because the
   #        alignment boundary followed the width.
+  #
+  #        The last +2 pin the summary SENTENCE, after review found it stating
+  #        a varying shift as its maximum: "the 10 fields after D02-COMP-1
+  #        shift by +2" is wrong for D02-COMP-2, which shifts +1, and a reader
+  #        applying +2 to it lands one byte off -- the exact defect this work
+  #        package exists to prevent, so it may not appear in the summary
+  #        either. It now gives a range when the shifts vary and a single
+  #        number when they do not, and groups a table member once instead of
+  #        once per occurrence (40 near-identical sentences buried the one
+  #        number that mattered).
   #
   #   +88  tests/test_dialect_projection_labels.py
   #        Acceptance (6) and (7). Every copybook's rendered section is linted
@@ -744,8 +754,8 @@ env:
   #        compiler from its own constant, pinned to the oracle by
   #        test_dialect_gnucobol_derivation.py -- NOT to loosen the guard.
   #
-  # 232 in new files + 6 from the parametrisation = 238. 1190 + 238 = 1428.
-  EXPECTED_PASSES: "1428"
+  # 234 in new files + 6 from the parametrisation = 240. 1190 + 240 = 1430.
+  EXPECTED_PASSES: "1430"
 
 jobs:
   parser-regen:

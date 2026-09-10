@@ -355,17 +355,52 @@ class SensitivityReport:
             )
         if n_sens:
             parts.append(f"{n_sens} are DIALECT_SENSITIVE.")
+            # Grouped by NAME, not per row. Inside an OCCURS every occurrence
+            # is its own sensitive field, so a sentence per row turns a
+            # 40-entry table into forty near-identical sentences and buries the
+            # one number that matters -- the total the record grows by.
+            by_name: Dict[str, List[FieldSensitivity]] = {}
             for f in self.sensitive:
+                by_name.setdefault(f.name, []).append(f)
+
+            for name, group in by_name.items():
+                f = group[0]
+                if len(group) > 1 and f.width_delta:
+                    total = sum(g.width_delta or 0 for g in group)
+                    parts.append(
+                        f"Under {self.projected_profile.id}, {name} widens "
+                        f"{f.measured_length} -> {f.projected_length} bytes in "
+                        f"each of its {len(group)} occurrences, adding "
+                        f"{total:+d} bytes to the record."
+                    )
+                    continue
                 if f.width_delta:
                     moved = self.shifted_after(f.key)
+                    # The shift is stated EXACTLY, and as a range when the
+                    # fields after this one do not all move by the same amount.
+                    # Reporting only the maximum would be wrong for the fields
+                    # that move less -- on D02_binary, D02-COMP-2 shifts +1
+                    # while the nine after it shift +2, so "shift by +2" would
+                    # put a customer one byte off on exactly one field. That is
+                    # the failure mode this work package exists to prevent, so
+                    # it may not appear in the summary sentence either.
+                    deltas = sorted({m.offset_delta or 0 for m in moved})
+                    if not moved:
+                        tail = "."
+                    elif len(deltas) == 1:
+                        tail = (
+                            f" and the {len(moved)} field(s) after it shift by "
+                            f"{deltas[0]:+d}."
+                        )
+                    else:
+                        tail = (
+                            f" and the {len(moved)} field(s) after it shift by "
+                            f"{deltas[0]:+d} to {deltas[-1]:+d}, per field."
+                        )
                     parts.append(
                         f"Under {self.projected_profile.id}, {f.name} widens "
                         f"{f.measured_length} -> {f.projected_length} bytes"
-                        + (
-                            f" and the {len(moved)} field(s) after it shift by "
-                            f"{max((m.offset_delta or 0) for m in moved):+d}."
-                            if moved else "."
-                        )
+                        + tail
                     )
         if n_unk:
             parts.append(
