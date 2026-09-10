@@ -4669,3 +4669,434 @@ $ python3 -m demo --discovery-only                        # cryptography present
 triple.
 
 Scope: `git status --short -- bench/ discovery-bench/ transpiler/ src/` is empty.
+
+## 2026-09-10 · WP-2.6 · Re-seal RELIAN-BENCH as v1.3 (pre-ceremony)
+
+Anchored at `153f40f`. **Nothing here signs.** No key operation, no ledger, no
+tag — R4. This entry records the work that lands *up to* the operator's key
+session; the ceremony runs afterwards on its own branch.
+
+### 1. What broke, measured rather than recalled
+
+`153f40f` removed `sign()`'s fall-through to `Ed25519PrivateKey.generate()`
+from `bench/harness/commit.py`. That was a correct fix to a real defect —
+WP-2.1 finding F-B, a manifest that `verify()` returns `True` on under a
+fingerprint nobody has seen.
+
+But `INCLUDE_DIRS = ["corpus", "harness"]`, so `harness/commit.py` is a
+recorded entry **inside the manifest it produces**. §14 established the
+principle for prose and it holds identically for code: there is no such thing
+as a documentation-only edit to a sealed file, and no such thing as a
+bugfix-only one.
+
+`tools/verify_manifest.py` against v1.2, on this branch:
+
+```
+LAYER 1/3  TREE
+    recorded 29 · verified 20 · hash_mismatches 1 · missing 0
+    declared_absent 8 · declared_absent_but_present 0 · unrecorded_on_disk 0
+    HASH MISMATCH: harness/commit.py
+        recorded 592a2834b1bbd22a2f77ec1d799aadc9337f1d638d95a22f9d7bfd47f267aa4e
+        actual   cff71093b4c5b4eb139697225427e2699a1285a8af153792c40cb38c110eba4a
+    RESULT: FAIL
+LAYER 2/3  PAYLOAD    a8695c2c… == a8695c2c…    PASS
+LAYER 3/3  SIGNATURE  a47305c2… == a47305c2…    signer 233bb4406e2de606   PASS
+VERDICT: FAIL (2/3 layers passed; failed: tree)
+```
+
+**Exactly one file.** Tree layer red, manifest layers green — which is the
+distinction that decides the remediation. A failing tree with an intact
+manifest means the tree outran its seal; a failing payload or signature layer
+would mean tampering and a different response. Re-sealing is correct only under
+the first reading, so `test_the_manifest_itself_is_intact_which_is_why_this_is_a_re_seal`
+asserts the first reading rather than assuming it.
+
+### 2. The sealing commit was not the one it looked like
+
+The WP anchored the diff at `9aecd1d` ("bench: seal RELIAN-BENCH v1.2 — ledger
+6ea85f31"). That is **not** the commit that produced the ledger in the tree.
+v1.2 was sealed three times — `9aecd1d` (6ea85f31), `20bd7ea` (3851de50), and
+`e286cb3` (`a47305c2`, final) — and the live ledger is `e286cb3`'s. Diffing
+against `9aecd1d` shows `SPEC.md` and `P07_exitflow/vectors/public.jsonl`
+changing after "the seal", which reads as unscoped drift and is not: both moved
+in `e286cb3`, which re-sealed over them.
+
+`commit.py` is byte-identical at `9aecd1d` and `e286cb3` (both
+`592a2834…`, matching the recorded entry), so the conclusion is unchanged —
+but the *reasoning* would have been wrong, and against the true seal the
+picture is clean. Everything under `bench/` that changed since `e286cb3`:
+
+| Path | In the include set? |
+|---|---|
+| `harness/commit.py` | **yes** → the one mismatch |
+| `candidates/C1_rulebased/P06_valinit/Valinit01.java` | no |
+| `candidates/C1_rulebased/P07_exitflow/Exitflw01.java` | no |
+| `results/C1_rulebased.json` | no |
+
+### 3. The `commit.py` delta is the keygen removal *and* a loader fix
+
+One hunk, in `sign()`. It does two things, and the second is not the
+"keygen-fallback removal" the WP scoped:
+
+1. The `else: Ed25519PrivateKey.generate()` branch → a hard `sys.exit`.
+2. `password=None` → an `ENCRYPTED`-header test and a `getpass` prompt.
+
+**Stated rather than absorbed.** (2) is not unscoped drift: it is the *same*
+loader fix WP-2.6 §3 independently mandates for the sealer's key path ("if any
+loader in the path uses `password=None` it will fail on every invocation; fix
+the loader with `getpass`"), already applied to `commit.py` by `153f40f`. It
+touches only key loading inside `sign()`, and nothing that shapes the
+manifest's content — no include set, no `files[]`, no payload, no baselines, no
+thresholds. It does not block the seal. It is on the record here because "the
+delta is only the keygen removal" would have been a false statement.
+
+### 4. The seal path: `tools/seal.py`, and why
+
+**Choice: `tools/seal.py --config bench/seal.toml`.** Stated as §3.1d requires.
+
+`commit.py` hardcodes `"1.2.0"`, `"relian-bench-v1.2"` and its output filename,
+so sealing v1.3 with it means editing it — and it is inside the manifest it
+produces, so the edit invalidates the ledger it just wrote and the next commit
+needs another re-seal. That is the loop. `tools/seal.py` is unsealed
+(`tools/` is in no include set — asserted), already parameterised, already
+refuses an absent key, and already refuses an `UNAVAILABLE` toolchain probe —
+which is what closes §14's other finding, the v1.2 ledger's permanent
+`"javac": "UNAVAILABLE"` from a sealing machine with no JDK.
+
+`bench/seal.toml` is the only new file under `bench/`, and it sits **outside the
+seal** on purpose: the include set is `corpus`, `harness` and `SPEC.md`, and the
+bench root is none of them. A `seal.toml` inside its own manifest would
+reproduce the `commit.py` trap exactly — every version bump breaking the ledger
+it just produced. (This deliberately differs from `discovery-bench/seal.toml`,
+which *is* inside its own seal; defensible for a tagged, frozen v0.1, not for a
+benchmark on its third version.) What keeps the rules honest instead is
+difference 4: `include_rules` is recorded inside the **signed payload**, so the
+rules are signed as data even though the file supplying them is not.
+
+Verified, not asserted: walking `bench/` with `seal.toml`'s rules reproduces
+**exactly** the 21 files v1.2 records as present — no extras, none missing — and
+exactly one of them (`harness/commit.py`) hashes differently. Two independent
+implementations, the sealer's walk and the verifier's, agree on the blast
+radius.
+
+### 5. `baselines_recorded` and `thresholds` are carried, not recomputed
+
+`commit.py.__main__` re-derives the baselines from `bench/results/*.json` at
+seal time, and its own comment says what they are: *"the measured floor BEFORE
+any solution work (Phase 4 requirement)."* `bench/results/` is in no include
+set — unsealed, mutable, and it **has** moved: `C1_rulebased.json` changed by 66
+lines between `e286cb3` and `153f40f`.
+
+**Measured, and worth stating precisely:** re-deriving *today* produces the
+same three aggregates v1.2 recorded. The 66 lines moved per-program detail
+(P06/P07 entries, branch totals) without moving `ber_overall`, `build_rate` or
+`coverage_branch`. So an equality assertion alone would pass for a recomputing
+sealer and prove nothing — the agreement is a coincidence of timing, and the
+next `bench/results` refresh has no reason to be as kind. The carry-forward
+turns that coincidence into an enforced invariant, and
+`test_carry_forward_reads_the_ledger_and_never_bench_results` asserts the
+**mechanism** (source is the signed v1.2 ledger; `load_carry_forward`'s body
+contains no `results` literal) rather than the outcome.
+
+**Why the source is the signed ledger and not literals in `seal.toml`.**
+Transcribing was the obvious alternative and it is not merely worse, it is
+impossible without lying: `baselines_recorded.B0_null.coverage_branch` is
+`null`, and **TOML has no null**. Writing it out forces either dropping the key
+— changing the block — or substituting a sentinel, which is a constant standing
+in for an unmeasured value and a straight R1 violation. JSON-to-JSON has
+neither problem and makes byte-equality structural rather than clerical.
+
+Measured, on the canonical serialisation the manifest hash is actually taken
+over (`sort_keys=True, separators=(",", ":")`) rather than on `==`:
+
+```
+baselines_recorded   byte-identical: True   (231 bytes)
+thresholds           byte-identical: True   (615 bytes)
+```
+
+### 6. Two defects found while preparing, both pre-ceremony
+
+**a. `expected_absent` was being silently dropped.** `load_config` read it from
+the TOML *top level*. TOML puts a bare key after a table header **inside that
+table**, and `discovery-bench/seal.toml` writes `expected_absent` below
+`[include]`. Invisible there — that value is `[]` and the default was also `[]`.
+Not invisible for v1.3, which declares **eight** absences: they would have been
+dropped, sealing a manifest asserting nothing is absent, which then reports
+eight files MISSING the moment CI verifies it in the public perimeter. Both
+locations are now read; declaring it twice with different values is refused
+rather than resolved by precedence.
+
+**b. `expected_absent` did not mean what a sealing machine needs it to mean.**
+It declares files absent in the **verifying** perimeter, not the sealing one. If
+the ceremony runs without the held-out corpus present, the walk never sees those
+files, they are never recorded, and the manifest declares eight absences it does
+not contain — a seal covering 21 files while claiming to account for 29, with
+`declared_absent_but_present: 0` passing every downstream check.
+`require_declared_absences_are_present` now refuses that. **This is a
+precondition of the ceremony:** the complete benchmark, including the seven
+held-out vector files and `harness/gen_vectors.py`, must be on the sealing
+machine. Contents are never read — only the presence of a matching recorded
+path.
+
+### 7. The loader fix (R4)
+
+`tools/seal.py::load_private_key` passed `password=None` unconditionally.
+Against the re-wrapped release key (2026-09-08, still signing as
+`233bb4406e2de606`) that raises `TypeError` — at the ceremony, with the key
+already unlocked on the operator's desk. It now tests the PEM armour header and
+prompts with `getpass`: never `argv`, never an environment variable, never
+logged, never written. Asserted against the parsed module — no
+passphrase-shaped CLI flag, and no `os.environ` read anywhere in the file. A
+wrong passphrase refuses without echoing either the real or the attempted
+secret, and says `Nothing was signed`.
+
+The `ENCRYPTED`-header test is deliberately the same one-liner `commit.py` uses
+since `153f40f`. Two key loaders that disagree about what "encrypted" means is a
+ceremony that fails at the worst possible moment.
+
+### 8. `vector_counts` — omitted, and why that is the honest option
+
+Attempted, then backed out. Worth recording because the reasoning is the
+interesting part and the outcome needs an operator decision.
+
+`seal.py` had no `vector_counts` equivalent, so v1.3 would be strictly less
+informative than the seal it supersedes. A rehearsal — `build_manifest` on the
+real tree, nothing signed, nothing written — showed why the obvious fix does not
+work. v1.2's block has **14 keys**: a public and a held-out count per program,
+the held-out half summing to **425**, which is the denominator of the published
+held-out BER and the check that the split was not resized between seals.
+
+Three options, and the third is the only clean one:
+
+| Option | Why not |
+|---|---|
+| Glob `*.jsonl` | Works on the operator's complete machine, but means authoring code whose job is to read held-out vectors. Rule 1 / R3 forbid it to the agent. Not written. |
+| Glob `public.jsonl` only | Emits 7 keys where v1.2 has 14. Anyone diffing the two seals reads that as the held-out split having gone to zero. **A partial block is worse than no block.** |
+| Omit it, and say so | ← taken |
+
+`measure_vector_counts` stays in `seal.py`, tested, and `vector_counts_glob` is
+left unset in `bench/seal.toml` with the trade-off and the one-line change
+written into the file. **v1.3 will carry no `vector_counts`, and v1.2 remains
+the provenance anchor for the vector census** — which is already its stated role
+under R7. The corpus is provably unchanged: zero mismatches under `corpus/`, so
+every public vector file is byte-identical to the one v1.2 sealed, and
+`test_the_public_counts_still_match_what_v1_2_sealed` asserts that by value.
+
+**Operator decision, before the ceremony:** setting
+`vector_counts_glob = "corpus/*/vectors/*.jsonl"` produces the full 14-key block
+on a machine that holds the complete benchmark. It is one line, no code change,
+and it is the operator's call because it is their machine and their rule-1
+perimeter — not the agent's.
+
+The rehearsal also found `oracle_toolchain` empty, and that one is a plain gain:
+`bench.yml` compiles every corpus program with `cobc -x program.cbl -o oracle`,
+so the oracle's compiler is the ground truth the BER is measured against.
+`oracle_toolchain = ["cobc"]` now records its exact patch version. v1.2 recorded
+no such block.
+
+### 9. The negative control, repointed rather than deleted
+
+`test_commit_py_is_the_behaviour_being_corrected` fired exactly as its own
+docstring predicted:
+
+> *"If `commit.py` is ever fixed upstream this test goes red and the docstring
+> in `seal.py` needs rewriting — which is the correct outcome, because the
+> justification for duplicating fifty lines would have changed."*
+
+It is now `test_commit_py_now_refuses_on_an_absent_key`, pinning the other side
+of the same line: `sign()` raises, writes no key file, and — asserted
+separately — leaves no `signature` block behind, because a refusal that still
+produces a signature is worse than no refusal.
+
+`tools/seal.py`'s docstring is narrowed from **five** deliberate differences to
+**four**, naming reason ① as retired **by `153f40f`**. The behaviour is not
+retired — the sealer still never generates a key, and
+`test_seal_py_still_never_generates_or_serialises_a_private_key` pins it — what
+is retired is the *contrast*. The docstring now also says which two survivors
+are load-bearing alone: `commit.py` hardcodes its version, tag and output path,
+and it lives inside a manifest, so parameterising it is the act that caused
+this WP.
+
+### 10. Version-number collision — named, not absorbed
+
+`docs/proposals/bench-v1.3-P08_performpara/` proposes a **different** v1.3: a
+corpus-growth version adding `P08_performpara`, sealed by patching `commit.py`'s
+version constants. Its `seal-v1.3.patch` still applies cleanly (checked
+2026-09-10), and applying it would edit a sealed file in order to seal it —
+re-breaking `main` the same way `153f40f` did. Its own "what this patch
+deliberately does NOT do" section also states that `sign()` still mints a fresh
+keypair, which stopped being true at `153f40f`.
+
+The proposal's **substance stands** — out-of-line `PERFORM` is still the largest
+single blocker and R7 still requires sealed coverage first. Only the number
+moves: it is **v1.4**, sealed on top of v1.3, via a new `[seal]` block in
+`bench/seal.toml` rather than a patch to `commit.py`. A banner saying so is at
+the top of both `README.md` and `APPLYING.md`. Nothing was deleted.
+
+### 11. The 13 failures, reconciled
+
+All 13 sit in the two expected families — `tests/test_seal.py` (1) and
+`tests/test_verify_manifest.py` (12). **No third problem.**
+
+The 12 are one upstream cause, not twelve. That file proves each verifier layer
+fails *independently* — "this mutation breaks the payload layer and only the
+payload layer" — and a tree that is already red destroys that isolation, so they
+went red together. Repaired by giving the sandbox a baseline that matches its
+ledger again: `harness/commit.py` is removed from the `copytree` copy under
+`tmp_path` and declared absent, the same treatment the held-out vectors get for
+the same reason (a file this perimeter cannot check is not a checked one, R1).
+The real `bench/` is only ever read.
+
+The five that assert against the real tree could not be repaired that way —
+declaring a file absent while it is present is itself a finding there — so they
+assert **what is now true** instead of skipping and looking green: one mismatch,
+on `harness/commit.py`, payload and signature passing, 29 recorded entries all
+accounted for. The incident is now a regression test, and a *second* mismatched
+file fails it. Their clean-pass counterparts are gated on the v1.3 ledger's
+existence with `TODO(WP-2.6-seal)`, the same pattern WP-2.1 used — they skip
+with a named reason now and start enforcing the moment the ceremony lands,
+with no edit to the test file.
+
+### 12. Workflows
+
+`bench.yml` hardcoded `LEDGER_relian-bench-v1.2.json` in two steps. It now
+resolves `$BENCH_LEDGER` **once** and both steps read it — one assignment cannot
+go half-updated, and a half-updated pointer is what verifies a signature-valid
+v1.2 ledger against a tree matching v1.3: a green gate proving nothing, which is
+green-by-skip with a signature on it. The pre-ceremony fallback to v1.2 is
+**declared and logged**, and rests on one specific ground: v1.3 carries v1.2's
+`thresholds` forward byte-identically, so the R10 gates are the same numbers
+either way — asserted before the ceremony, not assumed. The signature step also
+gained a fingerprint pin it did not have; `harness.commit.verify()` trusts the
+key embedded in the manifest, which proves self-consistency and not authorship
+(T7).
+
+`tests.yml`'s `bench-seal` job points at v1.3 and skips with a named reason plus
+`TODO(WP-2.6-seal)` until the ledger exists, gated on file existence. It uses
+`--from-manifest`, so the include set and declared absences are the signer's
+claim rather than the workflow's — the v1.2 format records neither. It also
+checks the **census**: 29 recorded, 8 declared absent, verified == recorded −
+declared_absent. A v1.3 recording 21 was sealed in a public checkout, and that
+check refuses it here as well as at seal time. `bench-seal` stays in `tests.yml`,
+separate from `bench.yml`, because `bench.yml` copies `heldout.jsonl` into
+`bench/corpus/*/vectors/` at run time and those files are `declared_absent` —
+verification must never run after the fetch.
+
+### 13. What is deliberately NOT here
+
+No ledger. No signature. No tag (v1.2 was never tagged; v1.3 follows the same
+convention). No key operation of any kind. `verify_manifest.py` has no v1.3
+ledger to check and says so, once per run, with a marker.
+
+The discovery ledger is untouched and verified green throughout — 3/3 layers,
+21/21 verified, 0 declared absent, signer `233bb4406e2de606`. `tools/` is
+outside its include set, so changing `tools/seal.py` cannot move it.
+
+### 13a. A worthless pin, found by review and fixed
+
+Added on the first push, and wrong. `bench.yml`'s new signer pin read
+`m['signature']['key_fingerprint']` and compared it to the published value.
+Cursor Bugbot flagged it High on PR #45; it is right, and the finding is worth
+recording because the mistake is subtle and the class of it is one this project
+already has precedent for (WP-2.3.2: a verifier that claims a check it does not
+perform).
+
+`manifest_hash()` is taken over `manifest` MINUS `signature`. The whole
+signature block — `key_fingerprint` included — is therefore **outside what the
+signature commits to**, and costs an attacker nothing to set. Reproduced before
+fixing, on a v1.2 ledger with `ber_heldout_min` forged to `0.10` and re-signed
+with an ephemeral key:
+
+```
+attacker's real fingerprint : 2ef44d775d91e0d6
+declared key_fingerprint    : 233bb4406e2de606      ← the lie, unsigned
+harness.commit.verify()     : True                  ← trusts the embedded key (T7)
+reading the declared field  : ACCEPTS the forgery
+hashing public_key_hex      : REJECTS it
+```
+
+That is the exact T7 attack the pin's own comment claimed to close, and the
+forged `thresholds` is what the scoring step goes on to enforce. **A check that
+claims a property it does not have is worse than no check** — the previous
+`bench.yml` had no pin at all and was honestly unpinned.
+
+Fixed: the signer is derived by hashing `public_key_hex`, which is the key the
+signature was actually verified *with*. The declared field is still
+cross-checked — a manifest disagreeing with its own key is a finding — but it is
+not what the decision rests on. Verified by running the step's script verbatim:
+the real v1.2 ledger passes and reports `signer 233bb4406e2de606 derived from
+public_key_hex`; the forgery exits 1 naming the real signer.
+
+Two tests keep it fixed: a planted red asserting the attack still succeeds
+against the naive check and fails against the derivation, and an assertion on
+`bench.yml`'s own text that the broken form has not returned. They are text
+assertions rather than parsed-workflow ones because PyYAML is not in
+`requirements.lock`.
+
+`tools/seal.py` and `tools/verify_manifest.py` were never affected — both
+already derived. The defect was confined to the workflow line added in this
+package.
+
+### 14. Measured
+
+Local environment matched to the `pytest` job's — CPython, GnuCOBOL 3.1.2.0,
+Temurin `javac 21.0.10`, `requirements.lock`, `RELIAN_REQUIRE_COBC=1` — which is
+what makes the skip profile comparable: 10 baseline skips locally, identical to
+the runner's.
+
+```
+$ python3 -m pytest tests/ -q -rs
+→ 1187 passed, 13 skipped, 0 failed        (was 1136 passed, 13 failed, 10 skipped)
+
+$ python3 tools/verify_manifest.py --ledger bench/LEDGER_relian-bench-v1.2.json \
+    --root bench --include-dirs corpus,harness --include-files SPEC.md \
+    --expect-absent '**/vectors/heldout.jsonl,harness/gen_vectors.py' \
+    --key-fingerprint 233bb4406e2de606
+→ recorded 29 · verified 20 · hash_mismatches 1 (harness/commit.py)
+  missing 0 · declared_absent 8 · unrecorded_on_disk 0
+  payload PASS · signature PASS (signer 233bb4406e2de606)
+  VERDICT: FAIL (2/3; failed: tree)          rc=1
+
+$ python3 tools/verify_manifest.py --ledger \
+    discovery-bench/LEDGER_relian-discovery-bench-v0.1.json \
+    --from-manifest --pin-fingerprint 233bb4406e2de606
+→ VERDICT: PASS (3/3 layers), 21/21 verified, 0 declared absent      rc=0
+
+$ python3 tools/seal.py --config bench/seal.toml --dry-run
+→ SEAL FAILED: refusing to seal: expected_absent declares [the eight] but the
+  include walk recorded no file matching them [...] Seal on a machine that
+  holds the complete benchmark.                                      rc=1
+```
+
+The last one is the intended result in this perimeter, and it is the ceremony's
+first precondition made mechanical rather than remembered.
+
+Carry-forward, on the canonical serialisation the manifest hash is taken over:
+
+```
+baselines_recorded   byte-identical to v1.2: True   (231 bytes)
+thresholds           byte-identical to v1.2: True   (615 bytes)
+```
+
+`EXPECTED_PASSES` 1149 → 1187, `EXPECTED_SKIPS` 10 → 13. The three new skips are
+the only ones in the suite expected to disappear; after the ceremony they run
+and the numbers become 1190 / 10.
+
+Scope: `git status --short -- bench/` shows `bench/seal.toml` and nothing else.
+`git status --short -- discovery-bench/ transpiler/ src/` is empty.
+
+### 15. Preconditions handed to the ceremony
+
+1. `cobc`, `javac`, `java` all answer. `seal.py` refuses on `UNAVAILABLE` —
+   this is the §14 gap being closed and a seal recording it again wastes the
+   session.
+2. **The complete benchmark on the sealing machine**, including the seven
+   held-out vector files and `harness/gen_vectors.py`. v1.2 records 29 files,
+   8 declared absent; a public checkout walks 21 and `seal.py` now refuses
+   rather than silently shrinking the seal.
+3. `git status --short` empty; HEAD on the seal branch.
+4. Decide `vector_counts_glob` (§8) — one line, operator's rule-1 perimeter.
+5. Expect a `getpass` prompt for the passphrase-encrypted key. Confirm the
+   printed `key_fingerprint` is `233bb4406e2de606`; anything else, stop.
+6. Expected after sealing:
+   `recorded 29 · verified 21 · declared_absent 8 · mismatches 0`.

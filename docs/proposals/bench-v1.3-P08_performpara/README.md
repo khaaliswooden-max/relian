@@ -1,5 +1,46 @@
 # Proposal — RELIAN-BENCH v1.3 corpus program P08_performpara
 
+> ## ⚠ VERSION NUMBER SUPERSEDED — this proposal is now v1.4, not v1.3
+>
+> **Read this before applying anything in this directory.**
+>
+> `v1.3` was taken by **WP-2.6**, a pure RE-SEAL of the existing tree with no
+> corpus change. That re-seal is not optional and could not wait for this
+> proposal: commit `153f40f` removed `sign()`'s silent-keygen fallback from
+> `bench/harness/commit.py`, `bench/harness/` is an include dir of the v1.2
+> seal, and the tree therefore stopped matching the manifest. `main` went red
+> and the re-seal is what fixes it.
+>
+> **This proposal's substance is unaffected and still stands.** Out-of-line
+> `PERFORM` remains the largest single blocker and R7 still requires sealed
+> coverage before any implementation merges. Only the version number moves:
+> this becomes **v1.4**, sealed on top of v1.3.
+>
+> **Two things in `seal-v1.3.patch` are now actively wrong, not merely stale:**
+>
+> 1. **It edits `bench/harness/commit.py`** to bump the version, tag and output
+>    path. That is precisely the loop WP-2.6 exists to break -- `commit.py` is
+>    inside the manifest it produces, so editing it to seal a version
+>    invalidates the version it just sealed, and the next commit needs another
+>    re-seal. Seal with `tools/seal.py --config bench/seal.toml` instead, which
+>    is unsealed, parameterised, and refuses both an absent key and an
+>    `UNAVAILABLE` toolchain probe. A v1.4 needs a new `[seal]` block in that
+>    config, not a patch to `commit.py`.
+>
+> 2. **Its "two things this patch deliberately does NOT do" section says
+>    `sign()` still mints a fresh keypair when the key is absent.** That was
+>    true when written and is not true now -- `153f40f` fixed it, and fixing it
+>    is what caused WP-2.6.
+>
+> Also note `baselines_recorded`: a v1.4 must carry v1.2's block forward
+> byte-identically, as v1.3 does (`[carry_forward]` in `bench/seal.toml`). It
+> is the measured floor from before any solution work, and `commit.py`
+> re-derives it from the unsealed, mutable `bench/results/` at seal time.
+>
+> Verified 2026-09-10: `git apply --check seal-v1.3.patch` still succeeds, so
+> this banner is the only thing standing between that patch and a re-broken
+> seal.
+
 **Status: DRAFT. Not part of the benchmark.** This directory lives under
 `docs/proposals/`, not `bench/`. Nothing here is sealed, scored, or authoritative
 until the operator acts on it (see "What the operator must do"). It is drafted
